@@ -84,8 +84,9 @@ button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); bor
 'use strict';
 const $ = (id) => document.getElementById(id);
 const R = WaveRoteiro;
-const mini = WaveHistoria.criarPalco({ raiz: $('mini'), roteiro: R, miniatura: true });
 let palco = null, visto = 0, inicio = null, cenaDesde = null, cenaAtual = null;
+// A miniatura não recebe o sinal (fica com a ilustração), mas usa o mesmo título da TV na cena ao vivo.
+const mini = WaveHistoria.criarPalco({ raiz: $('mini'), roteiro: R, miniatura: true, dadosVivos: () => (palco ? { fonte: palco.fonte } : null) });
 
 const canal = WaveHistoria.criarCanal('apresentador', (msg) => {
   if (msg.tipo !== 'estado') return;
@@ -107,7 +108,8 @@ const segundos = (c, v) => (c.seg && (c.seg[v] || c.seg.completa)) || 0;
 function mostrar() {
   const c = cenaPorId(palco.cenaId), i = palco.indice, n = palco.ordem.length;
   $('cap').textContent = palco.aberta ? `${c.cap ? R.capitulos[c.cap] + ' · ' : ''}cena ${i + 1} de ${n}` : 'História fechada na TV (abre ao avançar)';
-  $('titulo').textContent = c.titulo;
+  // na cena ao vivo, o mesmo título que a TV mostra (depende de onde vem o sinal)
+  $('titulo').textContent = c.id === 'aovivo' ? ({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte] || (palco.fonte ? c.titulo : c.tituloSemFonte) || c.titulo) : c.titulo;
   $('notas').textContent = c.notas || '';
   const prox = palco.ordem[i + 1];
   $('proxima').textContent = prox ? cenaPorId(prox).titulo : 'Fim. Convide para o Desafio Ninja.';

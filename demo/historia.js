@@ -64,7 +64,8 @@
 
   // Interpola as poses. Devolve, para cada camada visível, os parâmetros e a presença p (0 a 1).
   // Janelas (u = T − i): saídas em [0,12; 0,55], entradas em [0,40; 0,88], mudanças em [0,15; 0,85].
-  // Cada camada pode trocar as janelas na pose de destino: `entrada`, `saida` e `mover`.
+  // Cada camada pode trocar as janelas na pose de destino: `entrada`, `saida` e `mover` (este também
+  // por parâmetro: { x: [a, b], _: [a, b] }).
   // Perto de cada cena inteira (±0,12) nada se mexe.
   function poseEm(T, ordem, poses, padroes) {
     const n = ordem.length;
@@ -78,12 +79,20 @@
       const pa = a ? (a.p ?? 1) : 0, pb = b ? (b.p ?? 1) : 0;
       if (!pa && !pb) continue;
       const de = { ...padroes[nome], ...(a || b) }, para = { ...padroes[nome], ...(a || {}), ...(b || {}) };
-      const km = b && b.mover ? curvas.suave(janela(u, b.mover[0], b.mover[1])) : k;
+      const mv = b && b.mover;
+      const kDe = (chave) => {
+        const w = mv && (Array.isArray(mv) ? mv : mv[chave] || mv._);
+        return w ? curvas.suave(janela(u, w[0], w[1])) : k;
+      };
       const q = {};
       for (const chave of Object.keys(para)) {
         if (chave === 'p' || chave === 'entrada' || chave === 'saida' || chave === 'mover') continue;
+        const km = kDe(chave);
         q[chave] = typeof para[chave] === 'number' && typeof de[chave] === 'number' ? misturar(de[chave], para[chave], km) : (km < 0.5 ? de[chave] : para[chave]);
       }
+      // quem anda de um lugar para outro (pessoa) precisa saber quanto e em que ponto do caminho está
+      q.km = kDe('x');
+      q.vx = typeof para.x === 'number' && typeof de.x === 'number' ? para.x - de.x : 0;
       if (pa === pb) { q.p = pa; q.dir = 0; }
       else if (pb > pa) { const [w0, w1] = (b && b.entrada) || [0.4, 0.88]; q.p = misturar(pa, pb, curvas.entra(janela(u, w0, w1))); q.dir = 1; }
       else { const [w0, w1] = (b && b.saida) || [0.12, 0.55]; q.p = misturar(pa, pb, curvas.sai(janela(u, w0, w1))); q.dir = -1; }
@@ -156,9 +165,11 @@
 
   // As linhas empilhadas, no mesmo estilo da tela principal, dentro de um retângulo r.
   // `visiveis` revela de baixo (mais nova) para cima; a linha de cima da revelação entra em fade.
+  // `relevo` (0 a 1) achata o desenho; `juntar` (0 a 1) leva todas as linhas para a de baixo.
   function desenharLinhas(c, r, ls, frac, cor, esp, opc = {}) {
     const n = opc.linhas || 48, realce = opc.realce ?? 3, visiveis = opc.visiveis ?? Infinity;
-    const topo = r.y, base = r.y + r.h, passo = (base - topo) / n, altura = passo * 9;
+    const juntar = opc.juntar ?? 0;
+    const topo = r.y, base = r.y + r.h, passo = (base - topo) / n, altura = passo * (opc.alturaRelevo ?? 9) * (opc.relevo ?? 1);
     const margem = r.w * 0.12, largura = r.w - 2 * margem;
     c.lineJoin = 'round'; c.strokeStyle = cor.tinta; c.fillStyle = cor.fundo;
     const alfa0 = c.globalAlpha;
@@ -166,7 +177,7 @@
       const idade = ls.length - 1 - i;
       const mostrar = limitar(visiveis - idade);
       if (mostrar <= 0) continue;
-      const y0 = base - (idade + frac) * passo;
+      const y0 = base - (idade + frac) * passo * (1 - juntar);
       if (y0 < topo - passo) continue;
       const { a, d } = ls[i];
       const uteis = [];
@@ -194,12 +205,114 @@
 
   // Constantes das cenas (em unidades da caixa do palco: 0 a 1 na horizontal e na vertical).
   const CHAO = 0.8, TAM_PLACA = 0.13, HASTE = 0.2;
+  const Y_ANTENA = CHAO - HASTE - TAM_PLACA / 2;               // altura de onde sai o sinal das placas
+  const SALA = { x0: 0.03, x1: 0.97, teto: 0.1 };
   const BARRAS = { x0: 0.2, x1: 0.97, base: 0.8, alt: 0.56 };
   const PILHA = { x: 0, y: 0.1, w: 1, h: 0.88 };
+  const MEDIDOR = { y: 0.62, h: 0.36 };                        // o número e o gráfico, embaixo das linhas
+  const ALTURA_PESSOA = 0.34;
 
-  let cacheSint = null, cachePerfil = null;
-  const dadosSint = () => cacheSint || (cacheSint = sinteticas());
+  // Ilustração do número: um ciclo de 24 s que se repete. Sala calma, alguém anda, calma de novo,
+  // um tremidinho curto (que fica abaixo do limite) e calma. É só para explicar: os dados são sintéticos.
+  const CICLO = 24;
+  function agitoNoTempo(t) {
+    t = ((t % CICLO) + CICLO) % CICLO;
+    const sobe = (a, b) => curvas.suave(janela(t, a, b));
+    return 0.22 * (sobe(5, 6.5) - sobe(13, 14.5)) + 0.013 * (sobe(18.4, 18.9) - sobe(19.6, 20.2));
+  }
+
+  let cacheSint = null, cachePerfil = null, cacheNumero = null;
+  const dadosSint = () => cacheSint || (cacheSint = sinteticas(7, CICLO * 10));
   const perfil = () => cachePerfil || (cachePerfil = perfilParado());
+  const ciclico = (i, n) => ((i % n) + n) % n;
+
+  // As 49 leituras de ilustração que terminam no `tempo`. `agito` (0 a 1) mistura a sala parada com
+  // alguém andando, começando pelas linhas de baixo (as mais novas); `roteiro` usa a linha do tempo acima.
+  function pilhaSint(tempo, agito, roteiro) {
+    const { parado, mexendo } = dadosSint(), N = parado.length;
+    const pos = tempo / 0.1, fim = Math.floor(pos);
+    const ls = [];
+    for (let idade = 48; idade >= 0; idade--) {
+      const r = fim - idade, i = ciclico(r, N);
+      const ag = misturar(limitar(agito * 1.6 - (idade / 47) * 0.6), agitoNoTempo(r * 0.1), roteiro);
+      if (ag <= 0) { ls.push(parado[i]); continue; }
+      if (ag >= 1) { ls.push(mexendo[i]); continue; }
+      const a = new Float64Array(64), d = new Float64Array(64);
+      for (let k = 0; k < 64; k++) { a[k] = misturar(parado[i].a[k], mexendo[i].a[k], ag); d[k] = misturar(parado[i].d[k], mexendo[i].d[k], ag); }
+      ls.push({ a, d });
+    }
+    return { ls, frac: pos - fim };
+  }
+
+  // O mesmo cálculo da tela de verdade, aplicado à ilustração: o tremor (desvio padrão de cada
+  // subportadora em 1 s, médio) a cada 0,2 s, dividido pela média da sala parada; limite = média + 3
+  // desvios (no mínimo 1,3×); 3 medidas acima viram "movimento", 5 abaixo voltam a "parado".
+  function serieNumero() {
+    if (cacheNumero) return cacheNumero;
+    const { parado, mexendo } = dadosSint(), N = parado.length;
+    const mist = parado.map((p, i) => {
+      const ag = agitoNoTempo(i * 0.1), a = new Float64Array(64);
+      for (let k = 0; k < 64; k++) a[k] = misturar(p.a[k], mexendo[i].a[k], ag);
+      return a;
+    });
+    const quietas = parado.map((p) => p.a);
+    const tremor = (ls, fim) => {
+      let soma = 0, cont = 0;
+      for (let k = 0; k < 64; k++) {
+        let m = 0;
+        for (let j = 0; j < 10; j++) m += ls[ciclico(fim - j, N)][k];
+        m /= 10;
+        if (m < 0.5) continue;
+        let v = 0;
+        for (let j = 0; j < 10; j++) v += (ls[ciclico(fim - j, N)][k] - m) ** 2;
+        soma += Math.sqrt(v / 10); cont++;
+      }
+      return soma / cont;
+    };
+    const passos = N / 2, serie = [], calma = [];
+    for (let m = 0; m < passos; m++) { serie.push(tremor(mist, 2 * m + 1)); calma.push(tremor(quietas, 2 * m + 1)); }
+    const media = calma.reduce((s, x) => s + x, 0) / passos;
+    const desvio = Math.sqrt(calma.reduce((s, x) => s + (x - media) ** 2, 0) / passos);
+    const lim = Math.max(media + 3 * desvio, media * 1.3) / media;
+    const rel = serie.map((v) => v / media), dets = new Array(passos).fill(false);
+    let det = false, acima = 0, abaixo = 0;
+    for (let volta = 0; volta < 2; volta++) {         // duas voltas: o ciclo se repete, então começa já "aquecido"
+      for (let m = 0; m < passos; m++) {
+        if (rel[m] > lim) { acima++; abaixo = 0; } else { abaixo++; acima = 0; }
+        if (!det && acima >= 3) det = true; else if (det && abaixo >= 5) det = false;
+        dets[m] = det;
+      }
+    }
+    return (cacheNumero = { rel, dets, lim });
+  }
+
+  // O que o medidor de ilustração mostra no `tempo`: valor atual e os últimos 20 s.
+  function medidaSint(tempo) {
+    const S = serieNumero(), n = S.rel.length;
+    const m = ciclico(tempo, CICLO) / 0.2, i = Math.floor(m);
+    const serie = [], dets = [];
+    for (let j = 99; j >= 0; j--) { const k = ciclico(i - j, n); serie.push(S.rel[k]); dets.push(S.dets[k]); }
+    const ligado = S.dets[ciclico(i, n)];
+    return { valor: misturar(S.rel[ciclico(i, n)], S.rel[ciclico(i + 1, n)], m - i), serie, dets, lim: S.lim, ligado, rotulo: ligado ? 'movimento' : 'parado' };
+  }
+
+  // As 16 "gravações" da cena do método (5 leituras cada): vazio, parado, andando e queda (forte e depois quieta).
+  let cacheGravacoes = null;
+  function gravacoes() {
+    if (cacheGravacoes) return cacheGravacoes;
+    const { parado, mexendo } = dadosSint();
+    const AGITO = [[0, 0, 0, 0, 0], [0.04, 0.04, 0.04, 0.04, 0.04], [0.8, 0.8, 0.8, 0.8, 0.8], [0, 0.15, 1, 0.05, 0]];
+    cacheGravacoes = AGITO.map((ags, r) => [0, 1, 2, 3].map((s) => ags.map((m, j) => {
+      const i = 20 + s * 41 + r * 13 + j, a = new Float64Array(64), d = new Float64Array(64);
+      for (let k = 0; k < 64; k++) { a[k] = misturar(parado[i].a[k], mexendo[i].a[k], m); d[k] = misturar(parado[i].d[k], mexendo[i].d[k], m); }
+      return { a, d };
+    })));
+    return cacheGravacoes;
+  }
+
+  const fmtX = (x) => `${x < 10 ? x.toFixed(1).replace('.', ',') : Math.round(x)}×`;
+  // Progresso linear de uma camada que está entrando (a presença p vem com desaceleração; aqui ela é desfeita).
+  const linear = (q) => (q.dir === 1 ? 1 - Math.cbrt(1 - limitar(q.p)) : 1);
 
   // Pontos da curva nas duas formas: topo das barras (forma 0) e linha mais nova da pilha (forma 1).
   function pontosCurva(G) {
@@ -220,6 +333,46 @@
   }
 
   function linha(c, x0, y0, x1, y1) { c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.stroke(); }
+  function tracejado(c, G, sim) { c.setLineDash(sim ? [4 * G.dpr, 5 * G.dpr] : []); }
+  function pilula(c, x, y, w, h) {
+    const r = h / 2;
+    c.beginPath(); c.moveTo(x + r, y); c.lineTo(x + w - r, y); c.arc(x + w - r, y + r, r, -Math.PI / 2, Math.PI / 2);
+    c.lineTo(x + r, y + h); c.arc(x + r, y + r, r, Math.PI / 2, (3 * Math.PI) / 2); c.closePath();
+  }
+  function rotulo(c, G, cor, texto, x, y, opc = {}) {
+    c.fillStyle = opc.cor || cor.apagado;
+    c.font = `${Math.round(Math.max(11 * G.dpr, G.bh * (opc.tam || 0.036)))}px ${G.sans}`;   // no celular, não menor que 11 px
+    c.textAlign = opc.alinhar || 'center'; c.textBaseline = opc.base || 'top';
+    c.fillText(texto, x, y);
+  }
+
+  // Um caminho de vários segmentos: comprimento total e o ponto numa fração dele.
+  function trajeto(pts) {
+    const segs = [];
+    let L = 0;
+    for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(l); L += l; }
+    return {
+      em(t) {
+        let d = limitar(t) * L;
+        for (let i = 0; i < segs.length; i++) {
+          if (d <= segs[i] || i === segs.length - 1) { const f = segs[i] ? limitar(d / segs[i]) : 0; return [misturar(pts[i][0], pts[i + 1][0], f), misturar(pts[i][1], pts[i + 1][1], f)]; }
+          d -= segs[i];
+        }
+        return pts[pts.length - 1];
+      },
+      tracar(c, t) {        // desenha só até a fração t, como uma caneta
+        let d = limitar(t) * L;
+        c.beginPath(); c.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 0; i < segs.length; i++) {
+          if (d >= segs[i]) { c.lineTo(pts[i + 1][0], pts[i + 1][1]); d -= segs[i]; continue; }
+          const f = segs[i] ? d / segs[i] : 0;
+          c.lineTo(misturar(pts[i][0], pts[i + 1][0], f), misturar(pts[i][1], pts[i + 1][1], f));
+          break;
+        }
+        c.stroke();
+      },
+    };
+  }
 
   function desenharPlaca(c, G, q, cor, letra) {
     const p = q.p;
@@ -246,31 +399,241 @@
     c.fillText(letra, x, topo - s * 0.22);
   }
 
-  // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "ilustração".
+  // Pessoa de palitinho com os pés no chão, em x. `deitada` (0 a 1) gira até ficar caída no chão,
+  // `fantasma` (0 a 1) vira tracejada, `amp` balança pernas e braços (andando), `halo` abre um vão
+  // em volta do traço para o que passa atrás parecer passar atrás. `ergue` levanta um braço com um aparelho.
+  function desenharPessoa(c, G, cor, o) {
+    const H = G.bh * ALTURA_PESSOA * (o.esc ?? 1), dei = o.deitada || 0, fan = o.fantasma || 0;
+    const amp = o.amp || 0, s = Math.sin(o.fase || 0), r = H * 0.075, erg = o.ergue || 0;
+    const abre = H * 0.07 * (1 - amp), pe = s * H * 0.17 * amp, mao = s * H * 0.12 * amp;
+    // caída, os membros vão para o lado de cima do corpo (depois de girar): um braço passa da cabeça, uma perna dobra
+    const mist = (de, para) => [misturar(de[0], para[0], dei), misturar(de[1], para[1], dei)];
+    const maoE = mist([misturar(-H * 0.1 * (1 - amp) - mao, -H * 0.24, erg), misturar(-0.43 * H, -0.62 * H, erg)], [H * 0.2, -0.98 * H]);
+    const maoD = mist([H * 0.1 * (1 - amp) + mao, -0.43 * H], [H * 0.14, -0.52 * H]);
+    const pe1 = mist([-abre + pe, 0], [H * 0.17, -0.06 * H]), pe2 = mist([abre - pe, 0], [H * 0.03, 0]);
+    const tracos = [
+      [[0, -0.8 * H], [0, -0.44 * H]],
+      [[0, -0.44 * H], pe1], [[0, -0.44 * H], pe2],
+      [[0, -0.72 * H], maoE], [[0, -0.72 * H], maoD],
+    ];
+    const cab = [0, -0.88 * H];
+    c.save();
+    c.translate(G.X(o.x), G.Y(CHAO) - dei * r * 1.15);   // cai girando sobre os pés (a cabeça vai para a esquerda)
+    c.rotate((-Math.PI / 2) * dei);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    const alfa = o.alfa ?? 1, tinta = o.cor || cor.tinta;
+    const tracar = (larg, estilo) => {
+      c.lineWidth = larg; c.strokeStyle = estilo;
+      c.beginPath();
+      for (const [[x0, y0], [x1, y1]] of tracos) { c.moveTo(x0, y0); c.lineTo(x1, y1); }
+      c.moveTo(cab[0] + r, cab[1]); c.arc(cab[0], cab[1], r, 0, 2 * Math.PI);
+      if (erg > 0.5 && o.aparelho) c.rect(maoE[0] - H * 0.075, maoE[1] - H * 0.11, H * 0.06, H * 0.1);
+      c.stroke();
+    };
+    if (o.halo && fan < 1) {
+      c.globalAlpha = alfa * (1 - fan);
+      tracar(6 * G.dpr, cor.fundo);
+      c.fillStyle = cor.fundo; c.beginPath(); c.arc(cab[0], cab[1], r, 0, 2 * Math.PI); c.fill();
+    }
+    if (fan < 1) { c.globalAlpha = alfa * (1 - fan); tracar(1.7 * G.dpr, tinta); }
+    if (fan > 0) { c.globalAlpha = alfa * fan * 0.75; c.setLineDash([3 * G.dpr, 4 * G.dpr]); tracar(1.4 * G.dpr, tinta); c.setLineDash([]); }
+    c.restore();
+  }
+
+  // O número grande, "movimento"/"parado" e o gráfico dos últimos 20 s com a linha do limite, como na
+  // tela principal. d = { valor, serie (×, do mais antigo ao mais novo), dets, lim, ligado, rotulo }.
+  function desenharMedidor(c, G, cor, r, d, alfa, mostra = 1) {
+    if (alfa <= 0.001) return;
+    const tam = r.h * 0.6;
+    c.globalAlpha = alfa; c.fillStyle = cor.tinta;
+    c.font = `${Math.round(tam)}px ${G.serif}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    c.fillText(Number.isFinite(d.valor) ? fmtX(d.valor) : '–', r.x, r.y + tam * 0.86);
+    const ft = Math.round(Math.max(11 * G.dpr, r.h * 0.105)), ly = r.y + r.h * 0.84;
+    c.font = `${ft}px ${G.sans}`; c.textBaseline = 'middle';
+    if (d.ligado) {
+      const w = c.measureText(d.rotulo).width + ft * 1.3;
+      pilula(c, r.x, ly - ft * 0.85, w, ft * 1.7); c.fill();
+      c.fillStyle = cor.fundo; c.fillText(d.rotulo, r.x + ft * 0.65, ly);
+    } else { c.fillStyle = cor.apagado; c.fillText(d.rotulo, r.x, ly); }
+    // gráfico: escala de raiz quadrada a partir de 0,6× (a sala vazia fica no meio, um salto grande não achata o resto)
+    const gx = r.x + r.w * 0.4, gw = r.w * 0.6, gy = r.y + r.h * 0.06, gh = r.h * 0.86, N = 100;
+    const passo = gw / (N - 1), xs = (i, n) => gx + gw - (n - 1 - i) * passo;
+    c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta;
+    c.globalAlpha = alfa * 0.3; c.fillRect(gx, gy + gh - G.dpr, gw * mostra, G.dpr);
+    const s = d.serie || [], n = s.length;
+    if (!Number.isFinite(d.lim) || n < 2) return;
+    let teto = d.lim * 2.2;
+    for (const v of s) teto = Math.max(teto, v * 1.08);
+    const PISO = 0.6, y = (v) => gy + gh - G.dpr - Math.sqrt(Math.max(0, v - PISO) / (teto - PISO)) * (gh - 3 * G.dpr);
+    c.save();
+    c.beginPath(); c.rect(gx - 4 * G.dpr, gy - 4 * G.dpr, (gw + 8 * G.dpr) * mostra, gh + 8 * G.dpr); c.clip();
+    c.globalAlpha = alfa * 0.14;
+    for (let i = 0; i < n; i++) {
+      if (!d.dets[i] || d.dets[i - 1]) continue;
+      let f = i; while (f + 1 < n && d.dets[f + 1]) f++;
+      c.fillRect(xs(i, n) - passo / 2, gy, xs(f, n) - xs(i, n) + passo, gh);
+    }
+    c.globalAlpha = alfa * 0.7; c.lineWidth = G.dpr; tracejado(c, G, true);
+    linha(c, gx, y(d.lim), gx + gw, y(d.lim)); tracejado(c, G, false);
+    c.globalAlpha = alfa; c.lineWidth = 1.8 * G.dpr; c.lineJoin = 'round';
+    c.beginPath();
+    s.forEach((v, i) => { const px = xs(i, n), py = y(v); i ? c.lineTo(px, py) : c.moveTo(px, py); });
+    c.stroke();
+    c.restore();
+    c.globalAlpha = alfa * mostra;
+    rotulo(c, G, cor, 'limite', gx + gw, y(d.lim) - G.bh * 0.012, { alinhar: 'right', base: 'bottom', tam: 0.03 });
+  }
+
+  // Piano de 88 teclas (52 brancas) e a sequência de saltos de frequência da cena da Hedy Lamarr.
+  const PIANO = (() => {
+    const teclas = [];
+    let b = 0;
+    for (let k = 0; k < 88; k++) {
+      const preta = [1, 3, 6, 8, 10].includes((k + 9) % 12);   // a primeira tecla é um lá
+      teclas.push({ preta, branca: preta ? b - 1 : b });
+      if (!preta) b++;
+    }
+    return { teclas, brancas: b };
+  })();
+  const SALTOS = (() => {
+    const rnd = mulberry32(1942), s = [];
+    while (s.length < 48) { const k = 4 + Math.floor(rnd() * 80); if (!s.length || Math.abs(k - s[s.length - 1]) > 6) s.push(k); }
+    return s;
+  })();
+
+  // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "Ilustração".
   const CAMADAS = {
-    chao: { padrao: { x0: 0, x1: 1 } },
+    sala: { padrao: {} },
+    ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
+    casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0 } },
+    chao: { padrao: { x0: 0, x1: 1, cresce: 1 } },
+    raios: { padrao: {} },
     pacotes: { padrao: {} },
+    roteador: { padrao: { x: 0.2, y: 0.42, prat: -1 } },
+    camera: { padrao: { risco: 0 } },
     placaA: { padrao: { x: 0.14, esc: 1 } },
     placaB: { padrao: { x: 0.86, esc: 1 } },
+    icones: { padrao: {} },
+    vulto: { padrao: { x: 0.86 } },
+    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, fantasma: 0 } },
     barras: { padrao: {}, sintetica: true },
-    pilha: { padrao: { agito: 0 }, sintetica: true },
+    pilha: { padrao: { agito: 0, roteiro: 0, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0 }, sintetica: true },
     curva: { padrao: { forma: 0 }, sintetica: true },
+    medidor: { padrao: {}, sintetica: true },
+    vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0 } },
+    grade: { padrao: { agrupar: 1 }, sintetica: true },
+    resultado: { padrao: {} },
+    teclas: { padrao: {} },
   };
   const PADROES = Object.fromEntries(Object.entries(CAMADAS).map(([k, v]) => [k, v.padrao]));
 
+  // Cada desenho recebe (contexto, geometria, parâmetros da camada, cores, tempo, todas as camadas, extras).
+  // q.p é a presença (0 a 1) e q.dir diz se a camada está entrando (1), saindo (−1) ou parada (0).
   const DESENHOS = {
+    sala(c, G, q, cor) {
+      // paredes e teto: entram subindo dos cantos do chão e se encontram no meio do teto
+      const x0 = G.X(SALA.x0), x1 = G.X(SALA.x1), yc = G.Y(CHAO), yt = G.Y(SALA.teto);
+      const parede = yc - yt, meio = (x1 - x0) / 2, d = (q.dir === 0 ? 1 : curvas.suave(q.p)) * (parede + meio);
+      c.globalAlpha = 0.55 * limitar(q.p * 2); c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
+      for (const [xb, lado] of [[x0, 1], [x1, -1]]) {
+        c.beginPath(); c.moveTo(xb, yc);
+        if (d <= parede) c.lineTo(xb, yc - d); else { c.lineTo(xb, yt); c.lineTo(xb + lado * (d - parede), yt); }
+        c.stroke();
+      }
+    },
+    ondas(c, G, q, cor, amb) {
+      // anéis saindo do roteador; dentro da área (sala ou casa) são cheios, fora (vaza) tracejados
+      const ox = G.X(q.ox), oy = G.Y(q.oy);
+      const x0 = G.X(q.cx0), x1 = G.X(q.cx1), xm = (x0 + x1) / 2, yc = G.Y(CHAO), yt = G.Y(q.ctopo), ya = G.Y(q.ctopo - q.cap);
+      const forma = () => { c.moveTo(x0, yc); c.lineTo(x0, yt); c.lineTo(xm, ya); c.lineTo(x1, yt); c.lineTo(x1, yc); c.closePath(); };
+      const R = Math.max(...[[x0, ya], [x0, yc], [x1, ya], [x1, yc]].map(([x, y]) => Math.hypot(x - ox, y - oy)));
+      const forca = q.dir === 0 ? 1 : q.p;
+      const aneis = (Rmax, alfa) => {
+        for (let i = 0; i < 6; i++) {
+          const f = (amb * 0.2 + i / 6) % 1;
+          c.globalAlpha = alfa * Math.pow(1 - f, 1.2);
+          c.beginPath(); c.arc(ox, oy, 6 * G.dpr + f * Rmax, 0, 2 * Math.PI); c.stroke();
+        }
+      };
+      c.strokeStyle = cor.tinta; c.lineWidth = 1.2 * G.dpr;
+      c.save(); c.beginPath(); forma(); c.clip(); aneis(R, 0.55 * forca); c.restore();
+      if (q.vaza > 0.01) {
+        c.save();
+        c.beginPath(); c.rect(G.X(0), G.Y(0), G.bw, G.bh); forma(); c.clip('evenodd');
+        tracejado(c, G, true); aneis(R * 1.5, 0.45 * forca * q.vaza); tracejado(c, G, false);
+        c.restore();
+      }
+    },
+    casa(c, G, q, cor) {
+      const x0 = G.X(q.cx - q.larg / 2), x1 = G.X(q.cx + q.larg / 2), xm = G.X(q.cx);
+      const yc = G.Y(CHAO), yt = G.Y(CHAO - q.alt), ya = G.Y(CHAO - q.alt - q.tel);
+      const t = linear(q), parede = yc - yt, telhado = Math.hypot(xm - x0, yt - ya), d = curvas.suave(t) * (parede + telhado);
+      c.globalAlpha = q.dir === -1 ? q.p : 1; c.strokeStyle = cor.tinta; c.lineWidth = 1.6 * G.dpr; c.lineJoin = 'round';
+      for (const xb of [x0, x1]) {
+        c.beginPath(); c.moveTo(xb, yc);
+        if (d <= parede) c.lineTo(xb, yc - d);
+        else { const f = (d - parede) / telhado; c.lineTo(xb, yt); c.lineTo(misturar(xb, xm, f), misturar(yt, ya, f)); }
+        c.stroke();
+      }
+      if (q.sino > 0.01) {
+        // um sino dentro da casa: o alarme
+        const s = parede * 0.5, bx = xm, by = misturar(yc, yt, 0.5);
+        c.globalAlpha *= q.sino * limitar(t * 2 - 1);
+        c.lineWidth = 1.4 * G.dpr;
+        c.beginPath();
+        c.moveTo(bx - s * 0.5, by + s * 0.3);
+        c.quadraticCurveTo(bx - s * 0.42, by - s * 0.55, bx, by - s * 0.55);
+        c.quadraticCurveTo(bx + s * 0.42, by - s * 0.55, bx + s * 0.5, by + s * 0.3);
+        c.closePath(); c.stroke();
+        c.beginPath(); c.arc(bx, by + s * 0.44, s * 0.09, 0, 2 * Math.PI); c.stroke();
+      }
+    },
     chao(c, G, q, cor) {
-      const x0 = G.X(q.x0), x1 = G.X(q.x1), meio = (x0 + x1) / 2, meia = ((x1 - x0) / 2) * curvas.entra(q.p);
+      const x0 = G.X(q.x0), x1 = G.X(q.x1), meio = (x0 + x1) / 2;
+      const meia = ((x1 - x0) / 2) * (q.dir === 1 ? misturar(1, curvas.entra(q.p), q.cresce) : curvas.entra(q.p));
       c.globalAlpha = Math.min(1, q.p * 1.4) * 0.55;
       c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
       linha(c, meio - meia, G.Y(CHAO), meio + meia, G.Y(CHAO));
     },
-    placaA(c, G, q, cor) { desenharPlaca(c, G, q, cor, 'A'); },
-    placaB(c, G, q, cor) { desenharPlaca(c, G, q, cor, 'B'); },
+    raios(c, G, q, cor, amb, prm) {
+      // os caminhos de A até B: direto, pelo teto, pelo chão e pela pessoa (destacado)
+      const A = prm.placaA, B = prm.placaB;
+      if (!A || !B) return;
+      const ya = G.Y(Y_ANTENA), xa = G.X(A.x), xb = G.X(B.x), xm = (xa + xb) / 2;
+      const px = G.X(prm.pessoa ? prm.pessoa.x : 0.66) - 9 * G.dpr, py = G.Y(CHAO - ALTURA_PESSOA * 0.66);
+      const lista = [
+        { pts: [[xa, ya], [xb, ya]] },
+        { pts: [[xa, ya], [xm, G.Y(SALA.teto)], [xb, ya]] },
+        { pts: [[xa, ya], [xm, G.Y(CHAO)], [xb, ya]] },
+        { pts: [[xa, ya], [px, py], [xb, ya]], forte: true },
+      ];
+      const t = linear(q), alfa = q.dir === -1 ? q.p : 1;
+      c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineJoin = 'round'; c.lineCap = 'round';
+      lista.forEach((cm, i) => {
+        const pk = curvas.suave(limitar(t * 1.9 - i * 0.3));
+        if (pk <= 0) return;
+        const tr = trajeto(cm.pts);
+        c.lineWidth = (cm.forte ? 1.5 : 1.1) * G.dpr;
+        c.globalAlpha = alfa * (cm.forte ? 0.9 : 0.42);
+        tr.tracar(c, pk);
+        if (cm.forte && pk > 0.5) {      // onde o sinal bate na pessoa
+          c.globalAlpha = alfa * limitar(pk * 4 - 2);
+          c.beginPath(); c.arc(px, py, 4.5 * G.dpr, 0, 2 * Math.PI); c.stroke();
+        }
+        for (let j = 0; j < 2; j++) {
+          const s = (amb * 0.42 + i * 0.27 + j * 0.5) % 1;
+          if (s > pk) continue;
+          const [x, y] = tr.em(s);
+          c.globalAlpha = alfa * Math.pow(Math.sin(Math.PI * s), 0.7) * (cm.forte ? 1 : 0.75);
+          c.beginPath(); c.arc(x, y, (cm.forte ? 2.8 : 2.1) * G.dpr, 0, 2 * Math.PI); c.fill();
+        }
+      });
+      c.lineCap = 'butt';
+    },
     pacotes(c, G, q, cor, amb, prm) {
       const A = prm.placaA, B = prm.placaB;
       if (!A || !B) return;
-      const s = G.bh * TAM_PLACA, y = G.Y(CHAO) - G.bh * HASTE - s * 0.5;
+      const s = G.bh * TAM_PLACA, y = G.Y(Y_ANTENA);
       const xa = G.X(A.x) + s * 0.45, xb = G.X(B.x) - s * 0.45;
       const vis = curvas.entra(q.p);
       c.fillStyle = cor.tinta;
@@ -282,13 +645,96 @@
         c.globalAlpha = Math.pow(Math.sin(Math.PI * t), 0.8) * Math.min(1, q.p * 1.5);
         c.beginPath(); c.arc(misturar(xa, xb, t), y, 2.2 * G.dpr, 0, 2 * Math.PI); c.fill();
       }
-      // A "fala": arcos que saem da placa A
+      // arcos que saem da placa A
       c.strokeStyle = cor.tinta; c.lineWidth = 1.1 * G.dpr;
       for (let i = 0; i < 3; i++) {
         const t = (amb * 0.45 + i / 3) % 1;
         c.globalAlpha = (1 - t) * 0.6 * q.p;
         c.beginPath(); c.arc(G.X(A.x), y, s * (0.55 + t * 1.6), -0.55, 0.55); c.stroke();
       }
+    },
+    roteador(c, G, q, cor) {
+      const s = G.bh * 0.085, x = G.X(q.x), y = G.Y(q.y);
+      const k = q.dir === 1 ? curvas.entra(q.p) : 1;
+      const alfa = limitar(q.p * 1.5), w = s * 1.7 * k, h = s * 0.6 * k;
+      c.strokeStyle = cor.tinta; c.lineJoin = 'round';
+      if (q.prat >= 0) {      // prateleira presa na parede
+        const xp = G.X(q.prat), yp = y + h / 2 + 1.5 * G.dpr;
+        c.globalAlpha = alfa * 0.6; c.lineWidth = G.dpr;
+        linha(c, xp, yp, misturar(xp, x + Math.sign(x - xp) * w * 0.7, k), yp);
+      }
+      c.globalAlpha = alfa; c.lineWidth = 1.5 * G.dpr;
+      c.strokeRect(x - w / 2, y - h / 2, w, h);
+      linha(c, x - w * 0.3, y - h / 2, x - w * 0.42, y - h / 2 - s * 0.9 * k);
+      linha(c, x + w * 0.3, y - h / 2, x + w * 0.42, y - h / 2 - s * 0.9 * k);
+      c.fillStyle = cor.tinta;
+      for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(x - w * 0.24 + i * w * 0.12, y, 1.6 * G.dpr, 0, 2 * Math.PI); c.fill(); }
+    },
+    camera(c, G, q, cor) {
+      // câmera no canto do teto, olhando a pessoa; no fim da entrada ela é riscada
+      const t = linear(q), alfa = q.dir === -1 ? q.p : limitar(t * 2.5);
+      const s = G.bh * 0.07, x = G.X(0.85), y = G.Y(SALA.teto + 0.1);
+      const ang = Math.atan2(G.Y(0.72) - y, G.X(0.46) - x);
+      const risco = q.risco * (q.dir === 1 ? curvas.suave(janela(t, 0.5, 0.95)) : 1);
+      c.globalAlpha = alfa; c.strokeStyle = cor.tinta; c.lineWidth = 1.5 * G.dpr; c.lineJoin = 'round';
+      linha(c, G.X(SALA.x1), y - s * 0.55, x + s * 0.35, y - s * 0.55);
+      linha(c, x + s * 0.35, y - s * 0.55, x + s * 0.2, y - s * 0.2);
+      c.save(); c.translate(x, y); c.rotate(ang);
+      c.strokeRect(-s * 0.9, -s * 0.36, s * 1.4, s * 0.72);
+      c.beginPath(); c.moveTo(s * 0.5, -s * 0.22); c.lineTo(s * 0.85, -s * 0.36); c.lineTo(s * 0.85, s * 0.36); c.lineTo(s * 0.5, s * 0.22); c.stroke();
+      c.restore();
+      // o campo de visão (tracejado) some quando a câmera é riscada
+      const xl = x + Math.cos(ang) * s * 0.85, yl = y + Math.sin(ang) * s * 0.85;
+      c.globalAlpha = alfa * 0.4 * (1 - risco); c.lineWidth = G.dpr; tracejado(c, G, true);
+      linha(c, xl, yl, G.X(0.2), G.Y(CHAO)); linha(c, xl, yl, G.X(0.68), G.Y(CHAO));
+      tracejado(c, G, false);
+      if (risco > 0) {
+        const R = s * 1.35, a0 = -Math.PI * 0.75;
+        c.globalAlpha = alfa; c.lineWidth = 1.8 * G.dpr;
+        c.beginPath(); c.arc(x, y, R, a0, a0 + 2 * Math.PI * limitar(risco * 1.6)); c.stroke();
+        const dd = limitar(risco * 2.5 - 1.5);
+        if (dd > 0) { const x0 = x + R * Math.cos(a0), y0 = y + R * Math.sin(a0); linha(c, x0, y0, misturar(x0, 2 * x - x0, dd), misturar(y0, 2 * y - y0, dd)); }
+      }
+    },
+    placaA(c, G, q, cor) { desenharPlaca(c, G, q, cor, 'A'); },
+    placaB(c, G, q, cor) { desenharPlaca(c, G, q, cor, 'B'); },
+    icones(c, G, q, cor) {
+      // a luminária (luz que apaga sozinha) e os nomes dos três usos
+      const t = linear(q), alfa = q.dir === -1 ? q.p : limitar(t * 2);
+      const x = G.X(0.5), yc = G.Y(CHAO), yt = G.Y(0.5), s = G.bh * 0.05, k = curvas.entra(t);
+      c.globalAlpha = alfa; c.strokeStyle = cor.tinta; c.lineWidth = 1.6 * G.dpr; c.lineJoin = 'round';
+      linha(c, x, yc, x, misturar(yc, yt, k));
+      linha(c, x - s * 0.7, yc, x + s * 0.7, yc);
+      const kk = janela(k, 0.6, 1);
+      if (kk > 0) {
+        c.globalAlpha = alfa * kk;
+        c.beginPath(); c.moveTo(x - s * 0.55, yt - s * 0.9); c.lineTo(x + s * 0.55, yt - s * 0.9); c.lineTo(x + s, yt); c.lineTo(x - s, yt); c.closePath(); c.stroke();
+        c.globalAlpha = alfa * kk * 0.4; c.lineWidth = G.dpr; tracejado(c, G, true);
+        linha(c, x - s, yt, x - s * 2.6, yc); linha(c, x + s, yt, x + s * 2.6, yc);
+        tracejado(c, G, false);
+      }
+      c.globalAlpha = alfa * limitar(t * 2 - 0.8);
+      for (const [u, txt] of [[0.2, 'queda'], [0.5, 'luz'], [0.8, 'alarme']]) rotulo(c, G, cor, txt, G.X(u), G.Y(CHAO + 0.045));
+    },
+    vulto(c, G, q, cor, amb) {
+      // alguém do lado de fora, com um aparelho na mão
+      const t = linear(q);
+      desenharPessoa(c, G, cor, {
+        x: q.x + (q.dir === 1 ? (1 - curvas.entra(t)) * 0.12 : 0), alfa: q.dir === -1 ? q.p : limitar(t * 2.5),
+        amp: q.dir === 1 ? limitar((1 - t) * 2.5) : 0, fase: amb * 7, cor: cor.apagado, ergue: curvas.suave(janela(t, 0.6, 1)), aparelho: true,
+      });
+    },
+    pessoa(c, G, q, cor, amb) {
+      // entrando, ela chega andando pela direita; se muda de lugar entre cenas, anda até lá
+      const t = linear(q);
+      let x = q.x, amp = 0, alfa = 1, fan = q.fantasma;
+      let dei = q.deitada;
+      if (q.dir === 1) {
+        x += (1 - curvas.entra(t)) * 0.3; amp = limitar((1 - t) * 2.5); alfa = limitar(t * 3);
+        fan *= janela(t, 0.75, 1); dei *= curvas.sai(janela(t, 0.62, 0.9));     // entra andando; se a pose é caída, cai no fim
+      } else if (q.dir === -1) alfa = q.p;
+      if (q.vx) amp = Math.max(amp, limitar(Math.abs(q.vx) * 8) * Math.sin(Math.PI * limitar(q.km)));
+      desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, fantasma: fan, alfa, amp, fase: amb * 7, halo: true });
     },
     barras(c, G, q, cor, amb, prm) {
       const a = perfil();
@@ -308,6 +754,12 @@
         const h = ((BARRAS.alt * G.bh * a[k]) / max) * pk * (1 + 0.018 * Math.sin(amb * 1.7 + k * 0.9));
         linha(c, x, base, x, base - h);
       }
+    },
+    pilha(c, G, q, cor, amb) {
+      const { ls, frac } = pilhaSint(amb, q.agito, q.roteiro);
+      c.globalAlpha = q.dir === -1 ? q.p : 1;
+      const r = { x: G.X(0), y: G.Y(q.py), w: G.bw, h: q.ph * G.bh };
+      desenharLinhas(c, r, ls, frac, cor, 1.4 * G.dpr, { visiveis: q.dir === 1 ? q.p * 50 : Infinity, destaque: true, relevo: q.relevo, juntar: q.juntar });
     },
     curva(c, G, q, cor) {
       const pts = pontosCurva(G);
@@ -331,33 +783,166 @@
       c.stroke();
       c.lineCap = 'butt';
     },
-    pilha(c, G, q, cor, amb) {
-      const { parado, mexendo } = dadosSint();
-      const n = parado.length, passoLeitura = amb / 0.1, fim = Math.floor(passoLeitura) % (n - 60) + 49, frac = passoLeitura % 1;
-      const ls = [];
-      for (let j = fim - 48; j <= fim; j++) {
-        const P = parado[j], M = mexendo[j], ag = q.agito;
-        if (ag <= 0) { ls.push(P); continue; }
-        const a = new Float64Array(64), d = new Float64Array(64);
-        for (let k = 0; k < 64; k++) { a[k] = misturar(P.a[k], M.a[k], ag); d[k] = misturar(P.d[k], M.d[k], ag); }
-        ls.push({ a, d });
+    medidor(c, G, q, cor, amb) {
+      const t = linear(q);
+      const r = { x: G.X(0), y: G.Y(MEDIDOR.y), w: G.bw, h: MEDIDOR.h * G.bh };
+      desenharMedidor(c, G, cor, r, medidaSint(amb), q.dir === -1 ? q.p : limitar(t * 2), q.dir === 1 ? curvas.suave(t) : 1);
+    },
+    vivo(c, G, q, cor, amb, prm, ex) {
+      // as linhas e o número da tela de verdade; sem fonte ligada, volta para a ilustração (e a etiqueta avisa)
+      const dv = ex.vivo, real = ex.vivoReal;
+      const alfa = q.dir === -1 ? q.p : 1;
+      const { ls, frac } = real ? { ls: dv.leituras.slice(-49), frac: limitar(dv.frac || 0) } : pilhaSint(amb, 0, 1);
+      c.globalAlpha = alfa;
+      desenharLinhas(c, { x: G.X(0), y: G.Y(q.py), w: G.bw, h: q.ph * G.bh }, ls, frac, cor, 1.4 * G.dpr, { visiveis: q.dir === 1 ? q.p * 50 : Infinity, destaque: true });
+      if (q.med <= 0.01) return;
+      let d;
+      if (real) {
+        const ok = Boolean(dv.base) && !dv.calibrando;
+        const alvo = ok && Number.isFinite(dv.osc) ? dv.osc / dv.base : NaN;
+        ex.suave.v = !Number.isFinite(alvo) ? NaN : Number.isFinite(ex.suave.v) ? ex.suave.v + (alvo - ex.suave.v) * 0.18 : alvo;
+        d = {
+          valor: ex.suave.v, serie: ok ? (dv.historico || []).slice(-100).map((v) => v / dv.base) : [], dets: (dv.historicoDet || []).slice(-100),
+          lim: ok && dv.limiar ? dv.limiar / dv.base : NaN, ligado: Boolean(dv.detectado) && !dv.calibrando,
+          rotulo: dv.calibrando ? 'calibrando' : dv.limiar == null ? 'sem calibrar' : dv.detectado ? 'movimento' : 'parado',
+        };
+      } else d = medidaSint(amb);
+      desenharMedidor(c, G, cor, { x: G.X(0), y: G.Y(MEDIDOR.y), w: G.bw, h: MEDIDOR.h * G.bh }, d, alfa * q.med * (q.dir === 1 ? limitar(q.p * 2 - 1) : 1));
+    },
+    grade(c, G, q, cor) {
+      // as gravações: 4 situações × 4 sessões. Cheias ajustam o limite, tracejadas só testam.
+      const t = linear(q), alfa = q.dir === -1 ? q.p : 1;
+      const ag = curvas.suave(janela(t, 0.62, 1)) * q.agrupar;
+      const ANTES = [0.2, 0.4, 0.6, 0.8], DEPOIS = [0.2, 0.63, 0.39, 0.82], w = 0.17, h = 0.13;
+      ['vazio', 'parado', 'andando', 'queda'].forEach((nome, r) => {
+        const y = 0.2 + r * 0.17;
+        c.globalAlpha = alfa * limitar(t * 3 - r * 0.3);
+        rotulo(c, G, cor, nome, G.X(0), G.Y(y + h / 2), { alinhar: 'left', base: 'middle' });
+        for (let s = 0; s < 4; s++) {
+          const pk = curvas.entra(limitar(t * 2.4 - (s * 0.2 + r * 0.08)));
+          if (pk <= 0) continue;
+          // as sessões 2 e 3 trocam de lugar como cartas: uma passa por cima, a outra por baixo, meio apagadas
+          const troca = s === 1 || s === 2 ? Math.sin(Math.PI * ag) : 0;
+          const rx = G.X(misturar(ANTES[s], DEPOIS[s], ag)), rw = w * G.bw, rh = h * G.bh;
+          const ry = G.Y(y) + (1 - pk) * G.bh * 0.03 + (s === 1 ? 1 : -1) * troca * G.bh * 0.022;
+          c.globalAlpha = alfa * pk * (1 - 0.55 * troca); c.strokeStyle = cor.tinta; c.lineWidth = 1.2 * G.dpr;
+          tracejado(c, G, s % 2 === 1); c.strokeRect(rx, ry, rw, rh); tracejado(c, G, false);
+          desenharLinhas(c, { x: rx + rw * 0.04, y: ry + rh * 0.2, w: rw * 0.92, h: rh * 0.72 }, gravacoes()[r][s], 0, cor, G.dpr, { linhas: 5, alturaRelevo: 2.4 });
+        }
+      });
+      c.globalAlpha = alfa * ag;
+      rotulo(c, G, cor, 'ajustam o limite', G.X(0.2 + (0.39 + w - 0.2) / 2), G.Y(0.12), { cor: cor.tinta, base: 'alphabetic' });
+      rotulo(c, G, cor, 'só testam', G.X(0.63 + (0.82 + w - 0.63) / 2), G.Y(0.12), { cor: cor.tinta, base: 'alphabetic' });
+    },
+    resultado(c, G, q, cor, amb, prm, ex) {
+      // acerto do sistema ao lado do chute; sem números ainda, só os contornos com "?"
+      const R = ex.resultados, tem = R && typeof R.acerto === 'number' && typeof R.chute === 'number';
+      const t = linear(q), alfa = q.dir === -1 ? q.p : limitar(t * 2.5);
+      const base = G.Y(CHAO), alt = G.bh * 0.58, w = G.bw * 0.2;
+      c.globalAlpha = alfa * 0.55; c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
+      linha(c, G.X(0.18), base, G.X(0.94), base);
+      [{ u: 0.28, v: tem ? R.acerto : null, nome: 'Wave Sense' }, { u: 0.64, v: tem ? R.chute : null, nome: 'chute' }].forEach((b, i) => {
+        const pk = curvas.entra(limitar(t * 1.8 - i * 0.3));
+        const x = G.X(b.u), h = (b.v === null ? 0.55 : b.v) * alt * pk;
+        c.globalAlpha = alfa;
+        rotulo(c, G, cor, b.nome, x + w / 2, base + G.bh * 0.03);
+        c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineWidth = 1.4 * G.dpr;
+        if (b.v === null) {
+          c.globalAlpha = alfa * 0.7; tracejado(c, G, true); c.strokeRect(x, base - h, w, h); tracejado(c, G, false);
+          c.globalAlpha = alfa * pk * 0.7; c.font = `${Math.round(G.bh * 0.13)}px ${G.serif}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.fillText('?', x + w / 2, base - h / 2);
+        } else {
+          if (i === 0) c.fillRect(x, base - h, w, h); else c.strokeRect(x, base - h, w, h);
+          c.globalAlpha = alfa * limitar(pk * 2 - 1); c.font = `${Math.round(G.bh * 0.1)}px ${G.serif}`; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+          c.fillText(`${Math.round(b.v * 100)}%`, x + w / 2, base - h - G.bh * 0.02);
+        }
+      });
+    },
+    teclas(c, G, q, cor, amb) {
+      // 88 teclas e um rolo de pianola: cada furo desce e acende uma tecla, pulando de frequência
+      const t = linear(q), alfa = q.dir === -1 ? q.p : 1;
+      const x0 = G.X(0), wb = G.bw / PIANO.brancas, ytec = G.Y(0.6), hb = G.bh * 0.22, hp = hb * 0.62, wp = wb * 0.62;
+      const cx = (k) => { const tk = PIANO.teclas[k]; return x0 + (tk.preta ? tk.branca + 1 : tk.branca + 0.5) * wb; };
+      const RITMO = 4, agora = amb * RITMO, n = SALTOS.length, i0 = Math.floor(agora), fr = agora - i0;
+      const brilho = new Float32Array(88);
+      for (let j = 0; j < 4; j++) { const k = SALTOS[ciclico(i0 - j, n)]; brilho[k] = Math.max(brilho[k], j === 0 ? 1 : 0.55 * Math.pow(0.4, j - 1 + fr)); }
+      const surge = (k) => curvas.entra(limitar(t * 1.8 - (PIANO.teclas[k].branca / (PIANO.brancas - 1)) * 0.8));
+      c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
+      for (const preta of [false, true]) {
+        for (let k = 0; k < 88; k++) {
+          const tk = PIANO.teclas[k];
+          if (tk.preta !== preta) continue;
+          const pk = surge(k);
+          if (pk <= 0) continue;
+          const x = preta ? cx(k) - wp / 2 : x0 + tk.branca * wb, ww = preta ? wp : wb, hh = (preta ? hp : hb) * pk;
+          if (preta) { c.globalAlpha = alfa * pk; c.fillStyle = cor.fundo; c.fillRect(x, ytec, ww, hh); }
+          c.globalAlpha = alfa * pk * 0.7; c.strokeRect(x, ytec, ww, hh);
+          if (brilho[k] > 0.01) { c.globalAlpha = alfa * pk * brilho[k]; c.fillStyle = cor.tinta; c.fillRect(x, ytec, ww, hh); }
+        }
       }
-      c.globalAlpha = q.dir === -1 ? q.p : 1;
-      const r = { x: G.X(PILHA.x), y: G.Y(PILHA.y), w: PILHA.w * G.bw, h: PILHA.h * G.bh };
-      desenharLinhas(c, r, ls, frac, cor, 1.4 * G.dpr, { visiveis: q.dir === 1 ? q.p * 50 : Infinity, destaque: true });
+      // o rolo: furos descendo até o teclado
+      const QUEDA = 2.2, yTopo = G.Y(0.06), vel = (ytec - yTopo) / QUEDA, comp = (0.8 / RITMO) * vel;
+      c.globalAlpha = alfa * 0.25 * limitar(t * 2 - 0.5);
+      linha(c, x0, yTopo, x0, ytec); linha(c, x0 + G.bw, yTopo, x0 + G.bw, ytec);
+      c.fillStyle = cor.tinta;
+      for (let i = i0 - 1; i <= i0 + QUEDA * RITMO + 1; i++) {
+        const k = SALTOS[ciclico(i, n)], yb = ytec - (i / RITMO - amb) * vel;
+        const a = Math.max(yb - comp, yTopo), b = Math.min(yb, ytec);
+        if (b <= a) continue;
+        const largura = (PIANO.teclas[k].preta ? wp : wb) * 0.7;
+        c.globalAlpha = alfa * 0.85 * limitar(t * 2 - 0.6) * limitar((a - yTopo) / (G.bh * 0.06) + 0.2);
+        c.fillRect(cx(k) - largura / 2, a, largura, b - a);
+      }
     },
   };
 
-  // Poses de cada cena (por id). Camada ausente = invisível. `entrada`/`saida` mudam a janela daquela camada.
+  // Poses de cada cena (por id). Camada ausente = invisível. `entrada`/`saida` mudam a janela daquela
+  // camada; `mover` muda a janela das mudanças (uma lista [a, b] ou uma por parâmetro: { x: [a, b], _: [a, b] }).
+  const PILHA_VIRA_CHAO = { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, mover: [0.04, 0.42], saida: [0.36, 0.5] };
   const POSES = {
+    abertura: {
+      pilha: { roteiro: 1 },
+    },
+    pergunta: {
+      pilha: PILHA_VIRA_CHAO,
+      chao: { cresce: 0, entrada: [0.38, 0.5] },
+      sala: { entrada: [0.46, 0.86] },
+      pessoa: { x: 0.62, deitada: 1, entrada: [0.4, 0.88] },
+      camera: { risco: 1, entrada: [0.4, 0.88] },
+    },
+    wifi: {
+      pilha: PILHA_VIRA_CHAO,
+      chao: { cresce: 0, entrada: [0.38, 0.5] },
+      sala: { entrada: [0.46, 0.86] },
+      pessoa: { x: 0.62, deitada: 0, entrada: [0.5, 0.88], mover: { deitada: [0.2, 0.6] } },
+      camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
+      roteador: { x: 0.2, y: 0.42, prat: SALA.x0, entrada: [0.3, 0.7] },
+      ondas: { ox: 0.2, oy: 0.42, entrada: [0.45, 0.88] },
+    },
     placas: {
+      chao: {},
+      sala: { p: 0, saida: [0.1, 0.5] },
+      pessoa: { p: 0, x: 0.62, saida: [0.04, 0.36] },
+      roteador: { p: 0, x: 0.14, y: Y_ANTENA, prat: SALA.x0, mover: [0.08, 0.5], saida: [0.38, 0.62] },
+      ondas: { p: 0, ox: 0.14, oy: Y_ANTENA, mover: [0.08, 0.5], saida: [0.2, 0.55] },
+      placaA: { x: 0.14, entrada: [0.4, 0.88] },
+      placaB: { x: 0.86 },
+      pacotes: { entrada: [0.55, 0.88] },
+    },
+    caminhos: {
       chao: {},
       placaA: { x: 0.14 },
       placaB: { x: 0.86 },
-      pacotes: {},
+      pacotes: { p: 0, saida: [0.04, 0.3] },
+      sala: { entrada: [0.3, 0.7] },
+      pessoa: { x: 0.66, entrada: [0.34, 0.8] },
+      raios: { entrada: [0.4, 0.88] },
     },
     acorde: {
       chao: {},
+      sala: { p: 0, saida: [0.04, 0.3] },
+      raios: { p: 0, saida: [0.02, 0.22] },
+      pessoa: { p: 0, x: 0.66, saida: [0.02, 0.26] },
       placaA: { p: 0, x: 0.02, saida: [0.06, 0.32], mover: [0.06, 0.32] },
       placaB: { x: 0.07, esc: 1.1, mover: [0.1, 0.5] },
       pacotes: { p: 0, saida: [0.04, 0.28] },
@@ -366,10 +951,63 @@
     },
     linhas: {
       chao: { p: 0 },
+      sala: { p: 0, saida: [0.04, 0.34] },
+      raios: { p: 0, saida: [0.02, 0.24] },
+      pessoa: { p: 0, x: 0.66, saida: [0.02, 0.28] },
+      placaA: { p: 0, x: 0.14, saida: [0.06, 0.36] },
       placaB: { p: 0, x: 0.07, esc: 1.1, saida: [0.1, 0.4] },
       barras: { p: 0, saida: [0.12, 0.45] },
       curva: { p: 0, forma: 1, saida: [0.7, 0.92] },
       pilha: { agito: 0, entrada: [0.5, 0.9] },
+    },
+    tremor: {
+      pilha: { agito: 1 },
+    },
+    numero: {
+      pilha: { agito: 1, roteiro: 1, py: 0.02, ph: 0.52, mover: [0.08, 0.6] },
+      medidor: { entrada: [0.55, 0.88] },
+    },
+    aovivo: {
+      pilha: { p: 0, agito: 1, roteiro: 1, py: 0.02, ph: 0.52, saida: [0.15, 0.55] },
+      medidor: { p: 0, saida: [0.12, 0.5] },
+      vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] },
+    },
+    metodo: {
+      grade: { entrada: [0.3, 0.88] },
+    },
+    resultados: {
+      resultado: { entrada: [0.4, 0.88] },
+    },
+    parado: {
+      chao: {},
+      placaA: { x: 0.14 },
+      placaB: { x: 0.86 },
+      pacotes: {},
+      pessoa: { x: 0.5, fantasma: 1, entrada: [0.45, 0.88] },
+    },
+    usos: {
+      chao: {},
+      placaA: { p: 0, x: 0.14, saida: [0.06, 0.36] },
+      placaB: { p: 0, x: 0.86, saida: [0.06, 0.36] },
+      pacotes: { p: 0, saida: [0.04, 0.3] },
+      pessoa: { x: 0.33, fantasma: 0, deitada: 1, esc: 0.8, mover: { x: [0.1, 0.5], fantasma: [0.1, 0.4], esc: [0.3, 0.6], deitada: [0.5, 0.8] } },
+      icones: { entrada: [0.5, 0.88] },
+      casa: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 1, entrada: [0.45, 0.88] },
+    },
+    privacidade: {
+      chao: {},
+      icones: { p: 0, saida: [0.04, 0.3] },
+      casa: { cx: 0.38, larg: 0.56, alt: 0.4, tel: 0.16, sino: 0, mover: { _: [0.12, 0.6], sino: [0.04, 0.24] } },
+      pessoa: { x: 0.28, deitada: 0, esc: 1, fantasma: 0, mover: { _: [0.2, 0.6], deitada: [0.1, 0.42] } },
+      roteador: { x: 0.52, y: 0.5, prat: 0.66, entrada: [0.5, 0.8] },
+      ondas: { ox: 0.52, oy: 0.5, cx0: 0.1, cx1: 0.66, ctopo: 0.4, cap: 0.16, vaza: 1, entrada: [0.55, 0.88] },
+      vulto: { x: 0.86, entrada: [0.5, 0.88] },
+    },
+    lamarr: {
+      teclas: { entrada: [0.4, 0.88] },
+    },
+    fim: {
+      vivo: { py: PILHA.y, ph: PILHA.h, med: 0, entrada: [0.4, 0.88] },
     },
   };
 
@@ -451,17 +1089,32 @@
       aberta: miniatura, versao: opcoes.versao || 'completa', ordem: [], blocos: [],
       T: 0, v: 0, alvo: 0, ultimo: 0, congelado: null, quadroPedido: false,
       rolando: null, direcao: 0, toque: null, corte: null, preto: false, anunciado: -1,
-      cache: { tam: [0, 0] }, escala: 1, auto: null, notas: false,
+      cache: { tam: [0, 0] }, escala: 1, auto: null, notas: false, fonte: null, suave: { v: NaN },
       omega: 3.8,   // rigidez da mola: mais baixa nas setas (transição com cerca de 1 s), mais alta na rolagem
     };
     const OMEGA = { tecla: 3.8, rolagem: 7.5, encaixe: 4.6 };
     const relogio = () => (st.congelado !== null ? st.congelado : performance.now() / 1000);
 
+    // A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação): nunca "ao vivo" com dado simulado.
+    function fonteAtual() { const dv = dadosVivos(); return (dv && dv.fonte) || null; }
+    function tituloDe(c) {
+      if (c.id !== 'aovivo') return c.titulo;
+      const f = fonteAtual();
+      return (f === 'sim' && c.tituloSimulacao) || (f === 'replay' && c.tituloGravacao) || (!f && c.tituloSemFonte) || c.titulo;
+    }
+    // Resultados: só com os números do avaliar.py (acerto por coleta e o chute ao lado); senão, a frase de espera.
+    function fraseDe(c) {
+      const R = roteiro.RESULTADOS;
+      if (c.id !== 'resultados' || !c.fraseComResultados || !R || typeof R.acerto !== 'number' || typeof R.chute !== 'number') return c.frase;
+      const pct = (x) => `${Math.round(x * 100)}%`;
+      return c.fraseComResultados.replace('{coletas}', String(R.coletas ?? '')).replace('{acerto}', pct(R.acerto)).replace('{chute}', pct(R.chute));
+    }
     function montarTextos() {
       st.ordem = ordemDa(roteiro.cenas, st.versao, temPose);
+      st.fonte = fonteAtual();
       elTextos.innerHTML = st.ordem.map((id) => {
         const c = roteiro.cenas.find((x) => x.id === id);
-        return `<div class="h-texto" data-id="${id}"><h2 class="h-titulo">${palavras(c.titulo)}</h2><p class="h-frase">${palavras(c.frase)}</p></div>`;
+        return `<div class="h-texto" data-id="${id}"><h2 class="h-titulo">${palavras(tituloDe(c))}</h2><p class="h-frase">${palavras(fraseDe(c))}</p></div>`;
       }).join('');
       st.blocos = [...elTextos.children].map((b) => ({
         el: b, tit: [...b.querySelectorAll('.h-titulo .h-p')], fra: [...b.querySelectorAll('.h-frase .h-p')], vis: null, ult: new Map(),
@@ -478,6 +1131,7 @@
       st.cache.tam = [r.width, r.height];
       st.cache.seguro = parseFloat(cs.getPropertyValue('--h-seguro')) || 0;
       st.cache.serif = cs.getPropertyValue('--serif').trim() || 'Georgia, serif';
+      st.cache.sans = cs.getPropertyValue('--sans').trim() || 'system-ui, sans-serif';
     }
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(medir).observe(cv);
 
@@ -488,7 +1142,7 @@
       else { fx = W * 0.06; fy = H * 0.08 + seguro; fw = W * 0.88; fh = H * 0.42; }
       const prop = 1.45, bw = Math.min(fw, fh * prop), bh = bw / prop;
       const bx = fx + (fw - bw) / 2, by = fy + (fh - bh) / 2;
-      return { bx, by, bw, bh, dpr, X: (u) => bx + u * bw, Y: (v) => by + v * bh, serif: st.cache.serif || 'Georgia, serif' };
+      return { bx, by, bw, bh, dpr, X: (u) => bx + u * bw, Y: (v) => by + v * bh, serif: st.cache.serif || 'Georgia, serif', sans: st.cache.sans || 'system-ui, sans-serif' };
     }
 
     /* ---------- Um quadro ---------- */
@@ -530,16 +1184,25 @@
       ctx.globalAlpha = 1; ctx.fillStyle = cor.fundo; ctx.fillRect(0, 0, W, H);
 
       const prm = poseEm(st.T, st.ordem, POSES, PADROES);
+      // o sinal de verdade (placas, simulação ou gravação), quando a página principal passa um
+      const dv = dadosVivos();
+      const ex = { vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), resultados: roteiro.RESULTADOS, suave: st.suave };
+      if (fonteAtual() !== st.fonte) { montarTextos(); }
       let sintetica = 0;
       for (const nome of Object.keys(CAMADAS)) {
         const q = prm[nome];
         if (!q || q.p <= 0.001) continue;
-        if (CAMADAS[nome].sintetica) sintetica = Math.max(sintetica, q.p);
+        if (CAMADAS[nome].sintetica || (nome === 'vivo' && !ex.vivoReal)) sintetica = Math.max(sintetica, q.p);
         ctx.save();
-        DESENHOS[nome](ctx, G, q, cor, agora, prm);
+        DESENHOS[nome](ctx, G, q, cor, agora, prm, ex);
         ctx.restore();
       }
-      elIlustra.style.opacity = sintetica > 0.05 ? String(limitar(sintetica * 1.5)) : '0';
+      // etiqueta no canto: de onde vem o que está na tela. Ilustração (dado sintético) ou a fonte real.
+      const vivo = prm.vivo && ex.vivoReal ? prm.vivo.p : 0;
+      const etiqueta = vivo > sintetica ? ({ live: 'Ao vivo · placa B', sim: 'Simulação', replay: 'Gravação' }[dv.fonte] || '') : 'Ilustração';
+      if (elIlustra.textContent !== etiqueta) elIlustra.textContent = etiqueta;
+      const forca = Math.max(vivo, sintetica);
+      elIlustra.style.opacity = forca > 0.05 ? String(limitar(forca * 1.5)) : '0';
       textos(prm._i, prm._u);
       // capítulo: troca no meio da transição, com fade
       const ci = cena(prm._i), cj = cena(Math.min(prm._i + 1, ultimaCena()));
@@ -552,7 +1215,7 @@
       if (!miniatura && st.T === st.alvo && Number.isInteger(st.T) && st.anunciado !== st.T) {
         st.anunciado = st.T;
         const c = cena(st.T);
-        elSr.textContent = `Cena ${st.T + 1} de ${st.ordem.length}. ${c.titulo} ${c.frase}`;
+        elSr.textContent = `Cena ${st.T + 1} de ${st.ordem.length}. ${tituloDe(c)} ${fraseDe(c)}`;
         if (st.notas) mostrarNotas();
         aoMudar(estado());
       }
@@ -584,8 +1247,8 @@
     }
 
     function mostrarNotas() {
-      const i = Math.round(st.corte ? st.corte.alvo : st.alvo), c = cena(i);
-      elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(c.titulo)}</b>${escapar(c.notas || '')}`;
+      const i = Math.round(destino()), c = cena(i);
+      elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(tituloDe(c))}</b>${escapar(c.notas || '')}`;
     }
 
     function laco() {
@@ -603,8 +1266,11 @@
       if ((longe || opc.cortar) && !opc.semCorte) st.corte = { inicio: performance.now() / 1000, alvo };
       else st.alvo = alvo;
     }
-    const proxima = () => irPara(Math.round(st.corte ? st.corte.alvo : st.alvo) + 1);
-    const anterior = () => irPara(Math.round(st.corte ? st.corte.alvo : st.alvo) - 1);
+    // Para onde a história está indo. Durante um corte, até o salto, vale o alvo do corte; depois dele,
+    // o alvo normal (que já pode ter andado com outra seta, sem perder o toque).
+    const destino = () => (st.corte && !st.corte.pulou ? st.corte.alvo : st.alvo);
+    const proxima = () => irPara(Math.round(destino()) + 1);
+    const anterior = () => irPara(Math.round(destino()) - 1);
     function irParaId(id, opc) { const i = st.ordem.indexOf(id); if (i >= 0) irPara(i, opc); }
 
     function versao(v) {
@@ -687,11 +1353,13 @@
     }
 
     function estado() {
-      const i = Math.round(st.corte ? st.corte.alvo : st.alvo);
+      const i = Math.round(destino());
       return { aberta: st.aberta, versao: st.versao, ordem: st.ordem.slice(), indice: i, cenaId: st.ordem[i], T: st.T, alvo: st.alvo, preto: st.preto, auto: Boolean(st.auto), notas: st.notas };
     }
 
     montarTextos();
+    // prepara os dados de ilustração com calma, para a primeira passagem por cada cena não engasgar
+    setTimeout(() => { perfil(); serieNumero(); gravacoes(); }, 400);
     const api = {
       get aberta() { return st.aberta; },
       abrir(opc = {}) {
@@ -758,6 +1426,7 @@
   const WaveHistoria = {
     limitar, misturar, janela, curvas, mola, alvoDirecional, ordemDa, remapear, revelacao, poseEm,
     mulberry32, canal, perfilParado, sinteticas, desenharLinhas, criarPalco, criarCanal, POSES, CAMADAS,
+    agitoNoTempo, serieNumero, medidaSint, PIANO, SALTOS,
   };
   raiz.WaveHistoria = WaveHistoria;
   if (typeof module !== 'undefined' && module.exports) module.exports = WaveHistoria;

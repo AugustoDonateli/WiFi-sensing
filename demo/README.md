@@ -8,7 +8,13 @@
 
 Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/artifact/1q55pHmnJivTx6Z7pzt68o
 
-**Arquivos:** `index.html` (a tela) e `nucleo.js` (leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`). Os dois precisam ficar na mesma pasta.
+**Arquivos** (todos na mesma pasta):
+- `index.html`: a tela.
+- `nucleo.js`: leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`.
+- `roteiro.js`: os textos da apresentação "Como funciona" e a fala de cada cena. **Só texto: o grupo pode editar.**
+- `historia.js`: o desenho e o movimento da apresentação.
+- `apresentador.html`: a janela do apresentador (fica no notebook).
+- `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
 
 ## Ideia do visual
 
@@ -19,7 +25,7 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
 - **Desafio Ninja em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
 - **A única cor é o aviso amarelo** "Simulação · dados inventados para ensaio". Ele some quando os dados são reais.
-- **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas, do Google Fonts.
+- **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas (licença OFL), embutidas no `fontes.css`, então funcionam sem internet.
 
 O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, calculada pelo `nucleo.js` com a mesma regra do `ferramentas/detector.py` (um teste confere que as duas dão o mesmo resultado).
 
@@ -48,10 +54,28 @@ Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Ope
 - **Mural de marcas** (tecla `G`): os últimos 12.
 - **Modo escuta** (tecla `E`): tela "Feche os olhos." com som de vento baixo que abre e ganha "gotas" quando alguém se mexe. Para usar com fone de ouvido.
 - **Painel do operador não cobre mais as linhas:** quando abre, a tela encolhe para o lado (no celular, o painel abre embaixo).
-- **Como funciona** (tecla `H`): três passos com desenhos de linha. No modo vitrine, ela aparece sozinha depois de 45 s sem movimento e some no primeiro movimento.
 - **Grão de foto** bem leve por cima de tudo, para a tela não parecer "plástica".
 
 Recordes, retratos e contador ficam guardados só neste navegador. O painel do operador tem um botão para apagar tudo antes da feira.
+
+## Apresentação "Como funciona" (tecla `H`)
+
+Uma história em motion design que explica o projeto, para passar na TV do estande. Não são slides: cada desenho se transforma no próximo (o roteador vira a placa A, as barras viram a primeira linha, a pessoa caída se levanta dentro da casa...).
+
+- **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
+- **Duas versões** (tecla `V`): **completa**, com 17 cenas, para o avaliador (5 a 7 min), e **curta**, com 11 cenas, para visitantes (cerca de 3 min).
+- **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a fala de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
+  - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
+  - Se o navegador bloquear a janela, a fala aparece numa faixa na própria tela.
+- `B` ou `.` deixa a tela preta (o botão de "tela preta" do passador). `Esc` fecha. `Home`/`End` vão para a primeira e a última cena.
+- **Modo vitrine:** depois de 45 s sem movimento, a versão curta passa sozinha (6 s por cena) e some no primeiro movimento. Ela pula as cenas "ao vivo" e "resultados" e fica desligada enquanto a janela do apresentador estiver aberta.
+
+**Honestidade dos dados:**
+- As cenas que explicam (linhas, barras, número de exemplo, gravações) usam **dados sintéticos** do mesmo modelo da simulação, com semente fixa. Sempre que eles aparecem, o canto de cima mostra "Ilustração".
+- A cena "ao vivo" e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem: "Agora com o sinal das placas." (Placa USB), "Agora na simulação." ou "Agora com uma gravação.".
+- A cena de resultados só mostra números quando alguém preencher `RESULTADOS` no `roteiro.js` com o resultado do `ferramentas/avaliar.py` (por coleta, com o chute ao lado). Até lá ela diz que as gravações ainda estão sendo feitas.
+
+**Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.
 
 ## Controles
 
@@ -77,7 +101,9 @@ Teste o volume no lugar da feira.
 
 ## Atalhos
 
-`N` desafio · `Enter` começar · `Espaço` chegou · `M` melodia da marca · `B` salvar cartão · `G` mural · `E` escutar · `H` como funciona · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
+`N` desafio · `Enter` começar · `Espaço` chegou · `M` melodia da marca · `B` salvar cartão · `G` mural · `E` escutar · `H` como funciona · `P` janela do apresentador · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
+
+Com a apresentação aberta: setas, `Espaço` e `PageUp`/`PageDown` navegam · `V` versão curta ou completa · `B` ou `.` tela preta · `Home`/`End` primeira e última cena.
 
 ## Situação
 

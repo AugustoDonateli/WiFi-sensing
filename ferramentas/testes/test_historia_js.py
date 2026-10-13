@@ -30,10 +30,28 @@ out.semente = { iguais: a.parado[20].a[10] === b.parado[20].a[10] && a.mexendo[2
 // perto de cada cena inteira nada se mexe (±0,12)
 const ordem = ['placas', 'acorde', 'linhas'], pad = Object.fromEntries(Object.entries(H.CAMADAS).map(([k, v]) => [k, v.padrao]));
 const p1 = H.poseEm(1, ordem, H.POSES, pad), p2 = H.poseEm(1.1, ordem, H.POSES, pad), p0 = H.poseEm(0.9, ordem, H.POSES, pad);
-// compara só o que aparece: camadas com presença > 0, números arredondados, sem a direção da animação
+// compara só o que aparece: camadas com presença > 0, números arredondados, sem a direção e o progresso da animação
 const limpo = (p) => JSON.stringify(Object.fromEntries(Object.entries(p).filter(([k, q]) => !k.startsWith('_') && q.p > 1e-6)
-  .map(([k, q]) => [k, Object.fromEntries(Object.entries(q).filter(([c]) => c !== 'dir').map(([c, val]) => [c, typeof val === 'number' ? Math.round(val * 1e6) / 1e6 : val]))])));
+  .map(([k, q]) => [k, Object.fromEntries(Object.entries(q).filter(([c]) => !["dir", "km", "vx"].includes(c)).map(([c, val]) => [c, typeof val === 'number' ? Math.round(val * 1e6) / 1e6 : val]))])));
 out.repouso = { depois: limpo(p1) === limpo(p2), antes: limpo(p1) === limpo(p0) };
+// em cada cena inteira (nas duas versões), o palco mostra exatamente a pose daquela cena
+out.poseExata = [];
+for (const v of ['completa', 'curta']) {
+  const ord = H.ordemDa(R.cenas, v, (c) => Boolean(H.POSES[c.id]));
+  ord.forEach((id, i) => {
+    const P = H.poseEm(i, ord, H.POSES, pad), pose = H.POSES[id];
+    const esperado = Object.fromEntries(Object.entries(pose).filter(([, q]) => (q.p ?? 1) > 0).map(([k, q]) => {
+      const e = { ...pad[k], ...q }; delete e.entrada; delete e.saida; delete e.mover; delete e.p; return [k, e];
+    }));
+    const camadas = Object.entries(P).filter(([k, q]) => !k.startsWith('_') && q.p > 1e-9);
+    if (camadas.some(([, q]) => q.p !== 1)) out.poseExata.push(`${v}:${id}:presença`);
+    const visto = Object.fromEntries(camadas.map(([k, q]) => {
+      const e = { ...q }; delete e.dir; delete e.km; delete e.vx; delete e.p; return [k, e];
+    }));
+    const r = (o) => JSON.stringify(Object.keys(o).sort().map((k) => [k, Object.keys(o[k]).sort().map((c) => [c, typeof o[k][c] === 'number' ? Math.round(o[k][c] * 1e6) / 1e6 : o[k][c]])]));
+    if (r(esperado) !== r(visto)) out.poseExata.push(`${v}:${id}`);
+  });
+}
 out.revela = [H.revelacao(0, 0, 5, 0.5, 0.9), H.revelacao(1, 4, 5, 0.5, 0.9), H.revelacao(0.7, 0, 5, 0.5, 0.9) > H.revelacao(0.7, 4, 5, 0.5, 0.9)];
 out.ids = R.cenas.map((c) => c.id);
 out.semPose = R.cenas.filter((c) => !H.POSES[c.id]).map((c) => c.id);
@@ -76,6 +94,9 @@ class TestHistoria(unittest.TestCase):
     def test_repouso_perto_da_cena(self):
         self.assertTrue(self.r["repouso"]["depois"])
         self.assertTrue(self.r["repouso"]["antes"])
+
+    def test_cada_cena_parada_mostra_a_sua_pose(self):
+        self.assertEqual(self.r["poseExata"], [])
 
     def test_revelacao_das_palavras(self):
         self.assertEqual(self.r["revela"][:2], [0, 1])

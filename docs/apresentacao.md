@@ -60,8 +60,43 @@ Cada jogo ensina uma coisa. Não precisa fazer todos com todo mundo.
 ## Comparações que funcionam
 
 - **Piscina:** "A Placa A faz ondinhas numa piscina e a B sente as ondas do outro lado. Sem ninguém na água, elas chegam sempre iguais. Entrou alguém e se mexeu, elas mudam."
-- **Acorde:** "O Wi-Fi não é uma nota só, é um acorde de 64 notas. Cada linha da tela é esse acorde. Quando você se mexe, algumas notas mudam, e a linha treme."
-- **Morcego sem barulho:** "Parece o morcego, que se guia pelo eco, mas aqui o eco é de rádio, e o rádio já está no ar de qualquer jeito."
+- **Acorde:** "O Wi-Fi manda 64 frequências ao mesmo tempo, como 64 notas tocando juntas. Cada linha da tela mostra a força dessas 64. Quando você se mexe, algumas mudam e a linha treme."
+- **Morcego:** "O morcego se guia pelo eco do som. Aqui o eco é de rádio, e esse rádio já está no ar de qualquer jeito."
+
+## A apresentação na TV (tecla H)
+
+A página tem uma apresentação animada, "Como funciona", que serve de apoio para a fala. A fala de cada cena aparece na **janela do apresentador** (tecla `P`), no notebook; a TV mostra só a animação.
+
+**Montagem, nessa ordem:**
+1. Abra a página no notebook e aperte **P**. Abre a janela do apresentador.
+2. Arraste a página principal para a TV.
+3. Na TV, aperte **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
+4. Aperte **H** para abrir a apresentação. O passador de slides funciona nas duas janelas. `B` deixa a TV preta.
+
+**As cenas** (★ = também na versão curta, tecla `V`):
+
+| # | Cena | O que aparece | Onde usar no roteiro |
+|---|---|---|---|
+| 1 ★ | Wave Sense | As linhas do sinal | Abertura |
+| 2 | Como perceber que alguém caiu sem usar câmera? | Pessoa caída numa sala, câmera riscada | Problema |
+| 3 ★ | O Wi-Fi está em quase todo lugar. | Roteador e ondas enchendo a sala | Problema |
+| 4 ★ | Usamos duas placas ESP32. | O roteador vira a placa A; mensagens indo de A para B | Como funciona |
+| 5 ★ | O sinal chega por vários caminhos. | Caminho direto, pelo teto, pelo chão e pela pessoa | Como funciona (piscina) |
+| 6 | A placa B mede 64 frequências de uma vez. | As 64 barras saem da placa B | Como funciona (acorde) |
+| 7 ★ | Cada linha mostra 0,1 segundo de medidas. | O topo das barras vira a primeira linha | Como funciona |
+| 8 ★ | Quando alguém se mexe, as linhas mudam. | As linhas começam a tremer de baixo para cima | Como funciona |
+| 9 | Um número resume o quanto o sinal mudou. | Número, gráfico e a linha do limite | Como funciona |
+| 10 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | Peça para mexer o braço |
+| 11 | Como testamos. | 4 situações × 4 sessões; as sessões se separam em "ajustam o limite" e "só testam" | Método |
+| 12 | Resultados. | Acerto por coleta ao lado do chute (ou "ainda estamos gravando") | Resultados |
+| 13 ★ | Pessoa parada não aparece. | Pessoa tracejada entre as placas | Limites (Estátua) |
+| 14 ★ | Onde isso pode ajudar. | Queda, luz e alarme | Impacto |
+| 15 ★ | E a privacidade? | Casa com as ondas vazando para fora, alguém do lado de fora | Ética |
+| 16 | Hedy Lamarr, 1942. | Piano de 88 teclas e um rolo de pianola pulando de frequência | Tema da JACITEC |
+| 17 ★ | Experimente o Desafio Ninja. | A tela de verdade | Convite |
+
+- O que é ilustração aparece com a etiqueta "Ilustração" no canto. Fale "isto é um exemplo" nessas cenas; o número de verdade é o da cena 10.
+- Os textos estão em `demo/roteiro.js`. Mudem o que quiserem lá, com o mesmo cuidado: nada de número inventado.
 
 ## Roteiros
 

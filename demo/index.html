@@ -293,8 +293,8 @@ const AVALIAR_MS = WaveNucleo.PASSO_S * 1000;
 const LINHAS = 48;             // leituras empilhadas na tela
 const LEITURA_S = 0.1;         // uma linha nova a cada 0,1 s
 const REALCE = 3;              // só no desenho: aumenta o tremor de cada linha em relação à forma média
-const EMBUTIDO = window.self !== window.top;
-let historia = null;   // o palco da história "Como funciona" (criado mais abaixo)   // dentro do claude.ai: sem USB e sem salvar arquivos
+const EMBUTIDO = window.self !== window.top;   // dentro do claude.ai: sem USB e sem salvar arquivos
+let historia = null;   // o palco da história "Como funciona" (criado mais abaixo)
 
 const app = {
   fonte: null, janela: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
@@ -1094,6 +1094,12 @@ historia = WaveHistoria.criarPalco({
   aoInteragir: () => { como.automatico = false; historia.pararAuto(); },   // mexeu na história: a vitrine para de mandar nela
   aoMudar: () => enviarEstadoHistoria(),
   aoApresentador: () => abrirApresentador(),
+  // a cena "ao vivo" e a última mostram o sinal de verdade (placas, simulação ou gravação, com a etiqueta certa)
+  dadosVivos: () => ({
+    fonte: app.fonte, leituras: app.leituras, frac: Math.min(1, (performance.now() / 1000 - app.ultimaLeitura) / LEITURA_S),
+    osc: app.oscAtual, base: app.base, limiar: app.limiar, detectado: app.detectado,
+    historico: app.historico, historicoDet: app.historicoDet, calibrando: Boolean(app.calibracao),
+  }),
 });
 
 /* ---------- Janela do apresentador (apresentador.html): a TV mostra a história, o notebook mostra as falas ---------- */

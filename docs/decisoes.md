@@ -57,6 +57,15 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - O site não guarda nada em servidor; recordes e marcas ficam no navegador de cada aparelho.
 - Na feira, a pasta `demo/` no notebook continua sendo o plano principal (funciona sem internet); o site é reserva.
 
+### Apresentação "Como funciona" (aprovada)
+- Virou uma **história em motion design** na própria página (tecla H), para ser o apoio da apresentação no estande. Cada desenho se transforma no próximo; não são slides.
+- **Rolagem contínua** (a animação anda com a rolagem e volta exatamente se rolar para trás), mais setas e passador de slides.
+- **Janela do apresentador** no notebook com a fala de cada cena; a TV mostra só a animação.
+- **Duas versões:** completa (17 cenas, para o avaliador) e curta (11 cenas, para visitantes).
+- **Textos diretos**, sem frase de efeito (pedido do grupo). Ficam em `demo/roteiro.js`, separados do código.
+- Dados sintéticos só com a etiqueta "Ilustração". A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação). Resultados só com números do `avaliar.py`.
+- Fatos da Hedy Lamarr conferidos: patente 2.292.387, de 11/08/1942, com George Antheil; 88 frequências comandadas por rolos de pianola; a ideia era dificultar o bloqueio de torpedos guiados por rádio.
+
 ### Imagens geradas por IA
 - Não usar na tela principal: lá tudo deve ser sinal medido.
 - Uso possível em divulgação (post, convite) e rascunho de layout do banner, sempre com confirmação do grupo, porque gasta créditos.
