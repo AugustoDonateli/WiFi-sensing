@@ -5,7 +5,8 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 ## Status
 
 - [ ] Inscrição na JACITEC enviada
-- [ ] Placas compradas / recebidas
+- [ ] Placas compradas (decidido: 2× ESP32 DevKit USB-C/CP2102)
+- [ ] Placas recebidas
 - [ ] ESP-IDF v5.5.5 instalado no Windows (`idf.py --version` funcionando)
 - [ ] Exemplos `csi_send` e `csi_recv` compilados (sem placa)
 - [ ] Firmware gravado nas duas placas
@@ -17,30 +18,27 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 
 Só marcar um item depois de testado de verdade.
 
-## Lista de compras
+## Hardware escolhido
 
-| Item | Qtd. | Obrigatório? | Observação |
-|---|---|---|---|
-| ESP32-C6-DevKitC-1 (módulo ESP32-C6-WROOM-1, antena na placa) | 2 (3 se der) | Sim | A 3ª é reserva. Precisa ter **duas** portas USB-C (uma delas "UART"). Evitar versões "-1U" (precisam de antena externa) e placas "Super Mini"/"Zero" (só uma USB nativa; o exemplo oficial envia o CSI pela UART). |
-| Cabo USB de **dados** com ponta USB-C (A→C ou C→C, conforme o PC) | 2 | Sim | Testar antes com um celular: se o PC reconhece o celular para transferir arquivos, o cabo transmite dados. |
-| Carregador USB de celular ou power bank | 1 | Já devem ter | Só para alimentar o transmissor; ele não precisa ficar ligado ao PC. |
-| Colchonete | 1 | Só na etapa de queda | Emprestar. |
+| Item | Qtd. | Observação |
+|---|---|---|
+| ESP32 DevKit "clássico" (módulo tipo WROOM-32), USB-C, ponte USB-serial CP2102 | 2 | Uma transmite (`csi_send`), outra recebe e mede o CSI (`csi_recv`). O ESP32 clássico está na lista oficial de chips suportados pelo ESP-CSI. |
+| Cabo USB de **dados** com ponta USB-C | 1 (mínimo) | Serve para gravar as duas placas, uma de cada vez, e depois fica no receptor. Um segundo cabo é conveniência. |
+| Carregador de celular ou power bank | 1 | Alimenta o transmissor depois de gravado (não precisa de dados). |
+| Colchonete | 1 | Só na etapa de queda simulada. Emprestar. |
 
-**Não é necessário:** roteador, sensores extras, protoboard, solda, display ou buzzer. Os exemplos oficiais usam ESP-NOW direto entre as duas placas.
+**Não é necessário:** roteador, sensores extras, protoboard, solda, display ou buzzer.
 
-**Alternativa se não houver ESP32-C6-DevKitC-1 com entrega rápida:** comprar **duas placas do mesmo modelo** entre ESP32-S3-DevKitC-1, ESP32-C3 DevKit ou ESP32 (WROOM-32) DevKit. O código do exemplo oficial tem suporte a esses chips, mas confirmar o anúncio antes de comprar.
-
-Comprar de vendedor no Brasil com estoque e entrega em poucos dias; compras internacionais não chegam a tempo.
+**Como saber se o cabo transmite dados:** ligar um celular no PC com o cabo. Se o celular mostrar a notificação de USB (opções como "Transferência de arquivos") ou aparecer no Explorador de Arquivos, o cabo tem dados. Com a placa: ela deve aparecer no Gerenciador de Dispositivos em "Portas (COM e LPT)" como "Silicon Labs CP210x ... (COMx)".
 
 ## Ambiente (Windows)
 
 - ESP-IDF **v5.5.5**, instalador offline oficial: https://dl.espressif.com/dl/esp-idf/
 - ESP-CSI oficial: https://github.com/espressif/esp-csi (exemplos em `examples/get-started`)
-- Os exemplos exigem ESP-IDF ≥ 5.4 para o ESP32-C6, e a configuração deles foi gerada com ESP-IDF 5.5.0.
+- A configuração dos exemplos foi gerada com ESP-IDF 5.5.0. Alvo de compilação: `esp32`.
 - O receptor envia linhas `CSI_DATA,...` pela UART a 921600 baud.
 
 ## Referências
 
-- Guia de instalação no Windows (v5.5): https://docs.espressif.com/projects/esp-idf/en/v5.5/esp32c6/get-started/windows-setup.html
-- Guia da placa ESP32-C6-DevKitC-1: https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html
+- Guia de instalação no Windows (v5.5): https://docs.espressif.com/projects/esp-idf/en/v5.5/esp32/get-started/windows-setup.html
 - Exemplos get-started do ESP-CSI: https://github.com/espressif/esp-csi/tree/master/examples/get-started
