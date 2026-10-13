@@ -19,6 +19,19 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 
 O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, a mesma medida do `ferramentas/analise.py`.
 
+## Telas extras (versão 4)
+
+- **Abertura com contador:** a calibração virou a abertura da tela. Um número grande vai de 0% a 100% enquanto o sistema "aprende" a sala vazia. A ideia vem dos sites premiados que abrem com contador (Lusion, Immersive Garden), mas aqui o número mede algo de verdade.
+- **Tremor realçado:** a forma das linhas mostra o "relevo" da sala, e a diferença em relação à forma média aparece 3x maior. Assim, quando o detector diz *Movimento.*, dá para ver as linhas tremerem. É só no desenho; a detecção não muda.
+- **Frases que se revezam:** com a sala parada, a frase embaixo da palavra troca a cada 7 s, convidando o visitante.
+- **Contador do dia** (no topo): quantos movimentos foram detectados. A simulação conta separado e aparece como "na simulação".
+- **Retrato de cada visitante:** no Desafio Ninja, as leituras dos 3 s de contagem e da travessia viram o "rastro" da pessoa, numerado (Nº 001, Nº 002...). No computador do estande, a tecla `B` salva um cartão PNG de 1080×1350 para a pessoa fotografar ou postar. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
+- **Quem passou hoje** (tecla `G`): galeria com os últimos 12 retratos.
+- **Como funciona** (tecla `H`): três passos com desenhos de linha. No modo vitrine, ela aparece sozinha depois de 45 s sem movimento e some no primeiro movimento.
+- **Grão de foto** bem leve por cima de tudo, para a tela não parecer "plástica".
+
+Recordes, retratos e contador ficam guardados só neste navegador. O painel do operador tem um botão para apagar tudo antes da feira.
+
 ## Controles
 
 Tudo que é técnico fica no **painel do operador** (tecla `O`):
@@ -43,7 +56,7 @@ Teste o volume no lugar da feira.
 
 ## Atalhos
 
-`N` desafio · `Enter` começar · `Espaço` chegou · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
+`N` desafio · `Enter` começar · `Espaço` chegou · `B` salvar retrato · `G` quem passou · `H` como funciona · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
 
 ## Situação
 

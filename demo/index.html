@@ -10,7 +10,8 @@
 <style>
 /* Layout: duas metades. À esquerda, a palavra do estado em letra enorme; à direita, o sinal como
    linhas empilhadas (referência: o gráfico do pulsar CP1919 que virou a capa de Unknown Pleasures).
-   Preto e branco. Quando há movimento a tela inteira inverte. A única cor é o aviso de simulação. */
+   Preto e branco com grão de papel fotográfico. Quando há movimento a tela inteira inverte.
+   A única cor é o aviso de simulação. */
 :root {
   color-scheme: dark;
   --fundo: #0B0B0A;
@@ -33,6 +34,11 @@ body {
   font-size: 15px;
   transition: background-color 0.35s ease, color 0.35s ease;
 }
+/* grão: textura de foto, bem leve */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.4 -0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
 button, input { font: inherit; color: inherit; }
 .mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 
@@ -49,35 +55,54 @@ button, input { font: inherit; color: inherit; }
 .aviso { color: var(--aviso); display: inline-flex; align-items: center; gap: 8px; }
 .aviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 body[data-estado="movimento"] .aviso { color: #9A6400; }
+.contador { color: var(--apagado); }
 
 .texto { grid-column: 1; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: flex-end; gap: 28px; min-width: 0; padding-bottom: 4px; }
-.palavra { font-family: var(--serif); font-weight: 400; font-size: clamp(64px, 11vw, 210px); line-height: 0.86; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.palavra { font-family: var(--serif); font-weight: 400; font-size: clamp(64px, 11vw, 210px); line-height: 0.86; letter-spacing: -0.02em; margin: 0; text-wrap: balance; font-variant-numeric: tabular-nums; }
 .palavra em { font-style: italic; }
-.frase { margin: 0; max-width: 30ch; font-size: clamp(16px, 1.35vw, 21px); line-height: 1.35; color: var(--tinta); }
-.frase span { color: var(--apagado); }
+.frase { margin: 0; max-width: 30ch; min-height: 2.7em; font-size: clamp(16px, 1.35vw, 21px); line-height: 1.35; color: var(--tinta); transition: opacity 0.4s ease; }
+.frase.trocando { opacity: 0; }
 
 .sinal { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; min-height: 0; }
 #linhas { width: min(100%, 72vh); aspect-ratio: 1 / 1.08; display: block; }
 
 .rodape { grid-column: 2; grid-row: 3; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; color: var(--apagado); padding-top: 18px; }
 .rodape span { white-space: nowrap; }
-#leitura { white-space: normal; }
+#leitura { white-space: normal; flex-basis: 100%; }
 .botao-texto { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta); text-decoration: underline; text-underline-offset: 4px; }
-:is(button, input, summary):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
+:is(button, input):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
 
-/* Desafio Ninja: ocupa a tela inteira */
-.desafio { position: fixed; inset: 0; z-index: 5; background: var(--fundo); color: var(--tinta); display: grid; grid-template-rows: auto 1fr auto; padding-inline: clamp(16px, 4vw, 64px); padding-block: clamp(16px, 3vw, 40px); transition: background-color 0.35s ease, color 0.35s ease; }
-.desafio-centro { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 18px; }
-.desafio-grande { font-family: var(--serif); font-size: clamp(90px, 22vw, 380px); line-height: 0.85; letter-spacing: -0.03em; }
+/* Camadas de tela cheia: desafio, como funciona, galeria */
+.camada { position: fixed; inset: 0; z-index: 5; background: var(--fundo); color: var(--tinta); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 24px; padding-inline: clamp(16px, 4vw, 64px); padding-block: clamp(16px, 3vw, 40px); transition: background-color 0.35s ease, color 0.35s ease; overflow-y: auto; }
+.desafio-meio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); gap: 6vw; align-items: center; }
+.desafio-centro { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 18px; min-width: 0; }
+.desafio-grande { font-family: var(--serif); font-size: clamp(90px, 20vw, 360px); line-height: 0.85; letter-spacing: -0.03em; }
 .desafio-sub { font-size: clamp(18px, 1.8vw, 28px); max-width: 32ch; }
 .desafio-tempo { font-family: var(--mono); font-size: clamp(28px, 3.2vw, 52px); font-variant-numeric: tabular-nums; }
-.desafio-baixo { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.retrato { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.retrato canvas { width: 100%; max-width: 520px; aspect-ratio: 1 / 1.08; display: block; }
+.retrato .mono { color: var(--apagado); }
+.baixo { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
 .recordes { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-width: 220px; }
 .recordes li { display: flex; justify-content: space-between; gap: 24px; font-family: var(--mono); font-size: 13px; }
 .recordes li.titulo { color: var(--apagado); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 .acoes { display: flex; gap: 22px; flex-wrap: wrap; }
 input.apelido { background: transparent; border: 0; border-bottom: 1px solid var(--apagado); padding: 6px 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 44px); width: min(14ch, 80vw); }
 input.apelido::placeholder { color: var(--apagado); font-style: italic; }
+
+.passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4vw; align-content: center; }
+.passo { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.passo-num { font-family: var(--serif); font-size: clamp(72px, 9vw, 160px); line-height: 0.8; }
+.passo svg { width: 100%; max-width: 360px; height: auto; color: var(--tinta); }
+.passo p { margin: 0; font-size: clamp(18px, 1.6vw, 26px); line-height: 1.3; max-width: 22ch; }
+.passo p span { color: var(--apagado); }
+
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 36px 28px; align-content: start; }
+.cartao { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.cartao canvas { width: 100%; aspect-ratio: 1 / 1.08; display: block; }
+.cartao b { font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cartao span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); }
+.galeria-vazia { font-family: var(--serif); font-size: clamp(32px, 4vw, 64px); color: var(--apagado); max-width: 18ch; }
 
 /* Painel do operador (tecla O) */
 .operador { position: fixed; top: 0; right: 0; bottom: 0; z-index: 10; width: min(380px, 100vw); overflow-y: auto; background: #151514; color: #EDEDE8; border-left: 1px solid #2A2A28; padding: 22px 22px 32px; display: flex; flex-direction: column; gap: 24px; }
@@ -101,9 +126,10 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
   #linhas { width: 100%; }
   .texto { grid-column: 1; grid-row: 3; }
   .rodape { grid-column: 1; grid-row: 4; }
+  .desafio-meio, .passos { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
-  body, .desafio { transition: none; }
+  body, .camada, .frase { transition: none; }
 }
 </style>
 </head>
@@ -111,6 +137,7 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
 <div class="tela">
   <header class="topo mono">
     <span>Wave Sense · JACITEC 2026</span>
+    <span class="contador" id="contador"></span>
     <span class="aviso" id="aviso">Sem dados</span>
   </header>
 
@@ -120,32 +147,83 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
 
   <div class="texto">
     <h1 class="palavra" id="palavra" aria-live="polite">Esperando<em>.</em></h1>
-    <p class="frase">Cada linha é uma leitura do Wi-Fi desta sala. Quando alguém se mexe, elas tremem. <span>Não tem câmera aqui.</span></p>
+    <p class="frase" id="frase">Nenhuma fonte de dados ligada.</p>
   </div>
 
   <footer class="rodape mono">
     <span id="leitura">canal 11 · 2,462 GHz</span>
+    <span><button class="botao-texto mono" id="abrir-como">Como funciona (H)</button></span>
+    <span><button class="botao-texto mono" id="abrir-galeria">Quem passou (G)</button></span>
     <span><button class="botao-texto mono" id="abrir-desafio">Desafio ninja (N)</button></span>
     <span><button class="botao-texto mono" id="abrir-operador">Operador (O)</button></span>
   </footer>
 </div>
 
-<div class="desafio" id="desafio" hidden>
-  <div class="topo mono"><span>Desafio ninja · atravesse a faixa sem ser percebido</span><span class="aviso" id="aviso-2"></span></div>
-  <div class="desafio-centro">
-    <div class="desafio-grande" id="d-grande">Pronto?</div>
-    <div class="desafio-sub" id="d-sub">Escreva seu apelido e fique na linha de partida.</div>
-    <input class="apelido" id="apelido" type="text" maxlength="16" autocomplete="off" placeholder="seu apelido" aria-label="Apelido">
-    <div class="desafio-tempo" id="d-tempo" hidden>0,0 s</div>
+<div class="camada" id="desafio" hidden>
+  <div class="topo mono"><span>Desafio ninja · atravesse a faixa sem ser percebido</span><span class="aviso aviso-copia"></span></div>
+  <div class="desafio-meio">
+    <div class="desafio-centro">
+      <div class="desafio-grande" id="d-grande">Pronto?</div>
+      <div class="desafio-sub" id="d-sub">Escreva seu apelido e fique na linha de partida.</div>
+      <input class="apelido" id="apelido" type="text" maxlength="16" autocomplete="off" placeholder="seu apelido" aria-label="Apelido">
+      <div class="desafio-tempo" id="d-tempo" hidden>0,0 s</div>
+    </div>
+    <div class="retrato" id="retrato" hidden>
+      <canvas id="retrato-cv" role="img" aria-label="Seu rastro no Wi-Fi: as leituras do sinal enquanto você atravessava"></canvas>
+      <span class="mono" id="retrato-legenda"></span>
+    </div>
   </div>
-  <div class="desafio-baixo">
+  <div class="baixo">
     <ol class="recordes" id="recordes"></ol>
     <div class="acoes mono">
       <button class="botao-texto mono" id="d-comecar">Começar (enter)</button>
       <button class="botao-texto mono" id="d-chegou" hidden>Chegou (espaço)</button>
+      <button class="botao-texto mono" id="d-baixar" hidden>Salvar imagem (B)</button>
       <button class="botao-texto mono" id="d-fechar">Voltar (esc)</button>
     </div>
   </div>
+</div>
+
+<div class="camada" id="como" hidden>
+  <div class="topo mono"><span>Como funciona</span><span class="aviso aviso-copia"></span></div>
+  <div class="passos">
+    <div class="passo">
+      <div class="passo-num">1</div>
+      <svg viewBox="0 0 240 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="20" y="96" width="16" height="22"/><rect x="204" y="96" width="16" height="22"/>
+        <path d="M44 86 a26 26 0 0 1 0 42"/><path d="M58 72 a46 46 0 0 1 0 70"/><path d="M72 58 a66 66 0 0 1 0 98" opacity="0.6"/><path d="M86 44 a86 86 0 0 1 0 126" opacity="0.35"/>
+      </svg>
+      <p>Uma placa manda 100 pacotes de Wi-Fi por segundo. <span>A outra fica escutando.</span></p>
+    </div>
+    <div class="passo">
+      <div class="passo-num">2</div>
+      <svg viewBox="0 0 240 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <rect x="20" y="96" width="16" height="22"/><rect x="204" y="96" width="16" height="22"/>
+        <path d="M36 107 H204" stroke-dasharray="4 6" opacity="0.5"/>
+        <path d="M36 102 L112 52 L204 102"/>
+        <circle cx="120" cy="34" r="9"/><path d="M120 43 V82 M120 82 L108 112 M120 82 L132 112 M106 58 L134 58"/>
+      </svg>
+      <p>No caminho, o sinal bate em você e volta diferente. <span>Paredes e móveis também refletem, mas eles não se mexem.</span></p>
+    </div>
+    <div class="passo">
+      <div class="passo-num">3</div>
+      <svg viewBox="0 0 240 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
+        <path d="M10 40 H60 C90 40 100 20 130 22 C160 24 170 40 190 40 H230"/>
+        <path d="M10 60 H60 C90 60 100 40 130 42 C160 44 170 60 190 60 H230"/>
+        <path d="M10 80 H60 C88 80 96 62 126 58 C150 56 168 80 190 80 H230"/>
+        <path d="M10 100 H60 C80 100 94 70 112 88 C128 104 140 52 160 78 C172 92 178 100 190 100 H230"/>
+        <path d="M10 120 H60 C76 120 90 92 104 112 C118 132 132 76 150 104 C164 124 176 120 190 120 H230"/>
+      </svg>
+      <p>A placa receptora mede a diferença. <span>Cada linha da tela é uma dessas medidas. Quando você se mexe, elas tremem.</span></p>
+    </div>
+  </div>
+  <div class="baixo mono"><span>Sem câmera, sem microfone: só o sinal de rádio.</span><button class="botao-texto mono" id="como-fechar">Voltar (esc)</button></div>
+</div>
+
+<div class="camada" id="galeria" hidden>
+  <div class="topo mono"><span>Quem passou hoje · o rastro de cada um no Wi-Fi</span><span class="aviso aviso-copia"></span></div>
+  <div class="galeria" id="galeria-grade"></div>
+  <div class="baixo mono"><span>Cada desenho é o sinal medido enquanto a pessoa atravessava a faixa.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
 </div>
 
 <aside class="operador" id="operador" hidden aria-label="Painel do operador">
@@ -178,14 +256,19 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
     <input type="range" id="volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume">
     <p>Alerta: dois toques quando começa um movimento. Contador: estalos que aceleram com a oscilação, como um contador Geiger.</p>
   </section>
+  <section>
+    <span class="mono">Vitrine</span>
+    <div class="opcoes"><button id="vitrine" aria-pressed="true">Mostrar "como funciona" sozinho</button></div>
+    <p>Com a zona parada por 45 s, a explicação aparece por 15 s. Qualquer movimento volta para a tela principal.</p>
+  </section>
   <section id="sim-grupo" hidden>
     <span class="mono">Cena simulada (teclas 1–5)</span>
     <div class="opcoes" id="cenas"></div>
   </section>
   <section>
-    <span class="mono">Tela</span>
-    <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button></div>
-    <p>Atalhos: N desafio · espaço chegou · C calibrar · S som · O este painel.</p>
+    <span class="mono">Tela e dados do dia</span>
+    <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button><button id="btn-zerar">Zerar recordes e galeria</button></div>
+    <p>Atalhos: N desafio · H como funciona · G quem passou · C calibrar · S som · O este painel.</p>
   </section>
 </aside>
 
@@ -199,14 +282,25 @@ const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para marca
 const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "parado"
 const LINHAS = 48;             // leituras empilhadas na tela
 const LEITURA_S = 0.1;         // uma linha nova a cada 0,1 s
+const REALCE = 3;              // só no desenho: aumenta o tremor de cada linha em relação à forma média
+const EMBUTIDO = window.self !== window.top;   // dentro do claude.ai: sem USB e sem salvar arquivos
 
 const app = {
   fonte: null, janela: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
   maxRecente: 0, historico: [],
   limiar: null, detectado: false, acima: 0, abaixo: 0, calibracao: null, oscAtual: NaN,
-  leituras: [], ultimaLeitura: 0,
+  leituras: [], ultimaLeitura: 0, formaLenta: null,
+  quietoDesde: 0,
   porta: null, leitor: null, timers: [],
 };
+
+/* ---------- Armazenamento local (só neste navegador) ---------- */
+function ler(chave, padrao) { try { return JSON.parse(localStorage.getItem(chave)) ?? padrao; } catch (e) { return padrao; } }
+function gravar(chave, valor) { try { localStorage.setItem(chave, JSON.stringify(valor)); } catch (e) { /* sem armazenamento */ } }
+const hoje = () => new Date().toISOString().slice(0, 10);
+// Movimentos do dia, separados por fonte: a simulação nunca entra na conta do ao vivo.
+let dia = ler('wavesense-dia', null);
+if (!dia || dia.data !== hoje() || typeof dia.live !== 'number') dia = { data: hoje(), live: 0, sim: 0 };
 
 /* ---------- Leitura das linhas CSI_DATA (mesmo formato do ferramentas/csi_formato.py) ---------- */
 function lerLinhaCSI(texto) {
@@ -283,15 +377,22 @@ function avaliar() {
     app.detectado = false;
   }
   app.maxRecente = app.historico.reduce((m, x) => Math.max(m, x), 0);
-  if (app.detectado && !antes) somAlerta();
+  if (app.detectado && !antes) {
+    somAlerta();
+    if (dia.data !== hoje()) dia = { data: hoje(), live: 0, sim: 0 };
+    if (app.fonte === 'live' || app.fonte === 'sim') { dia[app.fonte]++; gravar('wavesense-dia', dia); }
+    if (!$('como').hidden && como.automatico) fecharComo();
+  }
+  if (app.detectado || !app.fonte || app.calibracao || app.limiar === null) app.quietoDesde = agora;
   if (som.modo === 'geiger') somGeiger(v);
   atualizarEstado(agora);
   ninjaPasso(agora);
+  vitrinePasso(agora);
 }
 
 function iniciarCalibracao(duracao = 10) {
   if (!app.fonte) return;
-  app.calibracao = { fim: performance.now() / 1000 + duracao, valores: [] };
+  app.calibracao = { inicio: performance.now() / 1000, fim: performance.now() / 1000 + duracao, duracao, valores: [] };
   app.detectado = false; app.acima = 0; app.abaixo = 0;
   $('cal-info').textContent = `Calibrando por ${duracao} s. Zona vazia, ninguém se mexendo por perto.`;
 }
@@ -314,11 +415,28 @@ function fmt(x) {
   return (x >= 10 ? x.toFixed(1) : x.toFixed(2)).replace('.', ',');
 }
 
-const PALAVRAS = {
-  aguardando: 'Esperando', semsinal: 'Sem sinal', calibrando: 'Calibrando',
-  semlimiar: 'Sem limiar', parado: 'Parado', movimento: 'Movimento',
+/* ---------- Palavra e frase ---------- */
+const CONVITES = [
+  'Cada linha é uma leitura do Wi-Fi desta sala. Quando alguém se mexe, elas tremem.',
+  'Passe pela faixa marcada no chão e veja as linhas.',
+  'Não tem câmera aqui. Só duas plaquinhas e o Wi-Fi.',
+  'Ande bem devagar. Será que ele percebe?',
+];
+const FRASES = {
+  aguardando: 'Nenhuma fonte de dados ligada.',
+  semsinal: 'Nenhum pacote chegou nos últimos 2 segundos.',
+  calibrando: 'Aprendendo como esta sala é quando está vazia. Fique fora da faixa, por favor.',
+  semlimiar: 'Falta calibrar com a zona vazia.',
+  movimento: 'Você mexeu no Wi-Fi desta sala. É isso que as linhas estão mostrando.',
 };
-let estadoAtual = '';
+let estadoAtual = '', fraseAtual = '', convite = 0, proximoConvite = 0;
+function trocarFrase(txt) {
+  if (txt === fraseAtual) return;
+  fraseAtual = txt;
+  const f = $('frase');
+  f.classList.add('trocando');
+  setTimeout(() => { f.textContent = txt; f.classList.remove('trocando'); }, 250);
+}
 function atualizarEstado(agora) {
   let e;
   if (!app.fonte) e = 'aguardando';
@@ -326,15 +444,31 @@ function atualizarEstado(agora) {
   else if (app.calibracao) e = 'calibrando';
   else if (app.limiar === null) e = 'semlimiar';
   else e = app.detectado ? 'movimento' : 'parado';
-  if (e !== estadoAtual) {
+
+  const h = $('palavra');
+  if (e === 'calibrando') {
+    // A calibração é a "abertura": um contador de 0 a 100.
+    const c = app.calibracao;
+    const pct = Math.min(100, Math.floor(((agora - c.inicio) / c.duracao) * 100));
+    h.textContent = String(pct);
+    const em = document.createElement('em'); em.textContent = '%'; h.appendChild(em);
     estadoAtual = e;
-    const h = $('palavra');
-    h.textContent = PALAVRAS[e];
-    const ponto = document.createElement('em');
-    ponto.textContent = e === 'calibrando' ? '…' : '.';
-    h.appendChild(ponto);
+  } else if (e !== estadoAtual) {
+    estadoAtual = e;
+    const nomes = { aguardando: 'Esperando', semsinal: 'Sem sinal', semlimiar: 'Sem limiar', parado: 'Parado', movimento: 'Movimento' };
+    h.textContent = nomes[e];
+    const em = document.createElement('em'); em.textContent = '.'; h.appendChild(em);
     document.body.dataset.estado = e === 'movimento' ? 'movimento' : 'quieto';
+    proximoConvite = agora;
   }
+  if (e === 'parado') {
+    if (agora >= proximoConvite) { trocarFrase(CONVITES[convite % CONVITES.length]); convite++; proximoConvite = agora + 7; }
+  } else {
+    trocarFrase(FRASES[e]);
+  }
+
+  const nMov = app.fonte === 'live' || app.fonte === 'sim' ? dia[app.fonte] : 0;
+  $('contador').textContent = nMov ? `${nMov} ${nMov === 1 ? 'movimento' : 'movimentos'} ${app.fonte === 'sim' ? 'na simulação' : 'hoje'}` : '';
   $('leitura').textContent = app.fonte
     ? `canal 11 · ${$('st-taxa').textContent} pacotes/s · oscilação ${fmt(app.oscAtual)} / limiar ${fmt(app.limiar)}`
     : 'canal 11 · 2,462 GHz';
@@ -356,39 +490,36 @@ function guardarLeitura(agora) {
   const ps = app.janela.filter((p) => p.t > agora - LEITURA_S);
   if (!ps.length) return;
   const K = ps[ps.length - 1].amps.length;
-  const media = new Float32Array(K);
+  const a = new Float32Array(K);
   let n = 0;
-  for (const p of ps) { if (p.amps.length !== K) continue; for (let k = 0; k < K; k++) media[k] += p.amps[k]; n++; }
-  for (let k = 0; k < K; k++) media[k] /= n;
-  app.leituras.push(media);
+  for (const p of ps) { if (p.amps.length !== K) continue; for (let k = 0; k < K; k++) a[k] += p.amps[k]; n++; }
+  for (let k = 0; k < K; k++) a[k] /= n;
+  if (!app.formaLenta || app.formaLenta.length !== K) app.formaLenta = Float32Array.from(a);
+  const d = new Float32Array(K);
+  for (let k = 0; k < K; k++) { d[k] = a[k] - app.formaLenta[k]; app.formaLenta[k] += 0.05 * (a[k] - app.formaLenta[k]); }
+  const leitura = { a, d };
+  app.leituras.push(leitura);
   if (app.leituras.length > LINHAS + 1) app.leituras.shift();
+  if (ninja.estado === 'contagem' || ninja.estado === 'correndo') {
+    ninja.rastro.push(leitura);
+    if (ninja.rastro.length > LINHAS) ninja.rastro.shift();
+  }
 }
-function desenharLinhas() {
-  const agora = performance.now() / 1000;
-  if (app.fonte && agora - app.ultimaLeitura >= LEITURA_S) { guardarLeitura(agora); app.ultimaLeitura = agora; }
-  const dpr = window.devicePixelRatio || 1;
-  const r = cv.getBoundingClientRect();
-  const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
-  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
-  const { fundo, tinta } = cores();
-  ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
 
+// Desenha uma pilha de leituras. Usada na tela principal, no retrato e na galeria.
+function desenharPilha(c, W, H, ls, fundo, tinta, espessura, frac = 0) {
+  c.fillStyle = fundo; c.fillRect(0, 0, W, H);
   const topo = H * 0.16, base = H * 0.97;
   const passo = (base - topo) / LINHAS;
-  const altura = passo * 9;                       // quanto um pico pode subir
-  const frac = Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S);
+  const altura = passo * 9;
   const margem = W * 0.12, largura = W - 2 * margem;
-  ctx.lineWidth = 1.4 * dpr;
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = tinta;
-  ctx.fillStyle = fundo;
-
+  c.lineWidth = espessura; c.lineJoin = 'round';
+  c.strokeStyle = tinta; c.fillStyle = fundo;
   // Da leitura mais antiga (em cima) para a mais nova (embaixo); cada uma tapa as de trás.
-  const ls = app.leituras;
   for (let i = 0; i < ls.length; i++) {
     const y0 = base - (ls.length - 1 - i + frac) * passo;
     if (y0 < topo - passo) continue;
-    const a = ls[i];
+    const { a, d } = ls[i];
     const uteis = [];
     let soma = 0;
     for (let k = 0; k < a.length; k++) if (a[k] > 0.5) { uteis.push(k); soma += a[k]; }
@@ -396,23 +527,40 @@ function desenharLinhas() {
     const media = soma / uteis.length;
     const pts = [[0, y0], [margem, y0]];
     for (let j = 0; j < uteis.length; j++) {
-      const viz = (a[uteis[Math.max(0, j - 1)]] + 2 * a[uteis[j]] + a[uteis[Math.min(uteis.length - 1, j + 1)]]) / 4;
-      const relevo = Math.max(0, viz / media - 0.3);                 // só desenho: realça o relevo em volta da média
-      const borda = Math.sin((Math.PI * (j + 0.5)) / uteis.length);  // desce suave até as bordas
+      const k0 = uteis[Math.max(0, j - 1)], k = uteis[j], k1 = uteis[Math.min(uteis.length - 1, j + 1)];
+      const forma = (a[k0] + 2 * a[k] + a[k1]) / 4;
+      const tremor = (d[k0] + 2 * d[k] + d[k1]) / 4;
+      // Só desenho: a forma mostra o "relevo" da sala; o tremor (diferença para a forma média) aparece 3x maior.
+      const relevo = Math.max(0, forma / media - 0.3 + (REALCE * tremor) / media);
+      const borda = Math.sin((Math.PI * (j + 0.5)) / uteis.length);
       pts.push([margem + (largura * (j + 0.5)) / uteis.length, y0 - relevo * altura * borda]);
     }
     pts.push([W - margem, y0], [W, y0]);
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
-    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(pts[0][0], pts[0][1]);
-    for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
-    ctx.stroke();
+    c.beginPath();
+    c.moveTo(pts[0][0], pts[0][1]);
+    for (let j = 1; j < pts.length; j++) c.lineTo(pts[j][0], pts[j][1]);
+    c.lineTo(W, H); c.lineTo(0, H); c.closePath();
+    c.fill();
+    c.beginPath();
+    c.moveTo(pts[0][0], pts[0][1]);
+    for (let j = 1; j < pts.length; j++) c.lineTo(pts[j][0], pts[j][1]);
+    c.stroke();
   }
-  requestAnimationFrame(desenharLinhas);
+}
+function ajustar(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const r = canvas.getBoundingClientRect();
+  const W = Math.max(1, Math.round(r.width * dpr)), H = Math.max(1, Math.round(r.height * dpr));
+  if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
+  return [W, H, dpr];
+}
+function quadro() {
+  const agora = performance.now() / 1000;
+  if (app.fonte && agora - app.ultimaLeitura >= LEITURA_S) { guardarLeitura(agora); app.ultimaLeitura = agora; }
+  const [W, H, dpr] = ajustar(cv);
+  const { fundo, tinta } = cores();
+  desenharPilha(ctx, W, H, app.leituras, fundo, tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S));
+  requestAnimationFrame(quadro);
 }
 
 /* ---------- Som ---------- */
@@ -484,7 +632,7 @@ function gauss() {
 }
 function movimento(cena, t) {
   switch (cena) {
-    case 'parado': return { tau: 35e-9, fase: 0.5 * Math.sin(2 * Math.PI * 0.25 * t) };
+    case 'parado': return { tau: 35e-9, fase: 0.12 * Math.sin(2 * Math.PI * 0.25 * t) };
     case 'andando': return { tau: 40e-9 + 25e-9 * Math.sin(2 * Math.PI * t / 6), fase: 54 * Math.sin(2 * Math.PI * t / 6) };
     case 'devagar': return { tau: 40e-9 + 6e-9 * Math.sin(2 * Math.PI * t / 14), fase: 3 * Math.sin(2 * Math.PI * t / 14) };
     case 'mao': return { tau: 8e-9, fase: 3 * Math.sin(2 * Math.PI * 2 * t) + 2 * Math.sin(2 * Math.PI * 3.3 * t) };
@@ -559,12 +707,12 @@ function iniciarGravacao(texto, nome) {
 
 /* ---------- Placa B pela USB (Web Serial, Chrome/Edge) ---------- */
 async function conectarPlaca() {
-  if (!('serial' in navigator)) { mostrarMsg('Este navegador não acessa a USB. Abra demo/index.html direto no Chrome ou no Edge.'); return; }
+  if (!('serial' in navigator) || EMBUTIDO) { mostrarMsg('A USB só funciona abrindo demo/index.html direto no Chrome ou no Edge do computador.'); return; }
   let porta;
   try { porta = await navigator.serial.requestPort(); } catch (e) {
     mostrarMsg(e && e.name === 'NotFoundError'
       ? 'Nenhuma porta escolhida. Escolha a da Placa B (Silicon Labs CP210x).'
-      : `O navegador bloqueou a USB (${e.message}). Dentro do claude.ai não funciona: abra demo/index.html no Chrome ou no Edge.`);
+      : `O navegador bloqueou a USB (${e.message}).`);
     return;
   }
   await pararFonte();
@@ -598,9 +746,10 @@ async function pararFonte() {
   const leitor = app.leitor, porta = app.porta;
   app.leitor = null; app.porta = null; app.fonte = null;
   app.timers.forEach(clearInterval); app.timers = [];
-  app.janela = []; app.historico = []; app.leituras = []; app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
+  app.janela = []; app.historico = []; app.leituras = []; app.formaLenta = null;
+  app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
   app.limiar = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
-  fecharDesafio();
+  fecharCamadas();
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
   if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
 }
@@ -608,7 +757,7 @@ const AVISOS = { sim: 'Simulação · dados inventados para ensaio', replay: 'Gr
 function definirFonte(f) {
   app.fonte = f;
   const txt = AVISOS[f] || 'Sem dados';
-  $('aviso').textContent = txt; $('aviso-2').textContent = txt;
+  for (const el of [$('aviso'), ...document.querySelectorAll('.aviso-copia')]) el.textContent = txt;
   $('sim-grupo').hidden = f !== 'sim';
   for (const [id, m] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === m));
   if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
@@ -616,28 +765,30 @@ function definirFonte(f) {
 function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; $('operador').hidden = false; }
 function esconderMsg() { $('msg').hidden = true; }
 
-/* ---------- Desafio Ninja ---------- */
-const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', ranking: [], fecharEm: 0 };
-try { ninja.ranking = JSON.parse(localStorage.getItem('wavesense-ninja') || '{}').ranking || []; } catch (e) { /* só nesta sessão */ }
-function salvarNinja() { try { localStorage.setItem('wavesense-ninja', JSON.stringify({ ranking: ninja.ranking })); } catch (e) { /* ignora */ } }
+/* ---------- Desafio Ninja e retratos ---------- */
+const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', fecharEm: 0, rastro: [], retrato: null };
+let recordes = ler('wavesense-recordes', ler('wavesense-ninja', {}).ranking || []);
+let retratos = ler('wavesense-retratos', []);
 function seg(s) { return `${s.toFixed(1).replace('.', ',')} s`; }
+function numero(n) { return `Nº ${String(n).padStart(3, '0')}`; }
 
 function abrirDesafio() {
   if (!app.fonte || app.limiar === null) { mostrarMsg('Antes do desafio: ligue uma fonte de dados e calibre com a zona vazia.'); return; }
-  ninja.estado = 'pronto';
+  fecharCamadas();
+  ninja.estado = 'pronto'; ninja.rastro = [];
   $('d-grande').textContent = 'Pronto?';
   $('d-sub').textContent = 'Escreva seu apelido e fique na linha de partida.';
   $('apelido').hidden = false; $('apelido').value = '';
-  $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true;
+  $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true; $('d-baixar').hidden = true;
+  $('retrato').hidden = true;
   $('desafio').hidden = false;
   desenharRecordes();
   setTimeout(() => $('apelido').focus(), 50);
 }
-function fecharDesafio() { ninja.estado = 'fechado'; $('desafio').hidden = true; }
 function comecar() {
   if (ninja.estado !== 'pronto') return;
   ninja.apelido = $('apelido').value.trim() || 'Anônimo';
-  ninja.estado = 'contagem';
+  ninja.estado = 'contagem'; ninja.rastro = [];
   ninja.fimContagem = performance.now() / 1000 + 3; ninja.numero = 4;
   $('apelido').hidden = true; $('d-comecar').hidden = true;
   $('apelido').blur();
@@ -649,10 +800,10 @@ function terminar(ok, t) {
   $('d-chegou').hidden = true;
   $('d-tempo').textContent = seg(t);
   if (ok) {
-    ninja.ranking.push({ nome: ninja.apelido, tempo: t });
-    ninja.ranking.sort((a, b) => a.tempo - b.tempo);
-    ninja.ranking = ninja.ranking.slice(0, 5);
-    salvarNinja();
+    recordes.push({ nome: ninja.apelido, tempo: t });
+    recordes.sort((a, b) => a.tempo - b.tempo);
+    recordes = recordes.slice(0, 5);
+    gravar('wavesense-recordes', recordes);
     $('d-grande').textContent = 'Passou.';
     $('d-sub').textContent = `${ninja.apelido} atravessou sem o Wi-Fi perceber.`;
     somNinja();
@@ -664,8 +815,24 @@ function terminar(ok, t) {
     $('d-grande').textContent = 'Tempo.';
     $('d-sub').textContent = 'Passou de 60 s. Tente de novo.';
   }
+  // O retrato: as leituras de verdade (ou simuladas) enquanto a pessoa atravessava.
+  const n = (retratos.length ? retratos[retratos.length - 1].n : 0) + 1;
+  const r = {
+    n, nome: ninja.apelido, tempo: t, ok, quando: Date.now(), fonte: app.fonte,
+    linhas: ninja.rastro.map((l) => ({ a: Array.from(l.a, (x) => Math.round(x * 10) / 10), d: Array.from(l.d, (x) => Math.round(x * 10) / 10) })),
+  };
+  ninja.retrato = r;
+  if (r.linhas.length >= 5) {
+    retratos.push(r);
+    retratos = retratos.slice(-12);
+    gravar('wavesense-retratos', retratos);
+    $('retrato').hidden = false;
+    $('retrato-legenda').textContent = `${numero(n)} · seu rastro no Wi-Fi · ${r.fonte === 'sim' ? 'simulação' : r.fonte === 'replay' ? 'gravação' : 'ao vivo'}`;
+    requestAnimationFrame(() => desenharRetrato($('retrato-cv'), r));
+    $('d-baixar').hidden = EMBUTIDO;
+  }
   desenharRecordes();
-  ninja.fecharEm = performance.now() / 1000 + 5;
+  ninja.fecharEm = performance.now() / 1000 + 9;
 }
 function ninjaPasso(agora) {
   if (ninja.estado === 'contagem') {
@@ -689,17 +856,97 @@ function ninjaPasso(agora) {
     abrirDesafio();
   }
 }
+function desenharRetrato(canvas, r, fundo, tinta) {
+  const [W, H, dpr] = ajustar(canvas);
+  const c = canvas.getContext('2d');
+  const cs = cores();
+  const ls = r.linhas.map((l) => ({ a: Float32Array.from(l.a), d: Float32Array.from(l.d) }));
+  desenharPilha(c, W, H, ls, fundo || cs.fundo, tinta || cs.tinta, 1.4 * dpr);
+}
 function desenharRecordes() {
   const ol = $('recordes');
   ol.replaceChildren();
   const t = document.createElement('li'); t.className = 'titulo'; t.textContent = 'Recordes'; ol.appendChild(t);
-  if (!ninja.ranking.length) { const li = document.createElement('li'); li.textContent = 'Ninguém passou ainda.'; ol.appendChild(li); return; }
-  ninja.ranking.forEach((r, i) => {
+  if (!recordes.length) { const li = document.createElement('li'); li.textContent = 'Ninguém passou ainda.'; ol.appendChild(li); return; }
+  recordes.forEach((r, i) => {
     const li = document.createElement('li');
     const a = document.createElement('span'); a.textContent = `${i + 1}. ${r.nome}`;
     const b = document.createElement('span'); b.textContent = seg(r.tempo);
     li.append(a, b); ol.appendChild(li);
   });
+}
+function baixarRetrato() {
+  const r = ninja.retrato;
+  if (!r || EMBUTIDO) return;
+  // Cartão em pé, preto e branco, para guardar ou postar.
+  const W = 1080, H = 1350, c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0B0B0A'; g.fillRect(0, 0, W, H);
+  const pilha = document.createElement('canvas'); pilha.width = 920; pilha.height = 994;
+  desenharPilha(pilha.getContext('2d'), 920, 994, r.linhas.map((l) => ({ a: Float32Array.from(l.a), d: Float32Array.from(l.d) })), '#0B0B0A', '#EDEDE8', 2.2);
+  g.drawImage(pilha, 80, 60);
+  g.fillStyle = '#EDEDE8';
+  g.font = '96px "Instrument Serif", serif';
+  g.fillText(r.ok ? 'Passou.' : r.ok === false ? 'Te vi.' : 'Tempo.', 80, 1170);
+  g.font = '24px "Geist Mono", monospace';
+  g.fillStyle = '#8A8A84';
+  const data = new Date(r.quando).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  g.fillText(`${numero(r.n).toUpperCase()} · ${r.nome.toUpperCase()} · ${seg(r.tempo).toUpperCase()} · ${data}`, 80, 1230);
+  g.fillText(`WAVE SENSE · JACITEC 2026 · ${r.fonte === 'sim' ? 'SIMULAÇÃO' : 'SINAL WI-FI MEDIDO'}`, 80, 1275);
+  c.toBlob((b) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = `wave-sense-${String(r.n).padStart(3, '0')}.png`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+}
+
+/* ---------- Galeria "quem passou" ---------- */
+function abrirGaleria() {
+  fecharCamadas();
+  const grade = $('galeria-grade');
+  grade.replaceChildren();
+  if (!retratos.length) {
+    const p = document.createElement('p'); p.className = 'galeria-vazia';
+    p.textContent = 'Ninguém passou ainda. Seja o primeiro: aperte N.';
+    grade.appendChild(p);
+  }
+  $('galeria').hidden = false;
+  for (const r of [...retratos].reverse()) {
+    const card = document.createElement('div'); card.className = 'cartao';
+    const cvs = document.createElement('canvas');
+    cvs.setAttribute('role', 'img'); cvs.setAttribute('aria-label', `Rastro de ${r.nome}`);
+    const nome = document.createElement('b'); nome.textContent = r.nome;
+    const info = document.createElement('span');
+    info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}${r.fonte === 'sim' ? ' · simulação' : ''}`;
+    card.append(cvs, nome, info);
+    grade.appendChild(card);
+    requestAnimationFrame(() => desenharRetrato(cvs, r));
+  }
+}
+
+/* ---------- Como funciona e modo vitrine ---------- */
+const como = { automatico: false, ate: 0, ligado: true };
+function abrirComo(auto = false) {
+  fecharCamadas();
+  como.automatico = auto; como.ate = performance.now() / 1000 + 15;
+  $('como').hidden = false;
+}
+function fecharComo() { $('como').hidden = true; como.automatico = false; }
+function vitrinePasso(agora) {
+  if (como.automatico && agora >= como.ate) fecharComo();
+  const livre = $('desafio').hidden && $('galeria').hidden && $('como').hidden && $('operador').hidden;
+  if (como.ligado && livre && app.limiar !== null && !app.calibracao && agora - app.quietoDesde > 45) {
+    app.quietoDesde = agora;
+    abrirComo(true);
+  }
+}
+function fecharCamadas() {
+  ninja.estado = 'fechado';
+  for (const id of ['desafio', 'galeria', 'como']) $(id).hidden = true;
+  como.automatico = false;
 }
 
 /* ---------- Controles ---------- */
@@ -722,25 +969,40 @@ $('som-mudo').addEventListener('click', () => definirSom('mudo'));
 $('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
 $('som-geiger').addEventListener('click', () => definirSom('geiger'));
 $('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); });
+$('vitrine').addEventListener('click', (e) => { como.ligado = !como.ligado; e.target.setAttribute('aria-pressed', String(como.ligado)); });
+$('btn-zerar').addEventListener('click', (e) => {
+  if (e.target.dataset.confirmar !== 'sim') { e.target.dataset.confirmar = 'sim'; e.target.textContent = 'Clique de novo para apagar'; return; }
+  recordes = []; retratos = []; dia = { data: hoje(), live: 0, sim: 0 };
+  gravar('wavesense-recordes', recordes); gravar('wavesense-retratos', retratos); gravar('wavesense-dia', dia);
+  e.target.dataset.confirmar = ''; e.target.textContent = 'Apagado';
+});
 $('btn-tela').addEventListener('click', () => {
   (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
 });
 $('abrir-operador').addEventListener('click', () => { $('operador').hidden = false; });
 $('fechar-operador').addEventListener('click', () => { $('operador').hidden = true; });
 $('abrir-desafio').addEventListener('click', abrirDesafio);
+$('abrir-como').addEventListener('click', () => abrirComo(false));
+$('abrir-galeria').addEventListener('click', abrirGaleria);
+$('como-fechar').addEventListener('click', fecharComo);
+$('galeria-fechar').addEventListener('click', () => { $('galeria').hidden = true; });
 $('d-comecar').addEventListener('click', comecar);
 $('d-chegou').addEventListener('click', chegou);
-$('d-fechar').addEventListener('click', fecharDesafio);
+$('d-baixar').addEventListener('click', baixarRetrato);
+$('d-fechar').addEventListener('click', fecharCamadas);
 
 document.addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase();
   const digitando = e.target.tagName === 'INPUT' && e.target.type === 'text';
-  if (k === 'escape') { if (!$('operador').hidden) $('operador').hidden = true; else fecharDesafio(); return; }
+  if (k === 'escape') { if (!$('operador').hidden) $('operador').hidden = true; else fecharCamadas(); return; }
   if (k === 'enter' && ninja.estado === 'pronto') { e.preventDefault(); comecar(); return; }
   if (digitando) return;
   if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
   else if (k >= '1' && k <= '5') escolherCena(CENAS[Number(k) - 1].id);
-  else if (k === 'n') { if (ninja.estado === 'fechado') abrirDesafio(); }
+  else if (k === 'n') { if (ninja.estado === 'fechado' || ninja.estado === 'resultado') abrirDesafio(); }
+  else if (k === 'h') { if ($('como').hidden) abrirComo(false); else fecharComo(); }
+  else if (k === 'g') { if ($('galeria').hidden) abrirGaleria(); else $('galeria').hidden = true; }
+  else if (k === 'b' && ninja.estado === 'resultado') baixarRetrato();
   else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
   else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'geiger' : 'mudo');
   else if (k === 'o') $('operador').hidden = !$('operador').hidden;
@@ -748,7 +1010,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 setInterval(avaliar, AVALIAR_MS);
-requestAnimationFrame(desenharLinhas);
+requestAnimationFrame(quadro);
 // Abre em simulação para a tela já mostrar o que faz; o aviso amarelo deixa claro que não é medição.
 definirFonte('sim'); iniciarSimulacao();
 </script>
