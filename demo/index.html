@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wave Sense ao Vivo</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%230B0B0A%27/%3E%3Cpath d=%27M4 12h6l3-5 3 7 3-4h9M4 18h6l3-3 3 5 3-3h9M4 24h6l3-2 3 3 3-2h9%27 fill=%27none%27 stroke=%27%23EDEDE8%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="fontes.css">
 <style>
 /* Layout: duas metades. À esquerda, a palavra do estado em letra enorme; à direita, o sinal como
    linhas empilhadas (referência: o gráfico do pulsar CP1919 que virou a capa de Unknown Pleasures).
@@ -99,12 +97,6 @@ body[data-estado="movimento"] .aviso { color: #9A6400; }
 input.apelido { background: transparent; border: 0; border-bottom: 1px solid var(--apagado); padding: 6px 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 44px); width: min(14ch, 80vw); }
 input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 
-.passos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4vw; align-content: center; }
-.passo { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.passo-num { font-family: var(--serif); font-size: clamp(72px, 9vw, 160px); line-height: 0.8; }
-.passo svg { width: 100%; max-width: 360px; height: auto; color: var(--tinta); }
-.passo p { margin: 0; font-size: clamp(18px, 1.6vw, 26px); line-height: 1.3; max-width: 22ch; }
-.passo p span { color: var(--apagado); }
 
 .galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 40px 32px; align-content: start; }
 .cartao { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -146,7 +138,7 @@ body.com-operador .camada { right: min(380px, 100vw); }
   .estado { order: -1; }
   .medidor { padding-top: 0; }
   .rodape { grid-column: 1; grid-row: 4; }
-  .desafio-meio, .passos { grid-template-columns: minmax(0, 1fr); }
+  .desafio-meio { grid-template-columns: minmax(0, 1fr); }
   .operador { top: auto; height: 55vh; width: 100vw; border-left: 0; border-top: 1px solid #2A2A28; }
   body.com-operador .tela { margin-right: 0; padding-bottom: calc(55vh + 24px); }
   body.com-operador .camada { right: 0; bottom: 55vh; }
@@ -216,40 +208,8 @@ body.com-operador .camada { right: min(380px, 100vw); }
   </div>
 </div>
 
-<div class="camada" id="como" hidden>
-  <div class="topo mono"><span>Como funciona</span><span class="aviso aviso-copia"></span></div>
-  <div class="passos">
-    <div class="passo">
-      <div class="passo-num">1</div>
-      <svg viewBox="0 0 240 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <rect x="20" y="96" width="16" height="22"/><rect x="204" y="96" width="16" height="22"/>
-        <path d="M44 86 a26 26 0 0 1 0 42"/><path d="M58 72 a46 46 0 0 1 0 70"/><path d="M72 58 a66 66 0 0 1 0 98" opacity="0.6"/><path d="M86 44 a86 86 0 0 1 0 126" opacity="0.35"/>
-      </svg>
-      <p>Uma placa manda 100 pacotes de Wi-Fi por segundo. <span>A outra fica escutando.</span></p>
-    </div>
-    <div class="passo">
-      <div class="passo-num">2</div>
-      <svg viewBox="0 0 240 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <rect x="20" y="96" width="16" height="22"/><rect x="204" y="96" width="16" height="22"/>
-        <path d="M36 107 H204" stroke-dasharray="4 6" opacity="0.5"/>
-        <path d="M36 102 L112 52 L204 102"/>
-        <circle cx="120" cy="34" r="9"/><path d="M120 43 V82 M120 82 L108 112 M120 82 L132 112 M106 58 L134 58"/>
-      </svg>
-      <p>No caminho, o sinal bate em você e volta diferente. <span>Paredes e móveis também refletem, mas eles não se mexem.</span></p>
-    </div>
-    <div class="passo">
-      <div class="passo-num">3</div>
-      <svg viewBox="0 0 240 150" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">
-        <path d="M10 40 H60 C90 40 100 20 130 22 C160 24 170 40 190 40 H230"/>
-        <path d="M10 60 H60 C90 60 100 40 130 42 C160 44 170 60 190 60 H230"/>
-        <path d="M10 80 H60 C88 80 96 62 126 58 C150 56 168 80 190 80 H230"/>
-        <path d="M10 100 H60 C80 100 94 70 112 88 C128 104 140 52 160 78 C172 92 178 100 190 100 H230"/>
-        <path d="M10 120 H60 C76 120 90 92 104 112 C118 132 132 76 150 104 C164 124 176 120 190 120 H230"/>
-      </svg>
-      <p>A placa receptora mede a diferença. <span>Cada linha da tela é uma dessas medidas. Quando você se mexe, elas tremem.</span></p>
-    </div>
-  </div>
-  <div class="baixo mono"><span>Sem câmera, sem microfone: só o sinal de rádio.</span><button class="botao-texto mono" id="como-fechar">Voltar (esc)</button></div>
+<!-- "Como funciona": a história em motion design (historia.js + roteiro.js) -->
+<section id="historia" hidden></section>
 </div>
 
 <div class="camada" id="galeria" hidden>
@@ -300,9 +260,14 @@ body.com-operador .camada { right: min(380px, 100vw); }
     <p>Alerta: dois toques suaves quando começa um movimento. Escuta: um sopro baixo, como vento, que abre e ganha "gotas" quando alguém se mexe. Tudo passa por um limitador de volume.</p>
   </section>
   <section>
+    <span class="mono">Apresentação</span>
+    <div class="opcoes"><button id="btn-apresentador">Abrir janela do apresentador (P)</button></div>
+    <p>Ordem com TV: aperte P, arraste esta página para a TV, aperte F (tela cheia) e H (história). Setas, espaço, rolagem ou o passador navegam; V troca entre a versão completa e a curta.</p>
+  </section>
+  <section>
     <span class="mono">Vitrine</span>
     <div class="opcoes"><button id="vitrine" aria-pressed="true">Mostrar "como funciona" sozinho</button></div>
-    <p>Com a zona parada por 45 s, a explicação aparece por 15 s. Qualquer movimento volta para a tela principal.</p>
+    <p>Com a zona parada por 45 s, a versão curta da história passa sozinha, uma vez. Qualquer movimento volta para a tela principal. Fica desligada enquanto a janela do apresentador estiver aberta.</p>
   </section>
   <section id="sim-grupo" hidden>
     <span class="mono">Cena simulada (teclas 1–5)</span>
@@ -311,11 +276,13 @@ body.com-operador .camada { right: min(380px, 100vw); }
   <section>
     <span class="mono">Tela e dados do dia</span>
     <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button><button id="btn-zerar">Zerar recordes e galeria</button></div>
-    <p>Atalhos: N desafio · E escutar · H como funciona · G mural · C calibrar · S som · O este painel.</p>
+    <p>Atalhos: N desafio · E escutar · H como funciona · P apresentador · G mural · C calibrar · S som · O este painel.</p>
   </section>
 </aside>
 
 <script src="nucleo.js"></script>
+<script src="roteiro.js"></script>
+<script src="historia.js"></script>
 <script>
 'use strict';
 const $ = (id) => document.getElementById(id);
@@ -326,7 +293,8 @@ const AVALIAR_MS = WaveNucleo.PASSO_S * 1000;
 const LINHAS = 48;             // leituras empilhadas na tela
 const LEITURA_S = 0.1;         // uma linha nova a cada 0,1 s
 const REALCE = 3;              // só no desenho: aumenta o tremor de cada linha em relação à forma média
-const EMBUTIDO = window.self !== window.top;   // dentro do claude.ai: sem USB e sem salvar arquivos
+const EMBUTIDO = window.self !== window.top;
+let historia = null;   // o palco da história "Como funciona" (criado mais abaixo)   // dentro do claude.ai: sem USB e sem salvar arquivos
 
 const app = {
   fonte: null, janela: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
@@ -387,7 +355,7 @@ function avaliar() {
     somAlerta();
     if (dia.data !== hoje()) dia = { data: hoje(), live: 0, sim: 0 };
     if (app.fonte === 'live' || app.fonte === 'sim') { dia[app.fonte]++; gravar('wavesense-dia', dia); }
-    if (!$('como').hidden && como.automatico) fecharComo();
+    if (historia.aberta && como.automatico) fecharComo();
   }
   if (app.detectado || !app.fonte || app.calibracao || app.limiar === null) app.quietoDesde = agora;
   if (som.modo === 'escuta') somEscuta(v);
@@ -601,7 +569,7 @@ function desenharPilha(c, W, H, ls, fundo, tinta, espessura, frac = 0, destaque 
     c.beginPath();
     c.moveTo(pts[0][0], pts[0][1]);
     for (let j = 1; j < pts.length; j++) c.lineTo(pts[j][0], pts[j][1]);
-    c.lineTo(W, H); c.lineTo(0, H); c.closePath();
+    c.closePath();   // fecha na própria linha de base: o relevo nunca desce dela, então tapa o mesmo tanto com bem menos pintura
     c.fill();
     c.beginPath();
     c.moveTo(pts[0][0], pts[0][1]);
@@ -620,10 +588,13 @@ function ajustar(canvas) {
 function quadro() {
   const agora = performance.now() / 1000;
   if (app.fonte && agora - app.ultimaLeitura >= LEITURA_S) { guardarLeitura(agora); app.ultimaLeitura = agora; }
-  const [W, H, dpr] = ajustar(cv);
-  const { fundo, tinta } = cores();
-  desenharPilha(ctx, W, H, app.leituras, fundo, tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S), true);
-  desenharMedidor(tinta);
+  // Com a história cobrindo a tela, as leituras continuam sendo guardadas, mas não é preciso desenhar o que ninguém vê.
+  if (!(historia && historia.aberta)) {
+    const [W, H, dpr] = ajustar(cv);
+    const { fundo, tinta } = cores();
+    desenharPilha(ctx, W, H, app.leituras, fundo, tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S), true);
+    desenharMedidor(tinta);
+  }
   requestAnimationFrame(quadro);
 }
 
@@ -862,7 +833,8 @@ async function pararFonte() {
   app.janela = []; app.historico = []; app.historicoDet = []; app.base = null; app.leituras = []; app.formaLenta = null;
   app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
   app.limiar = null; app.det = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0;
-  fecharCamadas();
+  // Trocar a fonte fecha o desafio e a escuta, mas não a história (a cena ao vivo continua aberta).
+  ninja.estado = 'fechado'; $('desafio').hidden = true; fecharEscuta();
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
   if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
 }
@@ -1115,17 +1087,72 @@ function abrirGaleria() {
 }
 
 /* ---------- Como funciona e modo vitrine ---------- */
-const como = { automatico: false, ate: 0, ligado: true };
+const como = { automatico: false, ligado: true };
+historia = WaveHistoria.criarPalco({
+  raiz: $('historia'), roteiro: WaveRoteiro,
+  aoFechar: () => fecharComo(),
+  aoInteragir: () => { como.automatico = false; historia.pararAuto(); },   // mexeu na história: a vitrine para de mandar nela
+  aoMudar: () => enviarEstadoHistoria(),
+  aoApresentador: () => abrirApresentador(),
+});
+
+/* ---------- Janela do apresentador (apresentador.html): a TV mostra a história, o notebook mostra as falas ---------- */
+const apresentador = { janela: null, visto: -1e9 };
+const apresentadorConectado = () => performance.now() / 1000 - apresentador.visto < 5;
+const canalHistoria = WaveHistoria.criarCanal('palco', (msg) => {
+  apresentador.visto = performance.now() / 1000;
+  if (msg.tipo === 'cmd') {
+    como.automatico = false; historia.pararAuto();
+    if (msg.acao === 'fechar') fecharComo();
+    else {
+      if (!historia.aberta) abrirComo(false);
+      if (msg.acao === 'proxima') historia.proxima();
+      else if (msg.acao === 'anterior') historia.anterior();
+      else if (msg.acao === 'ir') historia.irParaId(msg.cenaId);
+      else if (msg.acao === 'versao') historia.versao(msg.versao);
+      else if (msg.acao === 'preto') historia.preto();
+    }
+  }
+  enviarEstadoHistoria();
+});
+function enviarEstadoHistoria() { canalHistoria.enviar({ tipo: 'estado', ...historia.estado(), fonte: app.fonte }); }
+function abrirApresentador() {
+  let j = null;
+  // Precisa ser chamado direto no clique ou na tecla, senão o navegador bloqueia a janela.
+  if (!EMBUTIDO) { try { j = window.open('apresentador.html', 'wavesense-apresentador', 'popup,width=1180,height=760'); } catch (e) { j = null; } }
+  if (j) { apresentador.janela = j; canalHistoria.ligar(j); historia.notas(false); }
+  else { if (!historia.aberta) abrirComo(false); historia.notas(); }   // sem janela: mostra a fala na própria tela
+}
+setInterval(enviarEstadoHistoria, 1000);
+let quemAbriuComo = null, versaoAntesDaVitrine = null;
 function abrirComo(auto = false) {
   fecharCamadas();
-  como.automatico = auto; como.ate = performance.now() / 1000 + 15;
-  $('como').hidden = false;
+  como.automatico = auto;
+  quemAbriuComo = auto ? null : document.activeElement;
+  document.querySelector('.tela').inert = true;
+  if (auto) {
+    // Vitrine: versão curta desde o começo, uma volta só, sem as cenas marcadas com vitrine: false.
+    versaoAntesDaVitrine = historia.estado().versao;
+    historia.abrir({ versao: 'curta', cenaId: historia.estado().ordem[0] });
+    historia.autoplay({ permitido: (c) => c.vitrine !== false, espera: 6, aoTerminar: () => fecharComo() });
+  } else historia.abrir({});
+  enviarEstadoHistoria();
 }
-function fecharComo() { $('como').hidden = true; como.automatico = false; }
+function fecharComo() {
+  if (!historia.aberta) return;
+  const eraVitrine = como.automatico;
+  historia.fechar(); como.automatico = false;
+  if (eraVitrine && versaoAntesDaVitrine) historia.versao(versaoAntesDaVitrine);
+  versaoAntesDaVitrine = null;
+  document.querySelector('.tela').inert = false;
+  if (quemAbriuComo && quemAbriuComo.focus) quemAbriuComo.focus();
+  quemAbriuComo = null;
+  enviarEstadoHistoria();
+}
 function vitrinePasso(agora) {
-  if (como.automatico && agora >= como.ate) fecharComo();
-  const livre = $('desafio').hidden && $('galeria').hidden && $('como').hidden && $('escuta').hidden && $('operador').hidden;
-  if (como.ligado && livre && app.limiar !== null && !app.calibracao && agora - app.quietoDesde > 45) {
+  const livre = $('desafio').hidden && $('galeria').hidden && !historia.aberta && $('escuta').hidden && $('operador').hidden;
+  // Com a janela do apresentador conectada, quem manda na história é o apresentador.
+  if (como.ligado && livre && !apresentadorConectado() && app.limiar !== null && !app.calibracao && agora - app.quietoDesde > 45) {
     app.quietoDesde = agora;
     abrirComo(true);
   }
@@ -1133,8 +1160,8 @@ function vitrinePasso(agora) {
 function fecharCamadas() {
   ninja.estado = 'fechado';
   fecharEscuta();
-  for (const id of ['desafio', 'galeria', 'como']) $(id).hidden = true;
-  como.automatico = false;
+  for (const id of ['desafio', 'galeria']) $(id).hidden = true;
+  fecharComo();
 }
 
 /* ---------- Controles ---------- */
@@ -1164,6 +1191,7 @@ $('btn-zerar').addEventListener('click', (e) => {
   gravar('wavesense-recordes', recordes); gravar('wavesense-retratos', retratos); gravar('wavesense-dia', dia);
   e.target.dataset.confirmar = ''; e.target.textContent = 'Apagado';
 });
+$('btn-apresentador').addEventListener('click', () => abrirApresentador());
 $('btn-tela').addEventListener('click', () => {
   (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
 });
@@ -1172,7 +1200,6 @@ $('fechar-operador').addEventListener('click', () => { operador(false); });
 $('abrir-desafio').addEventListener('click', abrirDesafio);
 $('abrir-como').addEventListener('click', () => abrirComo(false));
 $('abrir-galeria').addEventListener('click', abrirGaleria);
-$('como-fechar').addEventListener('click', fecharComo);
 $('galeria-fechar').addEventListener('click', () => { $('galeria').hidden = true; });
 $('abrir-escuta').addEventListener('click', abrirEscuta);
 $('escuta-fechar').addEventListener('click', fecharEscuta);
@@ -1183,6 +1210,7 @@ $('d-baixar').addEventListener('click', baixarRetrato);
 $('d-fechar').addEventListener('click', fecharCamadas);
 
 document.addEventListener('keydown', (e) => {
+  if (historia.aberta && historia.tecla(e)) return;   // com a história aberta, ela fica com setas, espaço, V, P...
   const k = e.key.toLowerCase();
   const digitando = e.target.tagName === 'INPUT' && e.target.type === 'text';
   if (k === 'escape') { if (!$('operador').hidden) operador(false); else fecharCamadas(); return; }
@@ -1191,7 +1219,7 @@ document.addEventListener('keydown', (e) => {
   if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
   else if (k >= '1' && k <= '5') escolherCena(CENAS[Number(k) - 1].id);
   else if (k === 'n') { if (ninja.estado === 'fechado' || ninja.estado === 'resultado') abrirDesafio(); }
-  else if (k === 'h') { if ($('como').hidden) abrirComo(false); else fecharComo(); }
+  else if (k === 'h') { if (!historia.aberta) abrirComo(false); else fecharComo(); }
   else if (k === 'g') { if ($('galeria').hidden) abrirGaleria(); else $('galeria').hidden = true; }
   else if (k === 'b' && ninja.estado === 'resultado') baixarRetrato();
   else if (k === 'm' && ninja.estado === 'resultado') tocarMarca(ninja.retrato);
@@ -1199,6 +1227,7 @@ document.addEventListener('keydown', (e) => {
   else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
   else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'escuta' : 'mudo');
   else if (k === 'o') operador($('operador').hidden);
+  else if (k === 'p') abrirApresentador();
   else if (k === 'f') $('btn-tela').click();
 });
 
