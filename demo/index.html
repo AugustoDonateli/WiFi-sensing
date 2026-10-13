@@ -6,329 +6,206 @@
 <title>Wave Sense ao Vivo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: painel de instrumento impresso em papel de registrador. Em cima o que o visitante vê
-   (cascata, medidor de agulha, registro em papel, sismograma do dia, placa "como funciona");
-   embaixo o painel do operador, que dobra com a tecla O. Tema claro único, de propósito:
-   papel quadriculado, tinta azul-preta para o sinal e caneta vermelha para movimento.
-   Fonte: Atkinson Hyperlegible, feita pelo Braille Institute para leitura com baixa visão. */
+/* Layout: duas metades. À esquerda, a palavra do estado em letra enorme; à direita, o sinal como
+   linhas empilhadas (referência: o gráfico do pulsar CP1919 que virou a capa de Unknown Pleasures).
+   Preto e branco. Quando há movimento a tela inteira inverte. A única cor é o aviso de simulação. */
 :root {
-  color-scheme: light;
-  --papel: #FAFBF7;
-  --papel-2: #F0F3EC;
-  --grade: #D3E3D2;
-  --grade-forte: #AECBB3;
-  --tinta: #18233F;
-  --tinta-2: #4E5A72;
-  --vermelho: #C42B1C;
-  --fita-sim: #FFD23F;
-  --fita-gravacao: #2E5AAC;
-  --fita-vivo: #1F7A4D;
-  --fonte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-  --fonte-num: "Atkinson Hyperlegible Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+  color-scheme: dark;
+  --fundo: #0B0B0A;
+  --tinta: #EDEDE8;
+  --apagado: #8A8A84;
+  --aviso: #F5B83D;
+  --serif: "Instrument Serif", "Times New Roman", Georgia, serif;
+  --sans: "Geist", "Segoe UI", system-ui, sans-serif;
+  --mono: "Geist Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
 }
+body[data-estado="movimento"] { --fundo: #EDEDE8; --tinta: #0B0B0A; --apagado: #5C5C57; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { min-height: 100%; }
+html, body { height: 100%; }
 body {
   margin: 0;
-  background: var(--papel);
+  background: var(--fundo);
   color: var(--tinta);
-  font-family: var(--fonte);
-  font-size: 16px;
-  line-height: 1.45;
+  font-family: var(--sans);
+  font-size: 15px;
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
-button, input, select { font: inherit; color: inherit; }
-.folha {
-  max-width: 1680px;
-  margin: 0 auto;
-  padding-inline: 24px;
-  padding-block: 18px 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+button, input { font: inherit; color: inherit; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.tela {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0 6vw;
+  padding-inline: clamp(16px, 4vw, 64px);
+  padding-block: clamp(16px, 3vw, 40px);
 }
+.topo { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.aviso { color: var(--aviso); display: inline-flex; align-items: center; gap: 8px; }
+.aviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+body[data-estado="movimento"] .aviso { color: #9A6400; }
 
-/* Cabeçalho */
-.cabeca { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 28px; padding-bottom: 14px; border-bottom: 3px solid var(--tinta); }
-.marca { display: flex; align-items: center; gap: 12px; }
-.marca svg { width: 54px; height: 30px; flex: none; }
-.marca-nome { font-weight: 800; font-size: 1.9rem; letter-spacing: 0.06em; line-height: 1; }
-.convite { flex: 1 1 420px; margin: 0; font-size: clamp(1.15rem, 1.8vw, 1.6rem); font-weight: 700; line-height: 1.2; text-wrap: balance; max-width: 34ch; }
-.convite em { font-style: normal; color: var(--vermelho); }
+.texto { grid-column: 1; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: flex-end; gap: 28px; min-width: 0; padding-bottom: 4px; }
+.palavra { font-family: var(--serif); font-weight: 400; font-size: clamp(64px, 11vw, 210px); line-height: 0.86; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.palavra em { font-style: italic; }
+.frase { margin: 0; max-width: 30ch; font-size: clamp(16px, 1.35vw, 21px); line-height: 1.35; color: var(--tinta); }
+.frase span { color: var(--apagado); }
 
-/* Fita de modo (como fita adesiva colada no painel) */
-.fita { display: inline-flex; align-items: center; gap: 10px; padding: 7px 16px; font-weight: 800; letter-spacing: 0.08em; font-size: 0.95rem; transform: rotate(-1.2deg); box-shadow: 0 1px 0 rgba(24, 35, 63, 0.25); }
-.fita small { font-weight: 400; letter-spacing: 0; font-size: 0.85rem; }
-.fita[data-modo="sim"] { background:
-    repeating-linear-gradient(135deg, var(--tinta) 0 8px, transparent 8px 16px) left / 14px 100% no-repeat,
-    repeating-linear-gradient(135deg, var(--tinta) 0 8px, transparent 8px 16px) right / 14px 100% no-repeat,
-    var(--fita-sim); color: var(--tinta); padding-inline: 26px; }
-.fita[data-modo="replay"] { background: var(--fita-gravacao); color: #fff; }
-.fita[data-modo="live"] { background: var(--fita-vivo); color: #fff; }
-.fita[data-modo="nenhum"] { background: var(--papel-2); color: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--grade-forte); }
-.fita .ponto { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
-.fita[data-modo="live"] .ponto { animation: piscar 1.2s steps(2) infinite; }
-@keyframes piscar { 50% { opacity: 0.2; } }
+.sinal { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; min-height: 0; }
+#linhas { width: min(100%, 72vh); aspect-ratio: 1 / 1.08; display: block; }
 
-/* Grade do painel */
-.painel { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 0; border: 2px solid var(--tinta); background: var(--papel); }
-.bloco { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border-right: 1px solid var(--tinta); border-bottom: 1px solid var(--tinta); }
-.bloco:nth-child(2n) { border-right: 0; }
-.bloco.ultimo-linha { border-bottom: 0; }
-.rotulo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.rotulo h2 { margin: 0; font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; }
-.rotulo span { font-size: 0.82rem; color: var(--tinta-2); }
-.nota { margin: 0; color: var(--tinta-2); font-size: 0.9rem; max-width: 62ch; }
+.rodape { grid-column: 2; grid-row: 3; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; color: var(--apagado); padding-top: 18px; }
+.rodape span { white-space: nowrap; }
+#leitura { white-space: normal; }
+.botao-texto { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta); text-decoration: underline; text-underline-offset: 4px; }
+:is(button, input, summary):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
 
-/* Cascata */
-.cascata { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 4px 8px; }
-.eixo-y { position: relative; width: 2.2em; font-family: var(--fonte-num); font-size: 0.75rem; color: var(--tinta-2); }
-.eixo-y span { position: absolute; right: 0; transform: translateY(50%); }
-#wf { width: 100%; height: clamp(230px, 40vh, 520px); display: block; border: 1px solid var(--tinta); background: var(--papel); image-rendering: pixelated; }
-.eixo-x { grid-column: 2; display: flex; justify-content: space-between; font-family: var(--fonte-num); font-size: 0.75rem; color: var(--tinta-2); }
-.escala-cor { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--tinta-2); flex-wrap: wrap; }
-.escala-cor i { display: block; width: 160px; height: 10px; border: 1px solid var(--tinta); background: linear-gradient(90deg, #F7F9F5, #B9C6DA 35%, #4E6493 70%, #121B33); }
+/* Desafio Ninja: ocupa a tela inteira */
+.desafio { position: fixed; inset: 0; z-index: 5; background: var(--fundo); color: var(--tinta); display: grid; grid-template-rows: auto 1fr auto; padding-inline: clamp(16px, 4vw, 64px); padding-block: clamp(16px, 3vw, 40px); transition: background-color 0.35s ease, color 0.35s ease; }
+.desafio-centro { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 18px; }
+.desafio-grande { font-family: var(--serif); font-size: clamp(90px, 22vw, 380px); line-height: 0.85; letter-spacing: -0.03em; }
+.desafio-sub { font-size: clamp(18px, 1.8vw, 28px); max-width: 32ch; }
+.desafio-tempo { font-family: var(--mono); font-size: clamp(28px, 3.2vw, 52px); font-variant-numeric: tabular-nums; }
+.desafio-baixo { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.recordes { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-width: 220px; }
+.recordes li { display: flex; justify-content: space-between; gap: 24px; font-family: var(--mono); font-size: 13px; }
+.recordes li.titulo { color: var(--apagado); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.acoes { display: flex; gap: 22px; flex-wrap: wrap; }
+input.apelido { background: transparent; border: 0; border-bottom: 1px solid var(--apagado); padding: 6px 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 44px); width: min(14ch, 80vw); }
+input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 
-/* Medidor e estado */
-.medidor { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.medidor svg { width: min(100%, 360px); height: auto; display: block; }
-.agulha { transform-box: view-box; transform-origin: 150px 150px; transition: transform 0.18s ease-out; }
-.estado { text-align: center; }
-.estado-palavra { font-weight: 800; font-size: clamp(2.2rem, 4.4vw, 4rem); line-height: 1; letter-spacing: 0.01em; }
-.estado[data-estado="movimento"] .estado-palavra { color: var(--vermelho); }
-.estado[data-estado="aguardando"] .estado-palavra { color: var(--tinta-2); }
-.estado-sub { color: var(--tinta-2); font-size: 0.95rem; margin-top: 4px; }
+/* Painel do operador (tecla O) */
+.operador { position: fixed; top: 0; right: 0; bottom: 0; z-index: 10; width: min(380px, 100vw); overflow-y: auto; background: #151514; color: #EDEDE8; border-left: 1px solid #2A2A28; padding: 22px 22px 32px; display: flex; flex-direction: column; gap: 24px; }
+.operador h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 32px; }
+.operador section { display: flex; flex-direction: column; gap: 10px; }
+.operador .mono { color: #8A8A84; }
+.opcoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.opcoes button { background: transparent; border: 1px solid #3A3A37; border-radius: 999px; padding: 6px 12px; cursor: pointer; color: #EDEDE8; font-size: 13px; }
+.opcoes button[aria-pressed="true"] { background: #EDEDE8; color: #0B0B0A; border-color: #EDEDE8; }
+.opcoes button:disabled { opacity: 0.4; cursor: not-allowed; }
+.operador p { margin: 0; color: #A8A8A2; font-size: 13px; line-height: 1.45; }
+.numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.numeros b { display: block; font-size: 18px; font-weight: 400; color: #EDEDE8; }
+.numeros span { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8A84; }
+input[type="range"] { width: 100%; accent-color: #EDEDE8; }
+.erro { border-left: 2px solid var(--aviso); padding-left: 10px; color: #EDEDE8 !important; }
 
-/* Papel do registrador e sismograma */
-#tl { width: 100%; height: 170px; display: block; border: 1px solid var(--tinta); }
-#dia { width: 100%; height: 300px; display: block; border: 1px solid var(--tinta); }
-.legenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--tinta-2); }
-.legenda i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; }
-
-/* Desafio Ninja */
-.ninja-cronometro { font-family: var(--fonte-num); font-variant-numeric: tabular-nums; font-size: 2.6rem; font-weight: 600; line-height: 1; }
-.ninja-estado { color: var(--tinta-2); }
-.campo { display: flex; flex-direction: column; gap: 4px; }
-.campo label { font-size: 0.85rem; color: var(--tinta-2); }
-input[type="text"] { background: #fff; border: 1px solid var(--tinta); padding: 9px 10px; border-radius: 2px; }
-.recordes { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--tinta); }
-.recordes li { display: grid; grid-template-columns: 2em minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--grade-forte); counter-increment: pos; }
-.recordes { counter-reset: pos; }
-.recordes li::before { content: counter(pos) "º"; font-family: var(--fonte-num); color: var(--tinta-2); }
-.recordes li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.recordes li b { font-family: var(--fonte-num); font-variant-numeric: tabular-nums; }
-.recordes li.vazio { display: block; color: var(--tinta-2); border-bottom: 0; }
-.recordes li.vazio::before { content: none; }
-
-/* Botões: teclas de painel */
-.linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.tecla { border: 2px solid var(--tinta); background: #fff; padding: 8px 14px; border-radius: 3px; cursor: pointer; font-weight: 700; box-shadow: 0 3px 0 var(--tinta); position: relative; top: 0; }
-.tecla:active:not(:disabled) { top: 3px; box-shadow: 0 0 0 var(--tinta); }
-.tecla:disabled { opacity: 0.4; cursor: not-allowed; }
-.tecla.forte { background: var(--tinta); color: var(--papel); }
-.tecla.vermelha { background: var(--vermelho); border-color: var(--vermelho); color: #fff; box-shadow: 0 3px 0 #7E1B11; }
-.tecla[aria-pressed="true"] { background: var(--tinta); color: var(--papel); top: 3px; box-shadow: 0 0 0 var(--tinta); }
-:is(.tecla, input, summary):focus-visible { outline: 3px solid var(--vermelho); outline-offset: 2px; }
-
-/* Placa de museu */
-.placa { background: var(--tinta); color: var(--papel); padding: 18px 22px; display: grid; gap: 14px; }
-.placa h3 { margin: 0 0 4px; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fita-sim); }
-.placa p { margin: 0; font-size: clamp(1.05rem, 1.35vw, 1.3rem); line-height: 1.4; max-width: 48ch; }
-
-/* Painel do operador */
-details.operador { border: 2px dashed var(--tinta-2); background: var(--papel-2); }
-details.operador summary { cursor: pointer; padding: 10px 16px; font-weight: 800; letter-spacing: 0.06em; list-style: none; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
-details.operador summary::-webkit-details-marker { display: none; }
-details.operador summary::before { content: "▸"; }
-details.operador[open] summary::before { content: "▾"; }
-details.operador summary small { font-weight: 400; color: var(--tinta-2); letter-spacing: 0; }
-.op-corpo { padding: 4px 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 28px; }
-.op-grupo { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.op-grupo h4 { margin: 0; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tinta-2); }
-.numeros { display: flex; gap: 22px; font-family: var(--fonte-num); font-variant-numeric: tabular-nums; }
-.numeros div { font-size: 0.8rem; color: var(--tinta-2); }
-.numeros b { display: block; color: var(--tinta); font-size: 1.15rem; }
-input[type="range"] { width: 100%; accent-color: var(--tinta); }
-.aviso { border-left: 4px solid var(--vermelho); background: #fff; padding: 10px 14px; }
-
-/* Carimbo do desafio */
-.sobreposicao { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(250, 251, 247, 0.9); }
-.carimbo { text-align: center; padding: 22px 34px 26px; border: 8px double currentColor; transform: rotate(-4deg); color: var(--tinta); background: var(--papel); max-width: 92vw; }
-.carimbo[data-tipo="pego"] { color: var(--vermelho); }
-.carimbo-grande { font-weight: 800; font-size: clamp(3.5rem, 13vw, 10rem); line-height: 0.95; letter-spacing: 0.02em; }
-.carimbo-sub { font-size: clamp(1.1rem, 2.4vw, 1.8rem); color: var(--tinta); max-width: 28ch; margin: 10px auto 0; }
-
-footer { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 0.82rem; color: var(--tinta-2); }
-kbd { font-family: var(--fonte-num); border: 1px solid var(--tinta-2); border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; color: var(--tinta); background: #fff; }
-
-@media (max-width: 960px) {
-  .painel { grid-template-columns: minmax(0, 1fr); }
-  .bloco { border-right: 0; }
+@media (max-width: 860px) {
+  .tela { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; gap: 24px; }
+  .sinal { grid-column: 1; grid-row: 2; }
+  #linhas { width: 100%; }
+  .texto { grid-column: 1; grid-row: 3; }
+  .rodape { grid-column: 1; grid-row: 4; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .agulha { transition: none; }
-  .fita[data-modo="live"] .ponto { animation: none; }
+  body, .desafio { transition: none; }
 }
 </style>
 </head>
-<body>
-<div class="folha">
-  <header class="cabeca">
-    <div class="marca">
-      <svg viewBox="0 0 54 30" aria-hidden="true"><path d="M2 15 C 8 2, 14 2, 18 15 S 28 28, 34 15 S 44 2, 52 15" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>
-      <span class="marca-nome">WAVE SENSE</span>
-    </div>
-    <p class="convite">Ande pela faixa marcada no chão. Aqui não tem câmera: <em>quem percebe você é o Wi-Fi.</em></p>
-    <div class="fita" id="fita" data-modo="nenhum"><span class="ponto"></span><span id="fita-tag">SEM DADOS</span><small id="fita-txt">escolha uma fonte no painel do operador</small></div>
+<body data-estado="aguardando">
+<div class="tela">
+  <header class="topo mono">
+    <span>Wave Sense · JACITEC 2026</span>
+    <span class="aviso" id="aviso">Sem dados</span>
   </header>
 
-  <div class="aviso" id="msg" role="alert" hidden></div>
+  <div class="sinal">
+    <canvas id="linhas" role="img" aria-label="Cada linha é uma leitura do sinal Wi-Fi, da mais antiga, em cima, à mais recente, embaixo"></canvas>
+  </div>
 
-  <main class="painel">
-    <section class="bloco" aria-labelledby="h-wf">
-      <div class="rotulo"><h2 id="h-wf">Cascata do sinal</h2><span>canal 11 · 2,462 GHz · uma faixa por subportadora</span></div>
-      <div class="cascata">
-        <div class="eixo-y" id="eixo-y" aria-hidden="true"></div>
-        <canvas id="wf" aria-label="Cascata: cada faixa horizontal é uma subportadora; o tempo corre da esquerda para a direita"></canvas>
-        <div class="eixo-x" aria-hidden="true"><span>−10 s</span><span>−8</span><span>−6</span><span>−4</span><span>−2</span><span>agora</span></div>
-      </div>
-      <div class="escala-cor"><span id="escala-min">quase nada mudou</span><i></i><span id="escala-max">mudou muito</span><span id="escala-info"></span><span>· cinza: borda do canal, sem sinal</span></div>
-    </section>
+  <div class="texto">
+    <h1 class="palavra" id="palavra" aria-live="polite">Esperando<em>.</em></h1>
+    <p class="frase">Cada linha é uma leitura do Wi-Fi desta sala. Quando alguém se mexe, elas tremem. <span>Não tem câmera aqui.</span></p>
+  </div>
 
-    <section class="bloco" aria-labelledby="h-st">
-      <div class="rotulo"><h2 id="h-st">Agitação do sinal</h2><span>oscilação em 1 s</span></div>
-      <div class="medidor">
-        <svg viewBox="0 0 300 172" role="img" aria-label="Medidor de agulha da oscilação, com a faixa vermelha acima do limiar">
-          <path id="g-arco" d="M32 150 A118 118 0 0 1 268 150" fill="none" stroke="currentColor" stroke-width="2"/>
-          <path id="g-zona" d="" fill="none" style="stroke: var(--vermelho)" stroke-width="12"/>
-          <g id="g-marcas" stroke="currentColor" stroke-width="2"></g>
-          <text id="g-min" x="32" y="168" text-anchor="middle" font-size="12" fill="currentColor" style="font-family: var(--fonte-num)">0</text>
-          <text id="g-meio" x="150" y="22" text-anchor="middle" font-size="12" fill="currentColor" style="font-family: var(--fonte-num)"></text>
-          <text id="g-max" x="268" y="168" text-anchor="middle" font-size="12" fill="currentColor" style="font-family: var(--fonte-num)"></text>
-          <g class="agulha" id="g-agulha"><line x1="150" y1="150" x2="150" y2="44" style="stroke: var(--vermelho)" stroke-width="3" stroke-linecap="round"/></g>
-          <circle cx="150" cy="150" r="9" fill="currentColor"/>
-          <text x="150" y="120" text-anchor="middle" font-size="11" fill="currentColor" letter-spacing="1.5">OSCILAÇÃO</text>
-        </svg>
-      </div>
-      <div class="estado" id="estado" data-estado="aguardando">
-        <div class="estado-palavra" id="estado-palavra" aria-live="polite">SEM DADOS</div>
-        <div class="estado-sub" id="estado-sub">Nenhuma fonte ligada.</div>
-      </div>
-    </section>
-
-    <section class="bloco" aria-labelledby="h-tl">
-      <div class="rotulo"><h2 id="h-tl">Registro em papel · último minuto</h2>
-        <div class="legenda"><span><i style="background: var(--tinta)"></i>oscilação</span><span><i style="background: var(--vermelho); height: 2px; border-top: 1px dashed var(--vermelho)"></i>limiar</span><span><i style="background: var(--vermelho); height: 7px"></i>caneta de eventos: movimento</span></div>
-      </div>
-      <canvas id="tl" aria-label="Registro da oscilação no último minuto, como um registrador de papel"></canvas>
-      <p class="nota">Movimento só é marcado depois de 3 medições seguidas acima do limiar (0,6 s), para um pico isolado não disparar o alarme.</p>
-    </section>
-
-    <section class="bloco" aria-labelledby="h-ninja">
-      <div class="rotulo"><h2 id="h-ninja">Desafio Ninja</h2><span>atravesse sem ser percebido</span></div>
-      <div class="campo"><label for="apelido">Seu apelido (sem nome completo)</label><input type="text" id="apelido" maxlength="16" autocomplete="off" placeholder="ex.: Sombra"></div>
-      <div class="linha">
-        <button class="tecla forte" id="btn-ninja" disabled>Começar</button>
-        <button class="tecla vermelha" id="btn-chegou" disabled>Chegou do outro lado</button>
-      </div>
-      <div><div class="ninja-cronometro" id="ninja-tempo">0,0 s</div><div class="ninja-estado" id="ninja-estado">Pronto para o próximo.</div></div>
-      <ol class="recordes" id="recordes"></ol>
-      <p class="nota" id="ninja-placar"></p>
-    </section>
-
-    <section class="bloco ultimo-linha" aria-labelledby="h-dia">
-      <div class="rotulo"><h2 id="h-dia">Sismograma do dia</h2><span>uma linha por minuto, de cima para baixo · cada pancada é alguém se mexendo</span></div>
-      <canvas id="dia" aria-label="Sismograma do dia: uma linha por minuto com a oscilação; trechos vermelhos tiveram movimento"></canvas>
-    </section>
-
-    <section class="bloco ultimo-linha placa" aria-label="Como funciona">
-      <div><h3>Experimente</h3><p>Fique parado na faixa. Depois ande devagar. Depois ande rápido.</p></div>
-      <div><h3>Repare</h3><p>Parado, o papel fica quase liso. Andando, a cascata escurece e a agulha sobe.</p></div>
-      <div><h3>O que está acontecendo</h3><p>Uma placa manda 100 pacotes de Wi-Fi por segundo para a outra. Seu corpo reflete parte do sinal. Quando você se mexe, os reflexos mudam, e a placa receptora mede essa mudança.</p></div>
-    </section>
-  </main>
-
-  <details class="operador" id="operador">
-    <summary>PAINEL DO OPERADOR <small>tecla O mostra/esconde · deixe fechado durante a apresentação</small></summary>
-    <div class="op-corpo">
-      <div class="op-grupo">
-        <h4>Fonte dos dados</h4>
-        <div class="linha" role="group" aria-label="Fonte dos dados">
-          <button class="tecla" id="src-sim" aria-pressed="false">Simulação</button>
-          <button class="tecla" id="src-replay" aria-pressed="false">Gravação…</button>
-          <button class="tecla" id="src-live" aria-pressed="false">Placa USB</button>
-        </div>
-        <input type="file" id="arquivo" accept=".csv,text/csv" hidden>
-        <div class="numeros"><div>pacotes/s<b id="st-taxa">–</b></div><div>RSSI<b id="st-rssi">–</b></div><div>perdidos<b id="st-perdidos">–</b></div></div>
-      </div>
-      <div class="op-grupo">
-        <h4>Limiar</h4>
-        <div class="linha"><button class="tecla" id="btn-cal" disabled>Calibrar com a zona vazia</button></div>
-        <label for="limiar" class="nota">Arraste para mostrar o efeito: <b id="lim-valor">–</b></label>
-        <input type="range" id="limiar" min="0" max="1" step="0.001" value="0.5" disabled>
-        <p class="nota" id="cal-info">A calibração mede a zona vazia por 10 s e põe o limiar em média + 3 desvios.</p>
-      </div>
-      <div class="op-grupo">
-        <h4>Som</h4>
-        <div class="linha" role="group" aria-label="Som">
-          <button class="tecla" id="som-off" aria-pressed="true">Mudo</button>
-          <button class="tecla" id="som-alerta" aria-pressed="false">Alerta</button>
-          <button class="tecla" id="som-geiger" aria-pressed="false">Contador</button>
-        </div>
-        <label for="volume" class="nota">Volume</label>
-        <input type="range" id="volume" min="0" max="1" step="0.05" value="0.6">
-        <p class="nota">Alerta: dois toques quando começa movimento. Contador: estalos como um contador Geiger, mais rápidos quanto maior a oscilação. O desafio tem sons próprios sempre que o som estiver ligado.</p>
-      </div>
-      <div class="op-grupo">
-        <h4>Cascata</h4>
-        <div class="linha" role="group" aria-label="O que a cascata mostra">
-          <button class="tecla" id="wf-var" aria-pressed="true">Variação</button>
-          <button class="tecla" id="wf-amp" aria-pressed="false">Amplitude</button>
-        </div>
-        <p class="nota">Variação: quanto cada faixa mudou em relação ao último segundo. Amplitude: a força do sinal em cada faixa.</p>
-        <div class="linha"><button class="tecla" id="btn-tela">Tela cheia</button></div>
-      </div>
-      <div class="op-grupo" id="sim-grupo" hidden>
-        <h4>Cena simulada (só na simulação)</h4>
-        <div class="linha" id="cenas"></div>
-      </div>
-    </div>
-  </details>
-
-  <footer>
-    <span>Atalhos: <kbd>1</kbd>–<kbd>5</kbd> cenas · <kbd>N</kbd> desafio · <kbd>Espaço</kbd> chegou · <kbd>C</kbd> calibrar · <kbd>S</kbd> som · <kbd>O</kbd> operador · <kbd>F</kbd> tela cheia</span>
-    <span>Wave Sense · JACITEC 2026 · protótipo experimental, não é equipamento médico nem de segurança</span>
+  <footer class="rodape mono">
+    <span id="leitura">canal 11 · 2,462 GHz</span>
+    <span><button class="botao-texto mono" id="abrir-desafio">Desafio ninja (N)</button></span>
+    <span><button class="botao-texto mono" id="abrir-operador">Operador (O)</button></span>
   </footer>
 </div>
 
-<div class="sobreposicao" id="sobre" hidden><div class="carimbo" id="carimbo"><div class="carimbo-grande" id="carimbo-grande"></div><div class="carimbo-sub" id="carimbo-sub"></div></div></div>
+<div class="desafio" id="desafio" hidden>
+  <div class="topo mono"><span>Desafio ninja · atravesse a faixa sem ser percebido</span><span class="aviso" id="aviso-2"></span></div>
+  <div class="desafio-centro">
+    <div class="desafio-grande" id="d-grande">Pronto?</div>
+    <div class="desafio-sub" id="d-sub">Escreva seu apelido e fique na linha de partida.</div>
+    <input class="apelido" id="apelido" type="text" maxlength="16" autocomplete="off" placeholder="seu apelido" aria-label="Apelido">
+    <div class="desafio-tempo" id="d-tempo" hidden>0,0 s</div>
+  </div>
+  <div class="desafio-baixo">
+    <ol class="recordes" id="recordes"></ol>
+    <div class="acoes mono">
+      <button class="botao-texto mono" id="d-comecar">Começar (enter)</button>
+      <button class="botao-texto mono" id="d-chegou" hidden>Chegou (espaço)</button>
+      <button class="botao-texto mono" id="d-fechar">Voltar (esc)</button>
+    </div>
+  </div>
+</div>
+
+<aside class="operador" id="operador" hidden aria-label="Painel do operador">
+  <div style="display:flex; justify-content:space-between; align-items:baseline"><h2>Operador</h2><button class="botao-texto mono" id="fechar-operador">Fechar (O)</button></div>
+  <p class="erro" id="msg" role="alert" hidden></p>
+  <section>
+    <span class="mono">Fonte dos dados</span>
+    <div class="opcoes">
+      <button id="src-sim" aria-pressed="false">Simulação</button>
+      <button id="src-replay" aria-pressed="false">Gravação…</button>
+      <button id="src-live" aria-pressed="false">Placa USB</button>
+    </div>
+    <input type="file" id="arquivo" accept=".csv,text/csv" hidden>
+    <div class="numeros"><div><b id="st-taxa">–</b><span>pacotes/s</span></div><div><b id="st-rssi">–</b><span>RSSI</span></div><div><b id="st-perdidos">–</b><span>perdidos</span></div></div>
+  </section>
+  <section>
+    <span class="mono">Limiar</span>
+    <div class="opcoes"><button id="btn-cal" disabled>Calibrar com a zona vazia</button></div>
+    <input type="range" id="limiar" min="0" max="1" step="0.001" value="0.5" disabled aria-label="Limiar">
+    <div class="numeros"><div><b id="osc">–</b><span>oscilação</span></div><div><b id="lim">–</b><span>limiar</span></div><div></div></div>
+    <p id="cal-info">A calibração mede a zona vazia por 10 s e põe o limiar em média + 3 desvios.</p>
+  </section>
+  <section>
+    <span class="mono">Som</span>
+    <div class="opcoes">
+      <button id="som-mudo" aria-pressed="true">Mudo</button>
+      <button id="som-alerta" aria-pressed="false">Alerta</button>
+      <button id="som-geiger" aria-pressed="false">Contador</button>
+    </div>
+    <input type="range" id="volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume">
+    <p>Alerta: dois toques quando começa um movimento. Contador: estalos que aceleram com a oscilação, como um contador Geiger.</p>
+  </section>
+  <section id="sim-grupo" hidden>
+    <span class="mono">Cena simulada (teclas 1–5)</span>
+    <div class="opcoes" id="cenas"></div>
+  </section>
+  <section>
+    <span class="mono">Tela</span>
+    <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button></div>
+    <p>Atalhos: N desafio · espaço chegou · C calibrar · S som · O este painel.</p>
+  </section>
+</aside>
 
 <script>
 'use strict';
 const $ = (id) => document.getElementById(id);
 
 const JANELA_S = 1.0;          // janela da oscilação, igual ao ferramentas/analise.py
-const AVALIAR_MS = 200;        // nova medida 5x por segundo
+const AVALIAR_MS = 200;
 const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para marcar movimento
-const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "tudo parado"
-const CASCATA_S = 10;          // segundos visíveis na cascata
-const REGISTRO_S = 60;         // segundos no registro em papel
-const DIA_LINHAS = 10;         // minutos no sismograma
-
-const COR = {
-  papel: '#FAFBF7', papel2: '#F0F3EC', grade: '#D3E3D2', gradeForte: '#AECBB3',
-  tinta: '#18233F', tinta2: '#4E5A72', vermelho: '#C42B1C', nula: '#E4E8E0',
-};
+const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "parado"
+const LINHAS = 48;             // leituras empilhadas na tela
+const LEITURA_S = 0.1;         // uma linha nova a cada 0,1 s
 
 const app = {
-  fonte: null, janela: [], pendentes: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
-  historico: [], dia: [], notas: [],
-  limiar: null, calibMedia: null, detectado: false, acima: 0, abaixo: 0, calibracao: null,
-  oscAtual: NaN, maxRecente: 0,
-  modoCascata: 'variacao', ema: null, escalaPico: 1e-6,
-  porta: null, leitor: null, timers: [], ultimoTv: 0,
+  fonte: null, janela: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
+  maxRecente: 0, historico: [],
+  limiar: null, detectado: false, acima: 0, abaixo: 0, calibracao: null, oscAtual: NaN,
+  leituras: [], ultimaLeitura: 0,
+  porta: null, leitor: null, timers: [],
 };
 
 /* ---------- Leitura das linhas CSI_DATA (mesmo formato do ferramentas/csi_formato.py) ---------- */
@@ -337,13 +214,12 @@ function lerLinhaCSI(texto) {
   if (!texto.startsWith('CSI_DATA,')) return null;
   const a = texto.indexOf('"['), b = texto.lastIndexOf(']"');
   if (a < 0 || b < a) return null;
-  const campos = texto.slice(0, a).split(',');   // 24 campos + vazio final
+  const campos = texto.slice(0, a).split(',');
   if (campos.length !== 25) return null;
   const id = Number(campos[1]), rssi = Number(campos[3]);
   const len = Number(campos[22]), primeiraInvalida = Number(campos[23]);
   const vals = texto.slice(a + 2, b).split(',').map(Number);
   if (vals.length !== len || vals.some(Number.isNaN)) return null;
-  // Para len 128/256/384 usamos o bloco LLTF (64 subportadoras), como no plotar.py.
   const n = (len === 128 || len === 256 || len === 384) ? 64 : Math.floor(len / 2);
   const amps = new Float32Array(n);
   for (let k = 0; k < n; k++) amps[k] = Math.hypot(vals[2 * k], vals[2 * k + 1]);
@@ -351,21 +227,14 @@ function lerLinhaCSI(texto) {
   return { id, rssi, amps };
 }
 
-/* ---------- Entrada comum para as três fontes ---------- */
 function receber(p) {
   const t = performance.now() / 1000;
   p.t = t;
   if (app.ultimoId !== null && p.id > app.ultimoId + 1 && p.id - app.ultimoId < 5000) app.perdidos += p.id - app.ultimoId - 1;
   app.ultimoId = p.id;
   app.ultimoPacote = t;
-  // Pacotes chegam da USB em rajadas; para a cascata, espalha cada um no seu lugar (~100/s),
-  // sem nunca adiantar o relógio nem atrasar mais de 0,3 s.
-  p.tv = Math.min(t, Math.max(app.ultimoTv + 0.01, t - 0.3));
-  app.ultimoTv = p.tv;
   app.janela.push(p);
   while (app.janela.length && app.janela[0].t < t - 2) app.janela.shift();
-  app.pendentes.push(p);
-  if (app.pendentes.length > 3000) app.pendentes.splice(0, app.pendentes.length - 3000);
 }
 
 function oscilacao(pacotes) {
@@ -379,7 +248,7 @@ function oscilacao(pacotes) {
     let m = 0;
     for (const p of ps) m += p.amps[k];
     m /= n;
-    if (m < 0.5) continue;                 // subportadora nula
+    if (m < 0.5) continue;
     let v = 0;
     for (const p of ps) { const d = p.amps[k] - m; v += d * d; }
     soma += Math.sqrt(v / n);
@@ -388,15 +257,14 @@ function oscilacao(pacotes) {
   return cont ? soma / cont : NaN;
 }
 
-/* ---------- Avaliação periódica ---------- */
+/* ---------- Detecção ---------- */
 function avaliar() {
   const agora = performance.now() / 1000;
   const jan = app.janela.filter((p) => p.t >= agora - JANELA_S);
   const v = oscilacao(jan);
   app.oscAtual = v;
-
   $('st-taxa').textContent = app.fonte ? String(jan.length) : '–';
-  $('st-rssi').textContent = jan.length ? `${Math.round(jan.reduce((s, p) => s + p.rssi, 0) / jan.length)} dBm` : '–';
+  $('st-rssi').textContent = jan.length ? `${Math.round(jan.reduce((s, p) => s + p.rssi, 0) / jan.length)}` : '–';
   $('st-perdidos').textContent = app.fonte ? String(app.perdidos) : '–';
 
   const antes = app.detectado;
@@ -409,318 +277,145 @@ function avaliar() {
       if (!app.detectado && app.acima >= CONFIRMA_LIGA) app.detectado = true;
       if (app.detectado && app.abaixo >= CONFIRMA_DESLIGA) app.detectado = false;
     }
-    app.historico.push({ t: agora, v, det: app.detectado });
-    app.dia.push({ ms: Date.now(), v, det: app.detectado });
+    app.historico.push(v);
+    if (app.historico.length > 300) app.historico.shift();
   } else if (agora - app.ultimoPacote > 2) {
     app.detectado = false;
   }
-  if (app.detectado && !antes && som.modo !== 'mudo') somAlerta();
+  app.maxRecente = app.historico.reduce((m, x) => Math.max(m, x), 0);
+  if (app.detectado && !antes) somAlerta();
   if (som.modo === 'geiger') somGeiger(v);
-
-  while (app.historico.length && app.historico[0].t < agora - REGISTRO_S - 1) app.historico.shift();
-  const limiteDia = Date.now() - DIA_LINHAS * 60000 - 60000;
-  while (app.dia.length && app.dia[0].ms < limiteDia) app.dia.shift();
-  while (app.notas.length && app.notas[0].ms < limiteDia) app.notas.shift();
-  app.maxRecente = app.historico.reduce((m, h) => Math.max(m, h.v), 0);
-
   atualizarEstado(agora);
   ninjaPasso(agora);
-  desenharRegistro(agora);
-  desenharDia();
 }
 
 function iniciarCalibracao(duracao = 10) {
   if (!app.fonte) return;
-  app.calibracao = { fim: performance.now() / 1000 + duracao, duracao, valores: [] };
+  app.calibracao = { fim: performance.now() / 1000 + duracao, valores: [] };
   app.detectado = false; app.acima = 0; app.abaixo = 0;
-  $('cal-info').textContent = `Calibrando por ${duracao} s. Zona vazia e ninguém se mexendo por perto.`;
+  $('cal-info').textContent = `Calibrando por ${duracao} s. Zona vazia, ninguém se mexendo por perto.`;
 }
-
 function terminarCalibracao() {
   const vs = app.calibracao.valores;
   app.calibracao = null;
-  if (vs.length < 5) { $('cal-info').textContent = 'Poucos dados para calibrar. Confira se os pacotes estão chegando.'; return; }
+  if (vs.length < 5) { $('cal-info').textContent = 'Poucos dados para calibrar. Os pacotes estão chegando?'; return; }
   const m = vs.reduce((s, x) => s + x, 0) / vs.length;
   const dp = Math.sqrt(vs.reduce((s, x) => s + (x - m) ** 2, 0) / vs.length);
-  app.calibMedia = m;
   definirLimiar(Math.max(m + 3 * dp, m * 1.3));
   $('cal-info').textContent = `Calibrado com ${vs.length} medidas da zona vazia: média ${fmt(m)}, desvio ${fmt(dp)}. Limiar = média + 3 desvios.`;
 }
-
 function definirLimiar(x) {
   app.limiar = x; app.acima = 0; app.abaixo = 0;
   const r = $('limiar');
-  r.max = String(Math.max(x * 4, app.maxRecente * 1.2, 1e-3));
-  r.step = String(Number(r.max) / 400);
-  r.value = String(x);
+  r.max = String(x * 4); r.step = String(x / 100); r.value = String(x);
 }
-
 function fmt(x) {
   if (x === null || Number.isNaN(x)) return '–';
   return (x >= 10 ? x.toFixed(1) : x.toFixed(2)).replace('.', ',');
 }
 
-/* ---------- Medidor de agulha e estado ---------- */
-const G = { cx: 150, cy: 150, r: 118 };
-function pontoArco(f, r = G.r) {
-  const a = Math.PI * (1 - f);
-  return [G.cx + r * Math.cos(a), G.cy - r * Math.sin(a)];
-}
-(function marcas() {
-  const g = $('g-marcas');
-  for (let i = 0; i <= 10; i++) {
-    const [x1, y1] = pontoArco(i / 10, G.r - (i % 5 === 0 ? 16 : 9));
-    const [x2, y2] = pontoArco(i / 10, G.r);
-    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    l.setAttribute('x1', x1.toFixed(1)); l.setAttribute('y1', y1.toFixed(1));
-    l.setAttribute('x2', x2.toFixed(1)); l.setAttribute('y2', y2.toFixed(1));
-    g.appendChild(l);
-  }
-})();
-
+const PALAVRAS = {
+  aguardando: 'Esperando', semsinal: 'Sem sinal', calibrando: 'Calibrando',
+  semlimiar: 'Sem limiar', parado: 'Parado', movimento: 'Movimento',
+};
+let estadoAtual = '';
 function atualizarEstado(agora) {
-  let estado, palavra, sub;
-  if (!app.fonte) { estado = 'aguardando'; palavra = 'SEM DADOS'; sub = 'Nenhuma fonte ligada.'; }
-  else if (agora - app.ultimoPacote > 2) { estado = 'aguardando'; palavra = 'SEM SINAL'; sub = 'Nenhum pacote nos últimos 2 s.'; }
-  else if (app.calibracao) { estado = 'aguardando'; palavra = 'CALIBRANDO'; sub = `Zona vazia, por favor. Faltam ${Math.ceil(Math.max(0, app.calibracao.fim - agora))} s.`; }
-  else if (app.limiar === null) { estado = 'aguardando'; palavra = 'SEM LIMIAR'; sub = 'Calibre com a zona vazia.'; }
-  else if (app.detectado) { estado = 'movimento'; palavra = 'MOVIMENTO'; sub = 'A agulha passou da faixa vermelha.'; }
-  else { estado = 'parado'; palavra = 'TUDO PARADO'; sub = 'A agulha está abaixo da faixa vermelha.'; }
-  $('estado').dataset.estado = estado;
-  if ($('estado-palavra').textContent !== palavra) $('estado-palavra').textContent = palavra;
-  $('estado-sub').textContent = sub;
-
-  // Escala do medidor: o limiar fica sempre em 1/3 do arco; acima de 3x o limiar a agulha bate no fim, como num medidor de verdade.
-  const max = app.limiar !== null ? app.limiar * 3 : Math.max(app.maxRecente * 1.1, 1e-6);
-  const v = Number.isNaN(app.oscAtual) ? 0 : app.oscAtual;
-  const f = Math.min(1, v / max);
-  $('g-agulha').style.transform = `rotate(${(-90 + 180 * f).toFixed(1)}deg)`;
-  if (app.limiar !== null) {
-    const f0 = Math.min(0.999, app.limiar / max);
-    const [x0, y0] = pontoArco(f0, G.r - 6), [x1, y1] = pontoArco(1, G.r - 6);
-    $('g-zona').setAttribute('d', `M${x0.toFixed(1)} ${y0.toFixed(1)} A${G.r - 6} ${G.r - 6} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`);
-  } else {
-    $('g-zona').setAttribute('d', '');
+  let e;
+  if (!app.fonte) e = 'aguardando';
+  else if (agora - app.ultimoPacote > 2) e = 'semsinal';
+  else if (app.calibracao) e = 'calibrando';
+  else if (app.limiar === null) e = 'semlimiar';
+  else e = app.detectado ? 'movimento' : 'parado';
+  if (e !== estadoAtual) {
+    estadoAtual = e;
+    const h = $('palavra');
+    h.textContent = PALAVRAS[e];
+    const ponto = document.createElement('em');
+    ponto.textContent = e === 'calibrando' ? '…' : '.';
+    h.appendChild(ponto);
+    document.body.dataset.estado = e === 'movimento' ? 'movimento' : 'quieto';
   }
-  $('g-meio').textContent = fmt(max / 2);
-  $('g-max').textContent = fmt(max);
-  $('lim-valor').textContent = fmt(app.limiar);
-
-  const r = $('limiar');
-  if (app.limiar !== null && Number(r.max) < app.limiar * 1.5) { r.max = String(app.limiar * 4); r.step = String(app.limiar / 100); r.value = String(app.limiar); }
+  $('leitura').textContent = app.fonte
+    ? `canal 11 · ${$('st-taxa').textContent} pacotes/s · oscilação ${fmt(app.oscAtual)} / limiar ${fmt(app.limiar)}`
+    : 'canal 11 · 2,462 GHz';
+  $('osc').textContent = fmt(app.oscAtual);
+  $('lim').textContent = fmt(app.limiar);
   const ativo = Boolean(app.fonte);
-  r.disabled = !ativo || app.limiar === null;
+  $('limiar').disabled = !ativo || app.limiar === null;
   $('btn-cal').disabled = !ativo || Boolean(app.calibracao);
-  $('btn-ninja').disabled = !ativo || app.limiar === null || ninja.estado === 'contagem' || ninja.estado === 'correndo';
 }
 
-/* ---------- Cascata (desenhada em pixels inteiros, sem borrar) ---------- */
-const wf = $('wf'), wctx = wf.getContext('2d');
-const buf = document.createElement('canvas');
-const bctx = buf.getContext('2d');
-let bufTempo = 0;
-const PARADAS = [[0, [247, 249, 245]], [0.35, [185, 198, 218]], [0.7, [78, 100, 147]], [1, [18, 27, 51]]];
-const LUT = Array.from({ length: 256 }, (_, i) => {
-  const x = i / 255;
-  let j = 0; while (j < PARADAS.length - 2 && x > PARADAS[j + 1][0]) j++;
-  const [x0, c0] = PARADAS[j], [x1, c1] = PARADAS[j + 1];
-  const f = (x - x0) / (x1 - x0);
-  return `rgb(${c0.map((c, k) => Math.round(c + (c1[k] - c) * f)).join(',')})`;
-});
-
-function limparCascata() {
-  bctx.fillStyle = COR.papel;
-  bctx.fillRect(0, 0, buf.width, buf.height);
-  app.ema = null; app.escalaPico = 1e-6; app.pendentes = [];
-  bufTempo = performance.now() / 1000;
+/* ---------- As linhas empilhadas ---------- */
+const cv = $('linhas'), ctx = cv.getContext('2d');
+function cores() {
+  const s = getComputedStyle(document.body);
+  return { fundo: s.getPropertyValue('--fundo').trim(), tinta: s.getPropertyValue('--tinta').trim() };
 }
-
-function escalaCascata() {
-  // Depois de calibrar, a escala fica presa ao nível da zona vazia: parado fica claro, movimento escurece.
-  if (app.modoCascata === 'variacao' && app.calibMedia) return { valor: app.calibMedia * 6, fixa: true };
-  return { valor: app.escalaPico, fixa: false };
+function guardarLeitura(agora) {
+  // A média dos pacotes do último 0,1 s vira uma linha.
+  const ps = app.janela.filter((p) => p.t > agora - LEITURA_S);
+  if (!ps.length) return;
+  const K = ps[ps.length - 1].amps.length;
+  const media = new Float32Array(K);
+  let n = 0;
+  for (const p of ps) { if (p.amps.length !== K) continue; for (let k = 0; k < K; k++) media[k] += p.amps[k]; n++; }
+  for (let k = 0; k < K; k++) media[k] /= n;
+  app.leituras.push(media);
+  if (app.leituras.length > LINHAS + 1) app.leituras.shift();
 }
-
-function desenharCascata() {
-  const W = wf.width, H = wf.height;
+function desenharLinhas() {
   const agora = performance.now() / 1000;
-  if (buf.width !== W || buf.height !== H) { buf.width = W; buf.height = H; limparCascata(); }
-  const pps = W / CASCATA_S;
-  const desloca = Math.floor((agora - bufTempo) * pps);
-  if (desloca > 0) {
-    bctx.drawImage(buf, -desloca, 0);
-    bctx.fillStyle = COR.papel;
-    bctx.fillRect(W - desloca, 0, desloca, H);
-    bufTempo += desloca / pps;
-  }
-  const lista = app.pendentes;
-  app.pendentes = [];
-  const largura = Math.max(1, Math.ceil(pps / 100) + 1);
-  for (const p of lista) {
-    const a = p.amps, K = a.length;
-    if (!app.ema || app.ema.length !== K) app.ema = Float32Array.from(a);
-    const x = Math.min(W - largura, Math.round(W - (bufTempo - p.tv) * pps) - largura);
-    if (x < -largura) continue;
-    let maxCol = 0;
-    const vals = new Float32Array(K);
-    for (let k = 0; k < K; k++) {
-      const val = app.modoCascata === 'variacao' ? Math.abs(a[k] - app.ema[k]) : a[k];
-      app.ema[k] += 0.02 * (a[k] - app.ema[k]);
-      vals[k] = val;
-      if (val > maxCol) maxCol = val;
-    }
-    app.escalaPico = Math.max(app.escalaPico * 0.999, maxCol);
-    const esc = escalaCascata().valor;
-    for (let k = 0; k < K; k++) {
-      const y0 = Math.round(H - ((k + 1) * H) / K), y1 = Math.round(H - (k * H) / K);
-      bctx.fillStyle = a[k] === 0 ? COR.nula : LUT[Math.round(Math.min(1, Math.pow(vals[k] / esc, 0.8)) * 255)];
-      bctx.fillRect(x, y0, largura, y1 - y0);
-    }
-  }
-  wctx.drawImage(buf, 0, 0);
-}
-
-function montarEixoY(K) {
-  const e = $('eixo-y');
-  if (e.dataset.k === String(K)) return;
-  e.dataset.k = String(K);
-  e.replaceChildren();
-  for (const k of [0, Math.round(K / 4), Math.round(K / 2), Math.round((3 * K) / 4), K - 1]) {
-    const s = document.createElement('span');
-    s.textContent = String(k);
-    s.style.bottom = `${((k + 0.5) / K) * 100}%`;
-    e.appendChild(s);
-  }
-}
-
-/* ---------- Registro em papel (último minuto) ---------- */
-const tl = $('tl'), tctx = tl.getContext('2d');
-function papelQuadriculado(ctx, x, y, w, h, colunas, linhas, dpr) {
-  ctx.fillStyle = COR.papel; ctx.fillRect(x, y, w, h);
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= colunas; i++) {
-    const px = Math.round(x + (i * w) / colunas) + 0.5;
-    ctx.strokeStyle = i % 10 === 0 ? COR.gradeForte : COR.grade;
-    ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px, y + h); ctx.stroke();
-  }
-  for (let j = 0; j <= linhas; j++) {
-    const py = Math.round(y + (j * h) / linhas) + 0.5;
-    ctx.strokeStyle = j % 5 === 0 ? COR.gradeForte : COR.grade;
-    ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x + w, py); ctx.stroke();
-  }
-}
-
-function desenharRegistro(agora) {
+  if (app.fonte && agora - app.ultimaLeitura >= LEITURA_S) { guardarLeitura(agora); app.ultimaLeitura = agora; }
   const dpr = window.devicePixelRatio || 1;
-  const W = tl.width, H = tl.height;
-  const margemEv = 14 * dpr, base = 18 * dpr;
-  const h = H - margemEv - base;
-  papelQuadriculado(tctx, 0, 0, W, H - base, 60, 10, dpr);
-  tctx.fillStyle = COR.papel; tctx.fillRect(0, H - base, W, base);
-  const ymax = Math.max((app.limiar ?? 0) * 2, app.maxRecente * 1.1, 1e-6);
-  const X = (t) => ((t - (agora - REGISTRO_S)) / REGISTRO_S) * W;
-  const Y = (v) => h - Math.min(1, v / ymax) * (h - 4 * dpr) + 2 * dpr;
+  const r = cv.getBoundingClientRect();
+  const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const { fundo, tinta } = cores();
+  ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
 
-  const hs = app.historico;
-  // caneta de eventos (embaixo do papel)
-  tctx.fillStyle = COR.vermelho;
-  for (const p of hs) if (p.det) tctx.fillRect(Math.floor(X(p.t - AVALIAR_MS / 1000)), h + 4 * dpr, Math.ceil((AVALIAR_MS / 1000 / REGISTRO_S) * W) + 1, 7 * dpr);
-  if (app.limiar !== null) {
-    tctx.strokeStyle = COR.vermelho; tctx.lineWidth = 1.5 * dpr; tctx.setLineDash([6 * dpr, 4 * dpr]);
-    const y = Math.round(Y(app.limiar)) + 0.5;
-    tctx.beginPath(); tctx.moveTo(0, y); tctx.lineTo(W, y); tctx.stroke();
-    tctx.setLineDash([]);
-    tctx.fillStyle = COR.vermelho; tctx.font = `${11 * dpr}px "Atkinson Hyperlegible Next", sans-serif`;
-    tctx.textBaseline = 'bottom'; tctx.fillText('limiar', 6 * dpr, y - 3 * dpr);
-  }
-  if (hs.length > 1) {
-    tctx.strokeStyle = COR.tinta; tctx.lineWidth = 2 * dpr; tctx.lineJoin = 'round';
-    tctx.beginPath();
-    hs.forEach((p, i) => { const x = X(p.t), y = Y(p.v); i ? tctx.lineTo(x, y) : tctx.moveTo(x, y); });
-    tctx.stroke();
-    // pena do registrador
-    const u = hs[hs.length - 1], py = Y(u.v);
-    tctx.fillStyle = COR.tinta;
-    tctx.beginPath(); tctx.moveTo(W - 1, py); tctx.lineTo(W - 12 * dpr, py - 6 * dpr); tctx.lineTo(W - 12 * dpr, py + 6 * dpr); tctx.closePath(); tctx.fill();
-  }
-  tctx.fillStyle = COR.tinta2; tctx.font = `${11 * dpr}px "Atkinson Hyperlegible Mono", monospace`; tctx.textBaseline = 'bottom';
-  for (const [s, txt] of [[-60, '−60 s'], [-50, '−50'], [-40, '−40'], [-30, '−30'], [-20, '−20'], [-10, '−10'], [0, 'agora']]) {
-    tctx.textAlign = s === -60 ? 'left' : s === 0 ? 'right' : 'center';
-    tctx.fillText(txt, X(agora + s) + (s === -60 ? 2 * dpr : 0), H - 2 * dpr);
-  }
-  tctx.textAlign = 'left';
-}
+  const topo = H * 0.16, base = H * 0.97;
+  const passo = (base - topo) / LINHAS;
+  const altura = passo * 9;                       // quanto um pico pode subir
+  const frac = Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S);
+  const margem = W * 0.12, largura = W - 2 * margem;
+  ctx.lineWidth = 1.4 * dpr;
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = tinta;
+  ctx.fillStyle = fundo;
 
-/* ---------- Sismograma do dia (uma linha por minuto) ---------- */
-const dia = $('dia'), dctx = dia.getContext('2d');
-function desenharDia() {
-  const dpr = window.devicePixelRatio || 1;
-  const W = dia.width, H = dia.height;
-  const margem = 58 * dpr;
-  const w = W - margem - 8 * dpr;
-  const linhaH = H / DIA_LINHAS;
-  dctx.fillStyle = COR.papel; dctx.fillRect(0, 0, W, H);
-  const agoraMs = Date.now();
-  const minutoAtual = Math.floor(agoraMs / 60000);
-  const ref = app.limiar ?? Math.max(app.maxRecente, 1e-6);
-  dctx.font = `${11 * dpr}px "Atkinson Hyperlegible Mono", monospace`;
-  dctx.textBaseline = 'middle';
-
-  // grade: um traço a cada 10 s
-  dctx.strokeStyle = COR.grade; dctx.lineWidth = 1;
-  for (let i = 0; i <= 6; i++) {
-    const x = Math.round(margem + (i * w) / 6) + 0.5;
-    dctx.beginPath(); dctx.moveTo(x, 0); dctx.lineTo(x, H); dctx.stroke();
-  }
-  const idx = new Map();
-  for (const p of app.dia) {
-    const m = Math.floor(p.ms / 60000);
-    if (!idx.has(m)) idx.set(m, []);
-    idx.get(m).push(p);
-  }
-  for (let j = 0; j < DIA_LINHAS; j++) {
-    const minuto = minutoAtual - (DIA_LINHAS - 1 - j);
-    const yc = Math.round(j * linhaH + linhaH / 2) + 0.5;
-    const hora = new Date(minuto * 60000);
-    dctx.fillStyle = COR.tinta2; dctx.textAlign = 'right';
-    dctx.fillText(`${String(hora.getHours()).padStart(2, '0')}:${String(hora.getMinutes()).padStart(2, '0')}`, margem - 10 * dpr, yc);
-    dctx.strokeStyle = COR.gradeForte; dctx.lineWidth = 1;
-    dctx.beginPath(); dctx.moveTo(margem, yc); dctx.lineTo(margem + w, yc); dctx.stroke();
-    const pontos = idx.get(minuto) || [];
-    for (const p of pontos) {
-      const x = Math.round(margem + ((p.ms % 60000) / 60000) * w);
-      const amp = Math.min(linhaH * 0.48, (p.v / ref) * linhaH * 0.14);
-      dctx.strokeStyle = p.det ? COR.vermelho : COR.tinta;
-      dctx.lineWidth = Math.max(1, Math.ceil((w / 300) * 0.8));
-      dctx.beginPath(); dctx.moveTo(x + 0.5, yc - amp); dctx.lineTo(x + 0.5, yc + amp); dctx.stroke();
+  // Da leitura mais antiga (em cima) para a mais nova (embaixo); cada uma tapa as de trás.
+  const ls = app.leituras;
+  for (let i = 0; i < ls.length; i++) {
+    const y0 = base - (ls.length - 1 - i + frac) * passo;
+    if (y0 < topo - passo) continue;
+    const a = ls[i];
+    const uteis = [];
+    let soma = 0;
+    for (let k = 0; k < a.length; k++) if (a[k] > 0.5) { uteis.push(k); soma += a[k]; }
+    if (uteis.length < 3) continue;
+    const media = soma / uteis.length;
+    const pts = [[0, y0], [margem, y0]];
+    for (let j = 0; j < uteis.length; j++) {
+      const viz = (a[uteis[Math.max(0, j - 1)]] + 2 * a[uteis[j]] + a[uteis[Math.min(uteis.length - 1, j + 1)]]) / 4;
+      const relevo = Math.max(0, viz / media - 0.3);                 // só desenho: realça o relevo em volta da média
+      const borda = Math.sin((Math.PI * (j + 0.5)) / uteis.length);  // desce suave até as bordas
+      pts.push([margem + (largura * (j + 0.5)) / uteis.length, y0 - relevo * altura * borda]);
     }
+    pts.push([W - margem, y0], [W, y0]);
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
+    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let j = 1; j < pts.length; j++) ctx.lineTo(pts[j][0], pts[j][1]);
+    ctx.stroke();
   }
-  // anotações do desafio, como bilhetes escritos no papel
-  dctx.textAlign = 'left'; dctx.textBaseline = 'bottom';
-  dctx.font = `600 ${11 * dpr}px "Atkinson Hyperlegible Next", sans-serif`;
-  for (const n of app.notas) {
-    const minuto = Math.floor(n.ms / 60000);
-    const j = DIA_LINHAS - 1 - (minutoAtual - minuto);
-    if (j < 0) continue;
-    const x = margem + ((n.ms % 60000) / 60000) * w;
-    const y = j * linhaH + 12 * dpr;
-    dctx.fillStyle = n.ok ? COR.tinta : COR.vermelho;
-    dctx.fillText(n.texto, Math.min(x + 4 * dpr, margem + w - dctx.measureText(n.texto).width), y);
-  }
+  requestAnimationFrame(desenharLinhas);
 }
 
-function ajustarCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  for (const c of [wf, tl, dia]) {
-    const r = c.getBoundingClientRect();
-    const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
-    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
-  }
-}
-new ResizeObserver(ajustarCanvas).observe(document.querySelector('.painel'));
-function quadro() { desenharCascata(); requestAnimationFrame(quadro); }
-
-/* ---------- Som (Web Audio, só toca depois de um clique) ---------- */
+/* ---------- Som ---------- */
 const som = { modo: 'mudo', ctx: null, vol: 0.6, ruido: null };
 function audio() {
   if (!som.ctx) som.ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -750,18 +445,14 @@ function estalo(quando) {
   s.connect(g).connect(c.destination);
   s.start(c.currentTime + quando);
 }
-// Notas da mesma escala (pentatônica de dó), para os sons combinarem entre si.
+// Todas as notas da escala pentatônica de dó, para os sons combinarem entre si.
 function somAlerta() { tom(659, 0.14); tom(880, 0.22, 0.13); }
 function somGeiger(v) {
   if (Number.isNaN(v) || app.limiar === null || app.calibracao) return;
-  const taxa = Math.max(0, Math.min(40, (v / app.limiar - 0.6) * 12));   // estalos por segundo
+  const taxa = Math.max(0, Math.min(40, (v / app.limiar - 0.6) * 12));
+  if (taxa === 0) return;
   let t = 0;
-  const janela = AVALIAR_MS / 1000;
-  while (true) {
-    t += -Math.log(1 - Math.random()) / Math.max(taxa, 1e-3);
-    if (t >= janela || taxa === 0) break;
-    estalo(t);
-  }
+  for (;;) { t += -Math.log(1 - Math.random()) / taxa; if (t >= AVALIAR_MS / 1000) break; estalo(t); }
 }
 function somContagem(n) { tom(n > 0 ? 392 : 1047, n > 0 ? 0.12 : 0.35, 0, 'triangle'); }
 function somNinja() { [523, 659, 784, 1047].forEach((f, i) => tom(f, 0.18, i * 0.11, 'triangle')); }
@@ -769,25 +460,21 @@ function somPego() { tom(110, 0.55, 0, 'square', 0.18); tom(104, 0.55, 0, 'squar
 function definirSom(m) {
   som.modo = m;
   if (m !== 'mudo') audio();
-  for (const [id, modo] of [['som-off', 'mudo'], ['som-alerta', 'alerta'], ['som-geiger', 'geiger']]) $(id).setAttribute('aria-pressed', String(m === modo));
+  for (const [id, modo] of [['som-mudo', 'mudo'], ['som-alerta', 'alerta'], ['som-geiger', 'geiger']]) $(id).setAttribute('aria-pressed', String(m === modo));
 }
-$('som-off').addEventListener('click', () => definirSom('mudo'));
-$('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
-$('som-geiger').addEventListener('click', () => definirSom('geiger'));
-$('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); });
 
-/* ---------- Fonte 1: simulação ---------- */
+/* ---------- Simulação ---------- */
 const CENAS = [
   { id: 'vazio', nome: 'Sala vazia', am: 0 },
   { id: 'parado', nome: 'Pessoa parada', am: 0.22 },
-  { id: 'andando', nome: 'Pessoa andando', am: 0.6 },
+  { id: 'andando', nome: 'Andando', am: 0.6 },
   { id: 'devagar', nome: 'Bem devagar', am: 0.14 },
-  { id: 'mao', nome: 'Mão perto da placa', am: 1.2 },
+  { id: 'mao', nome: 'Mão perto', am: 1.2 },
 ];
 const sim = { cena: 'vazio', am: 0, id: 0, gerados: 0, inicio: 0 };
-const DF = 312.5e3;                                       // espaçamento entre subportadoras (Hz)
+const DF = 312.5e3;
 const CAMINHOS = [[1, 5e-9, 0], [0.55, 22e-9, 1.1], [0.35, 48e-9, 2.3], [0.2, 85e-9, 4.0]];
-const NULAS = new Set([0, 1, 2, 3, 4, 60, 61, 62, 63]);   // como na linha de exemplo oficial
+const NULAS = new Set([0, 1, 2, 3, 4, 60, 61, 62, 63]);
 let gaussExtra = null;
 function gauss() {
   if (gaussExtra !== null) { const g = gaussExtra; gaussExtra = null; return g; }
@@ -812,10 +499,7 @@ function gerarPacote(t) {
     if (NULAS.has(k)) continue;
     const f = k - 32;
     let re = 0, im = 0;
-    for (const [a, tau, ph] of CAMINHOS) {
-      const ang = -2 * Math.PI * f * DF * tau + ph;
-      re += a * Math.cos(ang); im += a * Math.sin(ang);
-    }
+    for (const [a, tau, ph] of CAMINHOS) { const ang = -2 * Math.PI * f * DF * tau + ph; re += a * Math.cos(ang); im += a * Math.sin(ang); }
     const angM = -2 * Math.PI * f * DF * mv.tau + mv.fase;
     re += sim.am * Math.cos(angM) + 0.02 * gauss();
     im += sim.am * Math.sin(angM) + 0.02 * gauss();
@@ -832,7 +516,7 @@ function iniciarSimulacao() {
     while (sim.gerados < devidos && n < 30) {
       const p = gerarPacote(sim.gerados / 100);
       sim.gerados++; n++;
-      if (Math.random() < 0.01) { sim.id++; continue; }   // perda de pacote simulada
+      if (Math.random() < 0.01) { sim.id++; continue; }
       receber(p);
     }
   }, 10));
@@ -842,13 +526,12 @@ function escolherCena(id) { if (app.fonte === 'sim') { sim.cena = id; marcarCena
 function marcarCena() { for (const b of $('cenas').children) b.setAttribute('aria-pressed', String(b.dataset.cena === sim.cena)); }
 CENAS.forEach((c, i) => {
   const b = document.createElement('button');
-  b.className = 'tecla'; b.dataset.cena = c.id; b.textContent = `${i + 1} ${c.nome}`;
-  b.setAttribute('aria-pressed', 'false');
+  b.dataset.cena = c.id; b.textContent = `${i + 1} ${c.nome}`; b.setAttribute('aria-pressed', 'false');
   b.addEventListener('click', () => escolherCena(c.id));
   $('cenas').appendChild(b);
 });
 
-/* ---------- Fonte 2: gravação do capturar.py ---------- */
+/* ---------- Gravação do capturar.py ---------- */
 function iniciarGravacao(texto, nome) {
   const pacotes = [];
   for (const linha of texto.split(/\r?\n/).slice(1)) {
@@ -860,12 +543,10 @@ function iniciarGravacao(texto, nome) {
   }
   if (!pacotes.length) {
     pararFonte(); definirFonte(null);
-    mostrarMsg(`Não encontrei linhas CSI_DATA em "${nome}". Use um arquivo .csv gravado pelo ferramentas/capturar.py.`);
+    mostrarMsg(`Não achei linhas CSI_DATA em "${nome}". Use um .csv gravado pelo ferramentas/capturar.py.`);
     return;
   }
-  const dur = pacotes[pacotes.length - 1].tArq - pacotes[0].tArq;
   let idx = 0, voltas = 0, base = performance.now() / 1000 - pacotes[0].tArq;
-  $('fita-txt').textContent = `${nome} · ${pacotes.length} pacotes · ${dur.toFixed(0)} s em loop`;
   app.timers.push(setInterval(() => {
     const agoraArq = performance.now() / 1000 - base;
     while (idx < pacotes.length && pacotes[idx].tArq <= agoraArq) {
@@ -876,27 +557,20 @@ function iniciarGravacao(texto, nome) {
   }, 10));
 }
 
-/* ---------- Fonte 3: Placa B pela USB (Web Serial, Chrome/Edge) ---------- */
+/* ---------- Placa B pela USB (Web Serial, Chrome/Edge) ---------- */
 async function conectarPlaca() {
-  if (!('serial' in navigator)) {
-    mostrarMsg('Este navegador não acessa a USB. Abra o arquivo demo/index.html direto no Chrome ou no Edge do computador.');
-    return;
-  }
+  if (!('serial' in navigator)) { mostrarMsg('Este navegador não acessa a USB. Abra demo/index.html direto no Chrome ou no Edge.'); return; }
   let porta;
-  try {
-    porta = await navigator.serial.requestPort();
-  } catch (e) {
+  try { porta = await navigator.serial.requestPort(); } catch (e) {
     mostrarMsg(e && e.name === 'NotFoundError'
-      ? 'Nenhuma porta escolhida. Clique em "Placa USB" e escolha a porta da Placa B (Silicon Labs CP210x).'
-      : `O navegador não deixou acessar a USB (${e.message}). Se esta página estiver aberta dentro do claude.ai, abra o arquivo demo/index.html direto no Chrome ou no Edge.`);
+      ? 'Nenhuma porta escolhida. Escolha a da Placa B (Silicon Labs CP210x).'
+      : `O navegador bloqueou a USB (${e.message}). Dentro do claude.ai não funciona: abra demo/index.html no Chrome ou no Edge.`);
     return;
   }
-  await pararFonte();   // fecha a fonte anterior (pode ser a mesma porta)
-  try {
-    await porta.open({ baudRate: 921600, bufferSize: 16384 });
-  } catch (e) {
+  await pararFonte();
+  try { await porta.open({ baudRate: 921600, bufferSize: 16384 }); } catch (e) {
     definirFonte(null);
-    mostrarMsg(`Não consegui abrir a porta: ${e.message}. Feche o idf.py monitor e outros programas que usem a porta e tente de novo.`);
+    mostrarMsg(`Não consegui abrir a porta: ${e.message}. Feche o idf.py monitor e tente de novo.`);
     return;
   }
   app.porta = porta;
@@ -911,205 +585,171 @@ async function conectarPlaca() {
       if (done) break;
       resto += dec.decode(value, { stream: true });
       let i;
-      while ((i = resto.indexOf('\n')) >= 0) {
-        const r = lerLinhaCSI(resto.slice(0, i));
-        resto = resto.slice(i + 1);
-        if (r) receber(r);
-      }
+      while ((i = resto.indexOf('\n')) >= 0) { const r = lerLinhaCSI(resto.slice(0, i)); resto = resto.slice(i + 1); if (r) receber(r); }
       if (resto.length > 200000) resto = '';
     }
   } catch (e) {
-    if (app.fonte === 'live') mostrarMsg(`A leitura da placa parou: ${e.message}. O cabo soltou?`);
+    if (app.fonte === 'live') mostrarMsg(`A leitura parou: ${e.message}. O cabo soltou?`);
   }
 }
 
 /* ---------- Troca de fonte ---------- */
 async function pararFonte() {
-  // Zera o estado antes de qualquer await, para uma fonte nova nunca ser fechada por engano.
   const leitor = app.leitor, porta = app.porta;
   app.leitor = null; app.porta = null; app.fonte = null;
   app.timers.forEach(clearInterval); app.timers = [];
-  app.janela = []; app.historico = []; app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0; app.ultimoTv = 0;
-  app.limiar = null; app.calibMedia = null; app.detectado = false; app.calibracao = null;
-  app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
-  cancelarNinja();
-  limparCascata();
+  app.janela = []; app.historico = []; app.leituras = []; app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
+  app.limiar = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
+  fecharDesafio();
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
   if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
 }
-
-const MODOS = {
-  sim: ['SIMULAÇÃO', 'dados inventados pelo computador, só para ensaio'],
-  replay: ['GRAVAÇÃO', 'coleta gravada, repetida em loop'],
-  live: ['AO VIVO', 'Placa B ligada pela USB'],
-};
+const AVISOS = { sim: 'Simulação · dados inventados para ensaio', replay: 'Gravação · coleta repetida em loop', live: 'Ao vivo · Placa B na USB' };
 function definirFonte(f) {
   app.fonte = f;
-  const [tag, txt] = MODOS[f] || ['SEM DADOS', 'escolha uma fonte no painel do operador'];
-  $('fita').dataset.modo = f || 'nenhum';
-  $('fita-tag').textContent = tag;
-  $('fita-txt').textContent = txt;
+  const txt = AVISOS[f] || 'Sem dados';
+  $('aviso').textContent = txt; $('aviso-2').textContent = txt;
   $('sim-grupo').hidden = f !== 'sim';
-  for (const [id, modo] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === modo));
-  $('cal-info').textContent = f === 'sim'
-    ? 'A simulação começa calibrando sozinha por 6 s com a sala vazia.'
-    : 'A calibração mede a zona vazia por 10 s e põe o limiar em média + 3 desvios.';
+  for (const [id, m] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === m));
   if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
 }
-
-function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; }
+function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; $('operador').hidden = false; }
 function esconderMsg() { $('msg').hidden = true; }
 
-$('src-sim').addEventListener('click', async () => { esconderMsg(); await pararFonte(); definirFonte('sim'); iniciarSimulacao(); });
-$('src-replay').addEventListener('click', () => { esconderMsg(); $('arquivo').click(); });
-$('arquivo').addEventListener('change', async (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  const texto = await f.text();
-  await pararFonte(); definirFonte('replay');
-  iniciarGravacao(texto, f.name);
-  e.target.value = '';
-});
-$('src-live').addEventListener('click', () => { esconderMsg(); conectarPlaca(); });
-$('btn-cal').addEventListener('click', () => iniciarCalibracao(app.fonte === 'sim' ? 6 : 10));
-$('limiar').addEventListener('input', (e) => {
-  app.limiar = Number(e.target.value); app.acima = 0; app.abaixo = 0;
-  $('cal-info').textContent = 'Limiar mudado à mão. Mais baixo: mais alarmes falsos. Mais alto: movimentos pequenos passam batido.';
-});
-function modoCascata(m) {
-  app.modoCascata = m; app.escalaPico = 1e-6;
-  $('wf-var').setAttribute('aria-pressed', String(m === 'variacao'));
-  $('wf-amp').setAttribute('aria-pressed', String(m === 'amplitude'));
-  $('escala-min').textContent = m === 'variacao' ? 'quase nada mudou' : 'sinal fraco';
-  $('escala-max').textContent = m === 'variacao' ? 'mudou muito' : 'sinal forte';
-}
-$('wf-var').addEventListener('click', () => modoCascata('variacao'));
-$('wf-amp').addEventListener('click', () => modoCascata('amplitude'));
-$('btn-tela').addEventListener('click', () => {
-  (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
-});
-setInterval(() => {
-  const e = escalaCascata();
-  $('escala-info').textContent = e.fixa ? '· escala presa à calibração' : '· escala automática';
-  if (app.ema) montarEixoY(app.ema.length);
-}, 1000);
-
 /* ---------- Desafio Ninja ---------- */
-const ninja = { estado: 'livre', inicio: 0, fimContagem: 0, ultimoNumero: 0, apelido: '', ranking: [], tentativas: 0, pegos: 0, fecharEm: 0 };
-try {
-  const salvo = JSON.parse(localStorage.getItem('wavesense-ninja') || 'null');
-  if (salvo) { ninja.ranking = salvo.ranking || []; ninja.tentativas = salvo.tentativas || 0; ninja.pegos = salvo.pegos || 0; }
-} catch (e) { /* sem armazenamento: placar só nesta sessão */ }
-function salvarNinja() {
-  try { localStorage.setItem('wavesense-ninja', JSON.stringify({ ranking: ninja.ranking, tentativas: ninja.tentativas, pegos: ninja.pegos })); } catch (e) { /* ignora */ }
-}
-function segundos(s) { return `${s.toFixed(1).replace('.', ',')} s`; }
+const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', ranking: [], fecharEm: 0 };
+try { ninja.ranking = JSON.parse(localStorage.getItem('wavesense-ninja') || '{}').ranking || []; } catch (e) { /* só nesta sessão */ }
+function salvarNinja() { try { localStorage.setItem('wavesense-ninja', JSON.stringify({ ranking: ninja.ranking })); } catch (e) { /* ignora */ } }
+function seg(s) { return `${s.toFixed(1).replace('.', ',')} s`; }
 
-function comecarNinja() {
-  if (!app.fonte || app.limiar === null || ninja.estado === 'contagem' || ninja.estado === 'correndo') return;
-  ninja.apelido = $('apelido').value.trim() || `Visitante ${ninja.tentativas + 1}`;
-  ninja.estado = 'contagem';
-  ninja.fimContagem = performance.now() / 1000 + 3;
-  ninja.ultimoNumero = 4;
-  carimbo('3', `${ninja.apelido}, fique na linha de partida`, '');
+function abrirDesafio() {
+  if (!app.fonte || app.limiar === null) { mostrarMsg('Antes do desafio: ligue uma fonte de dados e calibre com a zona vazia.'); return; }
+  ninja.estado = 'pronto';
+  $('d-grande').textContent = 'Pronto?';
+  $('d-sub').textContent = 'Escreva seu apelido e fique na linha de partida.';
+  $('apelido').hidden = false; $('apelido').value = '';
+  $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true;
+  $('desafio').hidden = false;
+  desenharRecordes();
+  setTimeout(() => $('apelido').focus(), 50);
 }
-function chegou() { if (ninja.estado === 'correndo') terminarNinja(true, performance.now() / 1000 - ninja.inicio); }
-function terminarNinja(ok, tempo) {
+function fecharDesafio() { ninja.estado = 'fechado'; $('desafio').hidden = true; }
+function comecar() {
+  if (ninja.estado !== 'pronto') return;
+  ninja.apelido = $('apelido').value.trim() || 'Anônimo';
+  ninja.estado = 'contagem';
+  ninja.fimContagem = performance.now() / 1000 + 3; ninja.numero = 4;
+  $('apelido').hidden = true; $('d-comecar').hidden = true;
+  $('apelido').blur();
+  $('d-sub').textContent = `${ninja.apelido}, prepare-se.`;
+}
+function chegou() { if (ninja.estado === 'correndo') terminar(true, performance.now() / 1000 - ninja.inicio); }
+function terminar(ok, t) {
   ninja.estado = 'resultado';
-  ninja.tentativas++;
+  $('d-chegou').hidden = true;
+  $('d-tempo').textContent = seg(t);
   if (ok) {
-    ninja.ranking.push({ nome: ninja.apelido, tempo });
+    ninja.ranking.push({ nome: ninja.apelido, tempo: t });
     ninja.ranking.sort((a, b) => a.tempo - b.tempo);
     ninja.ranking = ninja.ranking.slice(0, 5);
-    carimbo('NINJA!', `${ninja.apelido} atravessou sem ser percebido em ${segundos(tempo)}`, 'ok');
-    $('ninja-estado').textContent = 'Atravessou sem ser percebido.';
-    app.notas.push({ ms: Date.now(), texto: `${ninja.apelido} passou`, ok: true });
+    salvarNinja();
+    $('d-grande').textContent = 'Passou.';
+    $('d-sub').textContent = `${ninja.apelido} atravessou sem o Wi-Fi perceber.`;
     somNinja();
   } else if (ok === false) {
-    ninja.pegos++;
-    carimbo('DETECTADO', `O Wi-Fi percebeu ${ninja.apelido} depois de ${segundos(tempo)}`, 'pego');
-    $('ninja-estado').textContent = `Percebido em ${segundos(tempo)}.`;
-    app.notas.push({ ms: Date.now(), texto: `${ninja.apelido} pego`, ok: false });
+    $('d-grande').textContent = 'Te vi.';
+    $('d-sub').textContent = `O Wi-Fi percebeu ${ninja.apelido} depois de ${seg(t)}.`;
     somPego();
   } else {
-    carimbo('TEMPO!', 'Passou de 60 s. Tente de novo.', '');
-    $('ninja-estado').textContent = 'Tempo esgotado.';
+    $('d-grande').textContent = 'Tempo.';
+    $('d-sub').textContent = 'Passou de 60 s. Tente de novo.';
   }
-  $('ninja-tempo').textContent = segundos(tempo);
-  $('btn-chegou').disabled = true;
-  ninja.fecharEm = performance.now() / 1000 + 4;
-  salvarNinja(); desenharRecordes();
-}
-function cancelarNinja() {
-  if (ninja.estado === 'contagem' || ninja.estado === 'correndo') ninja.estado = 'livre';
-  $('sobre').hidden = true; $('btn-chegou').disabled = true;
+  desenharRecordes();
+  ninja.fecharEm = performance.now() / 1000 + 5;
 }
 function ninjaPasso(agora) {
   if (ninja.estado === 'contagem') {
     const falta = ninja.fimContagem - agora;
     if (falta <= 0) {
       ninja.estado = 'correndo'; ninja.inicio = agora;
-      $('sobre').hidden = true; $('btn-chegou').disabled = false;
-      $('ninja-estado').textContent = `${ninja.apelido} está atravessando…`;
+      $('d-grande').textContent = 'Vai.';
+      $('d-sub').textContent = 'Atravesse a faixa sem ser percebido.';
+      $('d-tempo').hidden = false; $('d-chegou').hidden = false;
       somContagem(0);
     } else {
       const n = Math.ceil(falta);
-      if (n !== ninja.ultimoNumero) { ninja.ultimoNumero = n; $('carimbo-grande').textContent = String(n); somContagem(n); }
+      if (n !== ninja.numero) { ninja.numero = n; $('d-grande').textContent = String(n); somContagem(n); }
     }
   } else if (ninja.estado === 'correndo') {
     const t = agora - ninja.inicio;
-    $('ninja-tempo').textContent = segundos(t);
-    if (app.detectado) terminarNinja(false, t);
-    else if (t > 60) terminarNinja(null, t);
+    $('d-tempo').textContent = seg(t);
+    if (app.detectado) terminar(false, t);
+    else if (t > 60) terminar(null, t);
   } else if (ninja.estado === 'resultado' && agora >= ninja.fecharEm) {
-    ninja.estado = 'livre'; $('sobre').hidden = true;
+    abrirDesafio();
   }
-}
-function carimbo(grande, sub, tipo) {
-  $('carimbo-grande').textContent = grande; $('carimbo-sub').textContent = sub;
-  $('carimbo').dataset.tipo = tipo; $('sobre').hidden = false;
 }
 function desenharRecordes() {
   const ol = $('recordes');
   ol.replaceChildren();
-  if (!ninja.ranking.length) {
-    const li = document.createElement('li'); li.className = 'vazio';
-    li.textContent = 'Ninguém atravessou sem ser percebido ainda.';
-    ol.appendChild(li);
-  }
-  for (const r of ninja.ranking) {
+  const t = document.createElement('li'); t.className = 'titulo'; t.textContent = 'Recordes'; ol.appendChild(t);
+  if (!ninja.ranking.length) { const li = document.createElement('li'); li.textContent = 'Ninguém passou ainda.'; ol.appendChild(li); return; }
+  ninja.ranking.forEach((r, i) => {
     const li = document.createElement('li');
-    const nome = document.createElement('span'); nome.textContent = r.nome;
-    const tempo = document.createElement('b'); tempo.textContent = segundos(r.tempo);
-    li.append(nome, tempo); ol.appendChild(li);
-  }
-  $('ninja-placar').textContent = ninja.tentativas
-    ? `${ninja.tentativas} tentativa(s), ${ninja.pegos} percebida(s) pelo Wi-Fi. Recorde: quem atravessou mais rápido sem ser percebido.`
-    : 'Recorde: quem atravessa mais rápido sem ser percebido.';
+    const a = document.createElement('span'); a.textContent = `${i + 1}. ${r.nome}`;
+    const b = document.createElement('span'); b.textContent = seg(r.tempo);
+    li.append(a, b); ol.appendChild(li);
+  });
 }
-$('btn-ninja').addEventListener('click', comecarNinja);
-$('btn-chegou').addEventListener('click', chegou);
-$('sobre').addEventListener('click', () => { if (ninja.estado === 'resultado') { ninja.estado = 'livre'; $('sobre').hidden = true; } });
 
-/* ---------- Teclado ---------- */
+/* ---------- Controles ---------- */
+$('src-sim').addEventListener('click', async () => { esconderMsg(); await pararFonte(); definirFonte('sim'); iniciarSimulacao(); });
+$('src-replay').addEventListener('click', () => { esconderMsg(); $('arquivo').click(); });
+$('arquivo').addEventListener('change', async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const texto = await f.text();
+  await pararFonte(); definirFonte('replay'); iniciarGravacao(texto, f.name);
+  e.target.value = '';
+});
+$('src-live').addEventListener('click', () => { esconderMsg(); conectarPlaca(); });
+$('btn-cal').addEventListener('click', () => iniciarCalibracao(app.fonte === 'sim' ? 6 : 10));
+$('limiar').addEventListener('input', (e) => {
+  app.limiar = Number(e.target.value); app.acima = 0; app.abaixo = 0;
+  $('cal-info').textContent = 'Limiar mudado à mão. Mais baixo: mais alarmes falsos. Mais alto: movimentos pequenos passam.';
+});
+$('som-mudo').addEventListener('click', () => definirSom('mudo'));
+$('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
+$('som-geiger').addEventListener('click', () => definirSom('geiger'));
+$('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); });
+$('btn-tela').addEventListener('click', () => {
+  (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
+});
+$('abrir-operador').addEventListener('click', () => { $('operador').hidden = false; });
+$('fechar-operador').addEventListener('click', () => { $('operador').hidden = true; });
+$('abrir-desafio').addEventListener('click', abrirDesafio);
+$('d-comecar').addEventListener('click', comecar);
+$('d-chegou').addEventListener('click', chegou);
+$('d-fechar').addEventListener('click', fecharDesafio);
+
 document.addEventListener('keydown', (e) => {
-  if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
   const k = e.key.toLowerCase();
-  if (k >= '1' && k <= '5') escolherCena(CENAS[Number(k) - 1].id);
-  else if (k === 'n') comecarNinja();
-  else if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
+  const digitando = e.target.tagName === 'INPUT' && e.target.type === 'text';
+  if (k === 'escape') { if (!$('operador').hidden) $('operador').hidden = true; else fecharDesafio(); return; }
+  if (k === 'enter' && ninja.estado === 'pronto') { e.preventDefault(); comecar(); return; }
+  if (digitando) return;
+  if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
+  else if (k >= '1' && k <= '5') escolherCena(CENAS[Number(k) - 1].id);
+  else if (k === 'n') { if (ninja.estado === 'fechado') abrirDesafio(); }
   else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
   else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'geiger' : 'mudo');
-  else if (k === 'o') $('operador').open = !$('operador').open;
+  else if (k === 'o') $('operador').hidden = !$('operador').hidden;
   else if (k === 'f') $('btn-tela').click();
 });
 
-limparCascata();
-desenharRecordes();
-ajustarCanvas();
 setInterval(avaliar, AVALIAR_MS);
-requestAnimationFrame(quadro);
-// Abre em simulação para a tela já mostrar o que faz; a fita amarela deixa claro que não é medição.
+requestAnimationFrame(desenharLinhas);
+// Abre em simulação para a tela já mostrar o que faz; o aviso amarelo deixa claro que não é medição.
 definirFonte('sim'); iniciarSimulacao();
 </script>
 </body>

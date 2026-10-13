@@ -8,54 +8,53 @@ Versão online para ver no celular (só simulação e gravação, sem USB): http
 
 ## Ideia do visual
 
-A tela imita instrumentos de medição de verdade, em vez de um painel genérico de computador:
+Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipografia carregando a página, poucos elementos, preto e branco.
 
-- **Registrador de papel:** uma caneta desenha numa folha quadriculada que corre, e uma "caneta de eventos" vermelha marca embaixo quando há movimento.
-- **Sismograma do dia:** inspirado nos *webicorders* de observatórios sismológicos. Cada linha é um minuto, lida de cima para baixo. Cada "pancada" no traço é alguém se mexendo, e os resultados do Desafio Ninja ficam anotados no papel.
-- **Medidor de agulha** com faixa vermelha a partir do limiar.
-- **Placa de museu** com "Experimente / Repare / O que está acontecendo", em letra grande, para o visitante entender sem ninguém explicar.
-- **Fonte Atkinson Hyperlegible**, criada pelo Braille Institute para leitura com baixa visão. Combina com um projeto que pensa em idosos.
-- **Fita amarela listrada** "SIMULAÇÃO" sempre que os dados forem inventados. Gravação usa fita azul, e ao vivo usa fita verde.
+- **O sinal como linhas empilhadas.** A referência é o gráfico do pulsar CP1919, feito por Harold Craft a partir de sinais de rádio de Arecibo. Peter Saville usou esse gráfico na capa de *Unknown Pleasures*, do Joy Division (1979). Aqui cada linha é uma leitura do Wi-Fi: a média dos pacotes de 0,1 s, com a amplitude de cada subportadora. A mais nova aparece embaixo. Com a sala parada, as linhas repetem o mesmo desenho; quando alguém se mexe, elas tremem e se cruzam.
+- **Uma palavra só para o estado:** *Parado.* ou *Movimento.*, em letra enorme.
+- **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
+- **Desafio Ninja em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
+- **A única cor é o aviso amarelo** "Simulação · dados inventados para ensaio". Ele some quando os dados são reais.
+- **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas, do Google Fonts.
 
-## Fontes de dados (no painel do operador, tecla O)
+O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, a mesma medida do `ferramentas/analise.py`.
 
-| Botão | O que faz | Fita na tela |
-|---|---|---|
-| Simulação | Gera dados no computador para ensaiar. Abre sozinha. **Não é medição.** | amarela listrada, SIMULAÇÃO |
-| Gravação… | Reproduz em loop um `.csv` gravado pelo `ferramentas/capturar.py`. Plano B se o ao vivo falhar. | azul, GRAVAÇÃO |
-| Placa USB | Lê a Placa B pela USB a 921600 baud. Feche o `idf.py monitor` antes. | verde piscando, AO VIVO |
+## Controles
 
-## Som
+Tudo que é técnico fica no **painel do operador** (tecla `O`):
+- fonte dos dados: Simulação, Gravação ou Placa USB;
+- calibração e limiar;
+- som;
+- cenas da simulação;
+- tela cheia.
 
-Fica mudo até alguém escolher (o navegador só deixa tocar som depois de um clique).
+| Fonte | O que faz |
+|---|---|
+| Simulação | Dados gerados no computador para ensaiar. Abre sozinha. **Não é medição.** |
+| Gravação… | Reproduz em loop um `.csv` do `ferramentas/capturar.py`. Plano B se o ao vivo falhar. |
+| Placa USB | Lê a Placa B a 921600 baud. Feche o `idf.py monitor` antes. |
 
-- **Alerta:** dois toques curtos quando começa um movimento.
-- **Contador:** estalos como um contador Geiger, mais rápidos quanto maior a oscilação.
-- **Desafio:** bipes na contagem 3-2-1, fanfarra no NINJA e buzina no DETECTADO.
+**Som** (começa mudo):
+- **Alerta:** dois toques quando começa um movimento.
+- **Contador:** estalos como um contador Geiger, mais rápidos quanto mais a pessoa se mexe.
+- **Desafio:** bipes na contagem, fanfarra no *Passou.* e buzina no *Te vi.*
 
-Todas as notas são da mesma escala, para não brigarem entre si. Na feira, teste o volume no lugar: barulho de gente conversando encobre sons baixos.
-
-## Cascata
-
-- Desenhada pixel a pixel, sem esticar a imagem, para não ficar borrada.
-- Os pacotes chegam da USB em rajadas, então cada um é espalhado no seu lugar no tempo (no máximo 0,3 s de atraso).
-- Depois de calibrar, a escala de cor fica presa ao nível da zona vazia: parado fica claro e movimento escurece.
-- Faixas cinza em cima e embaixo são as bordas do canal, onde o chip não mede sinal.
+Teste o volume no lugar da feira.
 
 ## Atalhos
 
-`1`–`5` cenas da simulação · `N` começa o desafio · `Espaço` chegou · `C` calibrar · `S` som · `O` painel do operador · `F` tela cheia
+`N` desafio · `Enter` começar · `Espaço` chegou · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
 
 ## Situação
 
-- Testado no Chromium: simulação, calibração, detecção, sons, Desafio Ninja (vencendo e sendo detectado), gravação e layout de celular.
-- A leitura pela USB segue o mesmo jeito do visualizador oficial da Espressif (`csi_viewer.html`), mas **ainda não foi testada com a placa**.
-- O limiar e as constantes (janela de 1 s, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com os dados reais.
+- Testado no Chromium: simulação, calibração, detecção, inversão de cor, Desafio Ninja (passando e sendo pego), gravação e celular.
+- A leitura pela USB segue o jeito do visualizador oficial da Espressif (`csi_viewer.html`), mas **ainda não foi testada com a placa**.
+- O limiar e as constantes (janela de 1 s, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com dados reais.
 
-## Referências usadas no visual
+## Referências
 
-- Como ler um webicorder (Universidade de Utah): https://quake.utah.edu/resources/reading-a-webicorder/
-- Webicorders do Alaska Volcano Observatory: https://avo.alaska.edu/webicorders/index.php
-- Atkinson Hyperlegible (Braille Institute, fonte livre): https://github.com/googlefonts/atkinson-hyperlegible
-- Acessibilidade em textos de exposição (tamanho de letra e linhas curtas): https://www.miamidadearts.org/sites/default/files/files/inline/the_how-to_of_accessible_arts_exhibitions.pdf e https://info.gaylord.com/ada-compliant-exhibit-labels
-- Som em museus (frases curtas, testar no local, sons que combinam entre si): https://arxiv.org/pdf/2312.13953 e https://www.hakanlidbo.com/thenobelmuseum
+- Awwwards, vencedores anuais: https://www.awwwards.com/annual-awards/winners
+- Inspiração "big typography" do Awwwards: https://www.awwwards.com/inspiration/big-typography-website
+- Tipografia grande e espaço vazio (Designmodo): https://designmodo.com/big-typography
+- História do gráfico do pulsar (Scientific American): https://www.scientificamerican.com/article/the-pulsar-chart-that-became-a-pop-icon-turns-50-joy-division-rsquo-s-unknown-pleasures
+- Pulsares e a capa do disco (Chalkdust): https://chalkdustmagazine.com/blog/unknown-pleasures/
