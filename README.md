@@ -25,6 +25,7 @@ Só marcar um item depois de testado de verdade.
 
 ## Documentos
 
+- [Apresentação no estande](docs/apresentacao.md): montagem, roteiros de 30 s, 3 min e avaliador, jogos que explicam, perguntas difíceis
 - [Inscrição na JACITEC](docs/inscricao-jacitec.md): regras do edital e os textos do formulário
 - [Decisões do grupo](docs/decisoes.md): o que já foi decidido e o que falta
 - [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê

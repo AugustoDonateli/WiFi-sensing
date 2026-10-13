@@ -58,16 +58,31 @@ button, input { font: inherit; color: inherit; }
 body[data-estado="movimento"] .aviso { color: #9A6400; }
 .contador { color: var(--apagado); }
 
-.texto { grid-column: 1; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: flex-end; gap: 28px; min-width: 0; padding-bottom: 4px; }
+.texto { grid-column: 1; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-width: 0; padding-bottom: 4px; }
+.estado { display: flex; flex-direction: column; gap: 28px; }
+
+/* Medidor: quanto o Wi-Fi está tremendo agora, comparado com a sala vazia, e o último minuto. */
+.medidor { display: grid; gap: 10px; width: min(100%, 460px); padding-top: clamp(8px, 5vh, 64px); }
+.medidor-topo, .medidor-eixo { display: flex; justify-content: space-between; gap: 16px; color: var(--apagado); }
+.medidor-num { font-family: var(--serif); font-size: clamp(52px, 6vw, 112px); line-height: 0.9; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.medidor-legenda { margin: 0; color: var(--apagado); font-size: clamp(14px, 1.05vw, 18px); line-height: 1.35; max-width: 38ch; min-height: 2.7em; text-wrap: pretty; }
+#m-hist { width: 100%; height: clamp(56px, 11vh, 128px); display: block; margin-top: 6px; }
 .palavra { font-family: var(--serif); font-weight: 400; font-size: clamp(64px, 11vw, 210px); line-height: 0.86; letter-spacing: -0.02em; margin: 0; text-wrap: balance; font-variant-numeric: tabular-nums; }
 .palavra em { font-style: italic; }
 .frase { margin: 0; max-width: 30ch; min-height: 2.7em; font-size: clamp(16px, 1.35vw, 21px); line-height: 1.35; color: var(--tinta); transition: opacity 0.4s ease; }
 .frase.trocando { opacity: 0; }
 
 .sinal { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; min-height: 0; }
-#linhas { width: min(100%, 72vh); aspect-ratio: 1 / 1.08; display: block; }
+.grafico { position: relative; margin: 0; width: min(100%, 72vh); }
+#linhas { width: 100%; aspect-ratio: 1 / 1.08; display: block; }
+/* Legenda do gráfico: as posições acompanham o desenho (linha mais antiga a 16% da altura, mais nova a 97%). */
+.rot { position: absolute; color: var(--apagado); white-space: nowrap; pointer-events: none; }
+.rot-topo { left: 0; top: calc(16% - 18px); transform: translateY(-100%); }
+.rot-agora { left: 0; top: calc(97% + 8px); }
+.rot-freq { right: 0; top: calc(97% + 8px); }
 
-.rodape { grid-column: 2; grid-row: 3; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; color: var(--apagado); padding-top: 18px; }
+.rodape { grid-column: 2; grid-row: 3; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; color: var(--apagado); padding-top: 34px; }
+.topo-dir { display: inline-flex; gap: 28px; align-items: center; flex-wrap: wrap; }
 .rodape span { white-space: nowrap; }
 #leitura { white-space: normal; flex-basis: 100%; }
 .botao-texto { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta); text-decoration: underline; text-underline-offset: 4px; }
@@ -122,6 +137,7 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
 .erro { border-left: 2px solid var(--aviso); padding-left: 10px; color: #EDEDE8 !important; }
 /* Com o painel aberto, a tela encolhe em vez de ficar por baixo dele. */
 body.com-operador .tela { margin-right: min(380px, 100vw); }
+body.com-operador .palavra { font-size: clamp(56px, calc((100vw - 380px) * 0.1), 200px); }   /* cabe no espaço que sobrou */
 body.com-operador .camada { right: min(380px, 100vw); }
 
 /* Modo escuta */
@@ -132,8 +148,10 @@ body.com-operador .camada { right: min(380px, 100vw); }
 @media (max-width: 860px) {
   .tela { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; gap: 24px; }
   .sinal { grid-column: 1; grid-row: 2; }
-  #linhas { width: 100%; }
+  .grafico { width: 100%; }
   .texto { grid-column: 1; grid-row: 3; }
+  .estado { order: -1; }
+  .medidor { padding-top: 0; }
   .rodape { grid-column: 1; grid-row: 4; }
   .desafio-meio, .passos { grid-template-columns: minmax(0, 1fr); }
   .operador { top: auto; height: 55vh; width: 100vw; border-left: 0; border-top: 1px solid #2A2A28; }
@@ -150,25 +168,38 @@ body.com-operador .camada { right: min(380px, 100vw); }
   <header class="topo mono">
     <span>Wave Sense · JACITEC 2026</span>
     <span class="contador" id="contador"></span>
-    <span class="aviso" id="aviso">Sem dados</span>
+    <span class="topo-dir"><span class="aviso" id="aviso">Sem dados</span><button class="botao-texto mono" id="abrir-operador">Operador</button></span>
   </header>
 
   <div class="sinal">
-    <canvas id="linhas" role="img" aria-label="Cada linha é uma leitura do sinal Wi-Fi, da mais antiga, em cima, à mais recente, embaixo"></canvas>
+    <figure class="grafico">
+      <canvas id="linhas" role="img" aria-label="Cada linha é uma leitura do sinal Wi-Fi, da mais antiga, em cima, à mais recente, embaixo"></canvas>
+      <span class="rot rot-topo mono">4,8 s atrás</span>
+      <span class="rot rot-agora mono">↑ Agora</span>
+      <span class="rot rot-freq mono">← frequências do Wi-Fi →</span>
+    </figure>
   </div>
 
   <div class="texto">
-    <h1 class="palavra" id="palavra" aria-live="polite">Esperando<em>.</em></h1>
-    <p class="frase" id="frase">Nenhuma fonte de dados ligada.</p>
+    <section class="medidor" aria-label="Quanto o Wi-Fi está tremendo">
+      <div class="medidor-topo mono"><span>Tremor do Wi-Fi</span><span id="m-recorde"></span></div>
+      <div class="medidor-num" id="m-num">–</div>
+      <p class="medidor-legenda" id="m-legenda">Comparado com a sala vazia.</p>
+      <canvas id="m-hist" role="img" aria-label="Tremor do Wi-Fi no último minuto, com a linha do limite"></canvas>
+      <div class="medidor-eixo mono"><span>1 min atrás</span><span>agora</span></div>
+    </section>
+    <div class="estado">
+      <h1 class="palavra" id="palavra" aria-live="polite">Esperando<em>.</em></h1>
+      <p class="frase" id="frase">Nenhuma fonte de dados ligada.</p>
+    </div>
   </div>
 
   <footer class="rodape mono">
     <span id="leitura">canal 11 · 2,462 GHz</span>
-    <span><button class="botao-texto mono" id="abrir-como">Como funciona (H)</button></span>
-    <span><button class="botao-texto mono" id="abrir-galeria">Quem passou (G)</button></span>
-    <span><button class="botao-texto mono" id="abrir-escuta">Escutar o Wi-Fi (E)</button></span>
-    <span><button class="botao-texto mono" id="abrir-desafio">Desafio ninja (N)</button></span>
-    <span><button class="botao-texto mono" id="abrir-operador">Operador (O)</button></span>
+    <span><button class="botao-texto mono" id="abrir-desafio">Desafio ninja</button></span>
+    <span><button class="botao-texto mono" id="abrir-escuta">Escutar o Wi-Fi</button></span>
+    <span><button class="botao-texto mono" id="abrir-como">Como funciona</button></span>
+    <span><button class="botao-texto mono" id="abrir-galeria">Quem passou</button></span>
   </footer>
 </div>
 
@@ -312,7 +343,7 @@ const EMBUTIDO = window.self !== window.top;   // dentro do claude.ai: sem USB e
 
 const app = {
   fonte: null, janela: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
-  maxRecente: 0, historico: [],
+  maxRecente: 0, historico: [], historicoDet: [], base: null, tremorVisto: NaN,
   limiar: null, detectado: false, det: null, calibracao: null, oscAtual: NaN,
   leituras: [], ultimaLeitura: 0, formaLenta: null,
   quietoDesde: 0,
@@ -355,8 +386,12 @@ function avaliar() {
     } else if (app.limiar !== null) {
       app.detectado = app.det.passo(v);
     }
-    app.historico.push(v);
-    if (app.historico.length > 300) app.historico.shift();
+    app.historico.push(v); app.historicoDet.push(app.detectado);
+    if (app.historico.length > 300) { app.historico.shift(); app.historicoDet.shift(); }
+    if (app.base && (app.fonte === 'live' || app.fonte === 'sim') && v / app.base > ((dia.pico || {})[app.fonte] || 0)) {
+      dia.pico = { ...(dia.pico || {}), [app.fonte]: v / app.base };
+      gravar('wavesense-dia', dia);
+    }
   } else if (agora - app.ultimoPacote > 2) {
     app.detectado = false;
   }
@@ -386,6 +421,7 @@ function terminarCalibracao() {
   let limiar;
   try { limiar = limiarDeCalibracao(vs); } catch (e) { $('cal-info').textContent = 'Poucos dados para calibrar. Os pacotes estão chegando?'; return; }
   const { n, media, desvio } = estatisticas(vs);
+  app.base = media;
   definirLimiar(limiar);
   $('cal-info').textContent = `Calibrado com ${n} medidas da zona vazia: média ${fmt(media)}, desvio ${fmt(desvio)}. Limiar = média + ${K_DESVIOS} desvios.`;
 }
@@ -454,13 +490,70 @@ function atualizarEstado(agora) {
   const nMov = app.fonte === 'live' || app.fonte === 'sim' ? dia[app.fonte] : 0;
   $('contador').textContent = nMov ? `${nMov} ${nMov === 1 ? 'movimento' : 'movimentos'} ${app.fonte === 'sim' ? 'na simulação' : 'hoje'}` : '';
   $('leitura').textContent = app.fonte
-    ? `canal 11 · ${$('st-taxa').textContent} pacotes/s · oscilação ${fmt(app.oscAtual)} / limiar ${fmt(app.limiar)}`
-    : 'canal 11 · 2,462 GHz';
+    ? `canal 11 · 2,4 GHz · ${$('st-taxa').textContent} pacotes por segundo`
+    : 'canal 11 · 2,4 GHz';
+  atualizarMedidorTexto(e);
   $('osc').textContent = fmt(app.oscAtual);
   $('lim').textContent = fmt(app.limiar);
   const ativo = Boolean(app.fonte);
   $('limiar').disabled = !ativo || app.limiar === null;
   $('btn-cal').disabled = !ativo || Boolean(app.calibracao);
+}
+
+/* ---------- Medidor de tremor ---------- */
+// Tremor = oscilação agora ÷ oscilação média da sala vazia (da calibração). 1,0× é a sala vazia.
+const fmtX = (x) => `${x < 10 ? x.toFixed(1).replace('.', ',') : Math.round(x)}×`;
+function atualizarMedidorTexto(e) {
+  const leg = { aguardando: 'Nenhuma fonte de dados ligada.', semsinal: 'Nenhum pacote chegando.', calibrando: 'Medindo como a sala vazia treme. É o 1,0×.', semlimiar: 'Falta calibrar com a sala vazia.' };
+  const t = leg[e] || `Comparado com a sala vazia. Acima de ${fmtX(app.limiar / app.base)}, é movimento.`;
+  if ($('m-legenda').textContent !== t) $('m-legenda').textContent = t;
+  const pico = (dia.pico || {})[app.fonte];
+  // O recorde só aparece depois de algum movimento de verdade (acima do limite).
+  const r = pico && app.base && pico > app.limiar / app.base ? `recorde ${app.fonte === 'sim' ? 'da simulação' : 'de hoje'} ${fmtX(pico)}` : '';
+  if ($('m-recorde').textContent !== r) $('m-recorde').textContent = r;
+}
+const cvM = $('m-hist'), ctxM = cvM.getContext('2d');
+function desenharMedidor(tinta) {
+  // Número: anda suave até o valor novo (as medidas chegam 5 vezes por segundo).
+  const alvo = app.base && !Number.isNaN(app.oscAtual) && !app.calibracao ? app.oscAtual / app.base : NaN;
+  if (Number.isNaN(alvo)) app.tremorVisto = NaN;
+  else app.tremorVisto = Number.isNaN(app.tremorVisto) ? alvo : app.tremorVisto + (alvo - app.tremorVisto) * 0.18;
+  const txt = Number.isNaN(app.tremorVisto) ? '–' : fmtX(app.tremorVisto);
+  if ($('m-num').textContent !== txt) $('m-num').textContent = txt;
+
+  // Último minuto (300 medidas de 0,2 s), a mais nova à direita.
+  const [W, H, dpr] = ajustar(cvM);
+  ctxM.clearRect(0, 0, W, H);
+  const hs = app.historico, ds = app.historicoDet, N = 300;
+  const passo = W / (N - 1);
+  const x = (i) => W - (hs.length - 1 - i) * passo;
+  ctxM.strokeStyle = tinta; ctxM.fillStyle = tinta;
+  if (!app.base || hs.length < 2) {
+    ctxM.globalAlpha = 0.3; ctxM.fillRect(0, H - dpr, W, dpr); ctxM.globalAlpha = 1;
+    return;
+  }
+  // Escala de raiz quadrada: um salto de 20× não achata o resto do minuto contra o chão.
+  const lim = app.limiar / app.base;
+  let teto = lim * 2.2;
+  for (const v of hs) teto = Math.max(teto, (v / app.base) * 1.08);
+  const y = (r) => H - dpr - Math.sqrt(Math.max(0, r) / teto) * (H - 3 * dpr);
+  // Faixas onde o detector disse "Movimento".
+  ctxM.globalAlpha = 0.14;
+  for (let i = 0; i < hs.length; i++) {
+    if (!ds[i] || ds[i - 1]) continue;              // começo de um trecho de movimento
+    let f = i; while (f + 1 < hs.length && ds[f + 1]) f++;
+    ctxM.fillRect(x(i) - passo / 2, 0, x(f) - x(i) + passo, H);
+  }
+  // Linha do limite, tracejada, com o nome.
+  ctxM.globalAlpha = 0.7; ctxM.lineWidth = dpr; ctxM.setLineDash([4 * dpr, 4 * dpr]);
+  ctxM.beginPath(); ctxM.moveTo(0, y(lim)); ctxM.lineTo(W, y(lim)); ctxM.stroke(); ctxM.setLineDash([]);
+  ctxM.font = `${10 * dpr}px ${getComputedStyle(document.body).getPropertyValue('--mono')}`;
+  ctxM.textBaseline = 'bottom'; ctxM.fillText(`limite ${fmtX(lim)}`, 0, y(lim) - 4 * dpr);
+  // A curva do tremor.
+  ctxM.globalAlpha = 1; ctxM.lineWidth = 1.5 * dpr; ctxM.lineJoin = 'round';
+  ctxM.beginPath();
+  hs.forEach((v, i) => { const px = x(i), py = y(v / app.base); i ? ctxM.lineTo(px, py) : ctxM.moveTo(px, py); });
+  ctxM.stroke();
 }
 
 /* ---------- As linhas empilhadas ---------- */
@@ -491,7 +584,7 @@ function guardarLeitura(agora) {
 }
 
 // Desenha uma pilha de leituras. Usada na tela principal, no retrato e na galeria.
-function desenharPilha(c, W, H, ls, fundo, tinta, espessura, frac = 0) {
+function desenharPilha(c, W, H, ls, fundo, tinta, espessura, frac = 0, destaque = false) {
   c.fillStyle = fundo; c.fillRect(0, 0, W, H);
   const topo = H * 0.16, base = H * 0.97;
   const passo = (base - topo) / LINHAS;
@@ -528,6 +621,7 @@ function desenharPilha(c, W, H, ls, fundo, tinta, espessura, frac = 0) {
     c.beginPath();
     c.moveTo(pts[0][0], pts[0][1]);
     for (let j = 1; j < pts.length; j++) c.lineTo(pts[j][0], pts[j][1]);
+    c.lineWidth = destaque && i === ls.length - 1 ? espessura * 2 : espessura;   // a linha de "agora" um pouco mais grossa
     c.stroke();
   }
 }
@@ -543,7 +637,8 @@ function quadro() {
   if (app.fonte && agora - app.ultimaLeitura >= LEITURA_S) { guardarLeitura(agora); app.ultimaLeitura = agora; }
   const [W, H, dpr] = ajustar(cv);
   const { fundo, tinta } = cores();
-  desenharPilha(ctx, W, H, app.leituras, fundo, tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S));
+  desenharPilha(ctx, W, H, app.leituras, fundo, tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S), true);
+  desenharMedidor(tinta);
   requestAnimationFrame(quadro);
 }
 
@@ -779,7 +874,7 @@ async function pararFonte() {
   const leitor = app.leitor, porta = app.porta;
   app.leitor = null; app.porta = null; app.fonte = null;
   app.timers.forEach(clearInterval); app.timers = [];
-  app.janela = []; app.historico = []; app.leituras = []; app.formaLenta = null;
+  app.janela = []; app.historico = []; app.historicoDet = []; app.base = null; app.leituras = []; app.formaLenta = null;
   app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
   app.limiar = null; app.det = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0;
   fecharCamadas();

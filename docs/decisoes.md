@@ -27,6 +27,9 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 ### Tela da demonstração
 - Estilo minimalista: linhas empilhadas do sinal, uma palavra grande (*Parado.* / *Movimento.*) e a tela inverte as cores quando há movimento.
 - Quando o painel do operador abre, a tela encolhe para o lado. As linhas continuam visíveis.
+- **Medidor de tremor** na coluna da esquerda: número "N,N×" comparado com a sala vazia, a regra do limite escrita embaixo, o último minuto com a linha do limite e o recorde do dia. Ele mostra a decisão do detector, em vez de escondê-la.
+- **Legenda no gráfico de linhas** ("4,8 s atrás", "agora", "frequências do Wi-Fi"), para a tela se explicar sozinha.
+- **Roteiro do estande** em `docs/apresentacao.md`. Os jogos (número, Estátua, Ninja, Superpoder) explicam o que a tecnologia faz e onde ela falha.
 
 ### Som
 - Tudo suave: sem onda quadrada e com limitador de volume.

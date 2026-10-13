@@ -23,6 +23,16 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 
 O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, calculada pelo `nucleo.js` com a mesma regra do `ferramentas/detector.py` (um teste confere que as duas dão o mesmo resultado).
 
+## Tela principal (versão 7)
+
+- **Medidor de tremor** (coluna da esquerda, em cima): um número grande, como "1,0×", diz quanto o Wi-Fi está tremendo agora comparado com a sala vazia da calibração.
+  - A frase embaixo explica a regra: "Acima de 1,3×, é movimento." O 1,3× vem do limite calibrado.
+  - O gráfico mostra o último minuto. A linha tracejada é o limite e as faixas sombreadas são os momentos em que o detector disse *Movimento.*
+  - O **recorde do dia** aparece depois do primeiro movimento. A simulação conta separado.
+  - O número é a mesma oscilação do detector dividida pela média da sala vazia; não é um desenho à parte.
+- **Legenda do gráfico de linhas:** "4,8 s atrás" em cima, "↑ Agora" embaixo e "← frequências do Wi-Fi →". A linha mais nova fica um pouco mais grossa.
+- **Rodapé mais limpo:** Desafio ninja, Escutar o Wi-Fi, Como funciona e Quem passou, sem as teclas no nome (elas continuam funcionando e estão listadas no painel). O botão **Operador** foi para o canto de cima.
+
 ## Telas extras (versão 4)
 
 - **Abertura com contador:** a calibração virou a abertura da tela. Um número grande vai de 0% a 100% enquanto o sistema "aprende" a sala vazia. A ideia vem dos sites premiados que abrem com contador (Lusion, Immersive Garden), mas aqui o número mede algo de verdade.
