@@ -24,6 +24,7 @@ Só marcar um item depois de testado de verdade.
 
 ## Documentos
 
+- [Decisões do grupo](docs/decisoes.md): o que já foi decidido e o que falta
 - [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê
 - [Erros prováveis](docs/erros-provaveis.md): o que pode dar errado em cada etapa e como resolver
 - [Protocolo de coleta](experimentos/protocolo.md) e [registro de coletas](experimentos/registro_coletas.csv)

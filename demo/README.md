@@ -25,8 +25,12 @@ O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" 
 - **Tremor realçado:** a forma das linhas mostra o "relevo" da sala, e a diferença em relação à forma média aparece 3x maior. Assim, quando o detector diz *Movimento.*, dá para ver as linhas tremerem. É só no desenho; a detecção não muda.
 - **Frases que se revezam:** com a sala parada, a frase embaixo da palavra troca a cada 7 s, convidando o visitante.
 - **Contador do dia** (no topo): quantos movimentos foram detectados. A simulação conta separado e aparece como "na simulação".
-- **Retrato de cada visitante:** no Desafio Ninja, as leituras dos 3 s de contagem e da travessia viram o "rastro" da pessoa, numerado (Nº 001, Nº 002...). No computador do estande, a tecla `B` salva um cartão PNG de 1080×1350 para a pessoa fotografar ou postar. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
-- **Quem passou hoje** (tecla `G`): galeria com os últimos 12 retratos.
+- **Marca de cada visitante:** no Desafio Ninja, as leituras dos 3 s de contagem e da travessia viram uma marca em anéis, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos, tortos e girados. Cada marca é numerada (Nº 001, Nº 002...) e tem uma frase com data e hora.
+- **Melodia da marca** (tecla `M`): as mesmas leituras viram 16 notas.
+- **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome e a frase. Diz "Carteira de ninja" se a pessoa passou, ou "Registro de passagem" se foi percebida. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
+- **Mural de marcas** (tecla `G`): os últimos 12.
+- **Modo escuta** (tecla `E`): tela "Feche os olhos." com som de vento baixo que abre e ganha "gotas" quando alguém se mexe. Para usar com fone de ouvido.
+- **Painel do operador não cobre mais as linhas:** quando abre, a tela encolhe para o lado (no celular, o painel abre embaixo).
 - **Como funciona** (tecla `H`): três passos com desenhos de linha. No modo vitrine, ela aparece sozinha depois de 45 s sem movimento e some no primeiro movimento.
 - **Grão de foto** bem leve por cima de tudo, para a tela não parecer "plástica".
 
@@ -47,16 +51,16 @@ Tudo que é técnico fica no **painel do operador** (tecla `O`):
 | Gravação… | Reproduz em loop um `.csv` do `ferramentas/capturar.py`. Plano B se o ao vivo falhar. |
 | Placa USB | Lê a Placa B a 921600 baud. Feche o `idf.py monitor` antes. |
 
-**Som** (começa mudo):
-- **Alerta:** dois toques quando começa um movimento.
-- **Contador:** estalos como um contador Geiger, mais rápidos quanto mais a pessoa se mexe.
-- **Desafio:** bipes na contagem, fanfarra no *Passou.* e buzina no *Te vi.*
+**Som** (começa mudo; tudo suave, sem onda quadrada e com limitador de volume):
+- **Alerta:** dois toques suaves quando começa um movimento.
+- **Escuta:** sopro baixo, como vento, que abre e ganha "gotas" quando alguém se mexe.
+- **Desafio:** notas na contagem, um arpejo no *Passou.* e duas notas graves no *Te vi.*
 
 Teste o volume no lugar da feira.
 
 ## Atalhos
 
-`N` desafio · `Enter` começar · `Espaço` chegou · `B` salvar retrato · `G` quem passou · `H` como funciona · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
+`N` desafio · `Enter` começar · `Espaço` chegou · `M` melodia da marca · `B` salvar cartão · `G` mural · `E` escutar · `H` como funciona · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
 
 ## Situação
 

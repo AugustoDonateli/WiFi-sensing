@@ -80,7 +80,7 @@ body[data-estado="movimento"] .aviso { color: #9A6400; }
 .desafio-sub { font-size: clamp(18px, 1.8vw, 28px); max-width: 32ch; }
 .desafio-tempo { font-family: var(--mono); font-size: clamp(28px, 3.2vw, 52px); font-variant-numeric: tabular-nums; }
 .retrato { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.retrato canvas { width: 100%; max-width: 520px; aspect-ratio: 1 / 1.08; display: block; }
+.retrato canvas { width: 100%; max-width: 520px; aspect-ratio: 1 / 1; display: block; }
 .retrato .mono { color: var(--apagado); }
 .baixo { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
 .recordes { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-width: 220px; }
@@ -97,9 +97,9 @@ input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 .passo p { margin: 0; font-size: clamp(18px, 1.6vw, 26px); line-height: 1.3; max-width: 22ch; }
 .passo p span { color: var(--apagado); }
 
-.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 36px 28px; align-content: start; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 40px 32px; align-content: start; }
 .cartao { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.cartao canvas { width: 100%; aspect-ratio: 1 / 1.08; display: block; }
+.cartao canvas { width: 100%; aspect-ratio: 1 / 1; display: block; }
 .cartao b { font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cartao span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); }
 .galeria-vazia { font-family: var(--serif); font-size: clamp(32px, 4vw, 64px); color: var(--apagado); max-width: 18ch; }
@@ -119,6 +119,14 @@ input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 .numeros span { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8A84; }
 input[type="range"] { width: 100%; accent-color: #EDEDE8; }
 .erro { border-left: 2px solid var(--aviso); padding-left: 10px; color: #EDEDE8 !important; }
+/* Com o painel aberto, a tela encolhe em vez de ficar por baixo dele. */
+body.com-operador .tela { margin-right: min(380px, 100vw); }
+body.com-operador .camada { right: min(380px, 100vw); }
+
+/* Modo escuta */
+.escuta-centro { display: flex; flex-direction: column; justify-content: center; gap: 22px; max-width: 980px; }
+.escuta-centro .mono { color: var(--apagado); max-width: 60ch; line-height: 1.6; }
+.pulso { position: absolute; right: 14vw; top: 50%; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: var(--tinta); opacity: 0.25; transition: transform 0.25s ease, opacity 0.25s ease; }
 
 @media (max-width: 860px) {
   .tela { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; gap: 24px; }
@@ -127,6 +135,9 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
   .texto { grid-column: 1; grid-row: 3; }
   .rodape { grid-column: 1; grid-row: 4; }
   .desafio-meio, .passos { grid-template-columns: minmax(0, 1fr); }
+  .operador { top: auto; height: 55vh; width: 100vw; border-left: 0; border-top: 1px solid #2A2A28; }
+  body.com-operador .tela { margin-right: 0; padding-bottom: calc(55vh + 24px); }
+  body.com-operador .camada { right: 0; bottom: 55vh; }
 }
 @media (prefers-reduced-motion: reduce) {
   body, .camada, .frase { transition: none; }
@@ -154,6 +165,7 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
     <span id="leitura">canal 11 · 2,462 GHz</span>
     <span><button class="botao-texto mono" id="abrir-como">Como funciona (H)</button></span>
     <span><button class="botao-texto mono" id="abrir-galeria">Quem passou (G)</button></span>
+    <span><button class="botao-texto mono" id="abrir-escuta">Escutar o Wi-Fi (E)</button></span>
     <span><button class="botao-texto mono" id="abrir-desafio">Desafio ninja (N)</button></span>
     <span><button class="botao-texto mono" id="abrir-operador">Operador (O)</button></span>
   </footer>
@@ -169,7 +181,7 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
       <div class="desafio-tempo" id="d-tempo" hidden>0,0 s</div>
     </div>
     <div class="retrato" id="retrato" hidden>
-      <canvas id="retrato-cv" role="img" aria-label="Seu rastro no Wi-Fi: as leituras do sinal enquanto você atravessava"></canvas>
+      <canvas id="retrato-cv" role="img" aria-label="Sua marca no Wi-Fi: anéis desenhados com as leituras do sinal enquanto você atravessava"></canvas>
       <span class="mono" id="retrato-legenda"></span>
     </div>
   </div>
@@ -178,7 +190,8 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
     <div class="acoes mono">
       <button class="botao-texto mono" id="d-comecar">Começar (enter)</button>
       <button class="botao-texto mono" id="d-chegou" hidden>Chegou (espaço)</button>
-      <button class="botao-texto mono" id="d-baixar" hidden>Salvar imagem (B)</button>
+      <button class="botao-texto mono" id="d-ouvir" hidden>Ouvir sua marca (M)</button>
+      <button class="botao-texto mono" id="d-baixar" hidden>Salvar cartão (B)</button>
       <button class="botao-texto mono" id="d-fechar">Voltar (esc)</button>
     </div>
   </div>
@@ -221,9 +234,20 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
 </div>
 
 <div class="camada" id="galeria" hidden>
-  <div class="topo mono"><span>Quem passou hoje · o rastro de cada um no Wi-Fi</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span>Mural de marcas · quem passou hoje</span><span class="aviso aviso-copia"></span></div>
   <div class="galeria" id="galeria-grade"></div>
-  <div class="baixo mono"><span>Cada desenho é o sinal medido enquanto a pessoa atravessava a faixa.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
+  <div class="baixo mono"><span>Cada anel é um momento da travessia. Anéis largos e tortos: momentos em que a pessoa mexeu mais no sinal. Nenhuma câmera foi usada.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
+</div>
+
+<div class="camada" id="escuta" hidden>
+  <div class="topo mono"><span>Modo escuta</span><span class="aviso aviso-copia"></span></div>
+  <div class="escuta-centro">
+    <div class="pulso" id="pulso" aria-hidden="true"></div>
+    <div class="desafio-grande">Feche os olhos.</div>
+    <div class="desafio-sub">O som que você está ouvindo é o Wi-Fi desta sala. Quando alguém se mexe perto das placas, ele muda.</div>
+    <p class="mono">Dá para ouvir alguém andando do outro lado de uma parede? Essa é uma das perguntas que o projeto vai testar.</p>
+  </div>
+  <div class="baixo mono"><span>Use fone de ouvido, com volume baixo.</span><button class="botao-texto mono" id="escuta-fechar">Voltar (esc)</button></div>
 </div>
 
 <aside class="operador" id="operador" hidden aria-label="Painel do operador">
@@ -251,10 +275,10 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
     <div class="opcoes">
       <button id="som-mudo" aria-pressed="true">Mudo</button>
       <button id="som-alerta" aria-pressed="false">Alerta</button>
-      <button id="som-geiger" aria-pressed="false">Contador</button>
+      <button id="som-escuta" aria-pressed="false">Escuta</button>
     </div>
     <input type="range" id="volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume">
-    <p>Alerta: dois toques quando começa um movimento. Contador: estalos que aceleram com a oscilação, como um contador Geiger.</p>
+    <p>Alerta: dois toques suaves quando começa um movimento. Escuta: um sopro baixo, como vento, que abre e ganha "gotas" quando alguém se mexe. Tudo passa por um limitador de volume.</p>
   </section>
   <section>
     <span class="mono">Vitrine</span>
@@ -268,7 +292,7 @@ input[type="range"] { width: 100%; accent-color: #EDEDE8; }
   <section>
     <span class="mono">Tela e dados do dia</span>
     <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button><button id="btn-zerar">Zerar recordes e galeria</button></div>
-    <p>Atalhos: N desafio · H como funciona · G quem passou · C calibrar · S som · O este painel.</p>
+    <p>Atalhos: N desafio · E escutar · H como funciona · G mural · C calibrar · S som · O este painel.</p>
   </section>
 </aside>
 
@@ -384,7 +408,7 @@ function avaliar() {
     if (!$('como').hidden && como.automatico) fecharComo();
   }
   if (app.detectado || !app.fonte || app.calibracao || app.limiar === null) app.quietoDesde = agora;
-  if (som.modo === 'geiger') somGeiger(v);
+  if (som.modo === 'escuta') somEscuta(v);
   atualizarEstado(agora);
   ninjaPasso(agora);
   vitrinePasso(agora);
@@ -563,52 +587,101 @@ function quadro() {
   requestAnimationFrame(quadro);
 }
 
-/* ---------- Som ---------- */
-const som = { modo: 'mudo', ctx: null, vol: 0.6, ruido: null };
+/* ---------- Som: suave de propósito. Nada de onda quadrada, tudo passa por um limitador. ---------- */
+const som = { modo: 'mudo', antes: 'mudo', ctx: null, vol: 0.6, saida: null, mestre: null, vento: null, filtro: null, ventoGanho: null, nivel: 0 };
 function audio() {
-  if (!som.ctx) som.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!som.ctx) {
+    const c = new (window.AudioContext || window.webkitAudioContext)();
+    const lim = c.createDynamicsCompressor();
+    lim.threshold.value = -28; lim.knee.value = 20; lim.ratio.value = 8; lim.attack.value = 0.01; lim.release.value = 0.3;
+    const mestre = c.createGain(); mestre.gain.value = som.vol;
+    lim.connect(mestre).connect(c.destination);
+    Object.assign(som, { ctx: c, saida: lim, mestre });
+  }
   if (som.ctx.state === 'suspended') som.ctx.resume();
   return som.ctx;
 }
-function tom(freq, dur, quando = 0, tipo = 'sine', ganho = 0.25) {
-  if (som.modo === 'mudo') return;
+function tom(freq, dur, quando = 0, tipo = 'sine', ganho = 0.08, forcar = false) {
+  if (som.modo === 'mudo' && !forcar) return;
   const c = audio(), t = c.currentTime + quando;
   const o = c.createOscillator(), g = c.createGain();
   o.type = tipo; o.frequency.value = freq;
   g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, ganho * som.vol), t + 0.012);
+  g.gain.exponentialRampToValueAtTime(ganho, t + 0.02);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g).connect(c.destination);
+  o.connect(g).connect(som.saida);
   o.start(t); o.stop(t + dur + 0.05);
 }
-function estalo(quando) {
+// "Vento": ruído rosado num filtro. Sala parada = sopro grave e baixinho; movimento = o som abre e sobe.
+function ligarVento() {
   const c = audio();
-  if (!som.ruido) {
-    som.ruido = c.createBuffer(1, Math.round(c.sampleRate * 0.004), c.sampleRate);
-    const d = som.ruido.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  if (som.vento) return;
+  const n = c.sampleRate * 2, buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0;
+  for (let i = 0; i < n; i++) {
+    const w = Math.random() * 2 - 1;
+    b0 = 0.997 * b0 + w * 0.0296; b1 = 0.985 * b1 + w * 0.0325; b2 = 0.95 * b2 + w * 0.048;
+    d[i] = (b0 + b1 + b2 + w * 0.05) * 0.5;
   }
-  const s = c.createBufferSource(), g = c.createGain();
-  s.buffer = som.ruido; g.gain.value = 0.5 * som.vol;
-  s.connect(g).connect(c.destination);
-  s.start(c.currentTime + quando);
+  const fonte = c.createBufferSource(); fonte.buffer = buf; fonte.loop = true;
+  const filtro = c.createBiquadFilter(); filtro.type = 'lowpass'; filtro.frequency.value = 260; filtro.Q.value = 0.7;
+  const g = c.createGain(); g.gain.value = 0.0001;
+  fonte.connect(filtro).connect(g).connect(som.saida);
+  fonte.start();
+  Object.assign(som, { vento: fonte, filtro, ventoGanho: g, nivel: 0 });
 }
-// Todas as notas da escala pentatônica de dó, para os sons combinarem entre si.
-function somAlerta() { tom(659, 0.14); tom(880, 0.22, 0.13); }
-function somGeiger(v) {
-  if (Number.isNaN(v) || app.limiar === null || app.calibracao) return;
-  const taxa = Math.max(0, Math.min(40, (v / app.limiar - 0.6) * 12));
-  if (taxa === 0) return;
+function desligarVento() {
+  if (!som.vento) return;
+  const f = som.vento;
+  som.ventoGanho.gain.setTargetAtTime(0.0001, som.ctx.currentTime, 0.2);
+  setTimeout(() => { try { f.stop(); } catch (e) { /* já parou */ } }, 900);
+  som.vento = null;
+}
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66];   // pentatônica de dó
+function gota(quando, forca) {
+  const c = audio(), t = c.currentTime + quando;
+  const f = PENTA[Math.floor(Math.random() * PENTA.length)];
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(f * 1.5, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.05);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.03 + 0.04 * forca, t + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+  o.connect(g).connect(som.saida); o.start(t); o.stop(t + 0.5);
+}
+function somEscuta(v) {
+  if (!som.vento || app.limiar === null || app.calibracao || Number.isNaN(v)) return;
+  const c = som.ctx;
+  const x = Math.max(0, Math.min(1, (v / app.limiar - 0.7) / 3));   // 0 = sala parada, 1 = bem agitada
+  som.nivel += 0.35 * (x - som.nivel);
+  som.filtro.frequency.setTargetAtTime(260 + 2000 * som.nivel, c.currentTime, 0.25);
+  som.ventoGanho.gain.setTargetAtTime(0.03 + 0.15 * som.nivel, c.currentTime, 0.25);
+  const taxa = 5 * Math.max(0, som.nivel - 0.08);                    // gotas por segundo
   let t = 0;
-  for (;;) { t += -Math.log(1 - Math.random()) / taxa; if (t >= AVALIAR_MS / 1000) break; estalo(t); }
+  while (taxa > 0) { t += -Math.log(1 - Math.random()) / taxa; if (t >= AVALIAR_MS / 1000) break; gota(t, som.nivel); }
+  const p = $('pulso');
+  if (p) { p.style.transform = `scale(${1 + som.nivel * 7})`; p.style.opacity = String(0.2 + som.nivel * 0.5); }
 }
-function somContagem(n) { tom(n > 0 ? 392 : 1047, n > 0 ? 0.12 : 0.35, 0, 'triangle'); }
-function somNinja() { [523, 659, 784, 1047].forEach((f, i) => tom(f, 0.18, i * 0.11, 'triangle')); }
-function somPego() { tom(110, 0.55, 0, 'square', 0.18); tom(104, 0.55, 0, 'square', 0.18); }
+function somAlerta() { tom(659.25, 0.5, 0, 'sine', 0.07); tom(880, 0.7, 0.14, 'sine', 0.06); }
+function somContagem(n) { tom(n > 0 ? 523.25 : 1046.5, n > 0 ? 0.25 : 0.6, 0, 'sine', 0.07); }
+function somNinja() { [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tom(f, 0.6, i * 0.12, 'triangle', 0.06)); }
+function somPego() { tom(196, 0.9, 0, 'sine', 0.1); tom(164.81, 1.1, 0.12, 'sine', 0.08); }
 function definirSom(m) {
   som.modo = m;
   if (m !== 'mudo') audio();
-  for (const [id, modo] of [['som-mudo', 'mudo'], ['som-alerta', 'alerta'], ['som-geiger', 'geiger']]) $(id).setAttribute('aria-pressed', String(m === modo));
+  if (m === 'escuta') ligarVento(); else desligarVento();
+  for (const [id, modo] of [['som-mudo', 'mudo'], ['som-alerta', 'alerta'], ['som-escuta', 'escuta']]) $(id).setAttribute('aria-pressed', String(m === modo));
+}
+function abrirEscuta() {
+  fecharCamadas();
+  som.antes = som.modo;
+  definirSom('escuta');
+  $('escuta').hidden = false;
+}
+function fecharEscuta() {
+  if ($('escuta').hidden) return;
+  $('escuta').hidden = true;
+  definirSom(som.antes === 'escuta' ? 'mudo' : som.antes);
 }
 
 /* ---------- Simulação ---------- */
@@ -762,8 +835,9 @@ function definirFonte(f) {
   for (const [id, m] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === m));
   if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
 }
-function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; $('operador').hidden = false; }
+function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; operador(true); }
 function esconderMsg() { $('msg').hidden = true; }
+function operador(aberto) { $('operador').hidden = !aberto; document.body.classList.toggle('com-operador', aberto); }
 
 /* ---------- Desafio Ninja e retratos ---------- */
 const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', fecharEm: 0, rastro: [], retrato: null };
@@ -779,7 +853,7 @@ function abrirDesafio() {
   $('d-grande').textContent = 'Pronto?';
   $('d-sub').textContent = 'Escreva seu apelido e fique na linha de partida.';
   $('apelido').hidden = false; $('apelido').value = '';
-  $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true; $('d-baixar').hidden = true;
+  $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true; $('d-baixar').hidden = true; $('d-ouvir').hidden = true;
   $('retrato').hidden = true;
   $('desafio').hidden = false;
   desenharRecordes();
@@ -827,12 +901,14 @@ function terminar(ok, t) {
     retratos = retratos.slice(-12);
     gravar('wavesense-retratos', retratos);
     $('retrato').hidden = false;
-    $('retrato-legenda').textContent = `${numero(n)} · seu rastro no Wi-Fi · ${r.fonte === 'sim' ? 'simulação' : r.fonte === 'replay' ? 'gravação' : 'ao vivo'}`;
+    $('retrato-legenda').textContent = `${numero(n)} · ${fraseDaMarca(r)}${r.fonte === 'sim' ? ' (simulação)' : ''}`;
     requestAnimationFrame(() => desenharRetrato($('retrato-cv'), r));
     $('d-baixar').hidden = EMBUTIDO;
+    $('d-ouvir').hidden = false;
+    if (som.modo !== 'mudo') tocarMarca(r, 1.4);
   }
   desenharRecordes();
-  ninja.fecharEm = performance.now() / 1000 + 9;
+  ninja.fecharEm = performance.now() / 1000 + 14;
 }
 function ninjaPasso(agora) {
   if (ninja.estado === 'contagem') {
@@ -856,12 +932,74 @@ function ninjaPasso(agora) {
     abrirDesafio();
   }
 }
+// A "marca" funciona como anéis de árvore: cada anel é um momento da travessia (de dentro para fora).
+// Momentos em que o sinal tremeu mais deixam anéis mais largos, mais tortos e mais girados,
+// como os anéis largos de um ano bom numa árvore. É desenho feito a partir das leituras; não identifica ninguém.
+function desenharMarca(c, W, H, ls0, fundo, tinta, esp) {
+  c.fillStyle = fundo; c.fillRect(0, 0, W, H);
+  if (!ls0.length) return;
+  const N = Math.min(32, ls0.length);
+  const ls = Array.from({ length: N }, (_, i) => ls0[Math.floor((i * ls0.length) / N)]);
+  const info = ls.map(({ a, d }) => {
+    const uteis = [];
+    let soma = 0, en = 0;
+    for (let k = 0; k < a.length; k++) if (a[k] > 0.5) { uteis.push(k); soma += a[k]; }
+    const media = uteis.length ? soma / uteis.length : 1;
+    for (const k of uteis) en += Math.abs(d[k]);
+    return { a, d, uteis, media, en: uteis.length ? en / (uteis.length * media) : 0 };
+  });
+  const emax = Math.max(...info.map((x) => x.en), 1e-6);
+  const larguras = info.map((x) => 0.5 + 1.5 * (x.en / emax));
+  const total = larguras.reduce((s1, x) => s1 + x, 0);
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.44, r0 = R * 0.1, unidade = (R - r0) / N;
+  c.strokeStyle = tinta; c.lineWidth = esp; c.lineJoin = 'round';
+  let r = r0, giro = 0;
+  for (let i = 0; i < info.length; i++) {
+    const { a, d, uteis, media, en } = info[i];
+    r += ((R - r0) * larguras[i]) / total;
+    giro += (en / emax) * 0.9;
+    const m = uteis.length;
+    if (m < 3) continue;
+    const valor = (j) => (a[uteis[j]] / media - 1) * 1.2 + (2 * REALCE * d[uteis[j]]) / media;
+    const passos = 240;
+    c.beginPath();
+    for (let s2 = 0; s2 <= passos; s2++) {
+      const u = (s2 / passos) * m, j0 = Math.floor(u) % m, j1 = (j0 + 1) % m, f = u - Math.floor(u);
+      const v = (1 - f) * valor(j0) + f * valor(j1);
+      const ang = (s2 / passos) * Math.PI * 2 + giro;
+      const rr = r + v * unidade * 1.2;
+      const x = cx + rr * Math.cos(ang), y = cy + rr * Math.sin(ang);
+      if (s2) c.lineTo(x, y); else c.moveTo(x, y);
+    }
+    c.closePath(); c.stroke();
+  }
+}
+function linhasDe(r) { return r.linhas.map((l) => ({ a: Float32Array.from(l.a), d: Float32Array.from(l.d) })); }
 function desenharRetrato(canvas, r, fundo, tinta) {
   const [W, H, dpr] = ajustar(canvas);
-  const c = canvas.getContext('2d');
   const cs = cores();
-  const ls = r.linhas.map((l) => ({ a: Float32Array.from(l.a), d: Float32Array.from(l.d) }));
-  desenharPilha(c, W, H, ls, fundo || cs.fundo, tinta || cs.tinta, 1.4 * dpr);
+  desenharMarca(canvas.getContext('2d'), W, H, linhasDe(r), fundo || cs.fundo, tinta || cs.tinta, 1.2 * dpr);
+}
+// A melodia da marca: o tremor de cada momento da travessia vira uma nota da mesma escala.
+function tocarMarca(r, atraso = 0) {
+  if (!r || r.linhas.length < 2) return;
+  const es = r.linhas.map((l) => { let s1 = 0, m = 0; for (let k = 0; k < l.a.length; k++) if (l.a[k] > 0.5) { s1 += Math.abs(l.d[k]); m += l.a[k]; } return m ? s1 / m : 0; });
+  const max = Math.max(...es, 1e-6), N = 16;
+  const notas = [261.63, 293.66, 329.63, 392, 440, 523.25, 587.33, 659.25, 783.99, 880];
+  for (let i = 0; i < N; i++) {
+    const e = es[Math.floor((i * es.length) / N)];
+    tom(notas[Math.round((e / max) * (notas.length - 1))], 0.55, atraso + i * 0.17, 'triangle', 0.06, true);
+  }
+}
+function fraseDaMarca(r) {
+  const q = new Date(r.quando);
+  const data = q.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
+  const hora = q.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  return r.ok
+    ? `Em ${data}, às ${hora}, ${r.nome} atravessou e o Wi-Fi não percebeu.`
+    : r.ok === false
+      ? `Em ${data}, às ${hora}, o Wi-Fi sentiu ${r.nome} passar.`
+      : `Em ${data}, às ${hora}, ${r.nome} tentou atravessar.`;
 }
 function desenharRecordes() {
   const ol = $('recordes');
@@ -875,25 +1013,34 @@ function desenharRecordes() {
     li.append(a, b); ol.appendChild(li);
   });
 }
-function baixarRetrato() {
+async function baixarRetrato() {
   const r = ninja.retrato;
   if (!r || EMBUTIDO) return;
-  // Cartão em pé, preto e branco, para guardar ou postar.
+  await document.fonts.ready;
+  // Cartão em pé (1080 x 1350), para guardar ou postar.
   const W = 1080, H = 1350, c = document.createElement('canvas');
   c.width = W; c.height = H;
   const g = c.getContext('2d');
   g.fillStyle = '#0B0B0A'; g.fillRect(0, 0, W, H);
-  const pilha = document.createElement('canvas'); pilha.width = 920; pilha.height = 994;
-  desenharPilha(pilha.getContext('2d'), 920, 994, r.linhas.map((l) => ({ a: Float32Array.from(l.a), d: Float32Array.from(l.d) })), '#0B0B0A', '#EDEDE8', 2.2);
-  g.drawImage(pilha, 80, 60);
+  const marca = document.createElement('canvas'); marca.width = 860; marca.height = 860;
+  desenharMarca(marca.getContext('2d'), 860, 860, linhasDe(r), '#0B0B0A', '#EDEDE8', 1.6);
+  g.drawImage(marca, 110, 120);
+  g.textBaseline = 'alphabetic';
+  g.font = '500 22px "Geist Mono", monospace'; g.fillStyle = '#8A8A84';
+  g.fillText(r.ok ? 'WAVE SENSE · CARTEIRA DE NINJA' : 'WAVE SENSE · REGISTRO DE PASSAGEM', 80, 80);
+  g.textAlign = 'right';
+  g.fillStyle = r.fonte === 'sim' ? '#F5B83D' : '#8A8A84';
+  g.fillText(`${r.fonte === 'sim' ? 'SIMULAÇÃO · ' : ''}${numero(r.n).toUpperCase()}`, W - 80, 80);
+  g.textAlign = 'left';
   g.fillStyle = '#EDEDE8';
-  g.font = '96px "Instrument Serif", serif';
-  g.fillText(r.ok ? 'Passou.' : r.ok === false ? 'Te vi.' : 'Tempo.', 80, 1170);
-  g.font = '24px "Geist Mono", monospace';
-  g.fillStyle = '#8A8A84';
-  const data = new Date(r.quando).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-  g.fillText(`${numero(r.n).toUpperCase()} · ${r.nome.toUpperCase()} · ${seg(r.tempo).toUpperCase()} · ${data}`, 80, 1230);
-  g.fillText(`WAVE SENSE · JACITEC 2026 · ${r.fonte === 'sim' ? 'SIMULAÇÃO' : 'SINAL WI-FI MEDIDO'}`, 80, 1275);
+  g.font = '120px "Instrument Serif", serif';
+  g.fillText(r.nome, 80, 1110);
+  g.font = 'italic 48px "Instrument Serif", serif';
+  g.fillText(r.ok ? `passou sem ser percebido em ${seg(r.tempo)}.` : r.ok === false ? `foi percebido em ${seg(r.tempo)}.` : 'tentou atravessar.', 80, 1172);
+  g.font = '26px "Geist", sans-serif'; g.fillStyle = '#B8B8B2';
+  g.fillText(fraseDaMarca(r), 80, 1236);
+  g.font = '500 20px "Geist Mono", monospace'; g.fillStyle = '#8A8A84';
+  g.fillText('CADA ANEL É UM MOMENTO DA TRAVESSIA, DESENHADO COM O SINAL WI-FI · SEM CÂMERA', 80, 1290);
   c.toBlob((b) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
@@ -917,7 +1064,7 @@ function abrirGaleria() {
   for (const r of [...retratos].reverse()) {
     const card = document.createElement('div'); card.className = 'cartao';
     const cvs = document.createElement('canvas');
-    cvs.setAttribute('role', 'img'); cvs.setAttribute('aria-label', `Rastro de ${r.nome}`);
+    cvs.setAttribute('role', 'img'); cvs.setAttribute('aria-label', `Marca de ${r.nome}`);
     const nome = document.createElement('b'); nome.textContent = r.nome;
     const info = document.createElement('span');
     info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}${r.fonte === 'sim' ? ' · simulação' : ''}`;
@@ -937,7 +1084,7 @@ function abrirComo(auto = false) {
 function fecharComo() { $('como').hidden = true; como.automatico = false; }
 function vitrinePasso(agora) {
   if (como.automatico && agora >= como.ate) fecharComo();
-  const livre = $('desafio').hidden && $('galeria').hidden && $('como').hidden && $('operador').hidden;
+  const livre = $('desafio').hidden && $('galeria').hidden && $('como').hidden && $('escuta').hidden && $('operador').hidden;
   if (como.ligado && livre && app.limiar !== null && !app.calibracao && agora - app.quietoDesde > 45) {
     app.quietoDesde = agora;
     abrirComo(true);
@@ -945,6 +1092,7 @@ function vitrinePasso(agora) {
 }
 function fecharCamadas() {
   ninja.estado = 'fechado';
+  fecharEscuta();
   for (const id of ['desafio', 'galeria', 'como']) $(id).hidden = true;
   como.automatico = false;
 }
@@ -967,8 +1115,8 @@ $('limiar').addEventListener('input', (e) => {
 });
 $('som-mudo').addEventListener('click', () => definirSom('mudo'));
 $('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
-$('som-geiger').addEventListener('click', () => definirSom('geiger'));
-$('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); });
+$('som-escuta').addEventListener('click', () => definirSom('escuta'));
+$('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); if (som.mestre) som.mestre.gain.value = som.vol; });
 $('vitrine').addEventListener('click', (e) => { como.ligado = !como.ligado; e.target.setAttribute('aria-pressed', String(como.ligado)); });
 $('btn-zerar').addEventListener('click', (e) => {
   if (e.target.dataset.confirmar !== 'sim') { e.target.dataset.confirmar = 'sim'; e.target.textContent = 'Clique de novo para apagar'; return; }
@@ -979,13 +1127,16 @@ $('btn-zerar').addEventListener('click', (e) => {
 $('btn-tela').addEventListener('click', () => {
   (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
 });
-$('abrir-operador').addEventListener('click', () => { $('operador').hidden = false; });
-$('fechar-operador').addEventListener('click', () => { $('operador').hidden = true; });
+$('abrir-operador').addEventListener('click', () => { operador(true); });
+$('fechar-operador').addEventListener('click', () => { operador(false); });
 $('abrir-desafio').addEventListener('click', abrirDesafio);
 $('abrir-como').addEventListener('click', () => abrirComo(false));
 $('abrir-galeria').addEventListener('click', abrirGaleria);
 $('como-fechar').addEventListener('click', fecharComo);
 $('galeria-fechar').addEventListener('click', () => { $('galeria').hidden = true; });
+$('abrir-escuta').addEventListener('click', abrirEscuta);
+$('escuta-fechar').addEventListener('click', fecharEscuta);
+$('d-ouvir').addEventListener('click', () => tocarMarca(ninja.retrato));
 $('d-comecar').addEventListener('click', comecar);
 $('d-chegou').addEventListener('click', chegou);
 $('d-baixar').addEventListener('click', baixarRetrato);
@@ -994,7 +1145,7 @@ $('d-fechar').addEventListener('click', fecharCamadas);
 document.addEventListener('keydown', (e) => {
   const k = e.key.toLowerCase();
   const digitando = e.target.tagName === 'INPUT' && e.target.type === 'text';
-  if (k === 'escape') { if (!$('operador').hidden) $('operador').hidden = true; else fecharCamadas(); return; }
+  if (k === 'escape') { if (!$('operador').hidden) operador(false); else fecharCamadas(); return; }
   if (k === 'enter' && ninja.estado === 'pronto') { e.preventDefault(); comecar(); return; }
   if (digitando) return;
   if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
@@ -1003,9 +1154,11 @@ document.addEventListener('keydown', (e) => {
   else if (k === 'h') { if ($('como').hidden) abrirComo(false); else fecharComo(); }
   else if (k === 'g') { if ($('galeria').hidden) abrirGaleria(); else $('galeria').hidden = true; }
   else if (k === 'b' && ninja.estado === 'resultado') baixarRetrato();
+  else if (k === 'm' && ninja.estado === 'resultado') tocarMarca(ninja.retrato);
+  else if (k === 'e') { if ($('escuta').hidden) abrirEscuta(); else fecharEscuta(); }
   else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
-  else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'geiger' : 'mudo');
-  else if (k === 'o') $('operador').hidden = !$('operador').hidden;
+  else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'escuta' : 'mudo');
+  else if (k === 'o') operador($('operador').hidden);
   else if (k === 'f') $('btn-tela').click();
 });
 
