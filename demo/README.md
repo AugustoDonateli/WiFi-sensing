@@ -25,13 +25,16 @@ O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" 
 
 ## Tela principal (versão 7)
 
-- **Medidor de tremor** (coluna da esquerda, em cima): um número grande, como "1,0×", diz quanto o Wi-Fi está tremendo agora comparado com a sala vazia da calibração.
-  - A frase embaixo explica a regra: "Acima de 1,3×, é movimento." O 1,3× vem do limite calibrado.
-  - O gráfico mostra o último minuto. A linha tracejada é o limite e as faixas sombreadas são os momentos em que o detector disse *Movimento.*
-  - O **recorde do dia** aparece depois do primeiro movimento. A simulação conta separado.
-  - O número é a mesma oscilação do detector dividida pela média da sala vazia; não é um desenho à parte.
-- **Legenda do gráfico de linhas:** "4,8 s atrás" em cima, "↑ Agora" embaixo e "← frequências do Wi-Fi →". A linha mais nova fica um pouco mais grossa.
-- **Rodapé mais limpo:** Desafio ninja, Escutar o Wi-Fi, Como funciona e Quem passou, sem as teclas no nome (elas continuam funcionando e estão listadas no painel). O botão **Operador** foi para o canto de cima.
+Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Operador, uma linha embaixo do gráfico do medidor e os quatro botões do rodapé. O resto foi tirado ou virou frase normal.
+
+- **Medidor de tremor** (coluna da esquerda, em cima):
+  - O número grande, como "1,0×", diz quanto o Wi-Fi está tremendo agora comparado com a sala vazia da calibração. É a mesma oscilação do detector dividida pela média da sala vazia, não um desenho à parte.
+  - A frase embaixo explica tudo: "Tremor do Wi-Fi, comparado com a sala vazia. Passou da linha tracejada (1,3×), é movimento."
+  - O gráfico mostra o último minuto. A linha tracejada é o limite e as faixas sombreadas são os momentos de *Movimento.*
+  - Embaixo, uma linha só: "Último minuto", e o recorde do dia depois do primeiro movimento.
+- **Gráfico de linhas sem legenda:** a linha mais nova (embaixo) é um pouco mais grossa, e as frases que se revezam explicam ("A de baixo é agora.").
+- **Movimentos do dia e dados técnicos** (pacotes por segundo, oscilação, limiar) ficam no painel do Operador.
+- **O limite não desce abaixo de 1,1× a sala vazia** no controle deslizante. Abaixo disso, a tela diria *Movimento.* para sempre.
 
 ## Telas extras (versão 4)
 

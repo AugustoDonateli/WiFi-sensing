@@ -9,7 +9,7 @@ Todo mundo do grupo deve saber dizer essa frase do seu jeito, em 10 segundos.
 ## O que o visitante precisa levar para casa
 
 1. **O Wi-Fi bate nas pessoas e volta diferente.** Uma placa manda o sinal, a outra mede como ele chega.
-2. **Um limite decide o que é movimento.** O medidor da tela mostra isso: "1,0×" é a sala vazia; acima do limite (por exemplo 1,3×), é movimento.
+2. **Um limite decide o que é movimento.** O medidor da tela mostra isso: "1,0×" é a sala vazia; passou da linha tracejada (por exemplo 1,3×), é movimento.
 3. **Serve para coisas boas, tem limites e tem riscos.**
    - Coisas boas: perceber queda de idoso sem câmera no banheiro, casa que apaga a luz sozinha.
    - Limite: uma pessoa parada não aparece.
@@ -50,7 +50,7 @@ Cada jogo ensina uma coisa. Não precisa fazer todos com todo mundo.
 
 | Jogo | O que a pessoa faz | O que ela aprende |
 |---|---|---|
-| **Faça o número subir** | Mexe os braços entre as placas e tenta bater o recorde do dia (no topo do medidor) | Movimento muda o sinal. O limite decide o que é movimento. |
+| **Faça o número subir** | Mexe os braços entre as placas e tenta bater o recorde do dia (embaixo do gráfico do medidor) | Movimento muda o sinal. O limite decide o que é movimento. |
 | **Estátua** | Fica totalmente parada no meio da faixa por 10 s | A tela volta para *Parado.* com a pessoa ali. O detector vê **movimento**, não **pessoa**. É o maior limite do projeto. |
 | **Desafio Ninja** (tecla `N`) | Atravessa a faixa bem devagar tentando não ser percebida | Até onde vai a sensibilidade. No fim ela ganha a marca em anéis e o cartão. |
 | **Superpoder** (tecla `E`) | Fecha os olhos com fone; alguém do grupo se mexe (atrás de um painel, se o teste de parede der certo); ela diz quando ouviu | O Wi-Fi "vê" sem câmera, e isso pode invadir a privacidade. |
