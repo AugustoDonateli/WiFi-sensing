@@ -8,10 +8,12 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 - [ ] Placas compradas (decidido: 2× ESP32 DevKit USB-C/CP2102)
 - [ ] Placas recebidas
 - [ ] ESP-IDF v5.5.5 instalado no Windows (`idf.py --version` funcionando)
-- [ ] Exemplos `csi_send` e `csi_recv` compilados (sem placa)
+- [ ] Exemplos `csi_send` e `csi_recv` compilados no Windows (sem placa)
+  - Já verificado no ambiente da IA: os dois compilam com ESP-IDF v5.5.5 para `esp32` (Linux, 13/10)
 - [ ] Firmware gravado nas duas placas
 - [ ] Primeira captura de CSI salva em arquivo
-- [ ] Script Python lendo e plotando o CSI
+- [ ] Script Python lendo e plotando o CSI de uma coleta real
+  - Ferramentas prontas e testadas sem placa: `ferramentas/` (captura, leitura do formato, gráficos)
 - [ ] Coletas: vazio / pessoa parada / pessoa caminhando
 - [ ] Detecção de movimento simples funcionando e medida
 - [ ] (Opcional) Classificador, testes de distância/parede, queda simulada, interface
@@ -19,6 +21,13 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 Só marcar um item depois de testado de verdade.
 
 **Guia visual do projeto** (como tudo funciona, montagem, roteiro e diagnóstico): https://claude.ai/artifact/AcvB5VyiEJGQ9GKH4tYRUK
+
+## Documentos
+
+- [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê
+- [Erros prováveis](docs/erros-provaveis.md): o que pode dar errado em cada etapa e como resolver
+- [Protocolo de coleta](experimentos/protocolo.md) e [registro de coletas](experimentos/registro_coletas.csv)
+- [Ferramentas](ferramentas/README.md): como capturar e plotar
 
 ## Hardware escolhido
 
