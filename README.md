@@ -25,6 +25,7 @@ Só marcar um item depois de testado de verdade.
 
 ## Documentos
 
+- [Decoração do estande](docs/estande.md): conceito "A sala que percebe", planta, ideias com impressão 3D, custos e calendário
 - [Apresentação no estande](docs/apresentacao.md): montagem, roteiros de 30 s, 3 min e avaliador, jogos que explicam, perguntas difíceis
 - [Inscrição na JACITEC](docs/inscricao-jacitec.md): regras do edital e os textos do formulário
 - [Decisões do grupo](docs/decisoes.md): o que já foi decidido e o que falta
