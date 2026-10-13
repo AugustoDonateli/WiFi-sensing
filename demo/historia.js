@@ -33,6 +33,18 @@
     return [nx, nv];
   }
 
+  // Curva de uma transição com tempo fixo: s (0 a 1, fração da duração) → progresso (0 a 1).
+  // Começa já andando com inclinação m0 (1 = como uma reta, a tela responde na hora) e termina parada.
+  // Com m0 entre 0 e 3, nunca passa do fim nem volta.
+  function transicao(s, m0 = 1) {
+    s = limitar(s);
+    return m0 * (s * s * s - 2 * s * s + s) + 3 * s * s - 2 * s * s * s;
+  }
+  function inclinacaoTransicao(s, m0 = 1) {
+    s = limitar(s);
+    return m0 * (3 * s * s - 4 * s + 1) + 6 * s - 6 * s * s;
+  }
+
   // Depois de rolar, para onde encaixar: na direção do movimento, se andou mais que `limiar` da cena.
   function alvoDirecional(alvo, direcao, limiar = 0.12) {
     const base = Math.floor(alvo), frac = alvo - base;
@@ -78,7 +90,8 @@
       const a = A[nome], b = B[nome];
       const pa = a ? (a.p ?? 1) : 0, pb = b ? (b.p ?? 1) : 0;
       if (!pa && !pb) continue;
-      const de = { ...padroes[nome], ...(a || b) }, para = { ...padroes[nome], ...(a || {}), ...(b || {}) };
+      // entrando, a camada nasce já com os parâmetros da pose de destino (o que ela tinha invisível não conta)
+      const de = { ...padroes[nome], ...(pa > 0 ? a : b) }, para = { ...padroes[nome], ...(a || {}), ...(b || {}) };
       const mv = b && b.mover;
       const kDe = (chave) => {
         const w = mv && (Array.isArray(mv) ? mv : mv[chave] || mv._);
@@ -210,6 +223,14 @@
   const BARRAS = { x0: 0.2, x1: 0.97, base: 0.8, alt: 0.56 };
   const PILHA = { x: 0, y: 0.1, w: 1, h: 0.88 };
   const MEDIDOR = { y: 0.62, h: 0.36 };                        // o número e o gráfico, embaixo das linhas
+  // Zoom de uma camada: o ponto (0,5; chão) da cena vai para (zx; zy) com escala zs. A "sala em miniatura"
+  // fica pequena no alto da caixa, com as linhas do sinal embaixo (tremor e pessoa parada).
+  const ZOOM_NORMAL = { zs: 1, zx: 0.5, zy: CHAO };
+  const ZOOM_MINI = { zs: 0.56, zx: 0.5, zy: 0.36 };
+  const PILHA_MINI = { px: 0, pw: 1, py: 0.47, ph: 0.51, relevo: 0.8, teto: 0.39 };   // `teto`: as linhas somem antes da sala
+  // Notebook da cena de viabilidade: a tela (onde as linhas encolhem) e a base, apoiada no chão.
+  const NOTE = { x0: 0.675, x1: 0.945, y0: 0.5, y1: 0.755, borda: 0.012 };
+  const PILHA_NOTE = { px: NOTE.x0 + NOTE.borda, pw: NOTE.x1 - NOTE.x0 - 2 * NOTE.borda, py: NOTE.y0 + NOTE.borda * 1.45, ph: NOTE.y1 - NOTE.y0 - 2 * NOTE.borda * 1.45 };
   const ALTURA_PESSOA = 0.34;
 
   // Ilustração do número: um ciclo de 24 s que se repete. Sala calma, alguém anda, calma de novo,
@@ -484,46 +505,29 @@
     rotulo(c, G, cor, 'limite', gx + gw, y(d.lim) - G.bh * 0.012, { alinhar: 'right', base: 'bottom', tam: 0.03 });
   }
 
-  // Piano de 88 teclas (52 brancas) e a sequência de saltos de frequência da cena da Hedy Lamarr.
-  const PIANO = (() => {
-    const teclas = [];
-    let b = 0;
-    for (let k = 0; k < 88; k++) {
-      const preta = [1, 3, 6, 8, 10].includes((k + 9) % 12);   // a primeira tecla é um lá
-      teclas.push({ preta, branca: preta ? b - 1 : b });
-      if (!preta) b++;
-    }
-    return { teclas, brancas: b };
-  })();
-  const SALTOS = (() => {
-    const rnd = mulberry32(1942), s = [];
-    while (s.length < 48) { const k = 4 + Math.floor(rnd() * 80); if (!s.length || Math.abs(k - s[s.length - 1]) > 6) s.push(k); }
-    return s;
-  })();
-
   // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "Ilustração".
   const CAMADAS = {
     sala: { padrao: {} },
     ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
     casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0 } },
-    chao: { padrao: { x0: 0, x1: 1, cresce: 1 } },
+    pilha: { padrao: { agito: 0, roteiro: 0, px: PILHA.x, pw: PILHA.w, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0, teto: -1 }, sintetica: true },
+    chao: { padrao: { x0: 0, x1: 1, cresce: 1, ...ZOOM_NORMAL } },
     raios: { padrao: {} },
-    pacotes: { padrao: {} },
+    pacotes: { padrao: { ...ZOOM_NORMAL } },
     roteador: { padrao: { x: 0.2, y: 0.42, prat: -1 } },
     camera: { padrao: { risco: 0 } },
-    placaA: { padrao: { x: 0.14, esc: 1 } },
-    placaB: { padrao: { x: 0.86, esc: 1 } },
+    placaA: { padrao: { x: 0.14, esc: 1, ...ZOOM_NORMAL } },
+    placaB: { padrao: { x: 0.86, esc: 1, ...ZOOM_NORMAL } },
+    notebook: { padrao: {} },
     icones: { padrao: {} },
     vulto: { padrao: { x: 0.86 } },
-    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, fantasma: 0 } },
+    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, fantasma: 0, andar: 0, ...ZOOM_NORMAL } },
     barras: { padrao: {}, sintetica: true },
-    pilha: { padrao: { agito: 0, roteiro: 0, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0 }, sintetica: true },
     curva: { padrao: { forma: 0 }, sintetica: true },
     medidor: { padrao: {}, sintetica: true },
     vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0 } },
     grade: { padrao: { agrupar: 1 }, sintetica: true },
     resultado: { padrao: {} },
-    teclas: { padrao: {} },
   };
   const PADROES = Object.fromEntries(Object.entries(CAMADAS).map(([k, v]) => [k, v.padrao]));
 
@@ -550,7 +554,7 @@
       const forca = q.dir === 0 ? 1 : q.p;
       const aneis = (Rmax, alfa) => {
         for (let i = 0; i < 6; i++) {
-          const f = (amb * 0.2 + i / 6) % 1;
+          const f = (amb * 0.15 + i / 6) % 1;
           c.globalAlpha = alfa * Math.pow(1 - f, 1.2);
           c.beginPath(); c.arc(ox, oy, 6 * G.dpr + f * Rmax, 0, 2 * Math.PI); c.stroke();
         }
@@ -621,7 +625,7 @@
           c.beginPath(); c.arc(px, py, 4.5 * G.dpr, 0, 2 * Math.PI); c.stroke();
         }
         for (let j = 0; j < 2; j++) {
-          const s = (amb * 0.42 + i * 0.27 + j * 0.5) % 1;
+          const s = (amb * 0.3 + i * 0.27 + j * 0.5) % 1;
           if (s > pk) continue;
           const [x, y] = tr.em(s);
           c.globalAlpha = alfa * Math.pow(Math.sin(Math.PI * s), 0.7) * (cm.forte ? 1 : 0.75);
@@ -638,7 +642,7 @@
       const vis = curvas.entra(q.p);
       c.fillStyle = cor.tinta;
       // pacotes: pontinhos indo de A para B (é um símbolo: 100 por segundo não daria para ver)
-      const N = 11, fase = (amb * 0.18) % 1;
+      const N = 11, fase = (amb * 0.14) % 1;
       for (let i = 0; i < N; i++) {
         const t = (i / N + fase) % 1;
         if (t > vis) continue;
@@ -734,7 +738,34 @@
         fan *= janela(t, 0.75, 1); dei *= curvas.sai(janela(t, 0.62, 0.9));     // entra andando; se a pose é caída, cai no fim
       } else if (q.dir === -1) alfa = q.p;
       if (q.vx) amp = Math.max(amp, limitar(Math.abs(q.vx) * 8) * Math.sin(Math.PI * limitar(q.km)));
+      if (q.andar > 0.001) {      // anda de um lado para o outro entre as placas, sem parar
+        const f = amb * 0.5;
+        x += q.andar * 0.2 * Math.sin(f);
+        amp = Math.max(amp, q.andar * limitar(Math.abs(Math.cos(f)) * 1.6));
+      }
       desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, fantasma: fan, alfa, amp, fase: amb * 7, halo: true });
+    },
+    notebook(c, G, q, cor, amb, prm) {
+      // a tela se desenha em volta das linhas, depois a base e o cabo que vem da placa B
+      const t = linear(q), alfa = q.dir === -1 ? q.p : 1;
+      const x0 = G.X(NOTE.x0), x1 = G.X(NOTE.x1), y0 = G.Y(NOTE.y0), y1 = G.Y(NOTE.y1), yc = G.Y(CHAO);
+      c.globalAlpha = alfa; c.strokeStyle = cor.tinta; c.lineWidth = 1.6 * G.dpr; c.lineJoin = 'round'; c.lineCap = 'round';
+      trajeto([[x0, y1], [x0, y0], [x1, y0], [x1, y1], [x0, y1]]).tracar(c, curvas.suave(janela(t, 0.05, 0.6)));
+      const kb = curvas.suave(janela(t, 0.45, 0.8));
+      if (kb > 0) {
+        const meio = (x0 + x1) / 2, ab = ((x1 - x0) / 2 + G.bw * 0.02) * kb, at = ((x1 - x0) / 2) * kb, yb = y1 + G.bh * 0.012;
+        c.beginPath(); c.moveTo(meio - at, yb); c.lineTo(meio + at, yb); c.lineTo(meio + ab, yc); c.lineTo(meio - ab, yc); c.closePath(); c.stroke();
+      }
+      const B = prm.placaB, kc = curvas.suave(janela(t, 0.6, 1));
+      if (B && kc > 0) {
+        const s = G.bh * TAM_PLACA * (B.esc ?? 1), xb = G.X(B.x) + s * 0.31, yb = G.Y(Y_ANTENA) + s * 0.3;
+        const xf = x0 - G.bw * 0.008, yf = y1 - G.bh * 0.02, cx = (xb + xf) / 2, cy = yc + G.bh * 0.01;
+        const pts = [];
+        for (let i = 0; i <= 24; i++) { const u = i / 24, v = 1 - u; pts.push([v * v * xb + 2 * u * v * cx + u * u * xf, v * v * yb + 2 * u * v * cy + u * u * yf]); }
+        c.lineWidth = 1.2 * G.dpr; c.globalAlpha = alfa * 0.7;
+        trajeto(pts).tracar(c, kc);
+      }
+      c.lineCap = 'butt';
     },
     barras(c, G, q, cor, amb, prm) {
       const a = perfil();
@@ -758,8 +789,19 @@
     pilha(c, G, q, cor, amb) {
       const { ls, frac } = pilhaSint(amb, q.agito, q.roteiro);
       c.globalAlpha = q.dir === -1 ? q.p : 1;
-      const r = { x: G.X(0), y: G.Y(q.py), w: G.bw, h: q.ph * G.bh };
-      desenharLinhas(c, r, ls, frac, cor, 1.4 * G.dpr, { visiveis: q.dir === 1 ? q.p * 50 : Infinity, destaque: true, relevo: q.relevo, juntar: q.juntar });
+      const r = { x: G.X(q.px), y: G.Y(q.py), w: q.pw * G.bw, h: q.ph * G.bh };
+      // numa área pequena (a tela do notebook), o traço afina junto
+      const esp = 1.4 * G.dpr * misturar(0.55, 1, limitar((q.ph - 0.2) / 0.4));
+      const teto = q.teto > 0 ? G.Y(q.teto) : null;
+      if (teto !== null) { c.save(); c.beginPath(); c.rect(G.X(-0.1), teto, G.bw * 1.2, G.bh * 1.2); c.clip(); }
+      desenharLinhas(c, r, ls, frac, cor, esp, { visiveis: q.dir === 1 ? q.p * 50 : Infinity, destaque: true, relevo: q.relevo, juntar: q.juntar });
+      if (teto !== null) {
+        // o relevo que sobe demais some num degradê, embaixo da sala em miniatura
+        c.restore();
+        const g = c.createLinearGradient(0, teto, 0, teto + G.bh * 0.07);
+        g.addColorStop(0, cor.fundo); g.addColorStop(1, 'rgba(11, 11, 10, 0)');
+        c.globalAlpha = 1; c.fillStyle = g; c.fillRect(G.X(-0.05), teto - 1, G.bw * 1.1, G.bh * 0.07 + 1);
+      }
     },
     curva(c, G, q, cor) {
       const pts = pontosCurva(G);
@@ -858,46 +900,15 @@
         }
       });
     },
-    teclas(c, G, q, cor, amb) {
-      // 88 teclas e um rolo de pianola: cada furo desce e acende uma tecla, pulando de frequência
-      const t = linear(q), alfa = q.dir === -1 ? q.p : 1;
-      const x0 = G.X(0), wb = G.bw / PIANO.brancas, ytec = G.Y(0.6), hb = G.bh * 0.22, hp = hb * 0.62, wp = wb * 0.62;
-      const cx = (k) => { const tk = PIANO.teclas[k]; return x0 + (tk.preta ? tk.branca + 1 : tk.branca + 0.5) * wb; };
-      const RITMO = 4, agora = amb * RITMO, n = SALTOS.length, i0 = Math.floor(agora), fr = agora - i0;
-      const brilho = new Float32Array(88);
-      for (let j = 0; j < 4; j++) { const k = SALTOS[ciclico(i0 - j, n)]; brilho[k] = Math.max(brilho[k], j === 0 ? 1 : 0.55 * Math.pow(0.4, j - 1 + fr)); }
-      const surge = (k) => curvas.entra(limitar(t * 1.8 - (PIANO.teclas[k].branca / (PIANO.brancas - 1)) * 0.8));
-      c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
-      for (const preta of [false, true]) {
-        for (let k = 0; k < 88; k++) {
-          const tk = PIANO.teclas[k];
-          if (tk.preta !== preta) continue;
-          const pk = surge(k);
-          if (pk <= 0) continue;
-          const x = preta ? cx(k) - wp / 2 : x0 + tk.branca * wb, ww = preta ? wp : wb, hh = (preta ? hp : hb) * pk;
-          if (preta) { c.globalAlpha = alfa * pk; c.fillStyle = cor.fundo; c.fillRect(x, ytec, ww, hh); }
-          c.globalAlpha = alfa * pk * 0.7; c.strokeRect(x, ytec, ww, hh);
-          if (brilho[k] > 0.01) { c.globalAlpha = alfa * pk * brilho[k]; c.fillStyle = cor.tinta; c.fillRect(x, ytec, ww, hh); }
-        }
-      }
-      // o rolo: furos descendo até o teclado
-      const QUEDA = 2.2, yTopo = G.Y(0.06), vel = (ytec - yTopo) / QUEDA, comp = (0.8 / RITMO) * vel;
-      c.globalAlpha = alfa * 0.25 * limitar(t * 2 - 0.5);
-      linha(c, x0, yTopo, x0, ytec); linha(c, x0 + G.bw, yTopo, x0 + G.bw, ytec);
-      c.fillStyle = cor.tinta;
-      for (let i = i0 - 1; i <= i0 + QUEDA * RITMO + 1; i++) {
-        const k = SALTOS[ciclico(i, n)], yb = ytec - (i / RITMO - amb) * vel;
-        const a = Math.max(yb - comp, yTopo), b = Math.min(yb, ytec);
-        if (b <= a) continue;
-        const largura = (PIANO.teclas[k].preta ? wp : wb) * 0.7;
-        c.globalAlpha = alfa * 0.85 * limitar(t * 2 - 0.6) * limitar((a - yTopo) / (G.bh * 0.06) + 0.2);
-        c.fillRect(cx(k) - largura / 2, a, largura, b - a);
-      }
-    },
   };
 
   // Poses de cada cena (por id). Camada ausente = invisível. `entrada`/`saida` mudam a janela daquela
   // camada; `mover` muda a janela das mudanças (uma lista [a, b] ou uma por parâmetro: { x: [a, b], _: [a, b] }).
+  // saída rápida da sala em miniatura, para as linhas terem espaço para subir
+  const SAI_MINI = {
+    chao: { p: 0, saida: [0.04, 0.34] }, placaA: { p: 0, saida: [0.04, 0.34] }, placaB: { p: 0, saida: [0.04, 0.34] },
+    pacotes: { p: 0, saida: [0.02, 0.26] }, pessoa: { p: 0, saida: [0.02, 0.3] },
+  };
   const PILHA_VIRA_CHAO = { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, mover: [0.04, 0.42], saida: [0.36, 0.5] };
   const POSES = {
     abertura: {
@@ -960,17 +971,25 @@
       curva: { p: 0, forma: 1, saida: [0.7, 0.92] },
       pilha: { agito: 0, entrada: [0.5, 0.9] },
     },
+    // a sala pequena em cima (alguém andando) e as linhas embaixo: primeiro a pessoa entra, depois as linhas tremem
     tremor: {
-      pilha: { agito: 1 },
+      pilha: { agito: 1, ...PILHA_MINI, mover: { _: [0.06, 0.42], agito: [0.5, 0.88] } },
+      chao: { ...ZOOM_MINI, entrada: [0.26, 0.56] },
+      placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.3, 0.66] },
+      placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.34, 0.7] },
+      pacotes: { ...ZOOM_MINI, entrada: [0.5, 0.86] },
+      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, entrada: [0.4, 0.84] },
     },
     numero: {
-      pilha: { agito: 1, roteiro: 1, py: 0.02, ph: 0.52, mover: [0.08, 0.6] },
-      medidor: { entrada: [0.55, 0.88] },
+      pilha: { agito: 1, roteiro: 1, py: 0.02, ph: 0.52, mover: [0.2, 0.66] },
+      medidor: { entrada: [0.58, 0.88] },
+      ...SAI_MINI,
     },
     aovivo: {
       pilha: { p: 0, agito: 1, roteiro: 1, py: 0.02, ph: 0.52, saida: [0.15, 0.55] },
       medidor: { p: 0, saida: [0.12, 0.5] },
       vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] },
+      ...SAI_MINI,
     },
     metodo: {
       grade: { entrada: [0.3, 0.88] },
@@ -978,19 +997,36 @@
     resultados: {
       resultado: { entrada: [0.4, 0.88] },
     },
+    // o mesmo arranjo do tremor, com a pessoa parada (some para o sistema) e as linhas calmas
     parado: {
-      chao: {},
-      placaA: { x: 0.14 },
-      placaB: { x: 0.86 },
-      pacotes: {},
-      pessoa: { x: 0.5, fantasma: 1, entrada: [0.45, 0.88] },
+      chao: { ...ZOOM_MINI, entrada: [0.3, 0.6] },
+      placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.32, 0.66] },
+      placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.36, 0.7] },
+      pacotes: { ...ZOOM_MINI, entrada: [0.5, 0.86] },
+      pessoa: { x: 0.5, fantasma: 1, ...ZOOM_MINI, entrada: [0.4, 0.88] },
+      pilha: { agito: 0, ...PILHA_MINI, entrada: [0.4, 0.86] },
     },
+    // a sala volta ao tamanho normal e as linhas encolhem até virar a tela do notebook
+    // ordem: as linhas encolhem até o lugar da tela, depois a sala cresce (sem passar por cima delas)
+    viabilidade: {
+      // o chão encurta e a placa B anda para a esquerda antes do zoom, para não cruzarem a tela do notebook
+      chao: { x1: 0.6, ...ZOOM_NORMAL, mover: { _: [0.36, 0.8], x1: [0.06, 0.4] } },
+      placaA: { x: 0.14, ...ZOOM_NORMAL, mover: [0.36, 0.8] },
+      placaB: { x: 0.52, ...ZOOM_NORMAL, mover: { _: [0.36, 0.8], x: [0.06, 0.4] } },
+      pacotes: { ...ZOOM_NORMAL, mover: [0.36, 0.8] },
+      pessoa: { p: 0, saida: [0.04, 0.3] },
+      pilha: { agito: 0, relevo: 0.55, ...PILHA_NOTE, teto: -1, mover: [0.06, 0.44] },
+      notebook: { entrada: [0.4, 0.88] },
+    },
+    // (vindo da pessoa parada, na versão curta, a sala em miniatura volta ao tamanho normal)
     usos: {
-      chao: {},
+      chao: { ...ZOOM_NORMAL, mover: [0.24, 0.56] },
+      pilha: { p: 0, saida: [0.02, 0.26] },
+      notebook: { p: 0, saida: [0.04, 0.34] },
       placaA: { p: 0, x: 0.14, saida: [0.06, 0.36] },
       placaB: { p: 0, x: 0.86, saida: [0.06, 0.36] },
       pacotes: { p: 0, saida: [0.04, 0.3] },
-      pessoa: { x: 0.33, fantasma: 0, deitada: 1, esc: 0.8, mover: { x: [0.1, 0.5], fantasma: [0.1, 0.4], esc: [0.3, 0.6], deitada: [0.5, 0.8] } },
+      pessoa: { x: 0.33, fantasma: 0, deitada: 1, esc: 0.8, ...ZOOM_NORMAL, mover: { _: [0.24, 0.56], x: [0.24, 0.56], fantasma: [0.2, 0.45], esc: [0.3, 0.6], deitada: [0.54, 0.82] } },
       icones: { entrada: [0.5, 0.88] },
       casa: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 1, entrada: [0.45, 0.88] },
     },
@@ -1002,9 +1038,6 @@
       roteador: { x: 0.52, y: 0.5, prat: 0.66, entrada: [0.5, 0.8] },
       ondas: { ox: 0.52, oy: 0.5, cx0: 0.1, cx1: 0.66, ctopo: 0.4, cap: 0.16, vaza: 1, entrada: [0.55, 0.88] },
       vulto: { x: 0.86, entrada: [0.5, 0.88] },
-    },
-    lamarr: {
-      teclas: { entrada: [0.4, 0.88] },
     },
     fim: {
       vivo: { py: PILHA.y, ph: PILHA.h, med: 0, entrada: [0.4, 0.88] },
@@ -1028,7 +1061,7 @@
 .h-m { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0.12em 0.05em 0.22em; margin: -0.12em -0.05em -0.22em; }
 .h-p { display: inline-block; will-change: transform; }
 .h-topo { position: absolute; top: calc(clamp(16px, 3vw, 40px) + var(--h-seguro)); left: calc(var(--h-margem) + var(--h-seguro)); right: calc(var(--h-margem) + var(--h-seguro));
-  display: flex; justify-content: space-between; font-family: var(--mono, "Geist Mono", monospace); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--h-apagado); pointer-events: none; }
+  display: flex; justify-content: space-between; font-family: var(--mono, "Geist Mono", monospace); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--h-apagado); pointer-events: none; }
 .h-ilustra { opacity: 0; }
 .h-progresso { position: absolute; left: calc(var(--h-margem) + var(--h-seguro)); right: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(clamp(18px, 3vh, 32px) + var(--h-seguro)); height: 1px; background: rgba(138, 138, 132, 0.28); pointer-events: none; }
 .h-progresso i { display: block; height: 100%; background: var(--h-tinta); transform-origin: 0 50%; transform: scaleX(0); }
@@ -1090,9 +1123,12 @@
       T: 0, v: 0, alvo: 0, ultimo: 0, congelado: null, quadroPedido: false,
       rolando: null, direcao: 0, toque: null, corte: null, preto: false, anunciado: -1,
       cache: { tam: [0, 0] }, escala: 1, auto: null, notas: false, fonte: null, suave: { v: NaN },
-      omega: 3.8,   // rigidez da mola: mais baixa nas setas (transição com cerca de 1 s), mais alta na rolagem
+      anim: null,   // transição em andamento (setas, passador, apresentador, encaixe): { t0, de, para, D, m0 }
     };
-    const OMEGA = { tecla: 3.8, rolagem: 7.5, encaixe: 4.6 };
+    // Setas e passador: cada transição dura TRANSICAO_S segundos (ajustável no roteiro.js).
+    // Rolagem e toque: uma mola segue o dedo (OMEGA_ROLAGEM) e, ao soltar, a transição encaixa na cena.
+    const TRANSICAO_S = roteiro.transicao > 0 ? roteiro.transicao : 2.6;
+    const OMEGA_ROLAGEM = 7.5;
     const relogio = () => (st.congelado !== null ? st.congelado : performance.now() / 1000);
 
     // A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação): nunca "ao vivo" com dado simulado.
@@ -1103,7 +1139,9 @@
       return (f === 'sim' && c.tituloSimulacao) || (f === 'replay' && c.tituloGravacao) || (!f && c.tituloSemFonte) || c.titulo;
     }
     // Resultados: só com os números do avaliar.py (acerto por coleta e o chute ao lado); senão, a frase de espera.
+    // Viabilidade: o preço só aparece se o grupo preencher CUSTO no roteiro.
     function fraseDe(c) {
+      if (c.fraseComCusto && typeof roteiro.CUSTO === 'string' && roteiro.CUSTO.trim()) return c.fraseComCusto.replace('{custo}', roteiro.CUSTO.trim());
       const R = roteiro.RESULTADOS;
       if (c.id !== 'resultados' || !c.fraseComResultados || !R || typeof R.acerto !== 'number' || typeof R.chute !== 'number') return c.frase;
       const pct = (x) => `${Math.round(x * 100)}%`;
@@ -1153,13 +1191,17 @@
       // corte (salto longo): apaga, pula, acende
       if (st.corte) {
         const t = performance.now() / 1000 - st.corte.inicio;
-        if (t >= 0.22 && !st.corte.pulou) { st.T = st.alvo = st.corte.alvo; st.v = 0; st.corte.pulou = true; }
+        if (t >= 0.22 && !st.corte.pulou) { st.T = st.alvo = st.corte.alvo; st.v = 0; st.anim = null; st.corte.pulou = true; }
         const op = t < 0.22 ? t / 0.22 : 1 - limitar((t - 0.22) / 0.33);
         elCortina.style.opacity = String(Math.max(st.preto ? 1 : 0, op));
         if (t > 0.55) st.corte = null;
-      } else {
-        elCortina.style.opacity = st.preto ? '1' : '0';
-        [st.T, st.v] = mola(st.T, st.v, st.alvo, dt, st.omega);
+      } else elCortina.style.opacity = st.preto ? '1' : '0';
+      if (!st.corte || st.corte.pulou) {
+        if (st.anim) {
+          const a = st.anim, s = (agora - a.t0) / a.D;
+          if (s >= 1) { st.T = a.para; st.v = 0; st.anim = null; }
+          else { st.T = a.de + (a.para - a.de) * transicao(s, a.m0); st.v = ((a.para - a.de) * inclinacaoTransicao(s, a.m0)) / a.D; }
+        } else [st.T, st.v] = mola(st.T, st.v, st.alvo, dt, OMEGA_ROLAGEM);
       }
       // vitrine: depois de `espera` segundos parada numa cena, vai para a próxima permitida; no fim, avisa
       if (st.auto && !st.corte) {
@@ -1194,7 +1236,12 @@
         if (!q || q.p <= 0.001) continue;
         if (CAMADAS[nome].sintetica || (nome === 'vivo' && !ex.vivoReal)) sintetica = Math.max(sintetica, q.p);
         ctx.save();
-        DESENHOS[nome](ctx, G, q, cor, agora, prm, ex);
+        let Gc = G;
+        if (q.zs !== undefined && (q.zs !== 1 || q.zx !== 0.5 || q.zy !== CHAO)) {
+          ctx.translate(G.X(q.zx), G.Y(q.zy)); ctx.scale(q.zs, q.zs); ctx.translate(-G.X(0.5), -G.Y(CHAO));
+          Gc = { ...G, dpr: G.dpr * (0.7 / q.zs + 0.3) };     // diminuída, o traço não pode ficar fino demais
+        }
+        DESENHOS[nome](ctx, Gc, q, cor, agora, prm, ex);
         ctx.restore();
       }
       // etiqueta no canto: de onde vem o que está na tela. Ilustração (dado sintético) ou a fonte real.
@@ -1261,10 +1308,19 @@
     /* ---------- Navegação ---------- */
     function irPara(alvo, opc = {}) {
       alvo = limitar(alvo, 0, ultimaCena());
-      st.omega = opc.omega || OMEGA.tecla;
       const longe = Math.abs(alvo - st.T) > 1.5;
-      if ((longe || opc.cortar) && !opc.semCorte) st.corte = { inicio: performance.now() / 1000, alvo };
-      else st.alvo = alvo;
+      if ((longe || opc.cortar) && !opc.semCorte) { st.corte = { inicio: performance.now() / 1000, alvo }; st.anim = null; }
+      else animar(alvo, opc.minimo ?? 1);
+    }
+    // Transição de tempo fixo até `alvo`, continuando a velocidade atual (sem tranco se já estava andando).
+    // Uma cena leva TRANSICAO_S; distâncias maiores ou menores, proporcionalmente à raiz da distância.
+    function animar(alvo, minimo) {
+      st.alvo = alvo;
+      const delta = alvo - st.T;
+      if (Math.abs(delta) < 1e-6) { st.T = alvo; st.v = 0; st.anim = null; return; }
+      const D = Math.max(0.6, TRANSICAO_S * Math.sqrt(Math.abs(delta)));
+      const m0 = limitar((st.v * D) / delta, minimo, 3);
+      st.anim = { t0: relogio(), de: st.T, para: alvo, D, m0 };
     }
     // Para onde a história está indo. Durante um corte, até o salto, vale o alvo do corte; depois dele,
     // o alvo normal (que já pode ter andado com outra seta, sem perder o toque).
@@ -1279,7 +1335,7 @@
       st.versao = v;
       montarTextos();
       const i = st.ordem.indexOf(remapear(atual, roteiro.cenas, v, temPose));
-      st.T = st.alvo = Math.max(0, i); st.v = 0; st.anunciado = -1;
+      st.T = st.alvo = Math.max(0, i); st.v = 0; st.anim = null; st.anunciado = -1;
       st.corte = { inicio: performance.now() / 1000 - 0.22, alvo: st.alvo, pulou: true };
       aoMudar(estado());
     }
@@ -1288,7 +1344,7 @@
     const distancia = () => 0.9 * (window.innerHeight || 800);
     function soltarRolagem() {
       st.rolando = null;
-      irPara(alvoDirecional(st.alvo, st.direcao), { semCorte: true, omega: OMEGA.encaixe });
+      irPara(alvoDirecional(st.alvo, st.direcao), { semCorte: true, minimo: 0 });
     }
     function roda(e) {
       if (e.ctrlKey) return;           // pinça do trackpad: deixa o navegador
@@ -1298,7 +1354,7 @@
       d = limitar(d, -240, 240);
       if (!d) return;
       st.direcao = Math.sign(d);
-      st.omega = OMEGA.rolagem;
+      st.anim = null;                  // rolar no meio de uma transição: a mola continua de onde ela estava
       st.alvo = limitar(st.alvo + d / distancia(), 0, ultimaCena());
       clearTimeout(st.rolando);
       st.rolando = setTimeout(soltarRolagem, 180);
@@ -1312,11 +1368,11 @@
         const dy = st.toque.y - e.clientY;
         if (Math.abs(dy) > 4) st.toque.mexeu = true;
         st.toque.y = e.clientY;
-        if (dy) { st.direcao = Math.sign(dy); st.omega = OMEGA.rolagem; st.alvo = limitar(st.alvo + dy / distancia(), 0, ultimaCena()); }
+        if (dy) { st.direcao = Math.sign(dy); st.anim = null; st.alvo = limitar(st.alvo + dy / distancia(), 0, ultimaCena()); }
       } else {
         const mexeu = st.toque.mexeu;
         st.toque = null;
-        if (mexeu) irPara(alvoDirecional(st.alvo, st.direcao), { semCorte: true, omega: OMEGA.encaixe });
+        if (mexeu) irPara(alvoDirecional(st.alvo, st.direcao), { semCorte: true, minimo: 0 });
       }
       if (opcoes.aoInteragir) opcoes.aoInteragir();
     }
@@ -1365,7 +1421,7 @@
       abrir(opc = {}) {
         if (opc.versao && opc.versao !== st.versao) versao(opc.versao);
         st.aberta = true; el.hidden = false; st.anunciado = -1; st.preto = false;
-        if (opc.cenaId) { const i = st.ordem.indexOf(remapear(opc.cenaId, roteiro.cenas, st.versao, temPose)); st.T = st.alvo = Math.max(0, i); st.v = 0; }
+        if (opc.cenaId) { const i = st.ordem.indexOf(remapear(opc.cenaId, roteiro.cenas, st.versao, temPose)); st.T = st.alvo = Math.max(0, i); st.v = 0; st.anim = null; }
         medir(); iniciarLaco();
         if (!miniatura) el.focus({ preventScroll: true });
       },
@@ -1383,7 +1439,7 @@
       tecla, proxima, anterior, irPara, irParaId, versao, estado,
       // ganchos para testes e para gravar vídeo quadro a quadro
       _teste: {
-        irPara(T) { st.T = st.alvo = T; st.v = 0; st.corte = null; },
+        irPara(T) { st.T = st.alvo = T; st.v = 0; st.corte = null; st.anim = null; },
         congelar(t) { st.congelado = t; st.ultimo = 0; },
         avancar(t) { st.congelado = t; },          // relógio parado andando quadro a quadro (a mola usa a diferença)
         quadro() { desenhar(); },
@@ -1424,9 +1480,9 @@
   }
 
   const WaveHistoria = {
-    limitar, misturar, janela, curvas, mola, alvoDirecional, ordemDa, remapear, revelacao, poseEm,
+    limitar, misturar, janela, curvas, mola, transicao, inclinacaoTransicao, alvoDirecional, ordemDa, remapear, revelacao, poseEm,
     mulberry32, canal, perfilParado, sinteticas, desenharLinhas, criarPalco, criarCanal, POSES, CAMADAS,
-    agitoNoTempo, serieNumero, medidaSint, PIANO, SALTOS,
+    agitoNoTempo, serieNumero, medidaSint,
   };
   raiz.WaveHistoria = WaveHistoria;
   if (typeof module !== 'undefined' && module.exports) module.exports = WaveHistoria;

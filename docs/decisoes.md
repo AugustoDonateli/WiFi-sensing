@@ -64,7 +64,18 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Duas versões:** completa (17 cenas, para o avaliador) e curta (11 cenas, para visitantes).
 - **Textos diretos**, sem frase de efeito (pedido do grupo). Ficam em `demo/roteiro.js`, separados do código.
 - Dados sintéticos só com a etiqueta "Ilustração". A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação). Resultados só com números do `avaliar.py`.
-- Fatos da Hedy Lamarr conferidos: patente 2.292.387, de 11/08/1942, com George Antheil; 88 frequências comandadas por rolos de pianola; a ideia era dificultar o bloqueio de torpedos guiados por rádio.
+- **Rodada 2 (pedido do grupo):**
+  - Transições mais lentas: cada passagem leva 2,6 s (ajustável em `transicao` no `roteiro.js`), começa a andar assim que a tecla é apertada e desacelera no fim.
+  - A cena da Hedy Lamarr saiu.
+  - Revisão "como visitante":
+    - o tremor e a pessoa parada ganharam a sala em miniatura em cima das linhas, para mostrar causa e efeito;
+    - o texto das 64 frequências explica por que as barras têm alturas diferentes (os caminhos se somam ou se cancelam);
+    - o número diz que 1,0× é a sala vazia.
+  - Revisão "como avaliador":
+    - cena nova de viabilidade (versão completa); o preço só aparece se o grupo preencher `CUSTO`;
+    - na fala da pergunta, o dado da OMS (ficha "Falls", 26/04/2021): quedas são a segunda maior causa de morte por acidente no mundo, e os maiores de 60 anos são os mais atingidos;
+    - na fala da viabilidade, o padrão IEEE 802.11bf-2025 (publicado em 26/09/2025), só para sensoriamento por Wi-Fi.
+  - O ponto fraco que continua: os resultados dependem das gravações com as placas.
 
 ### Imagens geradas por IA
 - Não usar na tela principal: lá tudo deve ser sinal medido.

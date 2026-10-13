@@ -21,10 +21,19 @@ for (let i = 0; i < 600 && !(x === 3 && v === 0); i++) { [x, v] = H.mola(x, v, 3
 out.mola = { x, v, maior, passos };
 // mola com dt enorme não explode
 out.molaDtGrande = H.mola(0, 0, 1, 5);
+// curva da transição: começa andando (inclinação m0), termina parada e exata, sempre para a frente
+const pts = [], incl = [];
+for (const m0 of [0, 1, 2, 3]) for (let i = 0; i <= 200; i++) { pts.push([m0, i / 200, H.transicao(i / 200, m0)]); incl.push(H.inclinacaoTransicao(i / 200, m0)); }
+out.transicao = {
+  fim: [0, 1, 2, 3].map((m0) => H.transicao(1, m0)), comeco: [0, 1, 2, 3].map((m0) => H.transicao(0, m0)),
+  inclinacao0: [0, 1, 2, 3].map((m0) => H.inclinacaoTransicao(0, m0)), inclinacao1: H.inclinacaoTransicao(1, 1),
+  monotonica: pts.every(([m0, s, p], i) => i === 0 || pts[i - 1][0] !== m0 || p >= pts[i - 1][2] - 1e-12) && pts.every(([, , p]) => p >= -1e-12 && p <= 1 + 1e-12),
+  meio: H.transicao(0.5, 1),
+};
 out.direcional = [H.alvoDirecional(2.2, 1), H.alvoDirecional(2.1, 1), H.alvoDirecional(2.9, -1), H.alvoDirecional(2.8, -1), H.alvoDirecional(3, 1)];
 out.curta = H.ordemDa(R.cenas, 'curta');
 out.completa = H.ordemDa(R.cenas, 'completa');
-out.remap = [H.remapear('acorde', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('lamarr', R.cenas, 'curta')];
+out.remap = [H.remapear('acorde', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('resultados', R.cenas, 'curta'), H.remapear('viabilidade', R.cenas, 'curta')];
 const a = H.sinteticas(7, 30), b = H.sinteticas(7, 30), c = H.sinteticas(8, 30);
 out.semente = { iguais: a.parado[20].a[10] === b.parado[20].a[10] && a.mexendo[25].a[40] === b.mexendo[25].a[40], diferentes: a.parado[20].a[10] !== c.parado[20].a[10] };
 // perto de cada cena inteira nada se mexe (±0,12)
@@ -78,6 +87,15 @@ class TestHistoria(unittest.TestCase):
         x, v = self.r["molaDtGrande"]
         self.assertTrue(0 <= x <= 1)
 
+    def test_curva_da_transicao(self):
+        t = self.r["transicao"]
+        self.assertEqual(t["fim"], [1, 1, 1, 1])
+        self.assertEqual(t["comeco"], [0, 0, 0, 0])
+        self.assertEqual(t["inclinacao0"], [0, 1, 2, 3])      # começa com a velocidade pedida
+        self.assertEqual(t["inclinacao1"], 0)                  # e termina parada
+        self.assertTrue(t["monotonica"])                       # nunca volta nem passa do fim
+        self.assertGreater(t["meio"], 0.5)                     # mais da metade do caminho na primeira metade do tempo
+
     def test_encaixe_na_direcao_do_movimento(self):
         self.assertEqual(self.r["direcional"], [3, 2, 3, 2, 3])
 
@@ -85,7 +103,7 @@ class TestHistoria(unittest.TestCase):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
         self.assertEqual(len(self.r["curta"]), 11)
         self.assertEqual(self.r["curta"][0], "abertura")
-        self.assertEqual(self.r["remap"], ["linhas", "placas", "fim"])
+        self.assertEqual(self.r["remap"], ["linhas", "placas", "parado", "usos"])
 
     def test_dados_de_ilustracao_deterministicos(self):
         self.assertTrue(self.r["semente"]["iguais"])

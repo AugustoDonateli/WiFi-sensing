@@ -77,6 +77,10 @@ Uma história em motion design que explica o projeto, para passar na TV do estan
 
 **Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.
 
+**Velocidade:** cada passagem de cena dura `transicao` segundos (no `roteiro.js`, hoje 2,6). A animação começa assim que a tecla é apertada; apertar de novo no meio continua sem tranco, e um salto de mais de uma cena e meia vira um corte rápido.
+
+**Preço das placas:** preencha `CUSTO` no `roteiro.js` (por exemplo `'R$ 90'`) para a cena "Dá para montar com pouco." falar o valor. Sem isso, ela não fala de preço.
+
 ## Controles
 
 Tudo que é técnico fica no **painel do operador** (tecla `O`):
