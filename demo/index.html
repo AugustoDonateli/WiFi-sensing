@@ -6,255 +6,304 @@
 <title>Wave Sense ao Vivo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: tela de estande (TV/notebook) em grade 2 colunas: cascata + oscilação à esquerda, estado + Desafio Ninja à direita; vira 1 coluna no celular.
-   Visual escuro único, de propósito: tela de instrumento que fica ligada na feira. Verde-água = sinal medido; laranja = movimento detectado. */
+/* Layout: painel de instrumento impresso em papel de registrador. Em cima o que o visitante vê
+   (cascata, medidor de agulha, registro em papel, sismograma do dia, placa "como funciona");
+   embaixo o painel do operador, que dobra com a tecla O. Tema claro único, de propósito:
+   papel quadriculado, tinta azul-preta para o sinal e caneta vermelha para movimento.
+   Fonte: Atkinson Hyperlegible, feita pelo Braille Institute para leitura com baixa visão. */
 :root {
-  color-scheme: dark;
-  --bg: #08111B;
-  --panel: #0E1924;
-  --panel-2: #142332;
-  --line: #213648;
-  --fg: #E7F0F5;
-  --muted: #8FA4B4;
-  --signal: #3FCFC7;
-  --signal-ink: #032321;
-  --alert: #FF9A3C;
-  --alert-ink: #241200;
-  --sim: #F2C94C;
-  --replay: #9CBDFF;
-  --font-ui: "Archivo", "Segoe UI", system-ui, sans-serif;
-  --font-num: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: light;
+  --papel: #FAFBF7;
+  --papel-2: #F0F3EC;
+  --grade: #D3E3D2;
+  --grade-forte: #AECBB3;
+  --tinta: #18233F;
+  --tinta-2: #4E5A72;
+  --vermelho: #C42B1C;
+  --fita-sim: #FFD23F;
+  --fita-gravacao: #2E5AAC;
+  --fita-vivo: #1F7A4D;
+  --fonte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --fonte-num: "Atkinson Hyperlegible Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { height: 100%; }
+html, body { min-height: 100%; }
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-ui);
-  font-size: 15px;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte);
+  font-size: 16px;
   line-height: 1.45;
 }
-button, input { font: inherit; color: inherit; }
-.app {
-  max-width: 1600px;
+button, input, select { font: inherit; color: inherit; }
+.folha {
+  max-width: 1680px;
   margin: 0 auto;
-  padding-inline: 20px;
-  padding-block: 16px 24px;
+  padding-inline: 24px;
+  padding-block: 18px 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
-/* Topo */
-.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
-.brand { display: flex; flex-direction: column; margin-right: auto; }
-.logo { font-weight: 800; font-stretch: 112%; font-size: 1.6rem; letter-spacing: -0.01em; line-height: 1.1; }
-.logo span { color: var(--signal); }
-.tagline { color: var(--muted); font-size: 0.85rem; }
-.seg-group { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; background: var(--panel); flex-wrap: wrap; }
-.seg { border: 0; background: transparent; padding: 7px 12px; border-radius: 7px; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 0.9rem; }
-.seg:hover { color: var(--fg); }
-.seg[aria-pressed="true"] { background: var(--panel-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
-.stats { display: flex; gap: 18px; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 0.85rem; color: var(--muted); }
-.stats b { color: var(--fg); font-weight: 500; font-size: 1rem; display: block; }
+/* Cabeçalho */
+.cabeca { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 28px; padding-bottom: 14px; border-bottom: 3px solid var(--tinta); }
+.marca { display: flex; align-items: center; gap: 12px; }
+.marca svg { width: 54px; height: 30px; flex: none; }
+.marca-nome { font-weight: 800; font-size: 1.9rem; letter-spacing: 0.06em; line-height: 1; }
+.convite { flex: 1 1 420px; margin: 0; font-size: clamp(1.15rem, 1.8vw, 1.6rem); font-weight: 700; line-height: 1.2; text-wrap: balance; max-width: 34ch; }
+.convite em { font-style: normal; color: var(--vermelho); }
 
-/* Faixa de modo */
-.banner { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; border: 1px solid currentColor; }
-.banner .tag { font-family: var(--font-num); font-weight: 500; letter-spacing: 0.08em; font-size: 0.8rem; padding: 2px 8px; border-radius: 6px; background: currentColor; }
-.banner .tag span { color: var(--bg); }
-.banner .txt { color: var(--fg); font-weight: 500; }
-.banner[data-modo="sim"] { color: var(--sim); background: color-mix(in srgb, var(--sim) 10%, var(--bg)); }
-.banner[data-modo="replay"] { color: var(--replay); background: color-mix(in srgb, var(--replay) 10%, var(--bg)); }
-.banner[data-modo="live"] { color: var(--signal); background: color-mix(in srgb, var(--signal) 10%, var(--bg)); }
-.banner[data-modo="nenhum"] { color: var(--muted); background: var(--panel); }
-.msg { padding: 10px 14px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--alert); color: var(--fg); }
+/* Fita de modo (como fita adesiva colada no painel) */
+.fita { display: inline-flex; align-items: center; gap: 10px; padding: 7px 16px; font-weight: 800; letter-spacing: 0.08em; font-size: 0.95rem; transform: rotate(-1.2deg); box-shadow: 0 1px 0 rgba(24, 35, 63, 0.25); }
+.fita small { font-weight: 400; letter-spacing: 0; font-size: 0.85rem; }
+.fita[data-modo="sim"] { background:
+    repeating-linear-gradient(135deg, var(--tinta) 0 8px, transparent 8px 16px) left / 14px 100% no-repeat,
+    repeating-linear-gradient(135deg, var(--tinta) 0 8px, transparent 8px 16px) right / 14px 100% no-repeat,
+    var(--fita-sim); color: var(--tinta); padding-inline: 26px; }
+.fita[data-modo="replay"] { background: var(--fita-gravacao); color: #fff; }
+.fita[data-modo="live"] { background: var(--fita-vivo); color: #fff; }
+.fita[data-modo="nenhum"] { background: var(--papel-2); color: var(--tinta-2); box-shadow: inset 0 0 0 1px var(--grade-forte); }
+.fita .ponto { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.fita[data-modo="live"] .ponto { animation: piscar 1.2s steps(2) infinite; }
+@keyframes piscar { 50% { opacity: 0.2; } }
 
-/* Grade principal */
-.grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 14px; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-h2 { margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 600; }
-.hint { margin: 0; color: var(--muted); font-size: 0.85rem; max-width: 70ch; }
+/* Grade do painel */
+.painel { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 0; border: 2px solid var(--tinta); background: var(--papel); }
+.bloco { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border-right: 1px solid var(--tinta); border-bottom: 1px solid var(--tinta); }
+.bloco:nth-child(2n) { border-right: 0; }
+.bloco.ultimo-linha { border-bottom: 0; }
+.rotulo { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rotulo h2 { margin: 0; font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 800; }
+.rotulo span { font-size: 0.82rem; color: var(--tinta-2); }
+.nota { margin: 0; color: var(--tinta-2); font-size: 0.9rem; max-width: 62ch; }
 
-.wf-wrap { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 4px 8px; }
-.ylab { grid-row: 1; writing-mode: vertical-rl; transform: rotate(180deg); color: var(--muted); font-size: 0.75rem; text-align: center; }
-#wf { grid-column: 2; width: 100%; height: clamp(220px, 44vh, 560px); display: block; border-radius: 8px; background: #0A1320; }
-.xlab { grid-column: 2; display: flex; justify-content: space-between; color: var(--muted); font-family: var(--font-num); font-size: 0.75rem; }
-.watermark { position: absolute; right: 12px; top: 10px; font-family: var(--font-num); font-size: 0.75rem; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 6px; border: 1px solid currentColor; background: color-mix(in srgb, var(--bg) 75%, transparent); }
-.watermark[data-modo="sim"] { color: var(--sim); }
-.watermark[data-modo="replay"] { color: var(--replay); }
-.watermark[data-modo="live"] { color: var(--signal); }
+/* Cascata */
+.cascata { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 4px 8px; }
+.eixo-y { position: relative; width: 2.2em; font-family: var(--fonte-num); font-size: 0.75rem; color: var(--tinta-2); }
+.eixo-y span { position: absolute; right: 0; transform: translateY(50%); }
+#wf { width: 100%; height: clamp(230px, 40vh, 520px); display: block; border: 1px solid var(--tinta); background: var(--papel); image-rendering: pixelated; }
+.eixo-x { grid-column: 2; display: flex; justify-content: space-between; font-family: var(--fonte-num); font-size: 0.75rem; color: var(--tinta-2); }
+.escala-cor { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--tinta-2); flex-wrap: wrap; }
+.escala-cor i { display: block; width: 160px; height: 10px; border: 1px solid var(--tinta); background: linear-gradient(90deg, #F7F9F5, #B9C6DA 35%, #4E6493 70%, #121B33); }
 
-/* Estado */
-.status { justify-content: flex-start; }
-.status[data-estado="movimento"] { border-color: var(--alert); box-shadow: 0 0 0 1px var(--alert) inset; }
-.status-row { display: flex; align-items: center; gap: 14px; min-height: 92px; }
-.status-icon { width: 56px; height: 56px; flex: none; color: var(--muted); }
-.status[data-estado="movimento"] .status-icon { color: var(--alert); }
-.status[data-estado="parado"] .status-icon { color: var(--signal); }
-.status-word { font-weight: 800; font-stretch: 75%; font-size: clamp(2rem, 4.2vw, 3.6rem); line-height: 0.95; letter-spacing: -0.01em; text-wrap: balance; }
-.status[data-estado="movimento"] .status-word { color: var(--alert); }
-.status-sub { color: var(--muted); font-size: 0.9rem; }
-.meter { position: relative; height: 18px; border-radius: 9px; background: var(--panel-2); overflow: hidden; border: 1px solid var(--line); }
-.meter-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--signal); transition: width 0.15s linear; }
-.status[data-estado="movimento"] .meter-fill { background: var(--alert); }
-.meter-mark { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--fg); left: 50%; }
-.meter-legend { display: flex; justify-content: space-between; gap: 10px; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 0.82rem; color: var(--muted); }
-.meter-legend b { color: var(--fg); font-weight: 500; }
-.field { display: flex; flex-direction: column; gap: 4px; }
-.field label { font-size: 0.82rem; color: var(--muted); }
-input[type="range"] { width: 100%; accent-color: var(--fg); }
-input[type="text"] { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
-.row { display: flex; flex-wrap: wrap; gap: 8px; }
-.btn { border: 1px solid var(--line); background: var(--panel-2); border-radius: 9px; padding: 9px 14px; cursor: pointer; font-weight: 600; }
-.btn:hover:not(:disabled) { border-color: var(--muted); }
-.btn:disabled { opacity: 0.45; cursor: not-allowed; }
-.btn.primary { background: var(--signal); color: var(--signal-ink); border-color: var(--signal); }
-.btn.alert { background: var(--alert); color: var(--alert-ink); border-color: var(--alert); }
-:is(.btn, .seg, input):focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+/* Medidor e estado */
+.medidor { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.medidor svg { width: min(100%, 360px); height: auto; display: block; }
+.agulha { transform-box: view-box; transform-origin: 150px 150px; transition: transform 0.18s ease-out; }
+.estado { text-align: center; }
+.estado-palavra { font-weight: 800; font-size: clamp(2.2rem, 4.4vw, 4rem); line-height: 1; letter-spacing: 0.01em; }
+.estado[data-estado="movimento"] .estado-palavra { color: var(--vermelho); }
+.estado[data-estado="aguardando"] .estado-palavra { color: var(--tinta-2); }
+.estado-sub { color: var(--tinta-2); font-size: 0.95rem; margin-top: 4px; }
 
-#tl { width: 100%; height: 150px; display: block; }
-.legend { display: flex; gap: 14px; font-size: 0.8rem; color: var(--muted); flex-wrap: wrap; }
-.legend i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+/* Papel do registrador e sismograma */
+#tl { width: 100%; height: 170px; display: block; border: 1px solid var(--tinta); }
+#dia { width: 100%; height: 300px; display: block; border: 1px solid var(--tinta); }
+.legenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--tinta-2); }
+.legenda i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; }
 
-/* Ninja */
-.ninja-timer { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 2.2rem; font-weight: 500; line-height: 1; }
-.ninja-state { color: var(--muted); font-size: 0.9rem; }
-.ranking { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; counter-reset: r; }
-.ranking li { display: grid; grid-template-columns: 1.6em minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--line); counter-increment: r; font-size: 0.92rem; }
-.ranking li::before { content: counter(r) "º"; color: var(--muted); font-family: var(--font-num); font-size: 0.8rem; }
-.ranking li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ranking li b { font-family: var(--font-num); font-weight: 500; font-variant-numeric: tabular-nums; }
-.ranking .vazio { display: block; color: var(--muted); font-size: 0.88rem; border: 0; }
-.ranking .vazio::before { content: none; }
+/* Desafio Ninja */
+.ninja-cronometro { font-family: var(--fonte-num); font-variant-numeric: tabular-nums; font-size: 2.6rem; font-weight: 600; line-height: 1; }
+.ninja-estado { color: var(--tinta-2); }
+.campo { display: flex; flex-direction: column; gap: 4px; }
+.campo label { font-size: 0.85rem; color: var(--tinta-2); }
+input[type="text"] { background: #fff; border: 1px solid var(--tinta); padding: 9px 10px; border-radius: 2px; }
+.recordes { margin: 0; padding: 0; list-style: none; border-top: 2px solid var(--tinta); }
+.recordes li { display: grid; grid-template-columns: 2em minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--grade-forte); counter-increment: pos; }
+.recordes { counter-reset: pos; }
+.recordes li::before { content: counter(pos) "º"; font-family: var(--fonte-num); color: var(--tinta-2); }
+.recordes li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recordes li b { font-family: var(--fonte-num); font-variant-numeric: tabular-nums; }
+.recordes li.vazio { display: block; color: var(--tinta-2); border-bottom: 0; }
+.recordes li.vazio::before { content: none; }
 
-.sim-controls .row .btn[aria-pressed="true"] { background: var(--sim); color: #231a00; border-color: var(--sim); }
-footer { color: var(--muted); font-size: 0.8rem; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
-kbd { font-family: var(--font-num); font-size: 0.75rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--fg); }
+/* Botões: teclas de painel */
+.linha { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tecla { border: 2px solid var(--tinta); background: #fff; padding: 8px 14px; border-radius: 3px; cursor: pointer; font-weight: 700; box-shadow: 0 3px 0 var(--tinta); position: relative; top: 0; }
+.tecla:active:not(:disabled) { top: 3px; box-shadow: 0 0 0 var(--tinta); }
+.tecla:disabled { opacity: 0.4; cursor: not-allowed; }
+.tecla.forte { background: var(--tinta); color: var(--papel); }
+.tecla.vermelha { background: var(--vermelho); border-color: var(--vermelho); color: #fff; box-shadow: 0 3px 0 #7E1B11; }
+.tecla[aria-pressed="true"] { background: var(--tinta); color: var(--papel); top: 3px; box-shadow: 0 0 0 var(--tinta); }
+:is(.tecla, input, summary):focus-visible { outline: 3px solid var(--vermelho); outline-offset: 2px; }
 
-/* Sobreposição do desafio */
-.overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: color-mix(in srgb, var(--bg) 88%, transparent); }
-.ov-big { font-weight: 800; font-stretch: 75%; font-size: clamp(4rem, 16vw, 12rem); line-height: 0.9; }
-.ov-sub { font-size: clamp(1.1rem, 2.6vw, 1.8rem); color: var(--fg); max-width: 30ch; }
-.overlay[data-tipo="ok"] .ov-big { color: var(--signal); }
-.overlay[data-tipo="pego"] .ov-big { color: var(--alert); }
+/* Placa de museu */
+.placa { background: var(--tinta); color: var(--papel); padding: 18px 22px; display: grid; gap: 14px; }
+.placa h3 { margin: 0 0 4px; font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fita-sim); }
+.placa p { margin: 0; font-size: clamp(1.05rem, 1.35vw, 1.3rem); line-height: 1.4; max-width: 48ch; }
 
-@media (max-width: 900px) {
-  .grid { grid-template-columns: minmax(0, 1fr); }
-  .stats { width: 100%; justify-content: space-between; }
+/* Painel do operador */
+details.operador { border: 2px dashed var(--tinta-2); background: var(--papel-2); }
+details.operador summary { cursor: pointer; padding: 10px 16px; font-weight: 800; letter-spacing: 0.06em; list-style: none; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+details.operador summary::-webkit-details-marker { display: none; }
+details.operador summary::before { content: "▸"; }
+details.operador[open] summary::before { content: "▾"; }
+details.operador summary small { font-weight: 400; color: var(--tinta-2); letter-spacing: 0; }
+.op-corpo { padding: 4px 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 28px; }
+.op-grupo { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.op-grupo h4 { margin: 0; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--tinta-2); }
+.numeros { display: flex; gap: 22px; font-family: var(--fonte-num); font-variant-numeric: tabular-nums; }
+.numeros div { font-size: 0.8rem; color: var(--tinta-2); }
+.numeros b { display: block; color: var(--tinta); font-size: 1.15rem; }
+input[type="range"] { width: 100%; accent-color: var(--tinta); }
+.aviso { border-left: 4px solid var(--vermelho); background: #fff; padding: 10px 14px; }
+
+/* Carimbo do desafio */
+.sobreposicao { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgba(250, 251, 247, 0.9); }
+.carimbo { text-align: center; padding: 22px 34px 26px; border: 8px double currentColor; transform: rotate(-4deg); color: var(--tinta); background: var(--papel); max-width: 92vw; }
+.carimbo[data-tipo="pego"] { color: var(--vermelho); }
+.carimbo-grande { font-weight: 800; font-size: clamp(3.5rem, 13vw, 10rem); line-height: 0.95; letter-spacing: 0.02em; }
+.carimbo-sub { font-size: clamp(1.1rem, 2.4vw, 1.8rem); color: var(--tinta); max-width: 28ch; margin: 10px auto 0; }
+
+footer { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 0.82rem; color: var(--tinta-2); }
+kbd { font-family: var(--fonte-num); border: 1px solid var(--tinta-2); border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; color: var(--tinta); background: #fff; }
+
+@media (max-width: 960px) {
+  .painel { grid-template-columns: minmax(0, 1fr); }
+  .bloco { border-right: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .meter-fill { transition: none; }
+  .agulha { transition: none; }
+  .fita[data-modo="live"] .ponto { animation: none; }
 }
 </style>
 </head>
 <body>
-<div class="app">
-  <header class="top">
-    <div class="brand">
-      <div class="logo">Wave<span>Sense</span></div>
-      <div class="tagline">O Wi-Fi da sala como sensor de movimento, sem câmera</div>
+<div class="folha">
+  <header class="cabeca">
+    <div class="marca">
+      <svg viewBox="0 0 54 30" aria-hidden="true"><path d="M2 15 C 8 2, 14 2, 18 15 S 28 28, 34 15 S 44 2, 52 15" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/></svg>
+      <span class="marca-nome">WAVE SENSE</span>
     </div>
-    <div class="seg-group" role="group" aria-label="Fonte dos dados">
-      <button class="seg" id="src-sim" aria-pressed="false">Simulação</button>
-      <button class="seg" id="src-replay" aria-pressed="false">Gravação…</button>
-      <button class="seg" id="src-live" aria-pressed="false">Placa USB</button>
-    </div>
-    <input type="file" id="arquivo" accept=".csv,text/csv" hidden>
-    <div class="stats" aria-label="Estatísticas do sinal">
-      <div>pacotes/s<b id="st-taxa">–</b></div>
-      <div>RSSI<b id="st-rssi">–</b></div>
-      <div>perdidos<b id="st-perdidos">–</b></div>
-    </div>
+    <p class="convite">Ande pela faixa marcada no chão. Aqui não tem câmera: <em>quem percebe você é o Wi-Fi.</em></p>
+    <div class="fita" id="fita" data-modo="nenhum"><span class="ponto"></span><span id="fita-tag">SEM DADOS</span><small id="fita-txt">escolha uma fonte no painel do operador</small></div>
   </header>
 
-  <div class="banner" id="banner" data-modo="nenhum"><span class="tag"><span id="banner-tag">SEM DADOS</span></span><span class="txt" id="banner-txt">Escolha uma fonte de dados acima.</span></div>
-  <div class="msg" id="msg" role="alert" hidden></div>
+  <div class="aviso" id="msg" role="alert" hidden></div>
 
-  <main class="grid">
-    <section class="card" aria-labelledby="h-wf">
-      <div class="card-head">
-        <h2 id="h-wf">Cascata do sinal</h2>
-        <div class="seg-group" role="group" aria-label="O que a cascata mostra">
-          <button class="seg" id="wf-var" aria-pressed="true">Variação</button>
-          <button class="seg" id="wf-amp" aria-pressed="false">Amplitude</button>
-        </div>
+  <main class="painel">
+    <section class="bloco" aria-labelledby="h-wf">
+      <div class="rotulo"><h2 id="h-wf">Cascata do sinal</h2><span>canal 11 · 2,462 GHz · uma faixa por subportadora</span></div>
+      <div class="cascata">
+        <div class="eixo-y" id="eixo-y" aria-hidden="true"></div>
+        <canvas id="wf" aria-label="Cascata: cada faixa horizontal é uma subportadora; o tempo corre da esquerda para a direita"></canvas>
+        <div class="eixo-x" aria-hidden="true"><span>−10 s</span><span>−8</span><span>−6</span><span>−4</span><span>−2</span><span>agora</span></div>
       </div>
-      <div class="wf-wrap">
-        <div class="ylab">subportadoras</div>
-        <canvas id="wf" aria-label="Cascata: amplitude das subportadoras ao longo do tempo"></canvas>
-        <div class="xlab"><span>~10 s atrás</span><span>agora →</span></div>
-        <div class="watermark" id="wf-mark" hidden></div>
-      </div>
-      <p class="hint" id="wf-hint">Cada faixa horizontal é uma subportadora do canal Wi-Fi. Quanto mais clara, maior a mudança em relação ao último segundo. Quando alguém se mexe, aparecem manchas.</p>
+      <div class="escala-cor"><span id="escala-min">quase nada mudou</span><i></i><span id="escala-max">mudou muito</span><span id="escala-info"></span><span>· cinza: borda do canal, sem sinal</span></div>
     </section>
 
-    <section class="card status" id="status" data-estado="aguardando" aria-labelledby="h-st">
-      <h2 id="h-st">Estado da zona</h2>
-      <div class="status-row">
-        <svg class="status-icon" viewBox="0 0 56 56" aria-hidden="true">
-          <circle cx="28" cy="40" r="4" fill="currentColor"/>
-          <path d="M18 30a14 14 0 0 1 20 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-          <path d="M11 23a24 24 0 0 1 34 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-          <path d="M4 16a34 34 0 0 1 48 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <section class="bloco" aria-labelledby="h-st">
+      <div class="rotulo"><h2 id="h-st">Agitação do sinal</h2><span>oscilação em 1 s</span></div>
+      <div class="medidor">
+        <svg viewBox="0 0 300 172" role="img" aria-label="Medidor de agulha da oscilação, com a faixa vermelha acima do limiar">
+          <path id="g-arco" d="M32 150 A118 118 0 0 1 268 150" fill="none" stroke="currentColor" stroke-width="2"/>
+          <path id="g-zona" d="" fill="none" style="stroke: var(--vermelho)" stroke-width="12"/>
+          <g id="g-marcas" stroke="currentColor" stroke-width="2"></g>
+          <text id="g-min" x="32" y="168" text-anchor="middle" font-size="12" fill="currentColor" style="font-family: var(--fonte-num)">0</text>
+          <text id="g-meio" x="150" y="22" text-anchor="middle" font-size="12" fill="currentColor" style="font-family: var(--fonte-num)"></text>
+          <text id="g-max" x="268" y="168" text-anchor="middle" font-size="12" fill="currentColor" style="font-family: var(--fonte-num)"></text>
+          <g class="agulha" id="g-agulha"><line x1="150" y1="150" x2="150" y2="44" style="stroke: var(--vermelho)" stroke-width="3" stroke-linecap="round"/></g>
+          <circle cx="150" cy="150" r="9" fill="currentColor"/>
+          <text x="150" y="120" text-anchor="middle" font-size="11" fill="currentColor" letter-spacing="1.5">OSCILAÇÃO</text>
         </svg>
-        <div>
-          <div class="status-word" id="status-word" aria-live="polite">AGUARDANDO DADOS</div>
-          <div class="status-sub" id="status-sub">Nenhuma fonte conectada.</div>
-        </div>
       </div>
-      <div class="meter" aria-hidden="true"><div class="meter-fill" id="meter-fill"></div><div class="meter-mark" id="meter-mark"></div></div>
-      <div class="meter-legend"><span>oscilação agora <b id="osc-agora">–</b></span><span>limiar <b id="lim-agora">–</b></span></div>
-      <div class="field">
-        <label for="limiar">Limiar (arraste para ver o efeito)</label>
-        <input type="range" id="limiar" min="0" max="1" step="0.001" value="0.5" disabled>
+      <div class="estado" id="estado" data-estado="aguardando">
+        <div class="estado-palavra" id="estado-palavra" aria-live="polite">SEM DADOS</div>
+        <div class="estado-sub" id="estado-sub">Nenhuma fonte ligada.</div>
       </div>
-      <div class="row"><button class="btn" id="btn-cal" disabled>Calibrar com a zona vazia</button></div>
-      <p class="hint" id="cal-info">A calibração mede a oscilação com a zona vazia por 10 s e põe o limiar um pouco acima dela.</p>
     </section>
 
-    <section class="card" aria-labelledby="h-tl">
-      <div class="card-head">
-        <h2 id="h-tl">Oscilação nos últimos 60 s</h2>
-        <div class="legend"><span><i style="background: var(--signal)"></i>oscilação</span><span><i style="background: var(--fg)"></i>limiar</span><span><i style="background: var(--alert); height: 10px; opacity: 0.5"></i>movimento detectado</span></div>
+    <section class="bloco" aria-labelledby="h-tl">
+      <div class="rotulo"><h2 id="h-tl">Registro em papel · último minuto</h2>
+        <div class="legenda"><span><i style="background: var(--tinta)"></i>oscilação</span><span><i style="background: var(--vermelho); height: 2px; border-top: 1px dashed var(--vermelho)"></i>limiar</span><span><i style="background: var(--vermelho); height: 7px"></i>caneta de eventos: movimento</span></div>
       </div>
-      <canvas id="tl" aria-label="Gráfico da oscilação no último minuto"></canvas>
-      <p class="hint">Oscilação = quanto a amplitude variou em 1 s (desvio padrão médio das subportadoras). Movimento só é declarado após 3 medições seguidas acima do limiar.</p>
+      <canvas id="tl" aria-label="Registro da oscilação no último minuto, como um registrador de papel"></canvas>
+      <p class="nota">Movimento só é marcado depois de 3 medições seguidas acima do limiar (0,6 s), para um pico isolado não disparar o alarme.</p>
     </section>
 
-    <section class="card" aria-labelledby="h-ninja">
-      <h2 id="h-ninja">Desafio Ninja</h2>
-      <p class="hint">Atravesse a zona marcada no chão de um lado ao outro sem ser detectado. Quem opera aperta "Chegou" quando o visitante cruzar a linha final.</p>
-      <div class="field">
-        <label for="apelido">Apelido (opcional, sem nome completo)</label>
-        <input type="text" id="apelido" maxlength="16" autocomplete="off" placeholder="ex.: Sombra">
+    <section class="bloco" aria-labelledby="h-ninja">
+      <div class="rotulo"><h2 id="h-ninja">Desafio Ninja</h2><span>atravesse sem ser percebido</span></div>
+      <div class="campo"><label for="apelido">Seu apelido (sem nome completo)</label><input type="text" id="apelido" maxlength="16" autocomplete="off" placeholder="ex.: Sombra"></div>
+      <div class="linha">
+        <button class="tecla forte" id="btn-ninja" disabled>Começar</button>
+        <button class="tecla vermelha" id="btn-chegou" disabled>Chegou do outro lado</button>
       </div>
-      <div class="row">
-        <button class="btn primary" id="btn-ninja" disabled>Começar desafio</button>
-        <button class="btn alert" id="btn-chegou" disabled>Chegou do outro lado</button>
-      </div>
-      <div><div class="ninja-timer" id="ninja-timer">0,0 s</div><div class="ninja-state" id="ninja-state">Pronto para começar.</div></div>
-      <ol class="ranking" id="ranking"></ol>
-      <p class="hint" id="ninja-placar"></p>
+      <div><div class="ninja-cronometro" id="ninja-tempo">0,0 s</div><div class="ninja-estado" id="ninja-estado">Pronto para o próximo.</div></div>
+      <ol class="recordes" id="recordes"></ol>
+      <p class="nota" id="ninja-placar"></p>
+    </section>
+
+    <section class="bloco ultimo-linha" aria-labelledby="h-dia">
+      <div class="rotulo"><h2 id="h-dia">Sismograma do dia</h2><span>uma linha por minuto, de cima para baixo · cada pancada é alguém se mexendo</span></div>
+      <canvas id="dia" aria-label="Sismograma do dia: uma linha por minuto com a oscilação; trechos vermelhos tiveram movimento"></canvas>
+    </section>
+
+    <section class="bloco ultimo-linha placa" aria-label="Como funciona">
+      <div><h3>Experimente</h3><p>Fique parado na faixa. Depois ande devagar. Depois ande rápido.</p></div>
+      <div><h3>Repare</h3><p>Parado, o papel fica quase liso. Andando, a cascata escurece e a agulha sobe.</p></div>
+      <div><h3>O que está acontecendo</h3><p>Uma placa manda 100 pacotes de Wi-Fi por segundo para a outra. Seu corpo reflete parte do sinal. Quando você se mexe, os reflexos mudam, e a placa receptora mede essa mudança.</p></div>
     </section>
   </main>
 
-  <section class="card sim-controls" id="sim-controls" hidden aria-labelledby="h-sim">
-    <div class="card-head"><h2 id="h-sim">Cena simulada</h2><span class="hint">Só existe na simulação. Serve para ensaiar a apresentação sem as placas.</span></div>
-    <div class="row" id="cenas"></div>
-  </section>
+  <details class="operador" id="operador">
+    <summary>PAINEL DO OPERADOR <small>tecla O mostra/esconde · deixe fechado durante a apresentação</small></summary>
+    <div class="op-corpo">
+      <div class="op-grupo">
+        <h4>Fonte dos dados</h4>
+        <div class="linha" role="group" aria-label="Fonte dos dados">
+          <button class="tecla" id="src-sim" aria-pressed="false">Simulação</button>
+          <button class="tecla" id="src-replay" aria-pressed="false">Gravação…</button>
+          <button class="tecla" id="src-live" aria-pressed="false">Placa USB</button>
+        </div>
+        <input type="file" id="arquivo" accept=".csv,text/csv" hidden>
+        <div class="numeros"><div>pacotes/s<b id="st-taxa">–</b></div><div>RSSI<b id="st-rssi">–</b></div><div>perdidos<b id="st-perdidos">–</b></div></div>
+      </div>
+      <div class="op-grupo">
+        <h4>Limiar</h4>
+        <div class="linha"><button class="tecla" id="btn-cal" disabled>Calibrar com a zona vazia</button></div>
+        <label for="limiar" class="nota">Arraste para mostrar o efeito: <b id="lim-valor">–</b></label>
+        <input type="range" id="limiar" min="0" max="1" step="0.001" value="0.5" disabled>
+        <p class="nota" id="cal-info">A calibração mede a zona vazia por 10 s e põe o limiar em média + 3 desvios.</p>
+      </div>
+      <div class="op-grupo">
+        <h4>Som</h4>
+        <div class="linha" role="group" aria-label="Som">
+          <button class="tecla" id="som-off" aria-pressed="true">Mudo</button>
+          <button class="tecla" id="som-alerta" aria-pressed="false">Alerta</button>
+          <button class="tecla" id="som-geiger" aria-pressed="false">Contador</button>
+        </div>
+        <label for="volume" class="nota">Volume</label>
+        <input type="range" id="volume" min="0" max="1" step="0.05" value="0.6">
+        <p class="nota">Alerta: dois toques quando começa movimento. Contador: estalos como um contador Geiger, mais rápidos quanto maior a oscilação. O desafio tem sons próprios sempre que o som estiver ligado.</p>
+      </div>
+      <div class="op-grupo">
+        <h4>Cascata</h4>
+        <div class="linha" role="group" aria-label="O que a cascata mostra">
+          <button class="tecla" id="wf-var" aria-pressed="true">Variação</button>
+          <button class="tecla" id="wf-amp" aria-pressed="false">Amplitude</button>
+        </div>
+        <p class="nota">Variação: quanto cada faixa mudou em relação ao último segundo. Amplitude: a força do sinal em cada faixa.</p>
+        <div class="linha"><button class="tecla" id="btn-tela">Tela cheia</button></div>
+      </div>
+      <div class="op-grupo" id="sim-grupo" hidden>
+        <h4>Cena simulada (só na simulação)</h4>
+        <div class="linha" id="cenas"></div>
+      </div>
+    </div>
+  </details>
 
   <footer>
-    <span>Atalhos: <kbd>1</kbd>–<kbd>5</kbd> cenas da simulação · <kbd>N</kbd> desafio · <kbd>Espaço</kbd> chegou · <kbd>C</kbd> calibrar · <kbd>F</kbd> tela cheia</span>
-    <button class="btn" id="btn-full">Tela cheia</button>
+    <span>Atalhos: <kbd>1</kbd>–<kbd>5</kbd> cenas · <kbd>N</kbd> desafio · <kbd>Espaço</kbd> chegou · <kbd>C</kbd> calibrar · <kbd>S</kbd> som · <kbd>O</kbd> operador · <kbd>F</kbd> tela cheia</span>
+    <span>Wave Sense · JACITEC 2026 · protótipo experimental, não é equipamento médico nem de segurança</span>
   </footer>
 </div>
 
-<div class="overlay" id="overlay" hidden><div class="ov-big" id="ov-big"></div><div class="ov-sub" id="ov-sub"></div></div>
+<div class="sobreposicao" id="sobre" hidden><div class="carimbo" id="carimbo"><div class="carimbo-grande" id="carimbo-grande"></div><div class="carimbo-sub" id="carimbo-sub"></div></div></div>
 
 <script>
 'use strict';
@@ -262,32 +311,24 @@ const $ = (id) => document.getElementById(id);
 
 const JANELA_S = 1.0;          // janela da oscilação, igual ao ferramentas/analise.py
 const AVALIAR_MS = 200;        // nova medida 5x por segundo
-const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para declarar movimento
-const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "sem movimento"
-const COLUNAS_CASCATA = 1000;  // ~10 s a 100 pacotes/s
-const HIST_S = 60;
+const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para marcar movimento
+const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "tudo parado"
+const CASCATA_S = 10;          // segundos visíveis na cascata
+const REGISTRO_S = 60;         // segundos no registro em papel
+const DIA_LINHAS = 10;         // minutos no sismograma
+
+const COR = {
+  papel: '#FAFBF7', papel2: '#F0F3EC', grade: '#D3E3D2', gradeForte: '#AECBB3',
+  tinta: '#18233F', tinta2: '#4E5A72', vermelho: '#C42B1C', nula: '#E4E8E0',
+};
 
 const app = {
-  fonte: null,                 // 'sim' | 'replay' | 'live'
-  janela: [],                  // pacotes dos últimos 2 s
-  pendentes: [],               // pacotes ainda não desenhados na cascata
-  ultimoId: null,
-  perdidos: 0,
-  ultimoPacote: 0,
-  historico: [],               // {t, v, det}
-  limiar: null,
-  detectado: false,
-  acima: 0,
-  abaixo: 0,
-  calibracao: null,            // {fim, duracao, valores}
-  oscAtual: NaN,
-  maxRecente: 0,
-  modoCascata: 'variacao',
-  ema: null,
-  escala: 1e-6,
-  porta: null,
-  leitor: null,
-  timers: [],
+  fonte: null, janela: [], pendentes: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
+  historico: [], dia: [], notas: [],
+  limiar: null, calibMedia: null, detectado: false, acima: 0, abaixo: 0, calibracao: null,
+  oscAtual: NaN, maxRecente: 0,
+  modoCascata: 'variacao', ema: null, escalaPico: 1e-6,
+  porta: null, leitor: null, timers: [], ultimoTv: 0,
 };
 
 /* ---------- Leitura das linhas CSI_DATA (mesmo formato do ferramentas/csi_formato.py) ---------- */
@@ -314,15 +355,17 @@ function lerLinhaCSI(texto) {
 function receber(p) {
   const t = performance.now() / 1000;
   p.t = t;
-  if (app.ultimoId !== null && p.id > app.ultimoId + 1 && p.id - app.ultimoId < 5000) {
-    app.perdidos += p.id - app.ultimoId - 1;
-  }
+  if (app.ultimoId !== null && p.id > app.ultimoId + 1 && p.id - app.ultimoId < 5000) app.perdidos += p.id - app.ultimoId - 1;
   app.ultimoId = p.id;
   app.ultimoPacote = t;
+  // Pacotes chegam da USB em rajadas; para a cascata, espalha cada um no seu lugar (~100/s),
+  // sem nunca adiantar o relógio nem atrasar mais de 0,3 s.
+  p.tv = Math.min(t, Math.max(app.ultimoTv + 0.01, t - 0.3));
+  app.ultimoTv = p.tv;
   app.janela.push(p);
   while (app.janela.length && app.janela[0].t < t - 2) app.janela.shift();
   app.pendentes.push(p);
-  if (app.pendentes.length > COLUNAS_CASCATA) app.pendentes.splice(0, app.pendentes.length - COLUNAS_CASCATA);
+  if (app.pendentes.length > 3000) app.pendentes.splice(0, app.pendentes.length - 3000);
 }
 
 function oscilacao(pacotes) {
@@ -345,7 +388,7 @@ function oscilacao(pacotes) {
   return cont ? soma / cont : NaN;
 }
 
-/* ---------- Avaliação periódica: oscilação, calibração, detecção ---------- */
+/* ---------- Avaliação periódica ---------- */
 function avaliar() {
   const agora = performance.now() / 1000;
   const jan = app.janela.filter((p) => p.t >= agora - JANELA_S);
@@ -356,6 +399,7 @@ function avaliar() {
   $('st-rssi').textContent = jan.length ? `${Math.round(jan.reduce((s, p) => s + p.rssi, 0) / jan.length)} dBm` : '–';
   $('st-perdidos').textContent = app.fonte ? String(app.perdidos) : '–';
 
+  const antes = app.detectado;
   if (!Number.isNaN(v)) {
     if (app.calibracao) {
       app.calibracao.valores.push(v);
@@ -366,22 +410,30 @@ function avaliar() {
       if (app.detectado && app.abaixo >= CONFIRMA_DESLIGA) app.detectado = false;
     }
     app.historico.push({ t: agora, v, det: app.detectado });
+    app.dia.push({ ms: Date.now(), v, det: app.detectado });
   } else if (agora - app.ultimoPacote > 2) {
     app.detectado = false;
   }
-  while (app.historico.length && app.historico[0].t < agora - HIST_S) app.historico.shift();
+  if (app.detectado && !antes && som.modo !== 'mudo') somAlerta();
+  if (som.modo === 'geiger') somGeiger(v);
+
+  while (app.historico.length && app.historico[0].t < agora - REGISTRO_S - 1) app.historico.shift();
+  const limiteDia = Date.now() - DIA_LINHAS * 60000 - 60000;
+  while (app.dia.length && app.dia[0].ms < limiteDia) app.dia.shift();
+  while (app.notas.length && app.notas[0].ms < limiteDia) app.notas.shift();
   app.maxRecente = app.historico.reduce((m, h) => Math.max(m, h.v), 0);
 
   atualizarEstado(agora);
   ninjaPasso(agora);
-  desenharLinhaTempo(agora);
+  desenharRegistro(agora);
+  desenharDia();
 }
 
 function iniciarCalibracao(duracao = 10) {
   if (!app.fonte) return;
   app.calibracao = { fim: performance.now() / 1000 + duracao, duracao, valores: [] };
   app.detectado = false; app.acima = 0; app.abaixo = 0;
-  $('cal-info').textContent = `Calibrando por ${duracao} s. Mantenha a zona vazia e ninguém se mexendo por perto.`;
+  $('cal-info').textContent = `Calibrando por ${duracao} s. Zona vazia e ninguém se mexendo por perto.`;
 }
 
 function terminarCalibracao() {
@@ -390,209 +442,356 @@ function terminarCalibracao() {
   if (vs.length < 5) { $('cal-info').textContent = 'Poucos dados para calibrar. Confira se os pacotes estão chegando.'; return; }
   const m = vs.reduce((s, x) => s + x, 0) / vs.length;
   const dp = Math.sqrt(vs.reduce((s, x) => s + (x - m) ** 2, 0) / vs.length);
+  app.calibMedia = m;
   definirLimiar(Math.max(m + 3 * dp, m * 1.3));
   $('cal-info').textContent = `Calibrado com ${vs.length} medidas da zona vazia: média ${fmt(m)}, desvio ${fmt(dp)}. Limiar = média + 3 desvios.`;
 }
 
 function definirLimiar(x) {
-  app.limiar = x;
-  app.acima = 0; app.abaixo = 0;
+  app.limiar = x; app.acima = 0; app.abaixo = 0;
   const r = $('limiar');
-  r.max = String(Math.max(x * 3, app.maxRecente * 1.2, 1e-3));
-  r.step = String(Number(r.max) / 300);
+  r.max = String(Math.max(x * 4, app.maxRecente * 1.2, 1e-3));
+  r.step = String(Number(r.max) / 400);
   r.value = String(x);
 }
 
 function fmt(x) {
   if (x === null || Number.isNaN(x)) return '–';
-  return x >= 10 ? x.toFixed(1).replace('.', ',') : x.toFixed(2).replace('.', ',');
+  return (x >= 10 ? x.toFixed(1) : x.toFixed(2)).replace('.', ',');
 }
 
-function atualizarEstado(agora) {
-  const card = $('status');
-  let estado, palavra, sub;
-  if (!app.fonte) { estado = 'aguardando'; palavra = 'AGUARDANDO DADOS'; sub = 'Nenhuma fonte conectada.'; }
-  else if (agora - app.ultimoPacote > 2) { estado = 'aguardando'; palavra = 'SEM SINAL'; sub = 'Nenhum pacote nos últimos 2 s.'; }
-  else if (app.calibracao) {
-    const falta = Math.max(0, app.calibracao.fim - agora);
-    estado = 'aguardando'; palavra = 'CALIBRANDO'; sub = `Zona vazia, por favor. Faltam ${Math.ceil(falta)} s.`;
+/* ---------- Medidor de agulha e estado ---------- */
+const G = { cx: 150, cy: 150, r: 118 };
+function pontoArco(f, r = G.r) {
+  const a = Math.PI * (1 - f);
+  return [G.cx + r * Math.cos(a), G.cy - r * Math.sin(a)];
+}
+(function marcas() {
+  const g = $('g-marcas');
+  for (let i = 0; i <= 10; i++) {
+    const [x1, y1] = pontoArco(i / 10, G.r - (i % 5 === 0 ? 16 : 9));
+    const [x2, y2] = pontoArco(i / 10, G.r);
+    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', x1.toFixed(1)); l.setAttribute('y1', y1.toFixed(1));
+    l.setAttribute('x2', x2.toFixed(1)); l.setAttribute('y2', y2.toFixed(1));
+    g.appendChild(l);
   }
+})();
+
+function atualizarEstado(agora) {
+  let estado, palavra, sub;
+  if (!app.fonte) { estado = 'aguardando'; palavra = 'SEM DADOS'; sub = 'Nenhuma fonte ligada.'; }
+  else if (agora - app.ultimoPacote > 2) { estado = 'aguardando'; palavra = 'SEM SINAL'; sub = 'Nenhum pacote nos últimos 2 s.'; }
+  else if (app.calibracao) { estado = 'aguardando'; palavra = 'CALIBRANDO'; sub = `Zona vazia, por favor. Faltam ${Math.ceil(Math.max(0, app.calibracao.fim - agora))} s.`; }
   else if (app.limiar === null) { estado = 'aguardando'; palavra = 'SEM LIMIAR'; sub = 'Calibre com a zona vazia.'; }
-  else if (app.detectado) { estado = 'movimento'; palavra = 'MOVIMENTO'; sub = 'A oscilação passou do limiar.'; }
-  else { estado = 'parado'; palavra = 'SEM MOVIMENTO'; sub = 'Oscilação abaixo do limiar.'; }
-  card.dataset.estado = estado;
-  if ($('status-word').textContent !== palavra) $('status-word').textContent = palavra;
-  $('status-sub').textContent = sub;
+  else if (app.detectado) { estado = 'movimento'; palavra = 'MOVIMENTO'; sub = 'A agulha passou da faixa vermelha.'; }
+  else { estado = 'parado'; palavra = 'TUDO PARADO'; sub = 'A agulha está abaixo da faixa vermelha.'; }
+  $('estado').dataset.estado = estado;
+  if ($('estado-palavra').textContent !== palavra) $('estado-palavra').textContent = palavra;
+  $('estado-sub').textContent = sub;
 
-  const v = app.oscAtual;
-  const max = Math.max((app.limiar ?? 0) * 2, app.maxRecente * 1.15, 1e-6);
-  $('meter-fill').style.width = Number.isNaN(v) ? '0%' : `${Math.min(100, (v / max) * 100)}%`;
-  $('meter-mark').hidden = app.limiar === null;
-  if (app.limiar !== null) $('meter-mark').style.left = `${Math.min(99.5, (app.limiar / max) * 100)}%`;
-  $('osc-agora').textContent = fmt(v);
-  $('lim-agora').textContent = fmt(app.limiar);
+  // Escala do medidor: o limiar fica sempre em 1/3 do arco; acima de 3x o limiar a agulha bate no fim, como num medidor de verdade.
+  const max = app.limiar !== null ? app.limiar * 3 : Math.max(app.maxRecente * 1.1, 1e-6);
+  const v = Number.isNaN(app.oscAtual) ? 0 : app.oscAtual;
+  const f = Math.min(1, v / max);
+  $('g-agulha').style.transform = `rotate(${(-90 + 180 * f).toFixed(1)}deg)`;
+  if (app.limiar !== null) {
+    const f0 = Math.min(0.999, app.limiar / max);
+    const [x0, y0] = pontoArco(f0, G.r - 6), [x1, y1] = pontoArco(1, G.r - 6);
+    $('g-zona').setAttribute('d', `M${x0.toFixed(1)} ${y0.toFixed(1)} A${G.r - 6} ${G.r - 6} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`);
+  } else {
+    $('g-zona').setAttribute('d', '');
+  }
+  $('g-meio').textContent = fmt(max / 2);
+  $('g-max').textContent = fmt(max);
+  $('lim-valor').textContent = fmt(app.limiar);
+
   const r = $('limiar');
-  if (app.limiar !== null && Number(r.max) < max) { r.max = String(max); r.step = String(max / 300); r.value = String(app.limiar); }
-
+  if (app.limiar !== null && Number(r.max) < app.limiar * 1.5) { r.max = String(app.limiar * 4); r.step = String(app.limiar / 100); r.value = String(app.limiar); }
   const ativo = Boolean(app.fonte);
   r.disabled = !ativo || app.limiar === null;
   $('btn-cal').disabled = !ativo || Boolean(app.calibracao);
   $('btn-ninja').disabled = !ativo || app.limiar === null || ninja.estado === 'contagem' || ninja.estado === 'correndo';
 }
 
-/* ---------- Cascata ---------- */
+/* ---------- Cascata (desenhada em pixels inteiros, sem borrar) ---------- */
 const wf = $('wf'), wctx = wf.getContext('2d');
 const buf = document.createElement('canvas');
-buf.width = COLUNAS_CASCATA; buf.height = 64;
 const bctx = buf.getContext('2d');
-const LUT = (() => {
-  const paradas = [[0, [10, 19, 32]], [0.25, [12, 56, 72]], [0.5, [20, 120, 128]], [0.75, [63, 207, 199]], [1, [225, 255, 252]]];
-  const lut = new Uint8ClampedArray(256 * 3);
-  for (let i = 0; i < 256; i++) {
-    const x = i / 255;
-    let j = 0; while (j < paradas.length - 2 && x > paradas[j + 1][0]) j++;
-    const [x0, c0] = paradas[j], [x1, c1] = paradas[j + 1];
-    const f = (x - x0) / (x1 - x0);
-    for (let c = 0; c < 3; c++) lut[i * 3 + c] = c0[c] + (c1[c] - c0[c]) * f;
-  }
-  return lut;
-})();
+let bufTempo = 0;
+const PARADAS = [[0, [247, 249, 245]], [0.35, [185, 198, 218]], [0.7, [78, 100, 147]], [1, [18, 27, 51]]];
+const LUT = Array.from({ length: 256 }, (_, i) => {
+  const x = i / 255;
+  let j = 0; while (j < PARADAS.length - 2 && x > PARADAS[j + 1][0]) j++;
+  const [x0, c0] = PARADAS[j], [x1, c1] = PARADAS[j + 1];
+  const f = (x - x0) / (x1 - x0);
+  return `rgb(${c0.map((c, k) => Math.round(c + (c1[k] - c) * f)).join(',')})`;
+});
 
 function limparCascata() {
-  bctx.fillStyle = '#0A1320';
+  bctx.fillStyle = COR.papel;
   bctx.fillRect(0, 0, buf.width, buf.height);
-  app.ema = null; app.escala = 1e-6; app.pendentes = [];
+  app.ema = null; app.escalaPico = 1e-6; app.pendentes = [];
+  bufTempo = performance.now() / 1000;
+}
+
+function escalaCascata() {
+  // Depois de calibrar, a escala fica presa ao nível da zona vazia: parado fica claro, movimento escurece.
+  if (app.modoCascata === 'variacao' && app.calibMedia) return { valor: app.calibMedia * 6, fixa: true };
+  return { valor: app.escalaPico, fixa: false };
 }
 
 function desenharCascata() {
-  const n = app.pendentes.length;
-  if (n) {
-    const K = app.pendentes[n - 1].amps.length;
-    if (buf.height !== K) { buf.height = K; limparCascata(); }
-    const lista = app.pendentes.filter((p) => p.amps.length === K);
-    app.pendentes = [];
-    const m = lista.length;
-    if (m) {
-      bctx.drawImage(buf, -m, 0);
-      const img = bctx.createImageData(m, K);
-      for (let i = 0; i < m; i++) {
-        const a = lista[i].amps;
-        if (!app.ema) app.ema = Float32Array.from(a);
-        let maxCol = 0;
-        const vals = new Float32Array(K);
-        for (let k = 0; k < K; k++) {
-          const val = app.modoCascata === 'variacao' ? Math.abs(a[k] - app.ema[k]) : a[k];
-          app.ema[k] += 0.01 * (a[k] - app.ema[k]);
-          vals[k] = val;
-          if (val > maxCol) maxCol = val;
-        }
-        app.escala = Math.max(app.escala * 0.999, maxCol);
-        for (let k = 0; k < K; k++) {
-          const x = Math.min(1, Math.pow(vals[k] / app.escala, 0.7));
-          const li = Math.round(x * 255) * 3;
-          const o = ((K - 1 - k) * m + i) * 4;
-          img.data[o] = LUT[li]; img.data[o + 1] = LUT[li + 1]; img.data[o + 2] = LUT[li + 2]; img.data[o + 3] = 255;
-        }
-      }
-      bctx.putImageData(img, COLUNAS_CASCATA - m, 0);
+  const W = wf.width, H = wf.height;
+  const agora = performance.now() / 1000;
+  if (buf.width !== W || buf.height !== H) { buf.width = W; buf.height = H; limparCascata(); }
+  const pps = W / CASCATA_S;
+  const desloca = Math.floor((agora - bufTempo) * pps);
+  if (desloca > 0) {
+    bctx.drawImage(buf, -desloca, 0);
+    bctx.fillStyle = COR.papel;
+    bctx.fillRect(W - desloca, 0, desloca, H);
+    bufTempo += desloca / pps;
+  }
+  const lista = app.pendentes;
+  app.pendentes = [];
+  const largura = Math.max(1, Math.ceil(pps / 100) + 1);
+  for (const p of lista) {
+    const a = p.amps, K = a.length;
+    if (!app.ema || app.ema.length !== K) app.ema = Float32Array.from(a);
+    const x = Math.min(W - largura, Math.round(W - (bufTempo - p.tv) * pps) - largura);
+    if (x < -largura) continue;
+    let maxCol = 0;
+    const vals = new Float32Array(K);
+    for (let k = 0; k < K; k++) {
+      const val = app.modoCascata === 'variacao' ? Math.abs(a[k] - app.ema[k]) : a[k];
+      app.ema[k] += 0.02 * (a[k] - app.ema[k]);
+      vals[k] = val;
+      if (val > maxCol) maxCol = val;
+    }
+    app.escalaPico = Math.max(app.escalaPico * 0.999, maxCol);
+    const esc = escalaCascata().valor;
+    for (let k = 0; k < K; k++) {
+      const y0 = Math.round(H - ((k + 1) * H) / K), y1 = Math.round(H - (k * H) / K);
+      bctx.fillStyle = a[k] === 0 ? COR.nula : LUT[Math.round(Math.min(1, Math.pow(vals[k] / esc, 0.8)) * 255)];
+      bctx.fillRect(x, y0, largura, y1 - y0);
     }
   }
-  wctx.imageSmoothingEnabled = true;
-  wctx.drawImage(buf, 0, 0, buf.width, buf.height, 0, 0, wf.width, wf.height);
+  wctx.drawImage(buf, 0, 0);
 }
 
-/* ---------- Linha do tempo da oscilação ---------- */
-const tl = $('tl'), tctx = tl.getContext('2d');
-function cor(nome) { return getComputedStyle(document.documentElement).getPropertyValue(nome).trim(); }
-const CORES = { signal: cor('--signal'), alert: cor('--alert'), fg: cor('--fg'), muted: cor('--muted'), line: cor('--line') };
+function montarEixoY(K) {
+  const e = $('eixo-y');
+  if (e.dataset.k === String(K)) return;
+  e.dataset.k = String(K);
+  e.replaceChildren();
+  for (const k of [0, Math.round(K / 4), Math.round(K / 2), Math.round((3 * K) / 4), K - 1]) {
+    const s = document.createElement('span');
+    s.textContent = String(k);
+    s.style.bottom = `${((k + 0.5) / K) * 100}%`;
+    e.appendChild(s);
+  }
+}
 
-function desenharLinhaTempo(agora) {
+/* ---------- Registro em papel (último minuto) ---------- */
+const tl = $('tl'), tctx = tl.getContext('2d');
+function papelQuadriculado(ctx, x, y, w, h, colunas, linhas, dpr) {
+  ctx.fillStyle = COR.papel; ctx.fillRect(x, y, w, h);
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= colunas; i++) {
+    const px = Math.round(x + (i * w) / colunas) + 0.5;
+    ctx.strokeStyle = i % 10 === 0 ? COR.gradeForte : COR.grade;
+    ctx.beginPath(); ctx.moveTo(px, y); ctx.lineTo(px, y + h); ctx.stroke();
+  }
+  for (let j = 0; j <= linhas; j++) {
+    const py = Math.round(y + (j * h) / linhas) + 0.5;
+    ctx.strokeStyle = j % 5 === 0 ? COR.gradeForte : COR.grade;
+    ctx.beginPath(); ctx.moveTo(x, py); ctx.lineTo(x + w, py); ctx.stroke();
+  }
+}
+
+function desenharRegistro(agora) {
   const dpr = window.devicePixelRatio || 1;
   const W = tl.width, H = tl.height;
-  tctx.clearRect(0, 0, W, H);
-  const pe = 44 * dpr, pd = 8 * dpr, ps = 8 * dpr, pi = 20 * dpr;
-  const w = W - pe - pd, h = H - ps - pi;
-  const ymax = Math.max((app.limiar ?? 0) * 1.6, app.maxRecente * 1.1, 1e-6);
-  const X = (t) => pe + ((t - (agora - HIST_S)) / HIST_S) * w;
-  const Y = (v) => ps + h - (v / ymax) * h;
-
-  tctx.font = `${11 * dpr}px "IBM Plex Mono", monospace`;
-  tctx.fillStyle = CORES.muted;
-  tctx.strokeStyle = CORES.line;
-  tctx.lineWidth = 1 * dpr;
-  tctx.textAlign = 'right'; tctx.textBaseline = 'middle';
-  for (const f of [0, 0.5, 1]) {
-    const y = Y(ymax * f);
-    tctx.beginPath(); tctx.moveTo(pe, y); tctx.lineTo(pe + w, y); tctx.stroke();
-    tctx.fillText(fmt(ymax * f), pe - 6 * dpr, y);
-  }
-  tctx.textAlign = 'center'; tctx.textBaseline = 'top';
-  for (const [s, rot] of [[-60, '-60 s'], [-30, '-30 s'], [0, 'agora']]) {
-    tctx.fillText(rot, Math.min(X(agora + s), pe + w - 18 * dpr), ps + h + 5 * dpr);
-  }
+  const margemEv = 14 * dpr, base = 18 * dpr;
+  const h = H - margemEv - base;
+  papelQuadriculado(tctx, 0, 0, W, H - base, 60, 10, dpr);
+  tctx.fillStyle = COR.papel; tctx.fillRect(0, H - base, W, base);
+  const ymax = Math.max((app.limiar ?? 0) * 2, app.maxRecente * 1.1, 1e-6);
+  const X = (t) => ((t - (agora - REGISTRO_S)) / REGISTRO_S) * W;
+  const Y = (v) => h - Math.min(1, v / ymax) * (h - 4 * dpr) + 2 * dpr;
 
   const hs = app.historico;
-  tctx.fillStyle = CORES.alert;
-  tctx.globalAlpha = 0.28;
-  for (let i = 0; i < hs.length; i++) {
-    if (!hs[i].det) continue;
-    const x0 = X(hs[i].t - AVALIAR_MS / 1000), x1 = X(hs[i].t);
-    tctx.fillRect(Math.max(pe, x0), ps, x1 - Math.max(pe, x0) + 0.5, h);
+  // caneta de eventos (embaixo do papel)
+  tctx.fillStyle = COR.vermelho;
+  for (const p of hs) if (p.det) tctx.fillRect(Math.floor(X(p.t - AVALIAR_MS / 1000)), h + 4 * dpr, Math.ceil((AVALIAR_MS / 1000 / REGISTRO_S) * W) + 1, 7 * dpr);
+  if (app.limiar !== null) {
+    tctx.strokeStyle = COR.vermelho; tctx.lineWidth = 1.5 * dpr; tctx.setLineDash([6 * dpr, 4 * dpr]);
+    const y = Math.round(Y(app.limiar)) + 0.5;
+    tctx.beginPath(); tctx.moveTo(0, y); tctx.lineTo(W, y); tctx.stroke();
+    tctx.setLineDash([]);
+    tctx.fillStyle = COR.vermelho; tctx.font = `${11 * dpr}px "Atkinson Hyperlegible Next", sans-serif`;
+    tctx.textBaseline = 'bottom'; tctx.fillText('limiar', 6 * dpr, y - 3 * dpr);
   }
-  tctx.globalAlpha = 1;
-
   if (hs.length > 1) {
-    tctx.strokeStyle = CORES.signal;
-    tctx.lineWidth = 2 * dpr;
-    tctx.lineJoin = 'round';
+    tctx.strokeStyle = COR.tinta; tctx.lineWidth = 2 * dpr; tctx.lineJoin = 'round';
     tctx.beginPath();
     hs.forEach((p, i) => { const x = X(p.t), y = Y(p.v); i ? tctx.lineTo(x, y) : tctx.moveTo(x, y); });
     tctx.stroke();
-    const u = hs[hs.length - 1];
-    tctx.fillStyle = CORES.signal;
-    tctx.beginPath(); tctx.arc(X(u.t), Y(u.v), 4 * dpr, 0, Math.PI * 2); tctx.fill();
+    // pena do registrador
+    const u = hs[hs.length - 1], py = Y(u.v);
+    tctx.fillStyle = COR.tinta;
+    tctx.beginPath(); tctx.moveTo(W - 1, py); tctx.lineTo(W - 12 * dpr, py - 6 * dpr); tctx.lineTo(W - 12 * dpr, py + 6 * dpr); tctx.closePath(); tctx.fill();
   }
-  if (app.limiar !== null) {
-    tctx.strokeStyle = CORES.fg;
-    tctx.lineWidth = 1.5 * dpr;
-    tctx.setLineDash([6 * dpr, 5 * dpr]);
-    tctx.beginPath(); tctx.moveTo(pe, Y(app.limiar)); tctx.lineTo(pe + w, Y(app.limiar)); tctx.stroke();
-    tctx.setLineDash([]);
+  tctx.fillStyle = COR.tinta2; tctx.font = `${11 * dpr}px "Atkinson Hyperlegible Mono", monospace`; tctx.textBaseline = 'bottom';
+  for (const [s, txt] of [[-60, '−60 s'], [-50, '−50'], [-40, '−40'], [-30, '−30'], [-20, '−20'], [-10, '−10'], [0, 'agora']]) {
+    tctx.textAlign = s === -60 ? 'left' : s === 0 ? 'right' : 'center';
+    tctx.fillText(txt, X(agora + s) + (s === -60 ? 2 * dpr : 0), H - 2 * dpr);
+  }
+  tctx.textAlign = 'left';
+}
+
+/* ---------- Sismograma do dia (uma linha por minuto) ---------- */
+const dia = $('dia'), dctx = dia.getContext('2d');
+function desenharDia() {
+  const dpr = window.devicePixelRatio || 1;
+  const W = dia.width, H = dia.height;
+  const margem = 58 * dpr;
+  const w = W - margem - 8 * dpr;
+  const linhaH = H / DIA_LINHAS;
+  dctx.fillStyle = COR.papel; dctx.fillRect(0, 0, W, H);
+  const agoraMs = Date.now();
+  const minutoAtual = Math.floor(agoraMs / 60000);
+  const ref = app.limiar ?? Math.max(app.maxRecente, 1e-6);
+  dctx.font = `${11 * dpr}px "Atkinson Hyperlegible Mono", monospace`;
+  dctx.textBaseline = 'middle';
+
+  // grade: um traço a cada 10 s
+  dctx.strokeStyle = COR.grade; dctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i++) {
+    const x = Math.round(margem + (i * w) / 6) + 0.5;
+    dctx.beginPath(); dctx.moveTo(x, 0); dctx.lineTo(x, H); dctx.stroke();
+  }
+  const idx = new Map();
+  for (const p of app.dia) {
+    const m = Math.floor(p.ms / 60000);
+    if (!idx.has(m)) idx.set(m, []);
+    idx.get(m).push(p);
+  }
+  for (let j = 0; j < DIA_LINHAS; j++) {
+    const minuto = minutoAtual - (DIA_LINHAS - 1 - j);
+    const yc = Math.round(j * linhaH + linhaH / 2) + 0.5;
+    const hora = new Date(minuto * 60000);
+    dctx.fillStyle = COR.tinta2; dctx.textAlign = 'right';
+    dctx.fillText(`${String(hora.getHours()).padStart(2, '0')}:${String(hora.getMinutes()).padStart(2, '0')}`, margem - 10 * dpr, yc);
+    dctx.strokeStyle = COR.gradeForte; dctx.lineWidth = 1;
+    dctx.beginPath(); dctx.moveTo(margem, yc); dctx.lineTo(margem + w, yc); dctx.stroke();
+    const pontos = idx.get(minuto) || [];
+    for (const p of pontos) {
+      const x = Math.round(margem + ((p.ms % 60000) / 60000) * w);
+      const amp = Math.min(linhaH * 0.48, (p.v / ref) * linhaH * 0.14);
+      dctx.strokeStyle = p.det ? COR.vermelho : COR.tinta;
+      dctx.lineWidth = Math.max(1, Math.ceil((w / 300) * 0.8));
+      dctx.beginPath(); dctx.moveTo(x + 0.5, yc - amp); dctx.lineTo(x + 0.5, yc + amp); dctx.stroke();
+    }
+  }
+  // anotações do desafio, como bilhetes escritos no papel
+  dctx.textAlign = 'left'; dctx.textBaseline = 'bottom';
+  dctx.font = `600 ${11 * dpr}px "Atkinson Hyperlegible Next", sans-serif`;
+  for (const n of app.notas) {
+    const minuto = Math.floor(n.ms / 60000);
+    const j = DIA_LINHAS - 1 - (minutoAtual - minuto);
+    if (j < 0) continue;
+    const x = margem + ((n.ms % 60000) / 60000) * w;
+    const y = j * linhaH + 12 * dpr;
+    dctx.fillStyle = n.ok ? COR.tinta : COR.vermelho;
+    dctx.fillText(n.texto, Math.min(x + 4 * dpr, margem + w - dctx.measureText(n.texto).width), y);
   }
 }
 
 function ajustarCanvas() {
   const dpr = window.devicePixelRatio || 1;
-  for (const c of [wf, tl]) {
+  for (const c of [wf, tl, dia]) {
     const r = c.getBoundingClientRect();
     const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
     if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
   }
 }
-new ResizeObserver(ajustarCanvas).observe(document.querySelector('.grid'));
+new ResizeObserver(ajustarCanvas).observe(document.querySelector('.painel'));
+function quadro() { desenharCascata(); requestAnimationFrame(quadro); }
 
-function quadro() {
-  desenharCascata();
-  requestAnimationFrame(quadro);
+/* ---------- Som (Web Audio, só toca depois de um clique) ---------- */
+const som = { modo: 'mudo', ctx: null, vol: 0.6, ruido: null };
+function audio() {
+  if (!som.ctx) som.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (som.ctx.state === 'suspended') som.ctx.resume();
+  return som.ctx;
 }
+function tom(freq, dur, quando = 0, tipo = 'sine', ganho = 0.25) {
+  if (som.modo === 'mudo') return;
+  const c = audio(), t = c.currentTime + quando;
+  const o = c.createOscillator(), g = c.createGain();
+  o.type = tipo; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(Math.max(0.0002, ganho * som.vol), t + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(c.destination);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+function estalo(quando) {
+  const c = audio();
+  if (!som.ruido) {
+    som.ruido = c.createBuffer(1, Math.round(c.sampleRate * 0.004), c.sampleRate);
+    const d = som.ruido.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  }
+  const s = c.createBufferSource(), g = c.createGain();
+  s.buffer = som.ruido; g.gain.value = 0.5 * som.vol;
+  s.connect(g).connect(c.destination);
+  s.start(c.currentTime + quando);
+}
+// Notas da mesma escala (pentatônica de dó), para os sons combinarem entre si.
+function somAlerta() { tom(659, 0.14); tom(880, 0.22, 0.13); }
+function somGeiger(v) {
+  if (Number.isNaN(v) || app.limiar === null || app.calibracao) return;
+  const taxa = Math.max(0, Math.min(40, (v / app.limiar - 0.6) * 12));   // estalos por segundo
+  let t = 0;
+  const janela = AVALIAR_MS / 1000;
+  while (true) {
+    t += -Math.log(1 - Math.random()) / Math.max(taxa, 1e-3);
+    if (t >= janela || taxa === 0) break;
+    estalo(t);
+  }
+}
+function somContagem(n) { tom(n > 0 ? 392 : 1047, n > 0 ? 0.12 : 0.35, 0, 'triangle'); }
+function somNinja() { [523, 659, 784, 1047].forEach((f, i) => tom(f, 0.18, i * 0.11, 'triangle')); }
+function somPego() { tom(110, 0.55, 0, 'square', 0.18); tom(104, 0.55, 0, 'square', 0.18); }
+function definirSom(m) {
+  som.modo = m;
+  if (m !== 'mudo') audio();
+  for (const [id, modo] of [['som-off', 'mudo'], ['som-alerta', 'alerta'], ['som-geiger', 'geiger']]) $(id).setAttribute('aria-pressed', String(m === modo));
+}
+$('som-off').addEventListener('click', () => definirSom('mudo'));
+$('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
+$('som-geiger').addEventListener('click', () => definirSom('geiger'));
+$('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); });
 
 /* ---------- Fonte 1: simulação ---------- */
 const CENAS = [
   { id: 'vazio', nome: 'Sala vazia', am: 0 },
   { id: 'parado', nome: 'Pessoa parada', am: 0.22 },
   { id: 'andando', nome: 'Pessoa andando', am: 0.6 },
-  { id: 'devagar', nome: 'Andando bem devagar', am: 0.14 },
-  { id: 'mao', nome: 'Mão perto da Placa B', am: 1.2 },
+  { id: 'devagar', nome: 'Bem devagar', am: 0.14 },
+  { id: 'mao', nome: 'Mão perto da placa', am: 1.2 },
 ];
 const sim = { cena: 'vazio', am: 0, id: 0, gerados: 0, inicio: 0 };
-const DF = 312.5e3;                                   // espaçamento entre subportadoras (Hz)
+const DF = 312.5e3;                                       // espaçamento entre subportadoras (Hz)
 const CAMINHOS = [[1, 5e-9, 0], [0.55, 22e-9, 1.1], [0.35, 48e-9, 2.3], [0.2, 85e-9, 4.0]];
 const NULAS = new Set([0, 1, 2, 3, 4, 60, 61, 62, 63]);   // como na linha de exemplo oficial
 let gaussExtra = null;
 function gauss() {
   if (gaussExtra !== null) { const g = gaussExtra; gaussExtra = null; return g; }
-  const u = Math.random() || 1e-9, v = Math.random();
-  const r = Math.sqrt(-2 * Math.log(u));
+  const u = Math.random() || 1e-9, v = Math.random(), r = Math.sqrt(-2 * Math.log(u));
   gaussExtra = r * Math.sin(2 * Math.PI * v);
   return r * Math.cos(2 * Math.PI * v);
 }
@@ -606,8 +805,7 @@ function movimento(cena, t) {
   }
 }
 function gerarPacote(t) {
-  const alvo = CENAS.find((c) => c.id === sim.cena).am;
-  sim.am += 0.02 * (alvo - sim.am);
+  sim.am += 0.02 * (CENAS.find((c) => c.id === sim.cena).am - sim.am);
   const mv = movimento(sim.cena, t);
   const amps = new Float32Array(64);
   for (let k = 0; k < 64; k++) {
@@ -629,8 +827,7 @@ function iniciarSimulacao() {
   sim.inicio = performance.now(); sim.gerados = 0; sim.cena = 'vazio'; sim.am = 0;
   marcarCena();
   app.timers.push(setInterval(() => {
-    const t = (performance.now() - sim.inicio) / 1000;
-    const devidos = Math.floor(t * 100);
+    const devidos = Math.floor(((performance.now() - sim.inicio) / 1000) * 100);
     let n = 0;
     while (sim.gerados < devidos && n < 30) {
       const p = gerarPacote(sim.gerados / 100);
@@ -642,12 +839,10 @@ function iniciarSimulacao() {
   iniciarCalibracao(6);
 }
 function escolherCena(id) { if (app.fonte === 'sim') { sim.cena = id; marcarCena(); } }
-function marcarCena() {
-  for (const b of $('cenas').children) b.setAttribute('aria-pressed', String(b.dataset.cena === sim.cena));
-}
+function marcarCena() { for (const b of $('cenas').children) b.setAttribute('aria-pressed', String(b.dataset.cena === sim.cena)); }
 CENAS.forEach((c, i) => {
   const b = document.createElement('button');
-  b.className = 'btn'; b.dataset.cena = c.id; b.textContent = `${i + 1} · ${c.nome}`;
+  b.className = 'tecla'; b.dataset.cena = c.id; b.textContent = `${i + 1} ${c.nome}`;
   b.setAttribute('aria-pressed', 'false');
   b.addEventListener('click', () => escolherCena(c.id));
   $('cenas').appendChild(b);
@@ -664,23 +859,20 @@ function iniciarGravacao(texto, nome) {
     if (r && !Number.isNaN(t)) { r.tArq = t; pacotes.push(r); }
   }
   if (!pacotes.length) {
-    mostrarMsg(`Não encontrei linhas CSI_DATA em "${nome}". Use um arquivo .csv gravado pelo ferramentas/capturar.py.`);
     pararFonte(); definirFonte(null);
+    mostrarMsg(`Não encontrei linhas CSI_DATA em "${nome}". Use um arquivo .csv gravado pelo ferramentas/capturar.py.`);
     return;
   }
   const dur = pacotes[pacotes.length - 1].tArq - pacotes[0].tArq;
   let idx = 0, voltas = 0, base = performance.now() / 1000 - pacotes[0].tArq;
-  $('banner-txt').textContent = `Reproduzindo "${nome}": ${pacotes.length} pacotes, ${dur.toFixed(0)} s, em loop.`;
+  $('fita-txt').textContent = `${nome} · ${pacotes.length} pacotes · ${dur.toFixed(0)} s em loop`;
   app.timers.push(setInterval(() => {
     const agoraArq = performance.now() / 1000 - base;
     while (idx < pacotes.length && pacotes[idx].tArq <= agoraArq) {
       const p = pacotes[idx++];
       receber({ id: p.id + voltas * 1e7, rssi: p.rssi, amps: p.amps });
     }
-    if (idx >= pacotes.length) {
-      idx = 0; voltas++; app.ultimoId = null;
-      base = performance.now() / 1000 - pacotes[0].tArq + 0.5;
-    }
+    if (idx >= pacotes.length) { idx = 0; voltas++; app.ultimoId = null; base = performance.now() / 1000 - pacotes[0].tArq + 0.5; }
   }, 10));
 }
 
@@ -695,7 +887,7 @@ async function conectarPlaca() {
     porta = await navigator.serial.requestPort();
   } catch (e) {
     mostrarMsg(e && e.name === 'NotFoundError'
-      ? 'Nenhuma porta escolhida. Clique em "Placa USB" e selecione a porta da Placa B (Silicon Labs CP210x).'
+      ? 'Nenhuma porta escolhida. Clique em "Placa USB" e escolha a porta da Placa B (Silicon Labs CP210x).'
       : `O navegador não deixou acessar a USB (${e.message}). Se esta página estiver aberta dentro do claude.ai, abra o arquivo demo/index.html direto no Chrome ou no Edge.`);
     return;
   }
@@ -727,7 +919,7 @@ async function conectarPlaca() {
       if (resto.length > 200000) resto = '';
     }
   } catch (e) {
-    if (app.fonte === 'live') mostrarMsg(`A leitura da placa parou: ${e.message}. O cabo foi desconectado?`);
+    if (app.fonte === 'live') mostrarMsg(`A leitura da placa parou: ${e.message}. O cabo soltou?`);
   }
 }
 
@@ -737,8 +929,9 @@ async function pararFonte() {
   const leitor = app.leitor, porta = app.porta;
   app.leitor = null; app.porta = null; app.fonte = null;
   app.timers.forEach(clearInterval); app.timers = [];
-  app.janela = []; app.historico = []; app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
-  app.limiar = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
+  app.janela = []; app.historico = []; app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0; app.ultimoTv = 0;
+  app.limiar = null; app.calibMedia = null; app.detectado = false; app.calibracao = null;
+  app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
   cancelarNinja();
   limparCascata();
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
@@ -746,26 +939,21 @@ async function pararFonte() {
 }
 
 const MODOS = {
-  sim: ['SIMULAÇÃO', 'Dados gerados pelo computador para ensaiar a tela. Não são medições.'],
-  replay: ['GRAVAÇÃO', 'Reproduzindo uma coleta real.'],
-  live: ['AO VIVO', 'Placa B conectada pela USB.'],
+  sim: ['SIMULAÇÃO', 'dados inventados pelo computador, só para ensaio'],
+  replay: ['GRAVAÇÃO', 'coleta gravada, repetida em loop'],
+  live: ['AO VIVO', 'Placa B ligada pela USB'],
 };
 function definirFonte(f) {
   app.fonte = f;
-  const [tag, txt] = MODOS[f] || ['SEM DADOS', 'Escolha uma fonte de dados acima.'];
-  $('banner').dataset.modo = f || 'nenhum';
-  $('banner-tag').textContent = tag;
-  $('banner-txt').textContent = txt;
-  $('wf-mark').hidden = !f;
-  $('wf-mark').dataset.modo = f || '';
-  $('wf-mark').textContent = tag;
-  $('sim-controls').hidden = f !== 'sim';
-  $('src-sim').setAttribute('aria-pressed', String(f === 'sim'));
-  $('src-replay').setAttribute('aria-pressed', String(f === 'replay'));
-  $('src-live').setAttribute('aria-pressed', String(f === 'live'));
+  const [tag, txt] = MODOS[f] || ['SEM DADOS', 'escolha uma fonte no painel do operador'];
+  $('fita').dataset.modo = f || 'nenhum';
+  $('fita-tag').textContent = tag;
+  $('fita-txt').textContent = txt;
+  $('sim-grupo').hidden = f !== 'sim';
+  for (const [id, modo] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === modo));
   $('cal-info').textContent = f === 'sim'
     ? 'A simulação começa calibrando sozinha por 6 s com a sala vazia.'
-    : 'A calibração mede a oscilação com a zona vazia por 10 s e põe o limiar um pouco acima dela.';
+    : 'A calibração mede a zona vazia por 10 s e põe o limiar em média + 3 desvios.';
   if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
 }
 
@@ -786,24 +974,28 @@ $('src-live').addEventListener('click', () => { esconderMsg(); conectarPlaca(); 
 $('btn-cal').addEventListener('click', () => iniciarCalibracao(app.fonte === 'sim' ? 6 : 10));
 $('limiar').addEventListener('input', (e) => {
   app.limiar = Number(e.target.value); app.acima = 0; app.abaixo = 0;
-  $('cal-info').textContent = 'Limiar ajustado à mão. Mais baixo: mais alarmes falsos. Mais alto: deixa passar movimentos pequenos.';
+  $('cal-info').textContent = 'Limiar mudado à mão. Mais baixo: mais alarmes falsos. Mais alto: movimentos pequenos passam batido.';
 });
-$('wf-var').addEventListener('click', () => modoCascata('variacao'));
-$('wf-amp').addEventListener('click', () => modoCascata('amplitude'));
 function modoCascata(m) {
-  app.modoCascata = m; app.escala = 1e-6;
+  app.modoCascata = m; app.escalaPico = 1e-6;
   $('wf-var').setAttribute('aria-pressed', String(m === 'variacao'));
   $('wf-amp').setAttribute('aria-pressed', String(m === 'amplitude'));
-  $('wf-hint').textContent = m === 'variacao'
-    ? 'Cada faixa horizontal é uma subportadora do canal Wi-Fi. Quanto mais clara, maior a mudança em relação ao último segundo. Quando alguém se mexe, aparecem manchas.'
-    : 'Cada faixa horizontal é uma subportadora do canal Wi-Fi. Quanto mais clara, mais forte o sinal naquela faixa. Faixas fixas são o "desenho" da sala; movimento faz as faixas tremerem.';
+  $('escala-min').textContent = m === 'variacao' ? 'quase nada mudou' : 'sinal fraco';
+  $('escala-max').textContent = m === 'variacao' ? 'mudou muito' : 'sinal forte';
 }
-$('btn-full').addEventListener('click', () => {
+$('wf-var').addEventListener('click', () => modoCascata('variacao'));
+$('wf-amp').addEventListener('click', () => modoCascata('amplitude'));
+$('btn-tela').addEventListener('click', () => {
   (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
 });
+setInterval(() => {
+  const e = escalaCascata();
+  $('escala-info').textContent = e.fixa ? '· escala presa à calibração' : '· escala automática';
+  if (app.ema) montarEixoY(app.ema.length);
+}, 1000);
 
 /* ---------- Desafio Ninja ---------- */
-const ninja = { estado: 'livre', inicio: 0, fimContagem: 0, apelido: '', ranking: [], tentativas: 0, pegos: 0, fecharEm: 0 };
+const ninja = { estado: 'livre', inicio: 0, fimContagem: 0, ultimoNumero: 0, apelido: '', ranking: [], tentativas: 0, pegos: 0, fecharEm: 0 };
 try {
   const salvo = JSON.parse(localStorage.getItem('wavesense-ninja') || 'null');
   if (salvo) { ninja.ranking = salvo.ranking || []; ninja.tentativas = salvo.tentativas || 0; ninja.pegos = salvo.pegos || 0; }
@@ -818,12 +1010,10 @@ function comecarNinja() {
   ninja.apelido = $('apelido').value.trim() || `Visitante ${ninja.tentativas + 1}`;
   ninja.estado = 'contagem';
   ninja.fimContagem = performance.now() / 1000 + 3;
-  mostrarOverlay('3', `${ninja.apelido}, prepare-se na linha de partida`, '');
+  ninja.ultimoNumero = 4;
+  carimbo('3', `${ninja.apelido}, fique na linha de partida`, '');
 }
-function chegou() {
-  if (ninja.estado !== 'correndo') return;
-  terminarNinja(true, performance.now() / 1000 - ninja.inicio);
-}
+function chegou() { if (ninja.estado === 'correndo') terminarNinja(true, performance.now() / 1000 - ninja.inicio); }
 function terminarNinja(ok, tempo) {
   ninja.estado = 'resultado';
   ninja.tentativas++;
@@ -831,54 +1021,60 @@ function terminarNinja(ok, tempo) {
     ninja.ranking.push({ nome: ninja.apelido, tempo });
     ninja.ranking.sort((a, b) => a.tempo - b.tempo);
     ninja.ranking = ninja.ranking.slice(0, 5);
-    mostrarOverlay('NINJA!', `${ninja.apelido} atravessou sem ser detectado em ${segundos(tempo)}`, 'ok');
-    $('ninja-state').textContent = 'Atravessou sem ser detectado.';
+    carimbo('NINJA!', `${ninja.apelido} atravessou sem ser percebido em ${segundos(tempo)}`, 'ok');
+    $('ninja-estado').textContent = 'Atravessou sem ser percebido.';
+    app.notas.push({ ms: Date.now(), texto: `${ninja.apelido} passou`, ok: true });
+    somNinja();
   } else if (ok === false) {
     ninja.pegos++;
-    mostrarOverlay('DETECTADO!', `${ninja.apelido} foi percebido pelo Wi-Fi depois de ${segundos(tempo)}`, 'pego');
-    $('ninja-state').textContent = `Detectado em ${segundos(tempo)}.`;
+    carimbo('DETECTADO', `O Wi-Fi percebeu ${ninja.apelido} depois de ${segundos(tempo)}`, 'pego');
+    $('ninja-estado').textContent = `Percebido em ${segundos(tempo)}.`;
+    app.notas.push({ ms: Date.now(), texto: `${ninja.apelido} pego`, ok: false });
+    somPego();
   } else {
-    mostrarOverlay('TEMPO!', 'Passou de 60 s. Tente de novo.', '');
-    $('ninja-state').textContent = 'Tempo esgotado.';
+    carimbo('TEMPO!', 'Passou de 60 s. Tente de novo.', '');
+    $('ninja-estado').textContent = 'Tempo esgotado.';
   }
-  $('ninja-timer').textContent = segundos(tempo);
+  $('ninja-tempo').textContent = segundos(tempo);
   $('btn-chegou').disabled = true;
   ninja.fecharEm = performance.now() / 1000 + 4;
-  salvarNinja(); desenharRanking();
+  salvarNinja(); desenharRecordes();
 }
 function cancelarNinja() {
   if (ninja.estado === 'contagem' || ninja.estado === 'correndo') ninja.estado = 'livre';
-  $('overlay').hidden = true; $('btn-chegou').disabled = true;
+  $('sobre').hidden = true; $('btn-chegou').disabled = true;
 }
 function ninjaPasso(agora) {
   if (ninja.estado === 'contagem') {
     const falta = ninja.fimContagem - agora;
     if (falta <= 0) {
       ninja.estado = 'correndo'; ninja.inicio = agora;
-      $('overlay').hidden = true; $('btn-chegou').disabled = false;
-      $('ninja-state').textContent = `${ninja.apelido} está atravessando…`;
+      $('sobre').hidden = true; $('btn-chegou').disabled = false;
+      $('ninja-estado').textContent = `${ninja.apelido} está atravessando…`;
+      somContagem(0);
     } else {
-      $('ov-big').textContent = String(Math.ceil(falta));
+      const n = Math.ceil(falta);
+      if (n !== ninja.ultimoNumero) { ninja.ultimoNumero = n; $('carimbo-grande').textContent = String(n); somContagem(n); }
     }
   } else if (ninja.estado === 'correndo') {
     const t = agora - ninja.inicio;
-    $('ninja-timer').textContent = segundos(t);
+    $('ninja-tempo').textContent = segundos(t);
     if (app.detectado) terminarNinja(false, t);
     else if (t > 60) terminarNinja(null, t);
   } else if (ninja.estado === 'resultado' && agora >= ninja.fecharEm) {
-    ninja.estado = 'livre'; $('overlay').hidden = true;
+    ninja.estado = 'livre'; $('sobre').hidden = true;
   }
 }
-function mostrarOverlay(grande, sub, tipo) {
-  $('ov-big').textContent = grande; $('ov-sub').textContent = sub;
-  $('overlay').dataset.tipo = tipo; $('overlay').hidden = false;
+function carimbo(grande, sub, tipo) {
+  $('carimbo-grande').textContent = grande; $('carimbo-sub').textContent = sub;
+  $('carimbo').dataset.tipo = tipo; $('sobre').hidden = false;
 }
-function desenharRanking() {
-  const ol = $('ranking');
+function desenharRecordes() {
+  const ol = $('recordes');
   ol.replaceChildren();
   if (!ninja.ranking.length) {
     const li = document.createElement('li'); li.className = 'vazio';
-    li.textContent = 'Ninguém atravessou sem ser detectado ainda.';
+    li.textContent = 'Ninguém atravessou sem ser percebido ainda.';
     ol.appendChild(li);
   }
   for (const r of ninja.ranking) {
@@ -888,12 +1084,12 @@ function desenharRanking() {
     li.append(nome, tempo); ol.appendChild(li);
   }
   $('ninja-placar').textContent = ninja.tentativas
-    ? `${ninja.tentativas} tentativa(s), ${ninja.pegos} detectada(s). Ranking: quem atravessou mais rápido sem ser percebido.`
-    : 'Ranking: quem atravessa mais rápido sem ser percebido.';
+    ? `${ninja.tentativas} tentativa(s), ${ninja.pegos} percebida(s) pelo Wi-Fi. Recorde: quem atravessou mais rápido sem ser percebido.`
+    : 'Recorde: quem atravessa mais rápido sem ser percebido.';
 }
 $('btn-ninja').addEventListener('click', comecarNinja);
 $('btn-chegou').addEventListener('click', chegou);
-$('overlay').addEventListener('click', () => { if (ninja.estado === 'resultado') { ninja.estado = 'livre'; $('overlay').hidden = true; } });
+$('sobre').addEventListener('click', () => { if (ninja.estado === 'resultado') { ninja.estado = 'livre'; $('sobre').hidden = true; } });
 
 /* ---------- Teclado ---------- */
 document.addEventListener('keydown', (e) => {
@@ -903,15 +1099,17 @@ document.addEventListener('keydown', (e) => {
   else if (k === 'n') comecarNinja();
   else if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
   else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
-  else if (k === 'f') $('btn-full').click();
+  else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'geiger' : 'mudo');
+  else if (k === 'o') $('operador').open = !$('operador').open;
+  else if (k === 'f') $('btn-tela').click();
 });
 
 limparCascata();
-desenharRanking();
+desenharRecordes();
 ajustarCanvas();
 setInterval(avaliar, AVALIAR_MS);
 requestAnimationFrame(quadro);
-// Abre em simulação para a tela já mostrar o que faz; a faixa amarela deixa claro que não é medição.
+// Abre em simulação para a tela já mostrar o que faz; a fita amarela deixa claro que não é medição.
 definirFonte('sim'); iniciarSimulacao();
 </script>
 </body>
