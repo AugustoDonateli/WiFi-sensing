@@ -18,6 +18,8 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 
 Só marcar um item depois de testado de verdade.
 
+**Guia visual do projeto** (como tudo funciona, montagem, roteiro e diagnóstico): https://claude.ai/artifact/AcvB5VyiEJGQ9GKH4tYRUK
+
 ## Hardware escolhido
 
 | Item | Qtd. | Observação |
