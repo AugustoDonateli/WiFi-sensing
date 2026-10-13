@@ -28,8 +28,8 @@ Placa A (csi_send) ──Wi-Fi──> Placa B (csi_recv) ──USB 921600──>
 | `ferramentas/csi_formato.py` | Pronto | Testado com a linha de exemplo oficial do ESP-CSI e com linhas sintéticas. |
 | `ferramentas/capturar.py` | Pronto | Testado com porta serial falsa enviando linhas sintéticas a ~100/s. Falta testar na placa. |
 | `ferramentas/analise.py` e `plotar.py` | Prontos para uma primeira olhada | Testados com dados sintéticos (só para ver se o código roda). |
-| Detector de movimento | **Não escrito de propósito** | Depende de ver dados reais primeiro. |
-| Demonstração no navegador | **Não escrita** | Depois do detector. |
+| Detector de movimento | Só a versão provisória dentro da demo | As constantes (janela, limiar, confirmações) serão escolhidas com dados reais. |
+| Demonstração no navegador (`demo/index.html`) | Protótipo pronto, com simulação, gravação e leitura USB | Testada no Chromium com simulação e com gravação sintética. Leitura USB não testada sem placa. O detector dela usa constantes provisórias. |
 
 Nenhum resultado foi gerado. Os testes usam dados inventados apenas para checar se o código funciona.
 

@@ -1,0 +1,918 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wave Sense ao Vivo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: tela de estande (TV/notebook) em grade 2 colunas: cascata + oscilação à esquerda, estado + Desafio Ninja à direita; vira 1 coluna no celular.
+   Visual escuro único, de propósito: tela de instrumento que fica ligada na feira. Verde-água = sinal medido; laranja = movimento detectado. */
+:root {
+  color-scheme: dark;
+  --bg: #08111B;
+  --panel: #0E1924;
+  --panel-2: #142332;
+  --line: #213648;
+  --fg: #E7F0F5;
+  --muted: #8FA4B4;
+  --signal: #3FCFC7;
+  --signal-ink: #032321;
+  --alert: #FF9A3C;
+  --alert-ink: #241200;
+  --sim: #F2C94C;
+  --replay: #9CBDFF;
+  --font-ui: "Archivo", "Segoe UI", system-ui, sans-serif;
+  --font-num: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.45;
+}
+button, input { font: inherit; color: inherit; }
+.app {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding-inline: 20px;
+  padding-block: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Topo */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.brand { display: flex; flex-direction: column; margin-right: auto; }
+.logo { font-weight: 800; font-stretch: 112%; font-size: 1.6rem; letter-spacing: -0.01em; line-height: 1.1; }
+.logo span { color: var(--signal); }
+.tagline { color: var(--muted); font-size: 0.85rem; }
+.seg-group { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; background: var(--panel); flex-wrap: wrap; }
+.seg { border: 0; background: transparent; padding: 7px 12px; border-radius: 7px; cursor: pointer; color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+.seg:hover { color: var(--fg); }
+.seg[aria-pressed="true"] { background: var(--panel-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+.stats { display: flex; gap: 18px; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 0.85rem; color: var(--muted); }
+.stats b { color: var(--fg); font-weight: 500; font-size: 1rem; display: block; }
+
+/* Faixa de modo */
+.banner { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.92rem; border: 1px solid currentColor; }
+.banner .tag { font-family: var(--font-num); font-weight: 500; letter-spacing: 0.08em; font-size: 0.8rem; padding: 2px 8px; border-radius: 6px; background: currentColor; }
+.banner .tag span { color: var(--bg); }
+.banner .txt { color: var(--fg); font-weight: 500; }
+.banner[data-modo="sim"] { color: var(--sim); background: color-mix(in srgb, var(--sim) 10%, var(--bg)); }
+.banner[data-modo="replay"] { color: var(--replay); background: color-mix(in srgb, var(--replay) 10%, var(--bg)); }
+.banner[data-modo="live"] { color: var(--signal); background: color-mix(in srgb, var(--signal) 10%, var(--bg)); }
+.banner[data-modo="nenhum"] { color: var(--muted); background: var(--panel); }
+.msg { padding: 10px 14px; border-radius: 10px; background: var(--panel-2); border: 1px solid var(--alert); color: var(--fg); }
+
+/* Grade principal */
+.grid { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 14px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+h2 { margin: 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); font-weight: 600; }
+.hint { margin: 0; color: var(--muted); font-size: 0.85rem; max-width: 70ch; }
+
+.wf-wrap { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto; gap: 4px 8px; }
+.ylab { grid-row: 1; writing-mode: vertical-rl; transform: rotate(180deg); color: var(--muted); font-size: 0.75rem; text-align: center; }
+#wf { grid-column: 2; width: 100%; height: clamp(220px, 44vh, 560px); display: block; border-radius: 8px; background: #0A1320; }
+.xlab { grid-column: 2; display: flex; justify-content: space-between; color: var(--muted); font-family: var(--font-num); font-size: 0.75rem; }
+.watermark { position: absolute; right: 12px; top: 10px; font-family: var(--font-num); font-size: 0.75rem; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 6px; border: 1px solid currentColor; background: color-mix(in srgb, var(--bg) 75%, transparent); }
+.watermark[data-modo="sim"] { color: var(--sim); }
+.watermark[data-modo="replay"] { color: var(--replay); }
+.watermark[data-modo="live"] { color: var(--signal); }
+
+/* Estado */
+.status { justify-content: flex-start; }
+.status[data-estado="movimento"] { border-color: var(--alert); box-shadow: 0 0 0 1px var(--alert) inset; }
+.status-row { display: flex; align-items: center; gap: 14px; min-height: 92px; }
+.status-icon { width: 56px; height: 56px; flex: none; color: var(--muted); }
+.status[data-estado="movimento"] .status-icon { color: var(--alert); }
+.status[data-estado="parado"] .status-icon { color: var(--signal); }
+.status-word { font-weight: 800; font-stretch: 75%; font-size: clamp(2rem, 4.2vw, 3.6rem); line-height: 0.95; letter-spacing: -0.01em; text-wrap: balance; }
+.status[data-estado="movimento"] .status-word { color: var(--alert); }
+.status-sub { color: var(--muted); font-size: 0.9rem; }
+.meter { position: relative; height: 18px; border-radius: 9px; background: var(--panel-2); overflow: hidden; border: 1px solid var(--line); }
+.meter-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--signal); transition: width 0.15s linear; }
+.status[data-estado="movimento"] .meter-fill { background: var(--alert); }
+.meter-mark { position: absolute; top: -2px; bottom: -2px; width: 3px; background: var(--fg); left: 50%; }
+.meter-legend { display: flex; justify-content: space-between; gap: 10px; font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 0.82rem; color: var(--muted); }
+.meter-legend b { color: var(--fg); font-weight: 500; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 0.82rem; color: var(--muted); }
+input[type="range"] { width: 100%; accent-color: var(--fg); }
+input[type="text"] { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { border: 1px solid var(--line); background: var(--panel-2); border-radius: 9px; padding: 9px 14px; cursor: pointer; font-weight: 600; }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn.primary { background: var(--signal); color: var(--signal-ink); border-color: var(--signal); }
+.btn.alert { background: var(--alert); color: var(--alert-ink); border-color: var(--alert); }
+:is(.btn, .seg, input):focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+
+#tl { width: 100%; height: 150px; display: block; }
+.legend { display: flex; gap: 14px; font-size: 0.8rem; color: var(--muted); flex-wrap: wrap; }
+.legend i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+
+/* Ninja */
+.ninja-timer { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-size: 2.2rem; font-weight: 500; line-height: 1; }
+.ninja-state { color: var(--muted); font-size: 0.9rem; }
+.ranking { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; counter-reset: r; }
+.ranking li { display: grid; grid-template-columns: 1.6em minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--line); counter-increment: r; font-size: 0.92rem; }
+.ranking li::before { content: counter(r) "º"; color: var(--muted); font-family: var(--font-num); font-size: 0.8rem; }
+.ranking li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ranking li b { font-family: var(--font-num); font-weight: 500; font-variant-numeric: tabular-nums; }
+.ranking .vazio { display: block; color: var(--muted); font-size: 0.88rem; border: 0; }
+.ranking .vazio::before { content: none; }
+
+.sim-controls .row .btn[aria-pressed="true"] { background: var(--sim); color: #231a00; border-color: var(--sim); }
+footer { color: var(--muted); font-size: 0.8rem; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+kbd { font-family: var(--font-num); font-size: 0.75rem; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--fg); }
+
+/* Sobreposição do desafio */
+.overlay { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: color-mix(in srgb, var(--bg) 88%, transparent); }
+.ov-big { font-weight: 800; font-stretch: 75%; font-size: clamp(4rem, 16vw, 12rem); line-height: 0.9; }
+.ov-sub { font-size: clamp(1.1rem, 2.6vw, 1.8rem); color: var(--fg); max-width: 30ch; }
+.overlay[data-tipo="ok"] .ov-big { color: var(--signal); }
+.overlay[data-tipo="pego"] .ov-big { color: var(--alert); }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .stats { width: 100%; justify-content: space-between; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .meter-fill { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">Wave<span>Sense</span></div>
+      <div class="tagline">O Wi-Fi da sala como sensor de movimento, sem câmera</div>
+    </div>
+    <div class="seg-group" role="group" aria-label="Fonte dos dados">
+      <button class="seg" id="src-sim" aria-pressed="false">Simulação</button>
+      <button class="seg" id="src-replay" aria-pressed="false">Gravação…</button>
+      <button class="seg" id="src-live" aria-pressed="false">Placa USB</button>
+    </div>
+    <input type="file" id="arquivo" accept=".csv,text/csv" hidden>
+    <div class="stats" aria-label="Estatísticas do sinal">
+      <div>pacotes/s<b id="st-taxa">–</b></div>
+      <div>RSSI<b id="st-rssi">–</b></div>
+      <div>perdidos<b id="st-perdidos">–</b></div>
+    </div>
+  </header>
+
+  <div class="banner" id="banner" data-modo="nenhum"><span class="tag"><span id="banner-tag">SEM DADOS</span></span><span class="txt" id="banner-txt">Escolha uma fonte de dados acima.</span></div>
+  <div class="msg" id="msg" role="alert" hidden></div>
+
+  <main class="grid">
+    <section class="card" aria-labelledby="h-wf">
+      <div class="card-head">
+        <h2 id="h-wf">Cascata do sinal</h2>
+        <div class="seg-group" role="group" aria-label="O que a cascata mostra">
+          <button class="seg" id="wf-var" aria-pressed="true">Variação</button>
+          <button class="seg" id="wf-amp" aria-pressed="false">Amplitude</button>
+        </div>
+      </div>
+      <div class="wf-wrap">
+        <div class="ylab">subportadoras</div>
+        <canvas id="wf" aria-label="Cascata: amplitude das subportadoras ao longo do tempo"></canvas>
+        <div class="xlab"><span>~10 s atrás</span><span>agora →</span></div>
+        <div class="watermark" id="wf-mark" hidden></div>
+      </div>
+      <p class="hint" id="wf-hint">Cada faixa horizontal é uma subportadora do canal Wi-Fi. Quanto mais clara, maior a mudança em relação ao último segundo. Quando alguém se mexe, aparecem manchas.</p>
+    </section>
+
+    <section class="card status" id="status" data-estado="aguardando" aria-labelledby="h-st">
+      <h2 id="h-st">Estado da zona</h2>
+      <div class="status-row">
+        <svg class="status-icon" viewBox="0 0 56 56" aria-hidden="true">
+          <circle cx="28" cy="40" r="4" fill="currentColor"/>
+          <path d="M18 30a14 14 0 0 1 20 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M11 23a24 24 0 0 1 34 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <path d="M4 16a34 34 0 0 1 48 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div class="status-word" id="status-word" aria-live="polite">AGUARDANDO DADOS</div>
+          <div class="status-sub" id="status-sub">Nenhuma fonte conectada.</div>
+        </div>
+      </div>
+      <div class="meter" aria-hidden="true"><div class="meter-fill" id="meter-fill"></div><div class="meter-mark" id="meter-mark"></div></div>
+      <div class="meter-legend"><span>oscilação agora <b id="osc-agora">–</b></span><span>limiar <b id="lim-agora">–</b></span></div>
+      <div class="field">
+        <label for="limiar">Limiar (arraste para ver o efeito)</label>
+        <input type="range" id="limiar" min="0" max="1" step="0.001" value="0.5" disabled>
+      </div>
+      <div class="row"><button class="btn" id="btn-cal" disabled>Calibrar com a zona vazia</button></div>
+      <p class="hint" id="cal-info">A calibração mede a oscilação com a zona vazia por 10 s e põe o limiar um pouco acima dela.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-tl">
+      <div class="card-head">
+        <h2 id="h-tl">Oscilação nos últimos 60 s</h2>
+        <div class="legend"><span><i style="background: var(--signal)"></i>oscilação</span><span><i style="background: var(--fg)"></i>limiar</span><span><i style="background: var(--alert); height: 10px; opacity: 0.5"></i>movimento detectado</span></div>
+      </div>
+      <canvas id="tl" aria-label="Gráfico da oscilação no último minuto"></canvas>
+      <p class="hint">Oscilação = quanto a amplitude variou em 1 s (desvio padrão médio das subportadoras). Movimento só é declarado após 3 medições seguidas acima do limiar.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-ninja">
+      <h2 id="h-ninja">Desafio Ninja</h2>
+      <p class="hint">Atravesse a zona marcada no chão de um lado ao outro sem ser detectado. Quem opera aperta "Chegou" quando o visitante cruzar a linha final.</p>
+      <div class="field">
+        <label for="apelido">Apelido (opcional, sem nome completo)</label>
+        <input type="text" id="apelido" maxlength="16" autocomplete="off" placeholder="ex.: Sombra">
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btn-ninja" disabled>Começar desafio</button>
+        <button class="btn alert" id="btn-chegou" disabled>Chegou do outro lado</button>
+      </div>
+      <div><div class="ninja-timer" id="ninja-timer">0,0 s</div><div class="ninja-state" id="ninja-state">Pronto para começar.</div></div>
+      <ol class="ranking" id="ranking"></ol>
+      <p class="hint" id="ninja-placar"></p>
+    </section>
+  </main>
+
+  <section class="card sim-controls" id="sim-controls" hidden aria-labelledby="h-sim">
+    <div class="card-head"><h2 id="h-sim">Cena simulada</h2><span class="hint">Só existe na simulação. Serve para ensaiar a apresentação sem as placas.</span></div>
+    <div class="row" id="cenas"></div>
+  </section>
+
+  <footer>
+    <span>Atalhos: <kbd>1</kbd>–<kbd>5</kbd> cenas da simulação · <kbd>N</kbd> desafio · <kbd>Espaço</kbd> chegou · <kbd>C</kbd> calibrar · <kbd>F</kbd> tela cheia</span>
+    <button class="btn" id="btn-full">Tela cheia</button>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay" hidden><div class="ov-big" id="ov-big"></div><div class="ov-sub" id="ov-sub"></div></div>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+
+const JANELA_S = 1.0;          // janela da oscilação, igual ao ferramentas/analise.py
+const AVALIAR_MS = 200;        // nova medida 5x por segundo
+const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para declarar movimento
+const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "sem movimento"
+const COLUNAS_CASCATA = 1000;  // ~10 s a 100 pacotes/s
+const HIST_S = 60;
+
+const app = {
+  fonte: null,                 // 'sim' | 'replay' | 'live'
+  janela: [],                  // pacotes dos últimos 2 s
+  pendentes: [],               // pacotes ainda não desenhados na cascata
+  ultimoId: null,
+  perdidos: 0,
+  ultimoPacote: 0,
+  historico: [],               // {t, v, det}
+  limiar: null,
+  detectado: false,
+  acima: 0,
+  abaixo: 0,
+  calibracao: null,            // {fim, duracao, valores}
+  oscAtual: NaN,
+  maxRecente: 0,
+  modoCascata: 'variacao',
+  ema: null,
+  escala: 1e-6,
+  porta: null,
+  leitor: null,
+  timers: [],
+};
+
+/* ---------- Leitura das linhas CSI_DATA (mesmo formato do ferramentas/csi_formato.py) ---------- */
+function lerLinhaCSI(texto) {
+  texto = texto.trim();
+  if (!texto.startsWith('CSI_DATA,')) return null;
+  const a = texto.indexOf('"['), b = texto.lastIndexOf(']"');
+  if (a < 0 || b < a) return null;
+  const campos = texto.slice(0, a).split(',');   // 24 campos + vazio final
+  if (campos.length !== 25) return null;
+  const id = Number(campos[1]), rssi = Number(campos[3]);
+  const len = Number(campos[22]), primeiraInvalida = Number(campos[23]);
+  const vals = texto.slice(a + 2, b).split(',').map(Number);
+  if (vals.length !== len || vals.some(Number.isNaN)) return null;
+  // Para len 128/256/384 usamos o bloco LLTF (64 subportadoras), como no plotar.py.
+  const n = (len === 128 || len === 256 || len === 384) ? 64 : Math.floor(len / 2);
+  const amps = new Float32Array(n);
+  for (let k = 0; k < n; k++) amps[k] = Math.hypot(vals[2 * k], vals[2 * k + 1]);
+  if (primeiraInvalida) { amps[0] = 0; amps[1] = 0; }
+  return { id, rssi, amps };
+}
+
+/* ---------- Entrada comum para as três fontes ---------- */
+function receber(p) {
+  const t = performance.now() / 1000;
+  p.t = t;
+  if (app.ultimoId !== null && p.id > app.ultimoId + 1 && p.id - app.ultimoId < 5000) {
+    app.perdidos += p.id - app.ultimoId - 1;
+  }
+  app.ultimoId = p.id;
+  app.ultimoPacote = t;
+  app.janela.push(p);
+  while (app.janela.length && app.janela[0].t < t - 2) app.janela.shift();
+  app.pendentes.push(p);
+  if (app.pendentes.length > COLUNAS_CASCATA) app.pendentes.splice(0, app.pendentes.length - COLUNAS_CASCATA);
+}
+
+function oscilacao(pacotes) {
+  if (pacotes.length < 10) return NaN;
+  const K = pacotes[pacotes.length - 1].amps.length;
+  const ps = pacotes.filter((p) => p.amps.length === K);
+  const n = ps.length;
+  if (n < 10) return NaN;
+  let soma = 0, cont = 0;
+  for (let k = 0; k < K; k++) {
+    let m = 0;
+    for (const p of ps) m += p.amps[k];
+    m /= n;
+    if (m < 0.5) continue;                 // subportadora nula
+    let v = 0;
+    for (const p of ps) { const d = p.amps[k] - m; v += d * d; }
+    soma += Math.sqrt(v / n);
+    cont++;
+  }
+  return cont ? soma / cont : NaN;
+}
+
+/* ---------- Avaliação periódica: oscilação, calibração, detecção ---------- */
+function avaliar() {
+  const agora = performance.now() / 1000;
+  const jan = app.janela.filter((p) => p.t >= agora - JANELA_S);
+  const v = oscilacao(jan);
+  app.oscAtual = v;
+
+  $('st-taxa').textContent = app.fonte ? String(jan.length) : '–';
+  $('st-rssi').textContent = jan.length ? `${Math.round(jan.reduce((s, p) => s + p.rssi, 0) / jan.length)} dBm` : '–';
+  $('st-perdidos').textContent = app.fonte ? String(app.perdidos) : '–';
+
+  if (!Number.isNaN(v)) {
+    if (app.calibracao) {
+      app.calibracao.valores.push(v);
+      if (agora >= app.calibracao.fim) terminarCalibracao();
+    } else if (app.limiar !== null) {
+      if (v > app.limiar) { app.acima++; app.abaixo = 0; } else { app.abaixo++; app.acima = 0; }
+      if (!app.detectado && app.acima >= CONFIRMA_LIGA) app.detectado = true;
+      if (app.detectado && app.abaixo >= CONFIRMA_DESLIGA) app.detectado = false;
+    }
+    app.historico.push({ t: agora, v, det: app.detectado });
+  } else if (agora - app.ultimoPacote > 2) {
+    app.detectado = false;
+  }
+  while (app.historico.length && app.historico[0].t < agora - HIST_S) app.historico.shift();
+  app.maxRecente = app.historico.reduce((m, h) => Math.max(m, h.v), 0);
+
+  atualizarEstado(agora);
+  ninjaPasso(agora);
+  desenharLinhaTempo(agora);
+}
+
+function iniciarCalibracao(duracao = 10) {
+  if (!app.fonte) return;
+  app.calibracao = { fim: performance.now() / 1000 + duracao, duracao, valores: [] };
+  app.detectado = false; app.acima = 0; app.abaixo = 0;
+  $('cal-info').textContent = `Calibrando por ${duracao} s. Mantenha a zona vazia e ninguém se mexendo por perto.`;
+}
+
+function terminarCalibracao() {
+  const vs = app.calibracao.valores;
+  app.calibracao = null;
+  if (vs.length < 5) { $('cal-info').textContent = 'Poucos dados para calibrar. Confira se os pacotes estão chegando.'; return; }
+  const m = vs.reduce((s, x) => s + x, 0) / vs.length;
+  const dp = Math.sqrt(vs.reduce((s, x) => s + (x - m) ** 2, 0) / vs.length);
+  definirLimiar(Math.max(m + 3 * dp, m * 1.3));
+  $('cal-info').textContent = `Calibrado com ${vs.length} medidas da zona vazia: média ${fmt(m)}, desvio ${fmt(dp)}. Limiar = média + 3 desvios.`;
+}
+
+function definirLimiar(x) {
+  app.limiar = x;
+  app.acima = 0; app.abaixo = 0;
+  const r = $('limiar');
+  r.max = String(Math.max(x * 3, app.maxRecente * 1.2, 1e-3));
+  r.step = String(Number(r.max) / 300);
+  r.value = String(x);
+}
+
+function fmt(x) {
+  if (x === null || Number.isNaN(x)) return '–';
+  return x >= 10 ? x.toFixed(1).replace('.', ',') : x.toFixed(2).replace('.', ',');
+}
+
+function atualizarEstado(agora) {
+  const card = $('status');
+  let estado, palavra, sub;
+  if (!app.fonte) { estado = 'aguardando'; palavra = 'AGUARDANDO DADOS'; sub = 'Nenhuma fonte conectada.'; }
+  else if (agora - app.ultimoPacote > 2) { estado = 'aguardando'; palavra = 'SEM SINAL'; sub = 'Nenhum pacote nos últimos 2 s.'; }
+  else if (app.calibracao) {
+    const falta = Math.max(0, app.calibracao.fim - agora);
+    estado = 'aguardando'; palavra = 'CALIBRANDO'; sub = `Zona vazia, por favor. Faltam ${Math.ceil(falta)} s.`;
+  }
+  else if (app.limiar === null) { estado = 'aguardando'; palavra = 'SEM LIMIAR'; sub = 'Calibre com a zona vazia.'; }
+  else if (app.detectado) { estado = 'movimento'; palavra = 'MOVIMENTO'; sub = 'A oscilação passou do limiar.'; }
+  else { estado = 'parado'; palavra = 'SEM MOVIMENTO'; sub = 'Oscilação abaixo do limiar.'; }
+  card.dataset.estado = estado;
+  if ($('status-word').textContent !== palavra) $('status-word').textContent = palavra;
+  $('status-sub').textContent = sub;
+
+  const v = app.oscAtual;
+  const max = Math.max((app.limiar ?? 0) * 2, app.maxRecente * 1.15, 1e-6);
+  $('meter-fill').style.width = Number.isNaN(v) ? '0%' : `${Math.min(100, (v / max) * 100)}%`;
+  $('meter-mark').hidden = app.limiar === null;
+  if (app.limiar !== null) $('meter-mark').style.left = `${Math.min(99.5, (app.limiar / max) * 100)}%`;
+  $('osc-agora').textContent = fmt(v);
+  $('lim-agora').textContent = fmt(app.limiar);
+  const r = $('limiar');
+  if (app.limiar !== null && Number(r.max) < max) { r.max = String(max); r.step = String(max / 300); r.value = String(app.limiar); }
+
+  const ativo = Boolean(app.fonte);
+  r.disabled = !ativo || app.limiar === null;
+  $('btn-cal').disabled = !ativo || Boolean(app.calibracao);
+  $('btn-ninja').disabled = !ativo || app.limiar === null || ninja.estado === 'contagem' || ninja.estado === 'correndo';
+}
+
+/* ---------- Cascata ---------- */
+const wf = $('wf'), wctx = wf.getContext('2d');
+const buf = document.createElement('canvas');
+buf.width = COLUNAS_CASCATA; buf.height = 64;
+const bctx = buf.getContext('2d');
+const LUT = (() => {
+  const paradas = [[0, [10, 19, 32]], [0.25, [12, 56, 72]], [0.5, [20, 120, 128]], [0.75, [63, 207, 199]], [1, [225, 255, 252]]];
+  const lut = new Uint8ClampedArray(256 * 3);
+  for (let i = 0; i < 256; i++) {
+    const x = i / 255;
+    let j = 0; while (j < paradas.length - 2 && x > paradas[j + 1][0]) j++;
+    const [x0, c0] = paradas[j], [x1, c1] = paradas[j + 1];
+    const f = (x - x0) / (x1 - x0);
+    for (let c = 0; c < 3; c++) lut[i * 3 + c] = c0[c] + (c1[c] - c0[c]) * f;
+  }
+  return lut;
+})();
+
+function limparCascata() {
+  bctx.fillStyle = '#0A1320';
+  bctx.fillRect(0, 0, buf.width, buf.height);
+  app.ema = null; app.escala = 1e-6; app.pendentes = [];
+}
+
+function desenharCascata() {
+  const n = app.pendentes.length;
+  if (n) {
+    const K = app.pendentes[n - 1].amps.length;
+    if (buf.height !== K) { buf.height = K; limparCascata(); }
+    const lista = app.pendentes.filter((p) => p.amps.length === K);
+    app.pendentes = [];
+    const m = lista.length;
+    if (m) {
+      bctx.drawImage(buf, -m, 0);
+      const img = bctx.createImageData(m, K);
+      for (let i = 0; i < m; i++) {
+        const a = lista[i].amps;
+        if (!app.ema) app.ema = Float32Array.from(a);
+        let maxCol = 0;
+        const vals = new Float32Array(K);
+        for (let k = 0; k < K; k++) {
+          const val = app.modoCascata === 'variacao' ? Math.abs(a[k] - app.ema[k]) : a[k];
+          app.ema[k] += 0.01 * (a[k] - app.ema[k]);
+          vals[k] = val;
+          if (val > maxCol) maxCol = val;
+        }
+        app.escala = Math.max(app.escala * 0.999, maxCol);
+        for (let k = 0; k < K; k++) {
+          const x = Math.min(1, Math.pow(vals[k] / app.escala, 0.7));
+          const li = Math.round(x * 255) * 3;
+          const o = ((K - 1 - k) * m + i) * 4;
+          img.data[o] = LUT[li]; img.data[o + 1] = LUT[li + 1]; img.data[o + 2] = LUT[li + 2]; img.data[o + 3] = 255;
+        }
+      }
+      bctx.putImageData(img, COLUNAS_CASCATA - m, 0);
+    }
+  }
+  wctx.imageSmoothingEnabled = true;
+  wctx.drawImage(buf, 0, 0, buf.width, buf.height, 0, 0, wf.width, wf.height);
+}
+
+/* ---------- Linha do tempo da oscilação ---------- */
+const tl = $('tl'), tctx = tl.getContext('2d');
+function cor(nome) { return getComputedStyle(document.documentElement).getPropertyValue(nome).trim(); }
+const CORES = { signal: cor('--signal'), alert: cor('--alert'), fg: cor('--fg'), muted: cor('--muted'), line: cor('--line') };
+
+function desenharLinhaTempo(agora) {
+  const dpr = window.devicePixelRatio || 1;
+  const W = tl.width, H = tl.height;
+  tctx.clearRect(0, 0, W, H);
+  const pe = 44 * dpr, pd = 8 * dpr, ps = 8 * dpr, pi = 20 * dpr;
+  const w = W - pe - pd, h = H - ps - pi;
+  const ymax = Math.max((app.limiar ?? 0) * 1.6, app.maxRecente * 1.1, 1e-6);
+  const X = (t) => pe + ((t - (agora - HIST_S)) / HIST_S) * w;
+  const Y = (v) => ps + h - (v / ymax) * h;
+
+  tctx.font = `${11 * dpr}px "IBM Plex Mono", monospace`;
+  tctx.fillStyle = CORES.muted;
+  tctx.strokeStyle = CORES.line;
+  tctx.lineWidth = 1 * dpr;
+  tctx.textAlign = 'right'; tctx.textBaseline = 'middle';
+  for (const f of [0, 0.5, 1]) {
+    const y = Y(ymax * f);
+    tctx.beginPath(); tctx.moveTo(pe, y); tctx.lineTo(pe + w, y); tctx.stroke();
+    tctx.fillText(fmt(ymax * f), pe - 6 * dpr, y);
+  }
+  tctx.textAlign = 'center'; tctx.textBaseline = 'top';
+  for (const [s, rot] of [[-60, '-60 s'], [-30, '-30 s'], [0, 'agora']]) {
+    tctx.fillText(rot, Math.min(X(agora + s), pe + w - 18 * dpr), ps + h + 5 * dpr);
+  }
+
+  const hs = app.historico;
+  tctx.fillStyle = CORES.alert;
+  tctx.globalAlpha = 0.28;
+  for (let i = 0; i < hs.length; i++) {
+    if (!hs[i].det) continue;
+    const x0 = X(hs[i].t - AVALIAR_MS / 1000), x1 = X(hs[i].t);
+    tctx.fillRect(Math.max(pe, x0), ps, x1 - Math.max(pe, x0) + 0.5, h);
+  }
+  tctx.globalAlpha = 1;
+
+  if (hs.length > 1) {
+    tctx.strokeStyle = CORES.signal;
+    tctx.lineWidth = 2 * dpr;
+    tctx.lineJoin = 'round';
+    tctx.beginPath();
+    hs.forEach((p, i) => { const x = X(p.t), y = Y(p.v); i ? tctx.lineTo(x, y) : tctx.moveTo(x, y); });
+    tctx.stroke();
+    const u = hs[hs.length - 1];
+    tctx.fillStyle = CORES.signal;
+    tctx.beginPath(); tctx.arc(X(u.t), Y(u.v), 4 * dpr, 0, Math.PI * 2); tctx.fill();
+  }
+  if (app.limiar !== null) {
+    tctx.strokeStyle = CORES.fg;
+    tctx.lineWidth = 1.5 * dpr;
+    tctx.setLineDash([6 * dpr, 5 * dpr]);
+    tctx.beginPath(); tctx.moveTo(pe, Y(app.limiar)); tctx.lineTo(pe + w, Y(app.limiar)); tctx.stroke();
+    tctx.setLineDash([]);
+  }
+}
+
+function ajustarCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  for (const c of [wf, tl]) {
+    const r = c.getBoundingClientRect();
+    const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+  }
+}
+new ResizeObserver(ajustarCanvas).observe(document.querySelector('.grid'));
+
+function quadro() {
+  desenharCascata();
+  requestAnimationFrame(quadro);
+}
+
+/* ---------- Fonte 1: simulação ---------- */
+const CENAS = [
+  { id: 'vazio', nome: 'Sala vazia', am: 0 },
+  { id: 'parado', nome: 'Pessoa parada', am: 0.22 },
+  { id: 'andando', nome: 'Pessoa andando', am: 0.6 },
+  { id: 'devagar', nome: 'Andando bem devagar', am: 0.14 },
+  { id: 'mao', nome: 'Mão perto da Placa B', am: 1.2 },
+];
+const sim = { cena: 'vazio', am: 0, id: 0, gerados: 0, inicio: 0 };
+const DF = 312.5e3;                                   // espaçamento entre subportadoras (Hz)
+const CAMINHOS = [[1, 5e-9, 0], [0.55, 22e-9, 1.1], [0.35, 48e-9, 2.3], [0.2, 85e-9, 4.0]];
+const NULAS = new Set([0, 1, 2, 3, 4, 60, 61, 62, 63]);   // como na linha de exemplo oficial
+let gaussExtra = null;
+function gauss() {
+  if (gaussExtra !== null) { const g = gaussExtra; gaussExtra = null; return g; }
+  const u = Math.random() || 1e-9, v = Math.random();
+  const r = Math.sqrt(-2 * Math.log(u));
+  gaussExtra = r * Math.sin(2 * Math.PI * v);
+  return r * Math.cos(2 * Math.PI * v);
+}
+function movimento(cena, t) {
+  switch (cena) {
+    case 'parado': return { tau: 35e-9, fase: 0.5 * Math.sin(2 * Math.PI * 0.25 * t) };
+    case 'andando': return { tau: 40e-9 + 25e-9 * Math.sin(2 * Math.PI * t / 6), fase: 54 * Math.sin(2 * Math.PI * t / 6) };
+    case 'devagar': return { tau: 40e-9 + 6e-9 * Math.sin(2 * Math.PI * t / 14), fase: 3 * Math.sin(2 * Math.PI * t / 14) };
+    case 'mao': return { tau: 8e-9, fase: 3 * Math.sin(2 * Math.PI * 2 * t) + 2 * Math.sin(2 * Math.PI * 3.3 * t) };
+    default: return { tau: 30e-9, fase: 0 };
+  }
+}
+function gerarPacote(t) {
+  const alvo = CENAS.find((c) => c.id === sim.cena).am;
+  sim.am += 0.02 * (alvo - sim.am);
+  const mv = movimento(sim.cena, t);
+  const amps = new Float32Array(64);
+  for (let k = 0; k < 64; k++) {
+    if (NULAS.has(k)) continue;
+    const f = k - 32;
+    let re = 0, im = 0;
+    for (const [a, tau, ph] of CAMINHOS) {
+      const ang = -2 * Math.PI * f * DF * tau + ph;
+      re += a * Math.cos(ang); im += a * Math.sin(ang);
+    }
+    const angM = -2 * Math.PI * f * DF * mv.tau + mv.fase;
+    re += sim.am * Math.cos(angM) + 0.02 * gauss();
+    im += sim.am * Math.sin(angM) + 0.02 * gauss();
+    amps[k] = 14 * Math.hypot(re, im);
+  }
+  return { id: sim.id++, rssi: Math.round(-46 + gauss() + (sim.cena === 'mao' ? 4 : 0)), amps };
+}
+function iniciarSimulacao() {
+  sim.inicio = performance.now(); sim.gerados = 0; sim.cena = 'vazio'; sim.am = 0;
+  marcarCena();
+  app.timers.push(setInterval(() => {
+    const t = (performance.now() - sim.inicio) / 1000;
+    const devidos = Math.floor(t * 100);
+    let n = 0;
+    while (sim.gerados < devidos && n < 30) {
+      const p = gerarPacote(sim.gerados / 100);
+      sim.gerados++; n++;
+      if (Math.random() < 0.01) { sim.id++; continue; }   // perda de pacote simulada
+      receber(p);
+    }
+  }, 10));
+  iniciarCalibracao(6);
+}
+function escolherCena(id) { if (app.fonte === 'sim') { sim.cena = id; marcarCena(); } }
+function marcarCena() {
+  for (const b of $('cenas').children) b.setAttribute('aria-pressed', String(b.dataset.cena === sim.cena));
+}
+CENAS.forEach((c, i) => {
+  const b = document.createElement('button');
+  b.className = 'btn'; b.dataset.cena = c.id; b.textContent = `${i + 1} · ${c.nome}`;
+  b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => escolherCena(c.id));
+  $('cenas').appendChild(b);
+});
+
+/* ---------- Fonte 2: gravação do capturar.py ---------- */
+function iniciarGravacao(texto, nome) {
+  const pacotes = [];
+  for (const linha of texto.split(/\r?\n/).slice(1)) {
+    const i = linha.indexOf(',');
+    if (i < 0) continue;
+    const t = parseFloat(linha.slice(0, i));
+    const r = lerLinhaCSI(linha.slice(i + 1));
+    if (r && !Number.isNaN(t)) { r.tArq = t; pacotes.push(r); }
+  }
+  if (!pacotes.length) {
+    mostrarMsg(`Não encontrei linhas CSI_DATA em "${nome}". Use um arquivo .csv gravado pelo ferramentas/capturar.py.`);
+    pararFonte(); definirFonte(null);
+    return;
+  }
+  const dur = pacotes[pacotes.length - 1].tArq - pacotes[0].tArq;
+  let idx = 0, voltas = 0, base = performance.now() / 1000 - pacotes[0].tArq;
+  $('banner-txt').textContent = `Reproduzindo "${nome}": ${pacotes.length} pacotes, ${dur.toFixed(0)} s, em loop.`;
+  app.timers.push(setInterval(() => {
+    const agoraArq = performance.now() / 1000 - base;
+    while (idx < pacotes.length && pacotes[idx].tArq <= agoraArq) {
+      const p = pacotes[idx++];
+      receber({ id: p.id + voltas * 1e7, rssi: p.rssi, amps: p.amps });
+    }
+    if (idx >= pacotes.length) {
+      idx = 0; voltas++; app.ultimoId = null;
+      base = performance.now() / 1000 - pacotes[0].tArq + 0.5;
+    }
+  }, 10));
+}
+
+/* ---------- Fonte 3: Placa B pela USB (Web Serial, Chrome/Edge) ---------- */
+async function conectarPlaca() {
+  if (!('serial' in navigator)) {
+    mostrarMsg('Este navegador não acessa a USB. Abra o arquivo demo/index.html direto no Chrome ou no Edge do computador.');
+    return;
+  }
+  let porta;
+  try {
+    porta = await navigator.serial.requestPort();
+  } catch (e) {
+    mostrarMsg(e && e.name === 'NotFoundError'
+      ? 'Nenhuma porta escolhida. Clique em "Placa USB" e selecione a porta da Placa B (Silicon Labs CP210x).'
+      : `O navegador não deixou acessar a USB (${e.message}). Se esta página estiver aberta dentro do claude.ai, abra o arquivo demo/index.html direto no Chrome ou no Edge.`);
+    return;
+  }
+  await pararFonte();   // fecha a fonte anterior (pode ser a mesma porta)
+  try {
+    await porta.open({ baudRate: 921600, bufferSize: 16384 });
+  } catch (e) {
+    definirFonte(null);
+    mostrarMsg(`Não consegui abrir a porta: ${e.message}. Feche o idf.py monitor e outros programas que usem a porta e tente de novo.`);
+    return;
+  }
+  app.porta = porta;
+  definirFonte('live');
+  try {
+    const leitor = porta.readable.getReader();
+    app.leitor = leitor;
+    const dec = new TextDecoder();
+    let resto = '';
+    for (;;) {
+      const { value, done } = await leitor.read();
+      if (done) break;
+      resto += dec.decode(value, { stream: true });
+      let i;
+      while ((i = resto.indexOf('\n')) >= 0) {
+        const r = lerLinhaCSI(resto.slice(0, i));
+        resto = resto.slice(i + 1);
+        if (r) receber(r);
+      }
+      if (resto.length > 200000) resto = '';
+    }
+  } catch (e) {
+    if (app.fonte === 'live') mostrarMsg(`A leitura da placa parou: ${e.message}. O cabo foi desconectado?`);
+  }
+}
+
+/* ---------- Troca de fonte ---------- */
+async function pararFonte() {
+  // Zera o estado antes de qualquer await, para uma fonte nova nunca ser fechada por engano.
+  const leitor = app.leitor, porta = app.porta;
+  app.leitor = null; app.porta = null; app.fonte = null;
+  app.timers.forEach(clearInterval); app.timers = [];
+  app.janela = []; app.historico = []; app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
+  app.limiar = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
+  cancelarNinja();
+  limparCascata();
+  if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
+  if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
+}
+
+const MODOS = {
+  sim: ['SIMULAÇÃO', 'Dados gerados pelo computador para ensaiar a tela. Não são medições.'],
+  replay: ['GRAVAÇÃO', 'Reproduzindo uma coleta real.'],
+  live: ['AO VIVO', 'Placa B conectada pela USB.'],
+};
+function definirFonte(f) {
+  app.fonte = f;
+  const [tag, txt] = MODOS[f] || ['SEM DADOS', 'Escolha uma fonte de dados acima.'];
+  $('banner').dataset.modo = f || 'nenhum';
+  $('banner-tag').textContent = tag;
+  $('banner-txt').textContent = txt;
+  $('wf-mark').hidden = !f;
+  $('wf-mark').dataset.modo = f || '';
+  $('wf-mark').textContent = tag;
+  $('sim-controls').hidden = f !== 'sim';
+  $('src-sim').setAttribute('aria-pressed', String(f === 'sim'));
+  $('src-replay').setAttribute('aria-pressed', String(f === 'replay'));
+  $('src-live').setAttribute('aria-pressed', String(f === 'live'));
+  $('cal-info').textContent = f === 'sim'
+    ? 'A simulação começa calibrando sozinha por 6 s com a sala vazia.'
+    : 'A calibração mede a oscilação com a zona vazia por 10 s e põe o limiar um pouco acima dela.';
+  if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
+}
+
+function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; }
+function esconderMsg() { $('msg').hidden = true; }
+
+$('src-sim').addEventListener('click', async () => { esconderMsg(); await pararFonte(); definirFonte('sim'); iniciarSimulacao(); });
+$('src-replay').addEventListener('click', () => { esconderMsg(); $('arquivo').click(); });
+$('arquivo').addEventListener('change', async (e) => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const texto = await f.text();
+  await pararFonte(); definirFonte('replay');
+  iniciarGravacao(texto, f.name);
+  e.target.value = '';
+});
+$('src-live').addEventListener('click', () => { esconderMsg(); conectarPlaca(); });
+$('btn-cal').addEventListener('click', () => iniciarCalibracao(app.fonte === 'sim' ? 6 : 10));
+$('limiar').addEventListener('input', (e) => {
+  app.limiar = Number(e.target.value); app.acima = 0; app.abaixo = 0;
+  $('cal-info').textContent = 'Limiar ajustado à mão. Mais baixo: mais alarmes falsos. Mais alto: deixa passar movimentos pequenos.';
+});
+$('wf-var').addEventListener('click', () => modoCascata('variacao'));
+$('wf-amp').addEventListener('click', () => modoCascata('amplitude'));
+function modoCascata(m) {
+  app.modoCascata = m; app.escala = 1e-6;
+  $('wf-var').setAttribute('aria-pressed', String(m === 'variacao'));
+  $('wf-amp').setAttribute('aria-pressed', String(m === 'amplitude'));
+  $('wf-hint').textContent = m === 'variacao'
+    ? 'Cada faixa horizontal é uma subportadora do canal Wi-Fi. Quanto mais clara, maior a mudança em relação ao último segundo. Quando alguém se mexe, aparecem manchas.'
+    : 'Cada faixa horizontal é uma subportadora do canal Wi-Fi. Quanto mais clara, mais forte o sinal naquela faixa. Faixas fixas são o "desenho" da sala; movimento faz as faixas tremerem.';
+}
+$('btn-full').addEventListener('click', () => {
+  (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
+});
+
+/* ---------- Desafio Ninja ---------- */
+const ninja = { estado: 'livre', inicio: 0, fimContagem: 0, apelido: '', ranking: [], tentativas: 0, pegos: 0, fecharEm: 0 };
+try {
+  const salvo = JSON.parse(localStorage.getItem('wavesense-ninja') || 'null');
+  if (salvo) { ninja.ranking = salvo.ranking || []; ninja.tentativas = salvo.tentativas || 0; ninja.pegos = salvo.pegos || 0; }
+} catch (e) { /* sem armazenamento: placar só nesta sessão */ }
+function salvarNinja() {
+  try { localStorage.setItem('wavesense-ninja', JSON.stringify({ ranking: ninja.ranking, tentativas: ninja.tentativas, pegos: ninja.pegos })); } catch (e) { /* ignora */ }
+}
+function segundos(s) { return `${s.toFixed(1).replace('.', ',')} s`; }
+
+function comecarNinja() {
+  if (!app.fonte || app.limiar === null || ninja.estado === 'contagem' || ninja.estado === 'correndo') return;
+  ninja.apelido = $('apelido').value.trim() || `Visitante ${ninja.tentativas + 1}`;
+  ninja.estado = 'contagem';
+  ninja.fimContagem = performance.now() / 1000 + 3;
+  mostrarOverlay('3', `${ninja.apelido}, prepare-se na linha de partida`, '');
+}
+function chegou() {
+  if (ninja.estado !== 'correndo') return;
+  terminarNinja(true, performance.now() / 1000 - ninja.inicio);
+}
+function terminarNinja(ok, tempo) {
+  ninja.estado = 'resultado';
+  ninja.tentativas++;
+  if (ok) {
+    ninja.ranking.push({ nome: ninja.apelido, tempo });
+    ninja.ranking.sort((a, b) => a.tempo - b.tempo);
+    ninja.ranking = ninja.ranking.slice(0, 5);
+    mostrarOverlay('NINJA!', `${ninja.apelido} atravessou sem ser detectado em ${segundos(tempo)}`, 'ok');
+    $('ninja-state').textContent = 'Atravessou sem ser detectado.';
+  } else if (ok === false) {
+    ninja.pegos++;
+    mostrarOverlay('DETECTADO!', `${ninja.apelido} foi percebido pelo Wi-Fi depois de ${segundos(tempo)}`, 'pego');
+    $('ninja-state').textContent = `Detectado em ${segundos(tempo)}.`;
+  } else {
+    mostrarOverlay('TEMPO!', 'Passou de 60 s. Tente de novo.', '');
+    $('ninja-state').textContent = 'Tempo esgotado.';
+  }
+  $('ninja-timer').textContent = segundos(tempo);
+  $('btn-chegou').disabled = true;
+  ninja.fecharEm = performance.now() / 1000 + 4;
+  salvarNinja(); desenharRanking();
+}
+function cancelarNinja() {
+  if (ninja.estado === 'contagem' || ninja.estado === 'correndo') ninja.estado = 'livre';
+  $('overlay').hidden = true; $('btn-chegou').disabled = true;
+}
+function ninjaPasso(agora) {
+  if (ninja.estado === 'contagem') {
+    const falta = ninja.fimContagem - agora;
+    if (falta <= 0) {
+      ninja.estado = 'correndo'; ninja.inicio = agora;
+      $('overlay').hidden = true; $('btn-chegou').disabled = false;
+      $('ninja-state').textContent = `${ninja.apelido} está atravessando…`;
+    } else {
+      $('ov-big').textContent = String(Math.ceil(falta));
+    }
+  } else if (ninja.estado === 'correndo') {
+    const t = agora - ninja.inicio;
+    $('ninja-timer').textContent = segundos(t);
+    if (app.detectado) terminarNinja(false, t);
+    else if (t > 60) terminarNinja(null, t);
+  } else if (ninja.estado === 'resultado' && agora >= ninja.fecharEm) {
+    ninja.estado = 'livre'; $('overlay').hidden = true;
+  }
+}
+function mostrarOverlay(grande, sub, tipo) {
+  $('ov-big').textContent = grande; $('ov-sub').textContent = sub;
+  $('overlay').dataset.tipo = tipo; $('overlay').hidden = false;
+}
+function desenharRanking() {
+  const ol = $('ranking');
+  ol.replaceChildren();
+  if (!ninja.ranking.length) {
+    const li = document.createElement('li'); li.className = 'vazio';
+    li.textContent = 'Ninguém atravessou sem ser detectado ainda.';
+    ol.appendChild(li);
+  }
+  for (const r of ninja.ranking) {
+    const li = document.createElement('li');
+    const nome = document.createElement('span'); nome.textContent = r.nome;
+    const tempo = document.createElement('b'); tempo.textContent = segundos(r.tempo);
+    li.append(nome, tempo); ol.appendChild(li);
+  }
+  $('ninja-placar').textContent = ninja.tentativas
+    ? `${ninja.tentativas} tentativa(s), ${ninja.pegos} detectada(s). Ranking: quem atravessou mais rápido sem ser percebido.`
+    : 'Ranking: quem atravessa mais rápido sem ser percebido.';
+}
+$('btn-ninja').addEventListener('click', comecarNinja);
+$('btn-chegou').addEventListener('click', chegou);
+$('overlay').addEventListener('click', () => { if (ninja.estado === 'resultado') { ninja.estado = 'livre'; $('overlay').hidden = true; } });
+
+/* ---------- Teclado ---------- */
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+  const k = e.key.toLowerCase();
+  if (k >= '1' && k <= '5') escolherCena(CENAS[Number(k) - 1].id);
+  else if (k === 'n') comecarNinja();
+  else if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
+  else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
+  else if (k === 'f') $('btn-full').click();
+});
+
+limparCascata();
+desenharRanking();
+ajustarCanvas();
+setInterval(avaliar, AVALIAR_MS);
+requestAnimationFrame(quadro);
+// Abre em simulação para a tela já mostrar o que faz; a faixa amarela deixa claro que não é medição.
+definirFonte('sim'); iniciarSimulacao();
+</script>
+</body>
+</html>

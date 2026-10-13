@@ -28,6 +28,7 @@ Só marcar um item depois de testado de verdade.
 - [Erros prováveis](docs/erros-provaveis.md): o que pode dar errado em cada etapa e como resolver
 - [Protocolo de coleta](experimentos/protocolo.md) e [registro de coletas](experimentos/registro_coletas.csv)
 - [Ferramentas](ferramentas/README.md): como capturar e plotar
+- [Tela de demonstração](demo/README.md): `demo/index.html` (simulação, gravação e placa USB) · versão online: https://claude.ai/artifact/1q55pHmnJivTx6Z7pzt68o
 
 ## Hardware escolhido
 
