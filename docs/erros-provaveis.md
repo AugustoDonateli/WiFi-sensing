@@ -115,6 +115,7 @@ Se as placas ficarem com canais diferentes, a B não recebe nada.
 
 | Sintoma | Causa | O que fazer |
 |---|---|---|
+| Página 404 em tudo, mas `/capturar.py` abre | O **Root Directory** do projeto ficou como `ferramentas` **[testado: aconteceu em 13/10]** | Settings → Build and Deployment → Root Directory: apagar o `ferramentas`, deixar vazio e salvar. Depois Deployments → ⋯ no último → **Redeploy**. |
 | Página 404 depois do deploy | O Vercel não leu o `vercel.json` (pasta raiz errada) **[provável]** | Nas configurações do projeto (Settings), deixar o **Root Directory** vazio, ou seja, a raiz do repositório. O `vercel.json` já diz para publicar só a pasta `demo`. |
 | O site abre, mas o botão Placa USB diz que não funciona | Navegador sem Web Serial (Firefox e Safari não têm) **[oficial]** | Abrir no **Chrome** ou no **Edge** do computador. No celular, usar a simulação. |
 | Mudança no código não aparece no site | O Vercel publica a partir do ramo de produção **[oficial]** | Conferir em Deployments se o último envio virou um deploy. Envios para outros ramos viram "Preview", com outro endereço. |

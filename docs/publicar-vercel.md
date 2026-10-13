@@ -24,7 +24,7 @@ Assim os amigos abrem um link em vez de receber arquivos. O site é só a pasta 
 4. Na tela de configuração:
    - **Project Name:** `wave-sense` (o endereço vira `wave-sense.vercel.app` se esse nome estiver livre; senão o Vercel sugere outro).
    - **Framework Preset:** deixe **Other**.
-   - **Root Directory:** deixe como está (`./`, a raiz). **Não** escolha `demo` aqui: quem aponta para `demo` é o `vercel.json`.
+   - **Root Directory:** deixe como está (`./`, a raiz). **Não** escolha `demo` nem `ferramentas` aqui: quem aponta para `demo` é o `vercel.json`. Com `ferramentas`, o site dá 404.
    - Não mexa em Build, Output e Install: o `vercel.json` já cuida disso.
 5. Clique em **Deploy**. Em cerca de 1 minuto aparece a tela de parabéns com o endereço.
 6. Abra o endereço no Chrome e confira:
