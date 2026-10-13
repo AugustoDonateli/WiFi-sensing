@@ -2,7 +2,7 @@
 
 Precisa só do pyserial, que já vem no Python do ESP-IDF. Exemplo (no "ESP-IDF PowerShell"):
 
-    python ferramentas/capturar.py --porta COM3 --rotulo vazio --duracao 30
+    python ferramentas/capturar.py --porta COM3 --sessao S1 --rotulo vazio --duracao 30
 
 Feche o `idf.py monitor` antes: só um programa por vez pode usar a porta COM.
 """
@@ -20,7 +20,7 @@ from csi_formato import COLUNAS, LinhaInvalida, ler_linha
 RAIZ = Path(__file__).resolve().parent.parent
 REGISTRO = RAIZ / "experimentos" / "registro_coletas.csv"
 CAMPOS_REGISTRO = [
-    "arquivo", "inicio", "rotulo", "participante", "distancia_m", "parede", "duracao_s",
+    "arquivo", "inicio", "sessao", "rotulo", "participante", "distancia_m", "parede", "duracao_s",
     "pacotes_validos", "linhas_invalidas", "pacotes_perdidos", "taxa_media_por_s", "status", "obs",
 ]
 
@@ -103,6 +103,7 @@ def main():
     p.add_argument("--rotulo", required=True, help="classe da coleta: vazio, parado, andando...")
     p.add_argument("--duracao", type=float, default=30, help="segundos de gravação (padrão 30)")
     p.add_argument("--espera", type=int, default=5, help="contagem regressiva antes de gravar (padrão 5)")
+    p.add_argument("--sessao", required=True, help="código da sessão de coleta, ex.: S1 (ímpares ajustam, pares testam)")
     p.add_argument("--participante", default="-", help="código anônimo, ex.: P1 (sem nome)")
     p.add_argument("--distancia", default="", help="distância entre as placas, em metros")
     p.add_argument("--parede", choices=["sim", "nao"], default="nao")
@@ -147,6 +148,7 @@ def main():
     metadados = {
         "arquivo": arquivo_csv.name,
         "inicio": inicio.isoformat(timespec="seconds"),
+        "sessao": args.sessao,
         "rotulo": args.rotulo,
         "participante": args.participante,
         "distancia_m": args.distancia,

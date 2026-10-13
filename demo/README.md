@@ -4,7 +4,11 @@
 
 **Como abrir:** botão direito em `index.html` → "Abrir com" → **Google Chrome** ou **Microsoft Edge**. A conexão com a placa pela USB (Web Serial) só funciona nesses dois navegadores.
 
-Versão online para ver no celular (só simulação e gravação, sem USB): https://claude.ai/artifact/1q55pHmnJivTx6Z7pzt68o
+**Site:** a pasta `demo/` pode ir para o Vercel e virar um link para mandar aos amigos (passo a passo em `docs/publicar-vercel.md`). Lá a USB também funciona, no Chrome ou no Edge do computador.
+
+Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/artifact/1q55pHmnJivTx6Z7pzt68o
+
+**Arquivos:** `index.html` (a tela) e `nucleo.js` (leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`). Os dois precisam ficar na mesma pasta.
 
 ## Ideia do visual
 
@@ -17,7 +21,7 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **A única cor é o aviso amarelo** "Simulação · dados inventados para ensaio". Ele some quando os dados são reais.
 - **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas, do Google Fonts.
 
-O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, a mesma medida do `ferramentas/analise.py`.
+O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, calculada pelo `nucleo.js` com a mesma regra do `ferramentas/detector.py` (um teste confere que as duas dão o mesmo resultado).
 
 ## Telas extras (versão 4)
 
@@ -65,8 +69,9 @@ Teste o volume no lugar da feira.
 ## Situação
 
 - Testado no Chromium: simulação, calibração, detecção, inversão de cor, Desafio Ninja (passando e sendo pego), gravação e celular.
+- Testado também servido por HTTP, como no Vercel: carrega o `nucleo.js`, calibra, detecta e libera o Web Serial (página segura), sem erros no console.
 - A leitura pela USB segue o jeito do visualizador oficial da Espressif (`csi_viewer.html`), mas **ainda não foi testada com a placa**.
-- O limiar e as constantes (janela de 1 s, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com dados reais.
+- O limiar e as constantes (janela de 1 s, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com dados reais, no `nucleo.js` **e** no `ferramentas/detector.py`.
 
 ## Referências
 

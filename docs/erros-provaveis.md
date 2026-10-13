@@ -54,9 +54,22 @@ Legenda da origem de cada item:
 |---|---|---|
 | Caracteres estranhos nas primeiras linhas do monitor | As mensagens iniciais do chip saem em outra velocidade (115200) e o monitor está a 921600 **[provável]** | Normal, ignorar. As mensagens do programa aparecem certas logo depois. |
 | Placa A não mostra `wifi_channel: 11, send_frequency: 100` | Placa A sem o programa certo **[oficial: mensagem do `csi_send`]** | Regravar a A com `csi_send`. |
-| Placa A mostra `ESP_ERR_ESPNOW_NO_MEM` | Canal 11 congestionado **[oficial]** | Mudar de local. Se continuar, trocar o canal no código das **duas** placas (fazemos juntos). |
+| Placa A mostra `ESP_ERR_ESPNOW_NO_MEM` | Canal 11 congestionado **[oficial]** | Mudar de local. Se continuar, trocar o canal nas **duas** placas (veja "Trocar o canal" logo abaixo). |
 | Placa B mostra `CSI RECV` mas nenhuma linha `CSI_DATA` | A Placa A está desligada, longe demais ou com o programa errado **[provável]** | Conferir a energia da A e o que o monitor dela mostra. O receptor só aceita pacotes do endereço `1a:00:00:00:00:00`, que é o da A **[oficial: código]**. |
 | Texto todo embaralhado, sempre | Velocidade errada no monitor **[provável]** | Usar `idf.py -p COMx monitor` sem mudar a velocidade. O projeto já configura 921600 **[testado: sdkconfig]**. |
+
+### Trocar o canal do Wi-Fi
+
+Use só se o canal 11 estiver congestionado (erro acima, ou muitos pacotes perdidos em todo lugar).
+
+1. Ver os canais das redes por perto, no PowerShell: `netsh wlan show networks mode=bssid`. Procure as linhas "Canal" e escolha um número pouco usado **entre 5 e 13**. Como os exemplos usam 40 MHz com o canal secundário "abaixo", o canal escolhido ocupa também os 4 de baixo; por isso não dá para usar de 1 a 4 **[oficial: código usa `WIFI_SECOND_CHAN_BELOW`]**.
+2. Trocar o número `11` pelo novo nos **dois** arquivos **[oficial: código]**:
+   - `examples/get-started/csi_send/main/app_main.c`, linha 27: `#define CONFIG_LESS_INTERFERENCE_CHANNEL   11`
+   - `examples/get-started/csi_recv/main/app_main.c`, linha 29: `#define CONFIG_LESS_INTERFERENCE_CHANNEL   11`
+3. Compilar e gravar de novo as **duas** placas (`idf.py build`, depois `idf.py -p COMx flash` em cada pasta).
+4. Conferir no monitor da Placa A: `wifi_channel: NOVO_NÚMERO`. Anotar o canal no `--obs` das coletas.
+
+Se as placas ficarem com canais diferentes, a B não recebe nada.
 
 **Deu certo quando:** a Placa B mostra `================ CSI RECV ================`, uma linha de cabeçalho `type,id,mac,...` e depois várias linhas começando com `CSI_DATA,`. Para sair do monitor: `Ctrl` + `]`.
 
@@ -84,7 +97,7 @@ Legenda da origem de cada item:
 |---|---|
 | Alguém passa perto durante a gravação de "vazio" | Avisar quem está por perto. Anotar em `--obs` se aconteceu. |
 | As placas mudam de lugar entre coletas | Marcar com fita no chão. Foto da montagem no início de cada sessão. |
-| Testar o detector com as mesmas gravações usadas para ajustá-lo | Separar desde o início: algumas gravações só para ajuste, outras só para teste final. |
+| Testar o detector com as mesmas gravações usadas para ajustá-lo | Separar por **sessão** desde o início (`--sessao S1`, `S2`...). O `avaliar.py` e o `classificar.py` usam as ímpares para ajuste e as pares para teste. |
 | Todas as coletas de uma classe no mesmo horário | Alternar a ordem: vazio, andando, parado, vazio... |
 
 ## 9. Na feira
@@ -96,3 +109,13 @@ Legenda da origem de cada item:
 | Windows reinicia para atualizar no meio da apresentação | Pausar as atualizações do Windows na véspera. |
 | Notebook sem bateria ou sem tomada | Confirmar tomada no estande e levar extensão. |
 | Visualizador no navegador não conecta | Web Serial só funciona no **Chrome** ou no **Edge** **[oficial]**. |
+| Internet da feira não funciona e o site do Vercel não abre | Levar a pasta `demo/` no notebook e abrir o `index.html` direto no Chrome. Funciona sem internet; só as fontes trocam por outras parecidas. |
+
+## 10. Site no Vercel
+
+| Sintoma | Causa | O que fazer |
+|---|---|---|
+| Página 404 depois do deploy | O Vercel não leu o `vercel.json` (pasta raiz errada) **[provável]** | Nas configurações do projeto (Settings), deixar o **Root Directory** vazio, ou seja, a raiz do repositório. O `vercel.json` já diz para publicar só a pasta `demo`. |
+| O site abre, mas o botão Placa USB diz que não funciona | Navegador sem Web Serial (Firefox e Safari não têm) **[oficial]** | Abrir no **Chrome** ou no **Edge** do computador. No celular, usar a simulação. |
+| Mudança no código não aparece no site | O Vercel publica a partir do ramo de produção **[oficial]** | Conferir em Deployments se o último envio virou um deploy. Envios para outros ramos viram "Preview", com outro endereço. |
+| Recordes, marcas e mural sumiram | Ficam guardados só no navegador de cada aparelho (`localStorage`) **[testado]** | Normal. Na feira, usar sempre o mesmo notebook e o mesmo navegador. |

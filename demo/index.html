@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Wave Sense ao Vivo</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 fill=%27%230B0B0A%27/%3E%3Cpath d=%27M4 12h6l3-5 3 7 3-4h9M4 18h6l3-3 3 5 3-3h9M4 24h6l3-2 3 3 3-2h9%27 fill=%27none%27 stroke=%27%23EDEDE8%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap">
@@ -296,14 +297,14 @@ body.com-operador .camada { right: min(380px, 100vw); }
   </section>
 </aside>
 
+<script src="nucleo.js"></script>
 <script>
 'use strict';
 const $ = (id) => document.getElementById(id);
 
-const JANELA_S = 1.0;          // janela da oscilação, igual ao ferramentas/analise.py
-const AVALIAR_MS = 200;
-const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para marcar movimento
-const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "parado"
+// A regra do detector mora no nucleo.js, a mesma do ferramentas/detector.py.
+const { lerLinhaCSI, oscilacao, estatisticas, limiarDeCalibracao, Detector, JANELA_S, K_DESVIOS } = WaveNucleo;
+const AVALIAR_MS = WaveNucleo.PASSO_S * 1000;
 const LINHAS = 48;             // leituras empilhadas na tela
 const LEITURA_S = 0.1;         // uma linha nova a cada 0,1 s
 const REALCE = 3;              // só no desenho: aumenta o tremor de cada linha em relação à forma média
@@ -312,7 +313,7 @@ const EMBUTIDO = window.self !== window.top;   // dentro do claude.ai: sem USB e
 const app = {
   fonte: null, janela: [], ultimoId: null, perdidos: 0, ultimoPacote: 0,
   maxRecente: 0, historico: [],
-  limiar: null, detectado: false, acima: 0, abaixo: 0, calibracao: null, oscAtual: NaN,
+  limiar: null, detectado: false, det: null, calibracao: null, oscAtual: NaN,
   leituras: [], ultimaLeitura: 0, formaLenta: null,
   quietoDesde: 0,
   porta: null, leitor: null, timers: [],
@@ -326,25 +327,6 @@ const hoje = () => new Date().toISOString().slice(0, 10);
 let dia = ler('wavesense-dia', null);
 if (!dia || dia.data !== hoje() || typeof dia.live !== 'number') dia = { data: hoje(), live: 0, sim: 0 };
 
-/* ---------- Leitura das linhas CSI_DATA (mesmo formato do ferramentas/csi_formato.py) ---------- */
-function lerLinhaCSI(texto) {
-  texto = texto.trim();
-  if (!texto.startsWith('CSI_DATA,')) return null;
-  const a = texto.indexOf('"['), b = texto.lastIndexOf(']"');
-  if (a < 0 || b < a) return null;
-  const campos = texto.slice(0, a).split(',');
-  if (campos.length !== 25) return null;
-  const id = Number(campos[1]), rssi = Number(campos[3]);
-  const len = Number(campos[22]), primeiraInvalida = Number(campos[23]);
-  const vals = texto.slice(a + 2, b).split(',').map(Number);
-  if (vals.length !== len || vals.some(Number.isNaN)) return null;
-  const n = (len === 128 || len === 256 || len === 384) ? 64 : Math.floor(len / 2);
-  const amps = new Float32Array(n);
-  for (let k = 0; k < n; k++) amps[k] = Math.hypot(vals[2 * k], vals[2 * k + 1]);
-  if (primeiraInvalida) { amps[0] = 0; amps[1] = 0; }
-  return { id, rssi, amps };
-}
-
 function receber(p) {
   const t = performance.now() / 1000;
   p.t = t;
@@ -353,26 +335,6 @@ function receber(p) {
   app.ultimoPacote = t;
   app.janela.push(p);
   while (app.janela.length && app.janela[0].t < t - 2) app.janela.shift();
-}
-
-function oscilacao(pacotes) {
-  if (pacotes.length < 10) return NaN;
-  const K = pacotes[pacotes.length - 1].amps.length;
-  const ps = pacotes.filter((p) => p.amps.length === K);
-  const n = ps.length;
-  if (n < 10) return NaN;
-  let soma = 0, cont = 0;
-  for (let k = 0; k < K; k++) {
-    let m = 0;
-    for (const p of ps) m += p.amps[k];
-    m /= n;
-    if (m < 0.5) continue;
-    let v = 0;
-    for (const p of ps) { const d = p.amps[k] - m; v += d * d; }
-    soma += Math.sqrt(v / n);
-    cont++;
-  }
-  return cont ? soma / cont : NaN;
 }
 
 /* ---------- Detecção ---------- */
@@ -391,9 +353,7 @@ function avaliar() {
       app.calibracao.valores.push(v);
       if (agora >= app.calibracao.fim) terminarCalibracao();
     } else if (app.limiar !== null) {
-      if (v > app.limiar) { app.acima++; app.abaixo = 0; } else { app.abaixo++; app.acima = 0; }
-      if (!app.detectado && app.acima >= CONFIRMA_LIGA) app.detectado = true;
-      if (app.detectado && app.abaixo >= CONFIRMA_DESLIGA) app.detectado = false;
+      app.detectado = app.det.passo(v);
     }
     app.historico.push(v);
     if (app.historico.length > 300) app.historico.shift();
@@ -417,20 +377,20 @@ function avaliar() {
 function iniciarCalibracao(duracao = 10) {
   if (!app.fonte) return;
   app.calibracao = { inicio: performance.now() / 1000, fim: performance.now() / 1000 + duracao, duracao, valores: [] };
-  app.detectado = false; app.acima = 0; app.abaixo = 0;
+  app.detectado = false;
   $('cal-info').textContent = `Calibrando por ${duracao} s. Zona vazia, ninguém se mexendo por perto.`;
 }
 function terminarCalibracao() {
   const vs = app.calibracao.valores;
   app.calibracao = null;
-  if (vs.length < 5) { $('cal-info').textContent = 'Poucos dados para calibrar. Os pacotes estão chegando?'; return; }
-  const m = vs.reduce((s, x) => s + x, 0) / vs.length;
-  const dp = Math.sqrt(vs.reduce((s, x) => s + (x - m) ** 2, 0) / vs.length);
-  definirLimiar(Math.max(m + 3 * dp, m * 1.3));
-  $('cal-info').textContent = `Calibrado com ${vs.length} medidas da zona vazia: média ${fmt(m)}, desvio ${fmt(dp)}. Limiar = média + 3 desvios.`;
+  let limiar;
+  try { limiar = limiarDeCalibracao(vs); } catch (e) { $('cal-info').textContent = 'Poucos dados para calibrar. Os pacotes estão chegando?'; return; }
+  const { n, media, desvio } = estatisticas(vs);
+  definirLimiar(limiar);
+  $('cal-info').textContent = `Calibrado com ${n} medidas da zona vazia: média ${fmt(media)}, desvio ${fmt(desvio)}. Limiar = média + ${K_DESVIOS} desvios.`;
 }
 function definirLimiar(x) {
-  app.limiar = x; app.acima = 0; app.abaixo = 0;
+  app.limiar = x; app.det = new Detector(x);
   const r = $('limiar');
   r.max = String(x * 4); r.step = String(x / 100); r.value = String(x);
 }
@@ -780,7 +740,7 @@ function iniciarGravacao(texto, nome) {
 
 /* ---------- Placa B pela USB (Web Serial, Chrome/Edge) ---------- */
 async function conectarPlaca() {
-  if (!('serial' in navigator) || EMBUTIDO) { mostrarMsg('A USB só funciona abrindo demo/index.html direto no Chrome ou no Edge do computador.'); return; }
+  if (!('serial' in navigator) || EMBUTIDO) { mostrarMsg('A USB só funciona no Chrome ou no Edge do computador, abrindo o site (https) ou o arquivo demo/index.html.'); return; }
   let porta;
   try { porta = await navigator.serial.requestPort(); } catch (e) {
     mostrarMsg(e && e.name === 'NotFoundError'
@@ -821,7 +781,7 @@ async function pararFonte() {
   app.timers.forEach(clearInterval); app.timers = [];
   app.janela = []; app.historico = []; app.leituras = []; app.formaLenta = null;
   app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
-  app.limiar = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0; app.acima = 0; app.abaixo = 0;
+  app.limiar = null; app.det = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0;
   fecharCamadas();
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
   if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
@@ -1110,7 +1070,7 @@ $('arquivo').addEventListener('change', async (e) => {
 $('src-live').addEventListener('click', () => { esconderMsg(); conectarPlaca(); });
 $('btn-cal').addEventListener('click', () => iniciarCalibracao(app.fonte === 'sim' ? 6 : 10));
 $('limiar').addEventListener('input', (e) => {
-  app.limiar = Number(e.target.value); app.acima = 0; app.abaixo = 0;
+  app.limiar = Number(e.target.value); app.det = new Detector(app.limiar);
   $('cal-info').textContent = 'Limiar mudado à mão. Mais baixo: mais alarmes falsos. Mais alto: movimentos pequenos passam.';
 });
 $('som-mudo').addEventListener('click', () => definirSom('mudo'));

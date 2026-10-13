@@ -6,18 +6,22 @@ from pathlib import Path
 
 import numpy as np
 
+import detector
 from csi_formato import LinhaInvalida, ler_campos
 
 
-def carregar(caminho, segmento="lltf"):
+def carregar(caminho, segmento="lltf", remover_nulas=True):
     """Lê uma coleta e devolve um dicionário com arrays numpy.
 
-    t        tempo no PC (s) de cada pacote
-    ids      número do pacote enviado pela Placa A
-    rssi     força do sinal (dBm)
-    amp      matriz (pacotes x subportadoras) de amplitudes do segmento escolhido
-    colunas  índice original de cada subportadora mantida (as sempre zeradas são removidas)
-    meta     conteúdo do .json da coleta, se existir
+    t              tempo no PC (s) de cada pacote
+    ids            número do pacote enviado pela Placa A
+    rssi           força do sinal (dBm)
+    amp            matriz (pacotes x subportadoras) para gráficos: pares inválidos viram NaN e,
+                   com remover_nulas=True, as subportadoras sempre zeradas são removidas
+    amp_completa   mesma matriz com todas as subportadoras e inválidos = 0 (é o que o detector usa,
+                   igual à tela de demonstração)
+    colunas        índice original de cada coluna de `amp`
+    meta           conteúdo do .json da coleta, se existir
     """
     caminho = Path(caminho)
     t, ids, rssi, linhas_amp = [], [], [], []
@@ -44,20 +48,20 @@ def carregar(caminho, segmento="lltf"):
             linhas_amp.append([np.nan if a is None else a for a in amps])
 
     amp = np.array(linhas_amp, dtype=float)
-    if amp.size:
+    amp_completa = np.nan_to_num(amp, nan=0.0) if amp.size else amp
+    colunas = np.arange(amp.shape[1]) if amp.size else np.array([], dtype=int)
+    if amp.size and remover_nulas:
         # Subportadoras de guarda/nulas ficam sempre em zero e só atrapalham o gráfico.
         uteis = ~np.all((amp == 0) | np.isnan(amp), axis=0)
         colunas = np.flatnonzero(uteis)
         amp = amp[:, uteis]
-    else:
-        colunas = np.array([], dtype=int)
 
     meta_path = caminho.with_suffix(".json")
     meta = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
     return {
         "t": np.array(t), "ids": np.array(ids), "rssi": np.array(rssi),
-        "amp": amp, "colunas": colunas, "meta": meta, "ignorados": ignorados,
-        "arquivo": caminho.name,
+        "amp": amp, "amp_completa": amp_completa, "colunas": colunas, "meta": meta,
+        "ignorados": ignorados, "arquivo": caminho.name,
     }
 
 
@@ -75,23 +79,8 @@ def por_janela(t, valores, janela_s=1.0, func=np.nanmean):
     return np.array(centros), np.array(res), np.array(cont)
 
 
-def oscilacao(dados, janela_s=1.0):
-    """Quanto a amplitude "tremeu" em cada janela: desvio padrão no tempo de cada
-    subportadora, depois a média entre subportadoras. É a medida candidata do detector;
-    ainda precisa ser comparada com outras quando houver dados reais."""
-    t, amp = dados["t"], dados["amp"]
-    if amp.size == 0:
+def oscilacao(dados, janela_s=detector.JANELA_S):
+    """Oscilação ao longo do tempo, com a mesma regra do detector e da tela de demonstração."""
+    if dados["amp_completa"].size == 0:
         return np.array([]), np.array([])
-
-    def desvio(bloco):
-        if len(bloco) < 2:
-            return np.nan
-        return float(np.nanmean(np.nanstd(bloco, axis=0)))
-
-    bordas = np.arange(t[0], t[-1] + janela_s, janela_s)
-    centros, res = [], []
-    for a, b in zip(bordas[:-1], bordas[1:]):
-        sel = (t >= a) & (t < b)
-        centros.append((a + b) / 2)
-        res.append(desvio(amp[sel]))
-    return np.array(centros), np.array(res)
+    return detector.serie_oscilacao(dados["t"], dados["amp_completa"], janela=janela_s)

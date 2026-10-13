@@ -13,10 +13,11 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 - [ ] Firmware gravado nas duas placas
 - [ ] Primeira captura de CSI salva em arquivo
 - [ ] Script Python lendo e plotando o CSI de uma coleta real
-  - Ferramentas prontas e testadas sem placa: `ferramentas/` (captura, leitura do formato, gráficos)
+  - Ferramentas prontas e testadas sem placa: `ferramentas/` (captura, leitura do formato, gráficos, detector, avaliação, classificador, pôster)
 - [ ] Coletas: vazio / pessoa parada / pessoa caminhando
 - [ ] Detecção de movimento simples funcionando e medida
-- [ ] (Opcional) Classificador, testes de distância/parede, queda simulada, interface
+- [ ] Site da demonstração publicado no Vercel (configurado; falta o primeiro deploy, ver `docs/publicar-vercel.md`)
+- [ ] (Opcional) Classificador, testes de distância/parede, queda simulada
 
 Só marcar um item depois de testado de verdade.
 
@@ -28,8 +29,9 @@ Só marcar um item depois de testado de verdade.
 - [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê
 - [Erros prováveis](docs/erros-provaveis.md): o que pode dar errado em cada etapa e como resolver
 - [Protocolo de coleta](experimentos/protocolo.md) e [registro de coletas](experimentos/registro_coletas.csv)
-- [Ferramentas](ferramentas/README.md): como capturar e plotar
-- [Tela de demonstração](demo/README.md): `demo/index.html` (simulação, gravação e placa USB) · versão online: https://claude.ai/artifact/1q55pHmnJivTx6Z7pzt68o
+- [Ferramentas](ferramentas/README.md): capturar, plotar, medir o detector, classificador e pôster
+- [Tela de demonstração](demo/README.md): `demo/index.html` (simulação, gravação e placa USB) · versão no claude.ai: https://claude.ai/artifact/1q55pHmnJivTx6Z7pzt68o
+- [Publicar no Vercel](docs/publicar-vercel.md): o link para mandar aos amigos
 
 ## Hardware escolhido
 

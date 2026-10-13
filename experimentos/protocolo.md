@@ -7,7 +7,7 @@ Rascunho para a primeira sessão. Os números (duração, repetições) são pon
 1. Montar as placas paradas, na mesma altura, a mais de 1 m uma da outra (recomendação da Espressif).
 2. Marcar com fita no chão a posição das placas, da mesa e da área onde a pessoa anda.
 3. Tirar uma foto da montagem e anotar a distância entre as placas.
-4. Dar um código para a sessão (S1, S2...) e anotar no campo `--obs` das coletas.
+4. Dar um código para a sessão (S1, S2...) e usar em todas as coletas dela, com `--sessao S1`.
 5. Abrir o monitor por alguns segundos para conferir que chegam linhas `CSI_DATA`, e fechar.
 
 ## Classes da primeira etapa
@@ -29,12 +29,12 @@ Depois, se a primeira etapa funcionar: `sentar_levantar` e `queda_simulada` (sem
 Comando, no "ESP-IDF PowerShell":
 
 ```
-python ferramentas/capturar.py --porta COM3 --rotulo andando --duracao 30 --participante P1 --distancia 2 --parede nao --obs "S1"
+python ferramentas/capturar.py --porta COM3 --sessao S1 --rotulo andando --duracao 30 --participante P1 --distancia 2 --parede nao
 ```
 
 ## Separar ajuste e teste
 
-Decidir **antes** de olhar os resultados: as sessões ímpares (S1, S3...) servem para escolher o limiar, e as sessões pares (S2, S4...) só para medir os acertos no fim. Gravações vizinhas da mesma sessão são muito parecidas; misturá-las entre ajuste e teste faz o resultado parecer melhor do que é.
+Decidir **antes** de olhar os resultados: as sessões ímpares (S1, S3...) servem para escolher o limiar e treinar o classificador, e as sessões pares (S2, S4...) só para medir os acertos no fim. É isso que `ferramentas/avaliar.py` e `ferramentas/classificar.py` fazem por padrão. Gravações vizinhas da mesma sessão são muito parecidas; misturá-las entre ajuste e teste faz o resultado parecer melhor do que é.
 
 ## Participantes
 

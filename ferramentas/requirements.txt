@@ -1,3 +1,5 @@
 pyserial
 numpy
 matplotlib
+# Só o classificar.py usa. Se der erro ao instalar, apague esta linha e rode de novo: o resto funciona sem ele.
+scikit-learn

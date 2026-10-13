@@ -21,7 +21,8 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Dois desenhos de linhas lado a lado, feitos com gravações reais de 30 s: sala vazia e pessoa andando.
 - Um terceiro painel, "atrás da parede", se o teste com parede acontecer.
 - Cada painel traz as condições escritas: distância, data e tempo de gravação.
-- **Falta:** fazer as gravações. Depois disso, escrever o script que gera os desenhos para impressão.
+- O script já existe: `ferramentas/poster.py` (PDF para imprimir + PNG), no mesmo estilo da tela. Com dados inventados ele escreve "DADOS SINTÉTICOS" em vermelho no pôster.
+- **Falta:** fazer as gravações (mesma sessão para os dois painéis).
 
 ### Tela da demonstração
 - Estilo minimalista: linhas empilhadas do sinal, uma palavra grande (*Parado.* / *Movimento.*) e a tela inverte as cores quando há movimento.
@@ -41,6 +42,17 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Falta:**
   - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
   - descobrir se haverá impressora na feira.
+
+### Detector e avaliação
+- A tela (`demo/nucleo.js`) e o Python (`ferramentas/detector.py`) usam **a mesma regra**, conferida por teste. O que aparece na feira é o que foi medido.
+- Coletas separadas por **sessão** (`--sessao S1`, `S2`...): sessões ímpares ajustam o limiar, sessões pares testam. Nada da sessão de teste é usado para escolher nada.
+- Citar no pôster e na apresentação o resultado **por coleta**, sempre ao lado do "chute" (responder sempre a classe mais comum).
+- Classificador (Random Forest) só depois de o detector funcionar com dados reais, e só se sobrar tempo.
+
+### Site no Vercel (aprovado)
+- A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.
+- O site não guarda nada em servidor; recordes e marcas ficam no navegador de cada aparelho.
+- Na feira, a pasta `demo/` no notebook continua sendo o plano principal (funciona sem internet); o site é reserva.
 
 ### Imagens geradas por IA
 - Não usar na tela principal: lá tudo deve ser sinal medido.
