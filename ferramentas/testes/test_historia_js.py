@@ -24,6 +24,16 @@ out.molaDtGrande = H.mola(0, 0, 1, 5);
 // curva da transição: começa andando (inclinação m0), termina parada e exata, sempre para a frente
 const pts = [], incl = [];
 for (const m0 of [0, 1, 2, 3]) for (let i = 0; i <= 200; i++) { pts.push([m0, i / 200, H.transicao(i / 200, m0)]); incl.push(H.inclinacaoTransicao(i / 200, m0)); }
+// curvas Bézier: começam em 0, terminam em 1; entra/sai/suave nunca voltam; o "pop" passa pouco do fim
+const amostra = (f) => Array.from({ length: 401 }, (_, i) => f(i / 400));
+out.curvas = Object.fromEntries(['entra', 'sai', 'suave', 'pop'].map((n) => {
+  const v = amostra(H.curvas[n]);
+  return [n, { ini: v[0], fim: v[400], max: Math.max(...v), min: Math.min(...v), monotonica: v.every((x, i) => i === 0 || x >= v[i - 1] - 1e-9) }];
+}));
+// confere a Bézier contra pontos conhecidos do cubic-bezier do CSS: ease (0.25, 0.1, 0.25, 1) em x = 0,5 dá ~0,8024
+out.ease = H.bezier(0.25, 0.1, 0.25, 1)(0.5);
+const marcas = R.cenas.flatMap((c) => [c.titulo, c.frase]).map((t) => (String(t).match(/\*/g) || []).length);
+out.asteriscosPares = marcas.every((n) => n % 2 === 0);
 out.transicao = {
   fim: [0, 1, 2, 3].map((m0) => H.transicao(1, m0)), comeco: [0, 1, 2, 3].map((m0) => H.transicao(0, m0)),
   inclinacao0: [0, 1, 2, 3].map((m0) => H.inclinacaoTransicao(0, m0)), inclinacao1: H.inclinacaoTransicao(1, 1),
@@ -41,7 +51,7 @@ const ordem = ['placas', 'acorde', 'linhas'], pad = Object.fromEntries(Object.en
 const p1 = H.poseEm(1, ordem, H.POSES, pad), p2 = H.poseEm(1.1, ordem, H.POSES, pad), p0 = H.poseEm(0.9, ordem, H.POSES, pad);
 // compara só o que aparece: camadas com presença > 0, números arredondados, sem a direção e o progresso da animação
 const limpo = (p) => JSON.stringify(Object.fromEntries(Object.entries(p).filter(([k, q]) => !k.startsWith('_') && q.p > 1e-6)
-  .map(([k, q]) => [k, Object.fromEntries(Object.entries(q).filter(([c]) => !["dir", "km", "vx"].includes(c)).map(([c, val]) => [c, typeof val === 'number' ? Math.round(val * 1e6) / 1e6 : val]))])));
+  .map(([k, q]) => [k, Object.fromEntries(Object.entries(q).filter(([c]) => !["dir", "km", "vx", "lin"].includes(c)).map(([c, val]) => [c, typeof val === 'number' ? Math.round(val * 1e6) / 1e6 : val]))])));
 out.repouso = { depois: limpo(p1) === limpo(p2), antes: limpo(p1) === limpo(p0) };
 // em cada cena inteira (nas duas versões), o palco mostra exatamente a pose daquela cena
 out.poseExata = [];
@@ -55,7 +65,7 @@ for (const v of ['completa', 'curta']) {
     const camadas = Object.entries(P).filter(([k, q]) => !k.startsWith('_') && q.p > 1e-9);
     if (camadas.some(([, q]) => q.p !== 1)) out.poseExata.push(`${v}:${id}:presença`);
     const visto = Object.fromEntries(camadas.map(([k, q]) => {
-      const e = { ...q }; delete e.dir; delete e.km; delete e.vx; delete e.p; return [k, e];
+      const e = { ...q }; delete e.dir; delete e.km; delete e.vx; delete e.lin; delete e.p; return [k, e];
     }));
     const r = (o) => JSON.stringify(Object.keys(o).sort().map((k) => [k, Object.keys(o[k]).sort().map((c) => [c, typeof o[k][c] === 'number' ? Math.round(o[k][c] * 1e6) / 1e6 : o[k][c]])]));
     if (r(esperado) !== r(visto)) out.poseExata.push(`${v}:${id}`);
@@ -86,6 +96,18 @@ class TestHistoria(unittest.TestCase):
     def test_mola_com_dt_grande_nao_explode(self):
         x, v = self.r["molaDtGrande"]
         self.assertTrue(0 <= x <= 1)
+
+    def test_curvas_bezier(self):
+        for nome, v in self.r["curvas"].items():
+            self.assertEqual((v["ini"], v["fim"]), (0, 1), nome)
+        for nome in ("entra", "sai", "suave"):
+            self.assertTrue(self.r["curvas"][nome]["monotonica"], nome)
+            self.assertLessEqual(self.r["curvas"][nome]["max"], 1 + 1e-9, nome)
+        self.assertLess(self.r["curvas"]["pop"]["max"], 1.06)       # passa no máximo 6% do fim
+        self.assertAlmostEqual(self.r["ease"], 0.8024, places=3)      # mesmo resultado do navegador
+
+    def test_palavra_chave_marcada_em_pares(self):
+        self.assertTrue(self.r["asteriscosPares"])
 
     def test_curva_da_transicao(self):
         t = self.r["transicao"]

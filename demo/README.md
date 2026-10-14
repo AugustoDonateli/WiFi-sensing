@@ -77,6 +77,18 @@ Uma história em motion design que explica o projeto, para passar na TV do estan
 
 **Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.
 
+**Palavra-chave:** no título, o trecho entre `*asteriscos*` é sublinhado na tela depois que o título aparece (por exemplo `'O sinal chega por *vários caminhos*.'`). No máximo um trecho por título; a janela do apresentador mostra o texto sem os asteriscos.
+
+**Como o movimento foi feito** (para quem for mexer no `historia.js`):
+- Curvas de aceleração como as do After Effects (Bézier): o que entra chega rápido e assenta devagar, o que sai acelera.
+- O que entra desenhando sai desdesenhando (casa, notebook, sala, câmera); o número e as linhas saem subindo um pouco, como o texto.
+- Passagens que mostram a causa:
+  - o roteador vira a placa A;
+  - os caminhos do sinal são puxados para dentro da placa B e viram as 64 barras;
+  - as gravações de teste se empilham dentro da barra do resultado;
+  - uma linha varre a tela e troca o exemplo pelo sinal de verdade.
+- A placa ESP32 é desenhada como a DevKit do estande (módulo com antena, pinos, USB) e o LED pisca quando a mensagem sai de A e chega em B.
+
 **Velocidade:** cada passagem de cena dura `transicao` segundos (no `roteiro.js`, hoje 2,6). A animação começa assim que a tecla é apertada; apertar de novo no meio continua sem tranco, e um salto de mais de uma cena e meia vira um corte rápido.
 
 **Preço das placas:** preencha `CUSTO` no `roteiro.js` (por exemplo `'R$ 90'`) para a cena "Dá para montar com pouco." falar o valor. Sem isso, ela não fala de preço.

@@ -76,6 +76,23 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - na fala da pergunta, o dado da OMS (ficha "Falls", 26/04/2021): quedas são a segunda maior causa de morte por acidente no mundo, e os maiores de 60 anos são os mais atingidos;
     - na fala da viabilidade, o padrão IEEE 802.11bf-2025 (publicado em 26/09/2025), só para sensoriamento por Wi-Fi.
   - O ponto fraco que continua: os resultados dependem das gravações com as placas.
+- **Rodada 3: motion mais profissional, sem atrapalhar o entendimento (pedido do grupo):**
+  - Curvas de aceleração Bézier, como as do After Effects (cada elemento chega rápido e assenta devagar; o que sai acelera).
+  - O que entra desenhando sai desdesenhando; o número e as linhas saem subindo, como o texto.
+  - Quatro passagens que mostram a causa:
+    - roteador → placa A;
+    - caminhos → para dentro da placa B → 64 barras;
+    - gravações de teste → barra do resultado;
+    - exemplo → sinal de verdade, com uma linha de varredura.
+  - Redesenhos:
+    - placa ESP32 parecida com a DevKit do estande, com LED piscando quando a mensagem sai e chega;
+    - pessoa com cotovelos e joelhos;
+    - roteador, câmera, casa (parede grossa, porta, janela, sino), luminária que apaga e acende, notebook.
+  - Destaques:
+    - pulso quando o tremor passa do limite;
+    - ponto "agora" no gráfico;
+    - palavra-chave do título sublinhada (marcada com `*...*` no `roteiro.js`).
+  - **Ficou de fora de propósito:** câmera tremendo, zoom contínuo, desfoque e cores novas. Com a cena parada, nada muda de lugar.
 
 ### Imagens geradas por IA
 - Não usar na tela principal: lá tudo deve ser sinal medido.

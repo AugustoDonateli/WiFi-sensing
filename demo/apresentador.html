@@ -104,15 +104,16 @@ const cmd = (acao, extra = {}) => canal.enviar({ tipo: 'cmd', acao, ...extra });
 const cenaPorId = (id) => R.cenas.find((c) => c.id === id);
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const segundos = (c, v) => (c.seg && (c.seg[v] || c.seg.completa)) || 0;
+const semMarcas = (t) => String(t || '').replace(/\*/g, '');   // tira os * da palavra-chave
 
 function mostrar() {
   const c = cenaPorId(palco.cenaId), i = palco.indice, n = palco.ordem.length;
   $('cap').textContent = palco.aberta ? `${c.cap ? R.capitulos[c.cap] + ' · ' : ''}cena ${i + 1} de ${n}` : 'História fechada na TV (abre ao avançar)';
   // na cena ao vivo, o mesmo título que a TV mostra (depende de onde vem o sinal)
-  $('titulo').textContent = c.id === 'aovivo' ? ({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte] || (palco.fonte ? c.titulo : c.tituloSemFonte) || c.titulo) : c.titulo;
+  $('titulo').textContent = semMarcas(c.id === 'aovivo' ? ({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte] || (palco.fonte ? c.titulo : c.tituloSemFonte) || c.titulo) : c.titulo);
   $('notas').textContent = c.notas || '';
   const prox = palco.ordem[i + 1];
-  $('proxima').textContent = prox ? cenaPorId(prox).titulo : 'Fim. Convide para o Desafio Ninja.';
+  $('proxima').textContent = prox ? semMarcas(cenaPorId(prox).titulo) : 'Fim. Convide para o Desafio Ninja.';
   $('posicao').textContent = `${i + 1}/${n}`;
   $('v-completa').setAttribute('aria-pressed', String(palco.versao === 'completa'));
   $('v-curta').setAttribute('aria-pressed', String(palco.versao === 'curta'));

@@ -80,19 +80,19 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 | 1 ★ | Wave Sense | As linhas do sinal | Abertura |
 | 2 | Como perceber que alguém caiu sem usar câmera? | Pessoa caída numa sala, câmera riscada | Problema (o dado da OMS está na fala) |
 | 3 ★ | O Wi-Fi está em quase todo lugar. | Roteador e ondas enchendo a sala | Problema |
-| 4 ★ | Usamos duas placas ESP32. | O roteador vira a placa A; mensagens indo de A para B | Como funciona |
+| 4 ★ | Usamos duas placas ESP32. | O roteador muda de forma e vira a placa A (desenhada como a do estande); mensagens indo de A para B, e o LED de cada placa pisca | Como funciona (aponte as placas de verdade) |
 | 5 ★ | O sinal chega por vários caminhos. | Caminho direto, pelo teto, pelo chão e pela pessoa | Como funciona (piscina) |
-| 6 | A placa B mede o sinal em 64 frequências. | As 64 barras saem da placa B | Como funciona (acorde) |
+| 6 | A placa B mede o sinal em 64 frequências. | Os caminhos são puxados para dentro da placa B, e dela saem as 64 barras | Como funciona (acorde) |
 | 7 ★ | Cada linha é uma medida das 64 frequências. | O topo das barras vira a primeira linha | Como funciona |
 | 8 ★ | Quando alguém se mexe, as linhas mudam. | A sala pequena em cima, com alguém andando; embaixo, as linhas começam a tremer | Como funciona |
-| 9 | Um número resume o quanto o sinal mudou. | Número, gráfico e a linha do limite | Como funciona |
+| 9 | Um número resume o quanto o sinal mudou. | Número, gráfico e a linha do limite; quando passa do limite, "movimento" dá um pulso | Como funciona |
 | 10 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | Peça para mexer o braço |
 | 11 | Como testamos. | 4 situações × 4 sessões; as sessões se separam em "ajustam o limite" e "só testam" | Método |
-| 12 | Resultados. | Acerto por coleta ao lado do chute (ou "ainda estamos gravando") | Resultados |
+| 12 | Resultados. | As gravações de teste se empilham na barra do resultado; acerto por coleta ao lado do chute (ou "ainda estamos gravando") | Resultados |
 | 13 ★ | Pessoa parada não aparece. | A mesma sala pequena, com a pessoa parada e tracejada; as linhas ficam calmas | Limites (Estátua) |
 | 14 | Dá para montar com pouco. | A sala volta ao tamanho normal e as linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
-| 15 ★ | Onde isso pode ajudar. | Queda, luz e alarme | Impacto |
-| 16 ★ | E a privacidade? | Casa com as ondas vazando para fora, alguém do lado de fora | Ética |
+| 15 ★ | Onde isso pode ajudar. | Pessoa caída com um sinal de alerta, luminária que apaga e acende sozinha, casa com o sino do alarme | Impacto |
+| 16 ★ | E a privacidade? | Casa de parede grossa com as ondas atravessando, alguém do lado de fora | Ética |
 | 17 ★ | Experimente o Desafio Ninja. | A tela de verdade | Convite |
 
 - O que é ilustração aparece com a etiqueta "Ilustração" no canto. Fale "isto é um exemplo" nessas cenas; o número de verdade é o da cena 10.

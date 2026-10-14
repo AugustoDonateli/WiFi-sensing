@@ -3,7 +3,8 @@
  * Cada cena tem:
  *   id       nome interno (não mude: o desenho de cada cena é ligado a ele)
  *   cap      capítulo (chave de `capitulos`) ou null
- *   titulo   frase grande da tela (a cena ao vivo tem um título para cada fonte de dados)
+ *   titulo   frase grande da tela (a cena ao vivo tem um título para cada fonte de dados).
+ *            A palavra-chave vai entre *asteriscos*: ela é sublinhada na tela. No máximo uma por título.
  *   frase    frase menor, embaixo do título
  *   notas    o que falar (aparece só na janela do apresentador)
  *   seg      segundos sugeridos em cada versão (sem `curta`, a cena não entra na versão curta)
@@ -31,31 +32,31 @@
     },
     {
       id: 'pergunta', cap: 'I',
-      titulo: 'Como perceber que alguém caiu sem usar câmera?', frase: 'Câmeras expõem a intimidade da pessoa. Pulseiras dependem de ela lembrar de usar.',
+      titulo: 'Como perceber que alguém caiu *sem usar câmera*?', frase: 'Câmeras expõem a intimidade da pessoa. Pulseiras dependem de ela lembrar de usar.',
       seg: { completa: 20 },
       notas: 'Segundo a Organização Mundial da Saúde (2021), quedas são a segunda maior causa de morte por acidente no mundo, e quem mais morre por queda são pessoas com mais de 60 anos. Para saber se alguém caiu, hoje se usa câmera, que invade a privacidade, ou pulseira, que a pessoa esquece de usar. Nosso objetivo: testar se duas placas baratas percebem movimento e queda só pelo Wi-Fi, e até onde isso funciona. (Fonte: who.int, ficha "Falls", 26/04/2021.)',
     },
     {
       id: 'wifi', cap: 'I',
-      titulo: 'O Wi-Fi está em quase todo lugar.', frase: 'É uma onda de rádio que se espalha pelo ambiente e bate em paredes, móveis e pessoas.',
+      titulo: 'O Wi-Fi está em *quase todo lugar*.', frase: 'É uma onda de rádio que se espalha pelo ambiente e bate em paredes, móveis e pessoas.',
       seg: { completa: 20, curta: 14 },
       notas: 'O Wi-Fi é onda de rádio: 2,4 GHz, ondas de uns 12 cm. Ele enche o ambiente e bate em tudo. A ideia é usar isso como sensor, sem colocar nada no corpo de ninguém.',
     },
     {
       id: 'placas', cap: 'II',
-      titulo: 'Usamos duas placas ESP32.', frase: 'A placa A envia 100 mensagens de Wi-Fi por segundo. A placa B recebe e mede cada uma.',
+      titulo: 'Usamos *duas placas* ESP32.', frase: 'A placa A envia 100 mensagens de Wi-Fi por segundo. A placa B recebe e mede cada uma.',
       seg: { completa: 25, curta: 18 },
       notas: 'Aponte para as placas A e B do estande. A placa A manda 100 mensagens por segundo; a B recebe e mede como cada uma chegou. São placas ESP32 de baixo custo, com o programa oficial da Espressif (ESP-CSI). Se perguntarem por que não usar o roteador de casa: os roteadores comuns não mostram essas medidas, e a ESP32 mostra.',
     },
     {
       id: 'caminhos', cap: 'II',
-      titulo: 'O sinal chega por vários caminhos.', frase: 'Uma parte vai direto. O resto rebate no teto, no chão e nas pessoas antes de chegar.',
+      titulo: 'O sinal chega por *vários caminhos*.', frase: 'Uma parte vai direto. O resto rebate no teto, no chão e nas pessoas antes de chegar.',
       seg: { completa: 25, curta: 18 },
       notas: 'Se ajudar, use a piscina: a placa A faz ondinhas e a B sente do outro lado. Sem ninguém na água, as ondas chegam sempre iguais. Quando alguém se mexe, os caminhos mudam e o que chega na B muda.',
     },
     {
       id: 'acorde', cap: 'II',
-      titulo: 'A placa B mede o sinal em 64 frequências.', frase: 'Os caminhos se somam: em algumas frequências o sinal chega forte, em outras se cancela. Essas 64 medidas se chamam CSI.',
+      titulo: 'A placa B mede o sinal em *64 frequências*.', frase: 'Os caminhos se somam: em algumas frequências o sinal chega forte, em outras se cancela. Essas 64 medidas se chamam CSI.',
       seg: { completa: 30 },
       notas: 'O canal do Wi-Fi é dividido em 64 partes (subportadoras), a cada 312,5 kHz. Os vários caminhos do sinal chegam juntos e se somam: em algumas frequências eles se reforçam, em outras se cancelam. Por isso cada barra tem uma altura. A placa B mede a força de cada uma; esse conjunto de medidas se chama CSI, Channel State Information. Se ajudar, compare com um acorde: 64 notas tocando juntas.',
     },
@@ -67,13 +68,13 @@
     },
     {
       id: 'tremor', cap: 'II',
-      titulo: 'Quando alguém se mexe, as linhas mudam.', frase: 'Com a sala parada, o desenho se repete. Quando alguém anda, os caminhos do sinal mudam e as linhas tremem.',
+      titulo: 'Quando alguém se mexe, *as linhas mudam*.', frase: 'Com a sala parada, o desenho se repete. Quando alguém anda, os caminhos do sinal mudam e as linhas tremem.',
       seg: { completa: 20, curta: 14 },
       notas: 'Em cima, a sala pequena: alguém andando entre as placas. Embaixo, as linhas daquele sinal. Quando a pessoa entra, os caminhos do sinal mudam a cada instante e as linhas começam a tremer. Com a sala parada, elas repetem sempre o mesmo relevo.',
     },
     {
       id: 'numero', cap: 'II',
-      titulo: 'Um número resume o quanto o sinal mudou.', frase: '1,0× é o tremor da sala vazia. Se passar da linha tracejada, o sistema marca movimento.',
+      titulo: '*Um número* resume o quanto o sinal mudou.', frase: '1,0× é o tremor da sala vazia. Se passar da linha tracejada, o sistema marca movimento.',
       seg: { completa: 30 },
       notas: 'O tremor é o desvio padrão de cada uma das 64 medidas em 1 segundo, com a média entre elas. Antes, medimos a sala vazia: ela vale 1,0×. O limite é a média da sala vazia mais 3 desvios. Três medidas seguidas acima do limite viram "movimento"; cinco abaixo voltam para "parado".',
     },
@@ -100,13 +101,13 @@
     },
     {
       id: 'parado', cap: 'IV',
-      titulo: 'Pessoa parada não aparece.', frase: 'Com ela parada ali, as linhas ficam calmas. O sistema só percebe quando alguém se mexe.',
+      titulo: 'Pessoa parada *não aparece*.', frase: 'Com ela parada ali, as linhas ficam calmas. O sistema só percebe quando alguém se mexe.',
       seg: { completa: 25, curta: 18 },
       notas: 'Compare com a cena do tremor: a mesma sala, mas agora a pessoa fica parada e as linhas ficam calmas. Jogo da Estátua: peça para alguém ficar parado entre as placas. Ele some para o Wi-Fi, porque o detector percebe movimento, não pessoas. Outros limites: distância entre as placas, paredes, várias pessoas ao mesmo tempo e interferência. Cada lugar precisa calibrar.',
     },
     {
       id: 'viabilidade', cap: 'IV',
-      titulo: 'Dá para montar com pouco.', frase: 'Duas placas ESP32, o programa aberto da Espressif e um notebook com Python.',
+      titulo: 'Dá para montar *com pouco*.', frase: 'Duas placas ESP32, o programa aberto da Espressif e um notebook com Python.',
       fraseComCusto: 'Duas placas ESP32, o programa aberto da Espressif e um notebook com Python. As duas placas custaram {custo}.',
       seg: { completa: 25 },
       notas: 'As placas ESP32 são baratas, e o programa que mede o CSI é o oficial da Espressif (ESP-CSI), aberto. A tela e a análise são em JavaScript e Python. Falem o preço que pagaram (e preencham CUSTO aqui no roteiro.js para ele aparecer na tela). Em 2025 o IEEE publicou um padrão só para sensoriamento por Wi-Fi, o 802.11bf: a ideia está indo para produtos.',
@@ -119,7 +120,7 @@
     },
     {
       id: 'privacidade', cap: 'IV',
-      titulo: 'E a privacidade?', frase: 'Se der para perceber alguém através da parede, quem está do lado de fora também poderia. Por isso medimos os limites.',
+      titulo: 'E a *privacidade*?', frase: 'Se der para perceber alguém através da parede, quem está do lado de fora também poderia. Por isso medimos os limites.',
       seg: { completa: 25, curta: 18 },
       notas: 'O lado ruim: se o sinal atravessa paredes, alguém de fora poderia saber se tem gente em casa. Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, é o que estamos testando. Por isso medimos os limites e discutimos regras de uso.',
     },
