@@ -11,7 +11,7 @@
    Não liga simulação nem placa: só conversa com a página da TV. */
 :root {
   color-scheme: dark;
-  --fundo: #0B0B0A; --tinta: #EDEDE8; --apagado: #8A8A84; --aviso: #F5B83D; --linha: #2A2A28;
+  --fundo: #0B0B0A; --tinta: #EDEDE8; --apagado: #8A8A84; --aviso: #EDEDE8; --linha: #2A2A28;
   --serif: "Instrument Serif", "Times New Roman", Georgia, serif;
   --sans: "Geist", "Segoe UI", system-ui, sans-serif;
   --mono: "Geist Mono", Consolas, ui-monospace, monospace;
@@ -41,6 +41,15 @@ button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); bor
 :is(button):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
 .dica { margin-left: auto; }
 @media (max-width: 900px) { .ap { grid-template-columns: minmax(0, 1fr); } .dica { margin-left: 0; } }
+.fala { border-top: 1px solid var(--linha); padding-top: 14px; }
+.fala .mono { display: block; margin-bottom: 10px; }
+.pista { margin-top: 22px; padding-left: 16px; border-left: 1px solid var(--linha); }
+.pista p, details p { font-size: 17px; line-height: 1.5; margin: 6px 0; max-width: 56ch; }
+details { margin-top: 24px; color: var(--apagado); }
+summary { cursor: pointer; font-size: 15px; }
+#experimento { display: flex; gap: 8px; margin-top: 20px; }
+.notas { font-size: clamp(20px, 1.65vw, 27px); line-height: 1.45; }
+@media (max-width: 600px) { .ap { padding: 18px; } button.grande { padding: 12px 20px; } }
 </style>
 </head>
 <body>
@@ -54,11 +63,15 @@ button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); bor
   <section class="atual" aria-live="polite">
     <div class="mono" id="cap">História fechada na TV</div>
     <h1 class="titulo" id="titulo">Na página da TV, aperte H para abrir a história.</h1>
-    <p class="notas" id="notas">Quando a história abrir, a fala de cada cena aparece aqui. Setas, espaço e o passador de slides funcionam nesta janela também.</p>
+    <div class="fala"><span class="mono">Diga</span><p class="notas" id="notas">A fala da cena aparece aqui quando a TV conectar.</p></div>
+    <div class="pista"><span class="mono">Faça e espere</span><p id="faca"></p></div>
+    <div class="pista"><span class="mono">Conecte</span><p id="conecte"></p></div>
+    <div id="experimento" hidden><button id="mover" aria-pressed="false">Mover · simulação</button><button id="parar" aria-pressed="false">Parar · simulação</button></div>
+    <details id="extras"><summary>Se perguntarem</summary><p id="detalhes"></p></details>
   </section>
 
   <aside class="lado">
-    <div class="mini" id="mini" aria-hidden="true"></div>
+    <div class="mini" id="mini" aria-hidden="true"></div><span class="mono">Miniatura ilustrativa · acompanhe os dados na TV</span>
     <div><div class="mono">Próxima</div><div class="proxima-t" id="proxima">–</div></div>
     <div class="tempos">
       <div><b id="t-cena">0:00</b><span class="mono" id="t-sug">nesta cena</span></div>
@@ -72,13 +85,14 @@ button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); bor
     <button class="grande" id="prox">Próxima →</button>
     <button id="v-completa" aria-pressed="true">Completa</button>
     <button id="v-curta" aria-pressed="false">Curta</button>
-    <button id="zerar">Zerar tempo</button>
+    <button id="repetir">Repetir animação</button><button id="zerar">Zerar tempo</button>
     <button id="fechar">Fechar a história</button>
     <span class="mono dica">B ou . deixa a TV preta</span>
   </footer>
 </div>
 
 <script src="roteiro.js"></script>
+<script src="cenas.js"></script>
 <script src="historia.js"></script>
 <script>
 'use strict';
@@ -91,12 +105,12 @@ const mini = WaveHistoria.criarPalco({ raiz: $('mini'), roteiro: R, miniatura: t
 const canal = WaveHistoria.criarCanal('apresentador', (msg) => {
   if (msg.tipo !== 'estado') return;
   visto = Date.now();
-  const mudou = !palco || palco.cenaId !== msg.cenaId || palco.versao !== msg.versao || palco.aberta !== msg.aberta;
+  const mudou = !palco || (palco.cenaVisivel || palco.cenaId) !== (msg.cenaVisivel || msg.cenaId) || palco.fonte !== msg.fonte || palco.cenaSim !== msg.cenaSim || palco.versao !== msg.versao || palco.aberta !== msg.aberta;
   palco = msg;
   if (mini.estado().versao !== msg.versao) mini.versao(msg.versao);
-  mini.irParaId(msg.cenaId);
+  if (mini.estado().cenaId !== msg.cenaId) mini.irParaId(msg.cenaId);
   if (msg.aberta && inicio === null) inicio = Date.now();
-  if (cenaAtual !== msg.cenaId) { cenaAtual = msg.cenaId; cenaDesde = Date.now(); }
+  if (cenaAtual !== (msg.cenaVisivel || msg.cenaId)) { cenaAtual = msg.cenaVisivel || msg.cenaId; cenaDesde = Date.now(); }
   if (mudou) mostrar();
 });
 const cmd = (acao, extra = {}) => canal.enviar({ tipo: 'cmd', acao, ...extra });
@@ -107,11 +121,18 @@ const segundos = (c, v) => (c.seg && (c.seg[v] || c.seg.completa)) || 0;
 const semMarcas = (t) => String(t || '').replace(/\*/g, '');   // tira os * da palavra-chave
 
 function mostrar() {
-  const c = cenaPorId(palco.cenaId), i = palco.indice, n = palco.ordem.length;
+  const c = cenaPorId(palco.cenaVisivel || palco.cenaId), i = palco.indiceVisivel ?? palco.indice, n = palco.ordem.length;
   $('cap').textContent = palco.aberta ? `${c.cap ? R.capitulos[c.cap] + ' · ' : ''}cena ${i + 1} de ${n}` : 'História fechada na TV (abre ao avançar)';
-  // na cena ao vivo, o mesmo título que a TV mostra (depende de onde vem o sinal)
-  $('titulo').textContent = semMarcas(c.id === 'aovivo' ? ({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte] || (palco.fonte ? c.titulo : c.tituloSemFonte) || c.titulo) : c.titulo);
-  $('notas').textContent = c.notas || '';
+  const fala = R.conteudo(c, palco.fonte);
+  $('titulo').textContent = semMarcas(fala.titulo);
+  $('notas').textContent = fala.diga;
+  $('faca').textContent = fala.faca;
+  $('conecte').textContent = fala.conecte;
+  $('detalhes').textContent = fala.detalhes;
+  $('extras').open = false;
+  $('experimento').hidden = c.id !== 'aovivo' || palco.fonte !== 'sim';
+  $('mover').setAttribute('aria-pressed', String(palco.cenaSim === 'andando'));
+  $('parar').setAttribute('aria-pressed', String(palco.cenaSim === 'parado'));
   const prox = palco.ordem[i + 1];
   $('proxima').textContent = prox ? semMarcas(cenaPorId(prox).titulo) : 'Fim. Convide para a Travessia.';
   $('posicao').textContent = `${i + 1}/${n}`;
@@ -127,7 +148,7 @@ setInterval(() => {
   $('status').className = `mono ${ok ? 'ok' : 'off'}`;
   $('relogio').textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   if (palco) {
-    const sug = segundos(cenaPorId(palco.cenaId), palco.versao), t = cenaDesde ? (Date.now() - cenaDesde) / 1000 : 0;
+    const sug = segundos(cenaPorId(palco.cenaVisivel || palco.cenaId), palco.versao), t = cenaDesde ? (Date.now() - cenaDesde) / 1000 : 0;
     $('t-cena').textContent = fmt(t);
     $('t-cena').classList.toggle('passou', t > sug * 1.3);
     $('t-sug').textContent = `nesta cena · sugerido ${sug} s`;
@@ -137,6 +158,9 @@ setInterval(() => {
 canal.enviar({ tipo: 'ola' });
 setInterval(() => canal.enviar({ tipo: 'ola' }), 2000);
 
+$('mover').addEventListener('click', () => cmd('simular', { cenaSim: 'andando' }));
+$('parar').addEventListener('click', () => cmd('simular', { cenaSim: 'parado' }));
+$('repetir').addEventListener('click', () => cmd('repetir'));
 $('ant').addEventListener('click', () => cmd('anterior'));
 $('prox').addEventListener('click', () => cmd('proxima'));
 $('v-completa').addEventListener('click', () => cmd('versao', { versao: 'completa' }));
@@ -150,7 +174,7 @@ document.addEventListener('keydown', (e) => {
   const k = e.key;
   const nav = { ArrowRight: 'proxima', ArrowDown: 'proxima', PageDown: 'proxima', ' ': 'proxima', ArrowLeft: 'anterior', ArrowUp: 'anterior', PageUp: 'anterior' };
   if (k === 'F5') { e.preventDefault(); return; }
-  if (e.target.tagName === 'BUTTON' && (k === ' ' || k === 'Enter')) return;
+  if (e.target.closest('button, summary') && (k === ' ' || k === 'Enter')) return;
   if (k in nav) { e.preventDefault(); if (!e.repeat) cmd(nav[k]); }
   else if (k === 'b' || k === 'B' || k === '.') cmd('preto');
   else if ((k === 'v' || k === 'V') && palco) cmd('versao', { versao: palco.versao === 'completa' ? 'curta' : 'completa' });
