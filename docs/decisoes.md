@@ -2,15 +2,6 @@
 
 Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a anterior fica riscada aqui, com o motivo.
 
-## Refinamento editorial — 14/10/2026
-
-- Preservar integralmente as passagens entre abas e o motion design da apresentação.
-- Preservar as leituras que entram embaixo, sobem mantendo a memória temporal e comandam a inversão automática preto/branco pelo detector.
-- A próxima evolução concentra-se em textos, hierarquia, legibilidade, instruções e controles; as regras do detector e da Travessia continuam iguais.
-- Explicar o áudio como tradução das variações do sinal e a marca como registro de uma passagem, com apelido informado pelo visitante.
-- Identificar a fonte dos dados e distinguir testes planejados de resultados já medidos.
-- Preparar alterações em branch própria e pull request para revisão.
-
 ## 13/10/2026
 
 ### Hardware e software base

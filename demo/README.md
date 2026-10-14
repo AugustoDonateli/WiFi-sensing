@@ -30,28 +30,16 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 
 O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, calculada pelo `nucleo.js` com a mesma regra do `ferramentas/detector.py` (um teste confere que as duas dão o mesmo resultado).
 
-## Refinamento editorial (14/10/2026)
-
-As transições entre abas, o motion design, a memória das linhas, o detector e a inversão automática de cores foram preservados.
-
-- A legenda permanente do sinal explica que o tempo sobe e que a linha de baixo é agora. A área do gráfico deixa espaço para a legenda e os controles na mesma tela do computador.
-- Os convites da tela principal distinguem simulação, gravação e placas; movimentar-se em frente a uma simulação não muda seus dados.
-- Na Travessia, o apelido é opcional e o botão Começar fica junto dele. Durante a tentativa, a tela explica como confirmar a chegada. A classificação continua sendo das travessias mais rápidas sem detecção.
-- A Escuta explica que o som traduz as variações do sinal e oferece pausa e volume na própria aba. O volume é o mesmo do Operador; sair da Escuta restaura o modo de som anterior.
-- O mural mostra o resultado e a fonte de cada registro, explica a leitura dos anéis do centro para a borda e oferece uma ação para começar quando está vazio. O apelido vem do participante, não de reconhecimento de identidade.
-- Os controles de navegação da apresentação também aparecem no computador. Os textos distinguem o protocolo planejado de resultados medidos e usos possíveis de funções comprovadas.
-- As áreas clicáveis dos botões foram ampliadas; o foco usa a cor da tinta, reservando o amarelo ao aviso de simulação.
-
-## Tela principal (versão 8)
+## Tela principal (versão 7)
 
 Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Operador, uma linha embaixo do gráfico do medidor e os quatro botões do rodapé. O resto foi tirado ou virou frase normal.
 
 - **Medidor de tremor** (coluna da esquerda, em cima):
   - O número grande, como "1,0×", diz quanto o Wi-Fi está tremendo agora comparado com a sala vazia da calibração. É a mesma oscilação do detector dividida pela média da sala vazia, não um desenho à parte.
-  - A frase embaixo explica a referência da sala vazia (1,0×) e o valor da linha tracejada, que marca o limite de detecção. O detector ainda exige leituras consecutivas para confirmar movimento.
+  - A frase embaixo explica tudo: "Tremor do Wi-Fi, comparado com a sala vazia. Passou da linha tracejada (1,3×), é movimento."
   - O gráfico mostra o último minuto. A linha tracejada é o limite e as faixas sombreadas são os momentos de *Movimento.*
-  - Embaixo, uma linha só: "Último minuto", e o pico do dia depois do primeiro movimento.
-- **Gráfico de linhas:** a linha mais nova (embaixo) é um pouco mais grossa. A legenda permanente diz "O tempo sobe." e "A linha de baixo é agora.".
+  - Embaixo, uma linha só: "Último minuto", e o recorde do dia depois do primeiro movimento.
+- **Gráfico de linhas sem legenda:** a linha mais nova (embaixo) é um pouco mais grossa, e as frases que se revezam explicam ("A de baixo é agora.").
 - **Movimentos do dia e dados técnicos** (pacotes por segundo, oscilação, limiar) ficam no painel do Operador.
 - **O limite não desce abaixo de 1,1× a sala vazia** no controle deslizante. Abaixo disso, a tela diria *Movimento.* para sempre.
 
