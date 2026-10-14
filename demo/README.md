@@ -42,6 +42,7 @@ Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Ope
 - **Gráfico de linhas sem legenda:** a linha mais nova (embaixo) é um pouco mais grossa, e as frases que se revezam explicam ("A de baixo é agora.").
 - **Movimentos do dia e dados técnicos** (pacotes por segundo, oscilação, limiar) ficam no painel do Operador.
 - **O limite não desce abaixo de 1,1× a sala vazia** no controle deslizante. Abaixo disso, a tela diria *Movimento.* para sempre.
+- **Proporções fixas:** em tela larga (TV, notebook, monitor), tudo na tela principal cresce e diminui junto com a tela, então a hierarquia é a mesma em qualquer tamanho: as linhas mandam, *Parado.* vem em segundo, o número em terceiro. Os textos pequenos têm um tamanho mínimo. No celular continua o layout em coluna.
 
 ## Telas extras (versão 4)
 

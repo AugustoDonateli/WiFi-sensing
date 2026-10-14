@@ -140,6 +140,26 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 @keyframes subir { from { transform: translateY(26px); opacity: 0; } }
 .sobe { animation: subir 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--atraso, 0ms) + var(--i, 0) * 70ms); }
 
+/* Tela principal proporcional: a mesma hierarquia em qualquer tela larga (TV, notebook, monitor grande).
+   A base é a tela num monitor de 2560 px. 1u = 1% da largura (ou 1,9% da altura, se a tela for mais alta);
+   textos pequenos têm um tamanho mínimo para continuarem legíveis. No celular vale o layout de baixo. */
+@media (min-width: 861px) {
+  .tela { --u: min(1vw, 1.9vh);
+    padding: max(16px, calc(1.56 * var(--u))) max(16px, calc(2.5 * var(--u))) max(16px, calc(1.56 * var(--u))) max(16px, calc(1.6 * var(--u))); }
+  .tela .mono { font-size: max(8px, calc(0.44 * var(--u))); }
+  .topo-dir { gap: calc(1.1 * var(--u)); }
+  .texto { gap: calc(1.56 * var(--u)); }
+  .medidor { width: min(100%, max(300px, calc(18.6 * var(--u)))); gap: calc(0.39 * var(--u)); padding-top: calc(2.5 * var(--u)); }
+  .medidor-num { font-size: calc(4.45 * var(--u)); }
+  .medidor-legenda { font-size: max(13px, calc(0.77 * var(--u))); }
+  #m-hist { height: calc(5 * var(--u)); margin-top: calc(0.23 * var(--u)); }
+  .estado { gap: calc(1.1 * var(--u)); }
+  .palavra { font-size: calc(8.5 * var(--u)); }
+  body.com-operador .palavra { font-size: calc(8.5 * min((100vw - 380px) / 100, 1.9vh)); }   /* cabe no espaço que sobrou */
+  .frase { font-size: max(14px, calc(0.85 * var(--u))); }
+  .rodape { padding-top: calc(1.33 * var(--u)); }
+}
+
 @media (max-width: 860px) {
   body.com-operador #passagem { width: 100%; height: 45vh; }
   .tela { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; gap: 24px; }

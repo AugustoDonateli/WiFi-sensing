@@ -28,6 +28,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Estilo minimalista: linhas empilhadas do sinal, uma palavra grande (*Parado.* / *Movimento.*) e a tela inverte as cores quando há movimento.
 - Quando o painel do operador abre, a tela encolhe para o lado. As linhas continuam visíveis.
 - **Medidor de tremor** na coluna da esquerda: número "N,N×" comparado com a sala vazia, a regra do limite escrita embaixo, o último minuto com a linha do limite e o recorde do dia. Ele mostra a decisão do detector, em vez de escondê-la.
+- **Hierarquia da tela principal com proporções fixas** (14/10, pedido do grupo, a partir de um print num monitor grande): a TV e o notebook mostram a mesma hierarquia do print, com o gráfico de linhas dominando. Antes, em telas menores, a palavra e o número ficavam proporcionalmente maiores.
 - **Menos letra pequena na tela principal** (pedido do grupo): a legenda do gráfico e os rótulos do medidor viraram uma frase normal e uma linha só; contador do dia e dados técnicos foram para o painel do Operador.
 - **Roteiro do estande** em `docs/apresentacao.md`. Os jogos (número, Estátua, Travessia, Superpoder) explicam o que a tecnologia faz e onde ela falha.
 
