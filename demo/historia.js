@@ -1813,6 +1813,20 @@
         if (j < st.ordem.length && j !== Math.round(st.alvo)) irPara(j, { cortar: true });
       },
       pararAuto() { st.auto = null; },
+      // Onde estão as linhas da cena atual, em px da tela, e se são o sinal de verdade (cena "ao vivo" e a
+      // última) ou a ilustração. A passagem entre telas usa isso para sair da história a partir das linhas.
+      retanguloLinhas() {
+        if (!st.aberta) return null;
+        if (!st.cache.tam || !st.cache.tam[0]) medir();
+        const G = geometria(st.cache.tam[0], st.cache.tam[1], 1), q = poseEm(st.T, st.ordem, POSES, PADROES);
+        const dv = dadosVivos(), real = Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1);
+        let r = null, ehReal = false;
+        if (q.vivo && q.vivo.p > 0.5) { r = { x: G.X(0), y: G.Y(q.vivo.py), w: G.bw, h: q.vivo.ph * G.bh }; ehReal = real; }
+        else if (q.pilha && q.pilha.p > 0.5) r = { x: G.X(q.pilha.px), y: G.Y(q.pilha.py), w: q.pilha.pw * G.bw, h: q.pilha.ph * G.bh };
+        if (!r) return null;
+        const b = cv.getBoundingClientRect();
+        return { x: r.x + b.x, y: r.y + b.y, w: r.w, h: r.h, real: ehReal };
+      },
       preto(sim) { st.preto = sim === undefined ? !st.preto : Boolean(sim); },
       notas(sim) { st.notas = sim === undefined ? !st.notas : Boolean(sim); elNotas.hidden = !st.notas; if (st.notas) mostrarNotas(); return st.notas; },
       tecla, proxima, anterior, irPara, irParaId, versao, estado,

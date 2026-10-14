@@ -13,6 +13,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `nucleo.js`: leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`.
 - `roteiro.js`: os textos da apresentação "Como funciona" e a fala de cada cena. **Só texto: o grupo pode editar.**
 - `historia.js`: o desenho e o movimento da apresentação.
+- `passagem.js`: as passagens entre as telas (escuta, desafio, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
 
@@ -58,6 +59,37 @@ Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Ope
 
 Recordes, retratos e contador ficam guardados só neste navegador. O painel do operador tem um botão para apagar tudo antes da feira.
 
+## Passagens entre telas (`passagem.js`)
+
+Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-Fi, que tomam a tela inteira por um instante; depois as linhas viram a tela que chega, com um gesto que diz o que ela é. As linhas são as leituras de verdade (ou a simulação, com o aviso amarelo no canto, como sempre).
+
+| Tela | Chegando | Saindo |
+|---|---|---|
+| Principal | As linhas encolhem até caber no gráfico e viram o próprio gráfico. | O gráfico cresce até ocupar a tela. |
+| Escuta | **Fechar os olhos:** as linhas se juntam numa só, que vira o ponto que pulsa com o som. | **Abrir os olhos:** o ponto vira linha e a linha se abre nas 48. |
+| Desafio Ninja | **Travessia:** alguém invisível atravessa da partida (esquerda) para a chegada (direita). Ninguém aparece; só o sinal treme onde a pessoa passa. Atrás dela, o desafio. | A mesma travessia, de volta. |
+| Mural | As linhas se curvam em anéis, como os das marcas, e o mural aparece de dentro deles. | Os anéis se fecham e desenrolam em linhas. |
+| Como funciona | As linhas vão para a metade direita e somem por cima da primeira cena (que é ilustração). | O sinal é desenhado por cima da história, uma linha por vez. Na cena "ao vivo" e na última, as próprias linhas de verdade da história crescem até a tela inteira. |
+
+**Regras:**
+- A passagem não muda nada na detecção.
+- Ela nunca inverte a tela; isso continua sendo só do detector.
+- Sem fonte de dados, as linhas ficam retas (nada de relevo inventado).
+
+**Tempo:** cerca de 2 s por troca: saída, um instante só de sinal e entrada. Os tempos ficam em `TEMPOS` no começo do `passagem.js`. Quando um movimento de verdade fecha a vitrine, a passagem é a rápida (cerca de 1 s).
+
+**Teclas no meio da passagem:**
+- Outra troca (N, E, G, H, Esc) muda o destino: antes do meio, só troca para onde vai; depois do meio, volta de ré até o sinal e segue.
+- Enter, Espaço e as setas da história esperam a tela nova aparecer.
+- A lógica da tela que sai para na hora. Esc no meio da travessia encerra o desafio, sem salvar marca.
+
+**Som:** com o som ligado (Alerta ou Escuta), um sopro baixo acompanha cada passagem; na travessia, ele passa de uma caixa de som para a outra, junto com a pessoa invisível. Com o som mudo, nada toca.
+
+**Desligar:**
+- Botão "Passagens entre telas" no painel do Operador (fica guardado no navegador);
+- ou abrir com `?passagem=0` no endereço.
+- Com "reduzir movimento" ligado no sistema, a troca é só um esmaecimento curto.
+
 ## Apresentação "Como funciona" (tecla `H`)
 
 Uma história em motion design que explica o projeto, para passar na TV do estande. Não são slides: cada desenho se transforma no próximo (o roteador vira a placa A, as barras viram a primeira linha, a pessoa caída se levanta dentro da casa...).
@@ -100,7 +132,8 @@ Tudo que é técnico fica no **painel do operador** (tecla `O`):
 - calibração e limiar;
 - som;
 - cenas da simulação;
-- tela cheia.
+- tela cheia;
+- passagens entre telas (ligadas ou desligadas).
 
 | Fonte | O que faz |
 |---|---|

@@ -130,7 +130,18 @@ body.com-operador .camada { right: min(380px, 100vw); }
 .escuta-centro .mono { color: var(--apagado); max-width: 60ch; line-height: 1.6; }
 .pulso { position: absolute; right: 14vw; top: 50%; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: var(--tinta); opacity: 0.25; transition: transform 0.25s ease, opacity 0.25s ease; }
 
+/* Passagem entre telas (passagem.js): por cima das camadas e da história, embaixo do Operador e do grão.
+   Parada, fica invisível e não pega clique; durante a passagem, segura os cliques para nada atingir
+   uma tela que ninguém está vendo. */
+#passagem { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 8; display: block; visibility: hidden; pointer-events: none; }
+#passagem.ativa { visibility: visible; pointer-events: auto; }
+body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
+/* As palavras da tela que chega sobem um pouco, em escada, quando a passagem as revela. */
+@keyframes subir { from { transform: translateY(26px); opacity: 0; } }
+.sobe { animation: subir 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards; animation-delay: calc(var(--atraso, 0ms) + var(--i, 0) * 70ms); }
+
 @media (max-width: 860px) {
+  body.com-operador #passagem { width: 100%; height: 45vh; }
   .tela { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto auto; gap: 24px; }
   .sinal { grid-column: 1; grid-row: 2; }
   .grafico { width: 100%; }
@@ -145,6 +156,7 @@ body.com-operador .camada { right: min(380px, 100vw); }
 }
 @media (prefers-reduced-motion: reduce) {
   body, .camada, .frase { transition: none; }
+  .sobe { animation: none; }
 }
 </style>
 </head>
@@ -210,7 +222,6 @@ body.com-operador .camada { right: min(380px, 100vw); }
 
 <!-- "Como funciona": a história em motion design (historia.js + roteiro.js) -->
 <section id="historia" hidden></section>
-</div>
 
 <div class="camada" id="galeria" hidden>
   <div class="topo mono"><span>Mural de marcas · quem passou hoje</span><span class="aviso aviso-copia"></span></div>
@@ -228,6 +239,9 @@ body.com-operador .camada { right: min(380px, 100vw); }
   </div>
   <div class="baixo mono"><span>Use fone de ouvido, com volume baixo.</span><button class="botao-texto mono" id="escuta-fechar">Voltar (esc)</button></div>
 </div>
+
+<!-- Passagem entre as telas: o sinal toma a tela e vira a próxima (passagem.js) -->
+<canvas id="passagem" aria-hidden="true"></canvas>
 
 <aside class="operador" id="operador" hidden aria-label="Painel do operador">
   <div style="display:flex; justify-content:space-between; align-items:baseline"><h2>Operador</h2><button class="botao-texto mono" id="fechar-operador">Fechar (O)</button></div>
@@ -275,7 +289,7 @@ body.com-operador .camada { right: min(380px, 100vw); }
   </section>
   <section>
     <span class="mono">Tela e dados do dia</span>
-    <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button><button id="btn-zerar">Zerar recordes e galeria</button></div>
+    <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button><button id="btn-passagem" aria-pressed="true">Passagens entre telas</button><button id="btn-zerar">Zerar recordes e galeria</button></div>
     <p>Atalhos: N desafio · E escutar · H como funciona · P apresentador · G mural · C calibrar · S som · O este painel.</p>
   </section>
 </aside>
@@ -283,6 +297,7 @@ body.com-operador .camada { right: min(380px, 100vw); }
 <script src="nucleo.js"></script>
 <script src="roteiro.js"></script>
 <script src="historia.js"></script>
+<script src="passagem.js"></script>
 <script>
 'use strict';
 const $ = (id) => document.getElementById(id);
@@ -355,7 +370,9 @@ function avaliar() {
     somAlerta();
     if (dia.data !== hoje()) dia = { data: hoje(), live: 0, sim: 0 };
     if (app.fonte === 'live' || app.fonte === 'sim') { dia[app.fonte]++; gravar('wavesense-dia', dia); }
-    if (historia.aberta && como.automatico) fecharComo();
+    // a vitrine dá lugar a quem chegou (também se ela ainda estiver abrindo), com a passagem rápida
+    const a = passagem.alvo();
+    if (a ? a.modo === 'historia' && a.opc.auto : historia.aberta && como.automatico) trocarPara('tela', { rapida: true });
   }
   if (app.detectado || !app.fonte || app.calibracao || app.limiar === null) app.quietoDesde = agora;
   if (som.modo === 'escuta') somEscuta(v);
@@ -585,17 +602,20 @@ function ajustar(canvas) {
   if (canvas.width !== W || canvas.height !== H) { canvas.width = W; canvas.height = H; }
   return [W, H, dpr];
 }
+let corQuadro = { fundo: '#0B0B0A', tinta: '#EDEDE8' };
 function quadro() {
+  requestAnimationFrame(quadro);   // primeiro: um erro mais abaixo não congela a tela
   const agora = performance.now() / 1000;
   if (app.fonte && agora - app.ultimaLeitura >= LEITURA_S) { guardarLeitura(agora); app.ultimaLeitura = agora; }
-  // Com a história cobrindo a tela, as leituras continuam sendo guardadas, mas não é preciso desenhar o que ninguém vê.
-  if (!(historia && historia.aberta)) {
+  corQuadro = cores();
+  // Com outra tela por cima (ou a passagem cobrindo tudo), as leituras continuam sendo guardadas,
+  // mas não é preciso desenhar o que ninguém vê.
+  if (modoAtual() === 'tela' && !passagem.cobreTudo()) {
     const [W, H, dpr] = ajustar(cv);
-    const { fundo, tinta } = cores();
-    desenharPilha(ctx, W, H, app.leituras, fundo, tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S), true);
-    desenharMedidor(tinta);
+    desenharPilha(ctx, W, H, app.leituras, corQuadro.fundo, corQuadro.tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S), true);
+    desenharMedidor(corQuadro.tinta);
   }
-  requestAnimationFrame(quadro);
+  passagem.quadro(agora);
 }
 
 /* ---------- Som: suave de propósito. Nada de onda quadrada, tudo passa por um limitador. ---------- */
@@ -834,6 +854,7 @@ async function pararFonte() {
   app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
   app.limiar = null; app.det = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0;
   // Trocar a fonte fecha o desafio e a escuta, mas não a história (a cena ao vivo continua aberta).
+  passagem.concluir();
   ninja.estado = 'fechado'; $('desafio').hidden = true; fecharEscuta();
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
   if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
@@ -942,6 +963,7 @@ function ninjaPasso(agora) {
     else if (t > 60) terminar(null, t);
   } else if (ninja.estado === 'resultado' && agora >= ninja.fecharEm) {
     abrirDesafio();
+    if (!passagem.ocupada()) subirPalavras('desafio');
   }
 }
 // A "marca" funciona como anéis de árvore: cada anel é um momento da travessia (de dentro para fora).
@@ -1090,7 +1112,7 @@ function abrirGaleria() {
 const como = { automatico: false, ligado: true };
 historia = WaveHistoria.criarPalco({
   raiz: $('historia'), roteiro: WaveRoteiro,
-  aoFechar: () => fecharComo(),
+  aoFechar: () => trocarPara('tela'),
   aoInteragir: () => { como.automatico = false; historia.pararAuto(); },   // mexeu na história: a vitrine para de mandar nela
   aoMudar: () => enviarEstadoHistoria(),
   aoApresentador: () => abrirApresentador(),
@@ -1109,15 +1131,14 @@ const canalHistoria = WaveHistoria.criarCanal('palco', (msg) => {
   apresentador.visto = performance.now() / 1000;
   if (msg.tipo === 'cmd') {
     como.automatico = false; historia.pararAuto();
-    if (msg.acao === 'fechar') fecharComo();
-    else {
-      if (!historia.aberta) abrirComo(false);
+    if (msg.acao === 'fechar') { if (modoAlvo() === 'historia') trocarPara('tela'); }   // só fecha a história
+    else naHistoria(() => {
       if (msg.acao === 'proxima') historia.proxima();
       else if (msg.acao === 'anterior') historia.anterior();
       else if (msg.acao === 'ir') historia.irParaId(msg.cenaId);
       else if (msg.acao === 'versao') historia.versao(msg.versao);
       else if (msg.acao === 'preto') historia.preto();
-    }
+    });
   }
   enviarEstadoHistoria();
 });
@@ -1127,7 +1148,7 @@ function abrirApresentador() {
   // Precisa ser chamado direto no clique ou na tecla, senão o navegador bloqueia a janela.
   if (!EMBUTIDO) { try { j = window.open('apresentador.html', 'wavesense-apresentador', 'popup,width=1180,height=760'); } catch (e) { j = null; } }
   if (j) { apresentador.janela = j; canalHistoria.ligar(j); historia.notas(false); }
-  else { if (!historia.aberta) abrirComo(false); historia.notas(); }   // sem janela: mostra a fala na própria tela
+  else naHistoria(() => historia.notas());   // sem janela: mostra a fala na própria tela
 }
 setInterval(enviarEstadoHistoria, 1000);
 let quemAbriuComo = null, versaoAntesDaVitrine = null;
@@ -1140,7 +1161,7 @@ function abrirComo(auto = false) {
     // Vitrine: versão curta desde o começo, uma volta só, sem as cenas marcadas com vitrine: false.
     versaoAntesDaVitrine = historia.estado().versao;
     historia.abrir({ versao: 'curta', cenaId: historia.estado().ordem[0] });
-    historia.autoplay({ permitido: (c) => c.vitrine !== false, espera: 6, aoTerminar: () => fecharComo() });
+    historia.autoplay({ permitido: (c) => c.vitrine !== false, espera: 6, aoTerminar: () => trocarPara('tela') });
   } else historia.abrir({});
   enviarEstadoHistoria();
 }
@@ -1156,11 +1177,11 @@ function fecharComo() {
   enviarEstadoHistoria();
 }
 function vitrinePasso(agora) {
-  const livre = $('desafio').hidden && $('galeria').hidden && !historia.aberta && $('escuta').hidden && $('operador').hidden;
+  const livre = modoAtual() === 'tela' && !passagem.ocupada() && $('operador').hidden;
   // Com a janela do apresentador conectada, quem manda na história é o apresentador.
   if (como.ligado && livre && !apresentadorConectado() && app.limiar !== null && !app.calibracao && agora - app.quietoDesde > 45) {
     app.quietoDesde = agora;
-    abrirComo(true);
+    trocarPara('historia', { auto: true });
   }
 }
 function fecharCamadas() {
@@ -1169,6 +1190,142 @@ function fecharCamadas() {
   for (const id of ['desafio', 'galeria']) $(id).hidden = true;
   fecharComo();
 }
+
+/* ---------- Telas e a passagem entre elas (passagem.js) ---------- */
+// Trocar de tela tem duas partes: a lógica da tela que sai para na hora (sair) e a tela nova abre no meio
+// da passagem, com a tela coberta (abrir, as mesmas funções de sempre). Sem passagem, tudo na hora.
+function modoAtual() {
+  if (historia && historia.aberta) return 'historia';
+  for (const id of ['desafio', 'escuta', 'galeria']) if (!$(id).hidden) return id;
+  return 'tela';
+}
+const filaHistoria = [];   // o que fazer quando a história terminar de abrir (comandos do apresentador)
+const MODOS = {
+  tela: { abrir: () => fecharCamadas() },
+  desafio: {
+    pode: () => Boolean(app.fonte) && app.limiar !== null,
+    recusa: 'Antes do desafio: ligue uma fonte de dados e calibre com a zona vazia.',
+    abrir: () => abrirDesafio(),
+    sair: () => { ninja.estado = 'fechado'; },   // nada de corrida escondida nem marca de corrida abortada
+  },
+  escuta: {
+    abrir: () => abrirEscuta(),
+    // o vento começa a sumir junto com o gesto de abrir os olhos
+    sair: () => { if (som.modo === 'escuta' && !$('escuta').hidden) definirSom(som.antes === 'escuta' ? 'mudo' : som.antes); },
+  },
+  galeria: { abrir: () => abrirGaleria() },
+  historia: {
+    abrir: (o) => { abrirComo(Boolean(o && o.auto)); while (filaHistoria.length) filaHistoria.shift()(); },
+    sair: () => historia.pararAuto(),
+  },
+};
+// Onde estão as coisas da tela, para a passagem encaixar nelas (em px da janela).
+function medidasDe(modo) {
+  const caixa = (el) => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const m = {};
+  if (modo === 'tela') m.grafico = caixa($('linhas'));
+  if (modo === 'escuta') {
+    // pela posição de layout: o transform do ponto muda a cada 0,2 s com o som
+    const c = $('escuta').getBoundingClientRect(), p = $('pulso');
+    m.ponto = { x: c.left + p.offsetLeft + p.offsetWidth / 2, y: c.top + p.offsetTop + p.offsetHeight / 2, r: p.offsetWidth / 2 };
+  }
+  if (modo === 'historia') { const r = historia.retanguloLinhas(); if (r) { m.historia = r; if (r.real) m.historiaReal = r; } }
+  const av = modo === 'tela' ? $('aviso') : modo === 'historia' ? null : $(modo).querySelector('.aviso-copia');
+  if (av && av.textContent) { const s = getComputedStyle(av); m.aviso = { ...caixa(av), texto: av.textContent, cor: s.color, fonte: s.fontFamily }; }
+  return m;
+}
+// Sem o passagem.js (ou com as passagens desligadas): troca na hora, como antes.
+const SEM_PASSAGEM = {
+  passar(d, o) { const at = modoAtual(); if (d !== at && MODOS[at].sair) MODOS[at].sair(); MODOS[d].abrir(o); },
+  quadro() {}, concluir() {}, ocupada: () => false, vivo: () => true, alvo: () => null, cobreTudo: () => false,
+};
+const ESCURO = { fundo: '#0B0B0A', tinta: '#EDEDE8' };   // a história é sempre escura
+const passagemViva = window.WavePassagem ? WavePassagem.criar({
+  canvas: $('passagem'),
+  modoAtual,
+  executar: (d, o) => MODOS[d].abrir(o),
+  aoSair: (m) => { if (MODOS[m].sair) MODOS[m].sair(); },
+  medir: medidasDe,
+  dados: () => ({ leituras: app.fonte ? app.leituras : [], frac: Math.min(1, (performance.now() / 1000 - app.ultimaLeitura) / LEITURA_S) }),
+  paleta: (m) => (m === 'historia' ? ESCURO : corQuadro),
+  eventos: (nome, info) => aoPassar(nome, info),
+  reduzido: () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches,
+}) : null;
+let passagensLigadas = Boolean(passagemViva) && new URLSearchParams(location.search).get('passagem') !== '0' && ler('wavesense-passagem', true) !== false;
+let passagem = passagensLigadas ? passagemViva : SEM_PASSAGEM;
+// As palavras da tela que chega sobem em escada, a partir do momento em que a passagem começa a mostrá-las.
+const PALAVRAS = {
+  tela: ['#m-num', '#m-legenda', '#palavra', '#frase', '.rodape'],
+  desafio: ['#desafio .topo', '#d-grande', '#d-sub', '#apelido', '#desafio .baixo'],
+  escuta: ['#escuta .topo', '#escuta .desafio-grande', '#escuta .desafio-sub', '#escuta .escuta-centro .mono', '#escuta .baixo'],
+  galeria: ['#galeria .topo', '#galeria-grade > *', '#galeria .baixo'],
+};
+const REVELA_MS = { pouso: 250, travessia: 300, fecharOlhos: 620, aneis: 480, fade: 0 };
+function subirPalavras(modo, atraso = 0) {
+  if (!PALAVRAS[modo]) return;
+  const els = PALAVRAS[modo].flatMap((s) => [...document.querySelectorAll(s)]).slice(0, 16);
+  els.forEach((el, i) => {
+    el.classList.remove('sobe'); void el.offsetWidth;   // reinicia a animação
+    el.style.setProperty('--i', String(i)); el.style.setProperty('--atraso', `${atraso}ms`);
+    el.classList.add('sobe');
+  });
+  setTimeout(() => els.forEach((el) => el.classList.remove('sobe')), atraso + els.length * 70 + 1000);
+}
+// Som da passagem: um sopro baixo de ruído filtrado (o mesmo "ar" do modo escuta). Na travessia, ele passa
+// de uma caixa de som para a outra, junto com a pessoa invisível. Só com o som ligado, pelo limitador.
+let ruidoRosa = null;
+function sopro(dur, { f0 = 300, f1 = 900, ganho = 0.05, pan0 = 0, pan1 = 0, tipo = 'lowpass' } = {}) {
+  if (som.modo === 'mudo' || !som.ctx || dur <= 0) return;
+  const c = som.ctx, t = c.currentTime;
+  if (!ruidoRosa) {
+    const n = c.sampleRate * 2, d = (ruidoRosa = c.createBuffer(1, n, c.sampleRate)).getChannelData(0);
+    let b0 = 0, b1 = 0, b2 = 0;
+    for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; b0 = 0.997 * b0 + w * 0.0296; b1 = 0.985 * b1 + w * 0.0325; b2 = 0.95 * b2 + w * 0.048; d[i] = (b0 + b1 + b2 + w * 0.05) * 0.5; }
+  }
+  const fonte = c.createBufferSource(); fonte.buffer = ruidoRosa; fonte.loop = true;
+  const filtro = c.createBiquadFilter(); filtro.type = tipo; filtro.Q.value = tipo === 'bandpass' ? 0.9 : 0.7;
+  filtro.frequency.setValueAtTime(f0, t); filtro.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(ganho, t + dur * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  let saida = g;
+  if (c.createStereoPanner && (pan0 || pan1)) {
+    const p = c.createStereoPanner(); p.pan.setValueAtTime(pan0, t); p.pan.linearRampToValueAtTime(pan1, t + dur);
+    g.connect(p); saida = p;
+  }
+  fonte.connect(filtro).connect(g); saida.connect(som.saida);
+  fonte.start(t, Math.random()); fonte.stop(t + dur + 0.05);
+}
+function aoPassar(nome, info) {
+  if (nome === 'saida') {
+    if (info.gesto === 'travessia') sopro(info.dur, { f0: 500, f1: 1100, ganho: 0.05, pan0: 0.8, pan1: -0.8, tipo: 'bandpass' });   // a volta, da direita para a esquerda
+    else if (info.gesto !== 'fecharOlhos') sopro(info.dur, { f0: 260, f1: 900, ganho: 0.04 });
+  } else if (nome === 'entrada') {
+    subirPalavras(info.modo, REVELA_MS[info.gesto] ?? 250);
+    if (info.gesto === 'travessia') sopro(info.dur, { f0: 500, f1: 1100, ganho: 0.06, pan0: -0.8, pan1: 0.8, tipo: 'bandpass' });
+    else if (info.gesto === 'aneis') sopro(info.dur, { f0: 900, f1: 220, ganho: 0.04 });
+    else if (info.gesto === 'pouso' || info.gesto === 'historia') sopro(info.dur, { f0: 900, f1: 240, ganho: 0.035 });
+    // fechar os olhos: o vento da escuta já entra sozinho
+  }
+}
+
+function modoAlvo() { const a = passagem.alvo(); return a ? a.modo : modoAtual(); }
+function trocarPara(modo, opc = {}) {
+  const M = MODOS[modo];
+  if (M.pode && !M.pode()) { mostrarMsg(M.recusa); return; }
+  if (modo !== 'historia') filaHistoria.length = 0;
+  if (modo === 'escuta' || som.modo !== 'mudo') audio();   // libera o áudio aqui, dentro da tecla ou do clique
+  // página escondida (sem quadros de animação): troca na hora
+  if (document.hidden) { passagem.concluir(); SEM_PASSAGEM.passar(modo, opc); return; }
+  passagem.passar(modo, opc);
+}
+// Faz algo na história: na hora, se ela já está aberta; senão, assim que abrir.
+function naHistoria(fazer) {
+  if (historia.aberta) { fazer(); return; }
+  if (modoAlvo() !== 'historia') filaHistoria.length = 0;
+  filaHistoria.push(fazer);
+  trocarPara('historia');   // abre (ou troca um pedido da vitrine por um normal)
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) passagem.concluir(); });
 
 /* ---------- Controles ---------- */
 $('src-sim').addEventListener('click', async () => { esconderMsg(); await pararFonte(); definirFonte('sim'); iniciarSimulacao(); });
@@ -1203,33 +1360,46 @@ $('btn-tela').addEventListener('click', () => {
 });
 $('abrir-operador').addEventListener('click', () => { operador(true); });
 $('fechar-operador').addEventListener('click', () => { operador(false); });
-$('abrir-desafio').addEventListener('click', abrirDesafio);
-$('abrir-como').addEventListener('click', () => abrirComo(false));
-$('abrir-galeria').addEventListener('click', abrirGaleria);
-$('galeria-fechar').addEventListener('click', () => { $('galeria').hidden = true; });
-$('abrir-escuta').addEventListener('click', abrirEscuta);
-$('escuta-fechar').addEventListener('click', fecharEscuta);
+$('btn-passagem').setAttribute('aria-pressed', String(passagensLigadas));
+$('btn-passagem').disabled = !passagemViva;
+$('btn-passagem').addEventListener('click', (e) => {
+  passagem.concluir();
+  passagensLigadas = !passagensLigadas && Boolean(passagemViva);
+  passagem = passagensLigadas ? passagemViva : SEM_PASSAGEM;
+  gravar('wavesense-passagem', passagensLigadas);
+  e.target.setAttribute('aria-pressed', String(passagensLigadas));
+});
+$('abrir-desafio').addEventListener('click', () => trocarPara('desafio'));
+$('abrir-como').addEventListener('click', () => trocarPara('historia'));
+$('abrir-galeria').addEventListener('click', () => trocarPara('galeria'));
+$('galeria-fechar').addEventListener('click', () => trocarPara('tela'));
+$('abrir-escuta').addEventListener('click', () => trocarPara('escuta'));
+$('escuta-fechar').addEventListener('click', () => trocarPara('tela'));
 $('d-ouvir').addEventListener('click', () => tocarMarca(ninja.retrato));
 $('d-comecar').addEventListener('click', comecar);
 $('d-chegou').addEventListener('click', chegou);
 $('d-baixar').addEventListener('click', baixarRetrato);
-$('d-fechar').addEventListener('click', fecharCamadas);
+$('d-fechar').addEventListener('click', () => trocarPara('tela'));
 
+// No meio da passagem, enquanto a tela nova ainda não apareceu, só valem as trocas e os atalhos do operador.
+const TECLAS_NA_PASSAGEM = new Set(['n', 'e', 'g', 'h', 'o', 'f', 'p', 's', 'c', '1', '2', '3', '4', '5']);
 document.addEventListener('keydown', (e) => {
-  if (historia.aberta && historia.tecla(e)) return;   // com a história aberta, ela fica com setas, espaço, V, P...
   const k = e.key.toLowerCase();
   const digitando = e.target.tagName === 'INPUT' && e.target.type === 'text';
-  if (k === 'escape') { if (!$('operador').hidden) operador(false); else fecharCamadas(); return; }
+  if (!passagem.vivo() && k !== 'escape' && (digitando || !TECLAS_NA_PASSAGEM.has(k))) { e.preventDefault(); return; }
+  if (historia.aberta && passagem.vivo() && historia.tecla(e)) return;   // com a história aberta, ela fica com setas, espaço, V, P...
+  if (k === 'escape') { if (!$('operador').hidden) operador(false); else trocarPara('tela'); return; }
   if (k === 'enter' && ninja.estado === 'pronto') { e.preventDefault(); comecar(); return; }
   if (digitando) return;
+  const alvo = modoAlvo();   // as teclas que alternam decidem pelo destino, não pelo que ainda está na tela
   if (k === ' ' && ninja.estado === 'correndo') { e.preventDefault(); chegou(); }
   else if (k >= '1' && k <= '5') escolherCena(CENAS[Number(k) - 1].id);
-  else if (k === 'n') { if (ninja.estado === 'fechado' || ninja.estado === 'resultado') abrirDesafio(); }
-  else if (k === 'h') { if (!historia.aberta) abrirComo(false); else fecharComo(); }
-  else if (k === 'g') { if ($('galeria').hidden) abrirGaleria(); else $('galeria').hidden = true; }
+  else if (k === 'n') { if (alvo !== 'desafio' || ninja.estado === 'resultado') trocarPara('desafio'); }
+  else if (k === 'h') trocarPara(alvo === 'historia' ? 'tela' : 'historia');
+  else if (k === 'g') trocarPara(alvo === 'galeria' ? 'tela' : 'galeria');
   else if (k === 'b' && ninja.estado === 'resultado') baixarRetrato();
   else if (k === 'm' && ninja.estado === 'resultado') tocarMarca(ninja.retrato);
-  else if (k === 'e') { if ($('escuta').hidden) abrirEscuta(); else fecharEscuta(); }
+  else if (k === 'e') trocarPara(alvo === 'escuta' ? 'tela' : 'escuta');
   else if (k === 'c' && app.fonte && !app.calibracao) iniciarCalibracao(app.fonte === 'sim' ? 6 : 10);
   else if (k === 's') definirSom(som.modo === 'mudo' ? 'alerta' : som.modo === 'alerta' ? 'escuta' : 'mudo');
   else if (k === 'o') operador($('operador').hidden);

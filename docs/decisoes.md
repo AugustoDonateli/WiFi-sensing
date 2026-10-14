@@ -94,6 +94,25 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - palavra-chave do título sublinhada (marcada com `*...*` no `roteiro.js`).
   - **Ficou de fora de propósito:** câmera tremendo, zoom contínuo, desfoque e cores novas. Com a cena parada, nada muda de lugar.
 
+### Passagens entre as telas do site (14/10/2026, pedido do grupo)
+- **O pedido:** toda troca de tela com uma animação de transição ambiciosa e com personalidade, que não pareça genérica. O caso citado: modo escuta → Desafio Ninja.
+- **A ideia:** toda troca passa pelo sinal. A tela que sai vira as linhas do Wi-Fi (as leituras de verdade), as linhas tomam a tela e depois viram a tela que chega, com um gesto que diz o que ela é:
+  - escuta: fechar os olhos (as linhas viram o ponto que pulsa com o som);
+  - desafio: uma pessoa invisível atravessa e só o sinal treme;
+  - mural: as linhas viram anéis, como as marcas;
+  - principal: as linhas pousam no gráfico;
+  - história: na saída, o sinal é desenhado por cima.
+- **Honestidade:**
+  - a passagem não inverte a tela (isso é só do detector);
+  - não finge que as linhas reais viram a ilustração da história;
+  - o aviso amarelo continua no canto;
+  - sem dados, as linhas ficam retas.
+- **No estande:**
+  - Esc no meio encerra o desafio na hora;
+  - um movimento de verdade fecha a vitrine com a passagem rápida (cerca de 1 s);
+  - dá para desligar as passagens no Operador ou com `?passagem=0`.
+- **Ficou de fora:** brilho, partículas, degradê, desfoque e cores novas.
+
 ### Imagens geradas por IA
 - Não usar na tela principal: lá tudo deve ser sinal medido.
 - Uso possível em divulgação (post, convite) e rascunho de layout do banner, sempre com confirmação do grupo, porque gasta créditos.
