@@ -45,11 +45,28 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - A pergunta "dá para ouvir alguém atrás da parede?" fica ligada ao teste de parede do projeto. Não vamos afirmar que funciona antes de testar.
 - Na parte de ética da apresentação: a mesma ideia poderia ser usada para espionar. É justamente por isso que o projeto discute privacidade.
 
-### Marca de cada visitante (em desenvolvimento)
-- Na Travessia, o percurso vira uma **marca em anéis**, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos e tortos.
+### Marca de cada visitante
+- Na Travessia, o percurso vira uma **marca em anéis**, como anéis de árvore.
 - A marca tem uma **melodia** (tecla M), feita com as mesmas leituras.
-- A marca vira um **cartão para guardar** (tecla B), com nome, número, data e hora. Ele diz "Travessia sem ser percebido" se a pessoa passou, ou "Registro de passagem" se o Wi-Fi a percebeu.
-- O mural de marcas (tecla G) mostra os últimos 12.
+- A marca vira um **cartão para guardar** (tecla B).
+- **Refeita em 14/10 (pedido do grupo: o "Quem passou" era confuso e as frases "Te vi." e "o Wi-Fi sentiu X passar" não combinavam com o site):**
+  - **Problemas encontrados:**
+    - cada marca era ajustada pelo próprio máximo, então quem passou sem ser percebido ficava com a marca mais torta;
+    - a marca guardava só os últimos 4,8 s, quase só a contagem;
+    - todas tinham 32 anéis.
+  - **Agora** (`demo/marca.js`):
+    - miolo cinza = contagem;
+    - um anel por leitura da travessia;
+    - entorte na escala da sala vazia (0 = sala vazia, 1 = limite);
+    - anel grosso = instante da detecção.
+  - **Textos como registro de leitura**, escolha do grupo: "Não detectado." / "Detectado aos 0,6 s.", com pico de tremor e limite, e "Registro Nº 003 · data · hora". Se o tremor passou do limite por um instante sem o detector confirmar, o texto diz isso, em vez de "abaixo do limite o tempo todo".
+  - **Explicação nos dois lugares:**
+    - no resultado, a marca se forma na frente da pessoa;
+    - no "Quem passou", uma marca em destaque se forma de novo a cada ~8 s (vitrine), com os 3 passos de como a marca é feita.
+  - **Honestidade:** quem passa sem ser percebido mexe pouco no sinal, então essas marcas ficam parecidas (lisas). É a física do jogo; não inventamos diferença. O que muda entre elas é o tempo (número de anéis) e o formato do sinal.
+- **Falta:**
+  - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
+  - descobrir se haverá impressora na feira.
 - **Falta:**
   - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
   - descobrir se haverá impressora na feira.

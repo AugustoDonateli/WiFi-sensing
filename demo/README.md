@@ -15,6 +15,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `escuta.js`: o som do modo escuta ("Batimento"). Sem ele, a escuta fica muda.
+- `marca.js`: a marca em anéis de cada travessia, os textos do resultado e o registro.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
 
@@ -25,7 +26,7 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **O sinal como linhas empilhadas.** A referência é o gráfico do pulsar CP1919, feito por Harold Craft a partir de sinais de rádio de Arecibo. Peter Saville usou esse gráfico na capa de *Unknown Pleasures*, do Joy Division (1979). Aqui cada linha é uma leitura do Wi-Fi: a média dos pacotes de 0,1 s, com a amplitude de cada subportadora. A mais nova aparece embaixo. Com a sala parada, as linhas repetem o mesmo desenho; quando alguém se mexe, elas tremem e se cruzam.
 - **Uma palavra só para o estado:** *Parado.* ou *Movimento.*, em letra enorme.
 - **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
-- **Travessia (o desafio) em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
+- **Travessia (o desafio) em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → o resultado como um registro de leitura: *Não detectado.* (com o pico de tremor e o limite) ou *Detectado aos 0,6 s.* (com o tremor que chegou).
 - **Sem aviso de fonte na tela** (pedido do grupo, 14/10): a TV não diz se os dados são da simulação, de uma gravação ou das placas. A fonte aparece no painel do Operador (botão apertado) e no título da cena ao vivo do "Como funciona". **Na feira, use as placas;** se precisar da simulação ou de uma gravação, diga isso ao visitante.
 - **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas (licença OFL), embutidas no `fontes.css`, então funcionam sem internet.
 
@@ -51,10 +52,16 @@ Pouca letra pequena: só o nome do projeto, o botão Operador, uma linha embaixo
 - **Tremor realçado:** a forma das linhas mostra o "relevo" da sala, e a diferença em relação à forma média aparece 3x maior. Assim, quando o detector diz *Movimento.*, dá para ver as linhas tremerem. É só no desenho; a detecção não muda.
 - **Frases que se revezam:** com a sala parada, a frase embaixo da palavra troca a cada 7 s, convidando o visitante.
 - **Contador do dia** (no topo): quantos movimentos foram detectados. A simulação conta separado e aparece como "na simulação".
-- **Marca de cada visitante:** na Travessia, as leituras dos 3 s de contagem e da travessia viram uma marca em anéis, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos, tortos e girados. Cada marca é numerada (Nº 001, Nº 002...) e tem uma frase com data e hora.
-- **Melodia da marca** (tecla `M`): as mesmas leituras viram 16 notas.
-- **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome e a frase. Diz "Travessia sem ser percebido" se a pessoa passou, ou "Registro de passagem" se foi percebida. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
-- **Mural de marcas** (tecla `G`): os últimos 12.
+- **Marca de cada visitante** (`marca.js`): na Travessia, as leituras viram uma marca em anéis, como anéis de árvore.
+  - Os 3 s de contagem (parado na partida) viram o miolo, em cinza.
+  - Cada leitura da travessia (0,1 s) vira um anel, de dentro para fora: travessia longa, mais anéis (até 90).
+  - O quanto o anel entorta vem do tremor daquele instante, na escala da sala vazia: abaixo do limite, quase liso; acima, torto. Quem passou sem ser detectado deixa anéis lisos e apertados; quem foi pego cedo, poucos anéis, largos e tortos.
+  - Se o Wi-Fi detectou, o último anel é grosso: o instante da detecção.
+  - No resultado, a marca **se forma na frente da pessoa**: cada linha aparece reta e se fecha no seu anel.
+  - Cada marca tem um registro: "Registro Nº 003 · 21/10/2026 · 14:32:08".
+- **Melodia da marca** (tecla `M`): as leituras da travessia viram 16 notas.
+- **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome, o resultado, o registro, o pico de tremor e o limite. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
+- **Quem passou** (tecla `G`): as últimas 12 marcas. À esquerda, uma delas em destaque se forma de novo, com nome e dados, e os 3 passos de como a marca é feita acendem junto; depois de 4,5 s, passa para a próxima. Marcas do formato antigo (antes de 14/10) não aparecem mais.
 - **Modo escuta** (tecla `E`): tela "Feche os olhos." com o som "Batimento" (`escuta.js`): um acorde calmo que, quando alguém se mexe, cresce, abre e pulsa (uá-uá-uá), com uma nota grave pulsando junto e o pulso passando de um ouvido para o outro. O ponto da tela pulsa com o volume do próprio som. Para usar com fone de ouvido. Detalhes em "Som do modo escuta", abaixo.
 - **Painel do operador não cobre mais as linhas:** quando abre, a tela encolhe para o lado (no celular, o painel abre embaixo).
 - **Grão de foto** bem leve por cima de tudo, para a tela não parecer "plástica".
@@ -146,7 +153,7 @@ Tudo que é técnico fica no **painel do operador** (tecla `O`):
 **Som** (começa mudo; tudo suave, sem onda quadrada e com limitador de volume):
 - **Alerta:** dois toques suaves quando começa um movimento.
 - **Escuta:** o "Batimento" (veja abaixo). Os dois toques de alerta não tocam nesse modo: o próprio acorde avisa.
-- **Desafio:** notas na contagem, um arpejo no *Passou.* e duas notas graves no *Te vi.*
+- **Travessia:** notas na contagem, um arpejo no *Não detectado.* e duas notas graves no *Detectado.*
 
 Teste o volume no lugar da feira.
 

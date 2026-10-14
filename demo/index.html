@@ -94,10 +94,26 @@ input.apelido { background: transparent; border: 0; border-bottom: 1px solid var
 input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 
 
-.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 40px 32px; align-content: start; }
+.desafio-grande.longo { font-size: clamp(56px, 7.4vw, 136px); line-height: 0.92; letter-spacing: -0.02em; text-wrap: balance; }
+.retrato-como { font-size: 14px; line-height: 1.5; color: var(--apagado); max-width: 52ch; }
+#galeria { grid-template-rows: auto minmax(min-content, 1fr) auto; }
+.mural { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.5fr); gap: clamp(24px, 4vw, 72px); align-items: start; min-height: 0; }
+.mural-destaque { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+#mural-cv { width: min(100%, 38vh); aspect-ratio: 1 / 1; display: block; }
+.mural-quem { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mural-quem b { font-family: var(--serif); font-weight: 400; font-size: clamp(32px, 3vw, 52px); line-height: 1; }
+.mural-quem .mono { color: var(--apagado); line-height: 1.6; }
+.mural-passos { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-width: 52ch; }
+.mural-passos li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; color: var(--apagado); transition: color 0.4s ease; }
+.mural-passos li.ativo { color: var(--tinta); }
+.mural-passos p { margin: 0; font-size: 14px; line-height: 1.45; }
+.mural-passos .mono { padding-top: 3px; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 28px 24px; align-content: start; }
+.cartao { transition: opacity 0.4s ease; }
+.galeria:has(.em-destaque) .cartao:not(.em-destaque) { opacity: 0.5; }
 .cartao { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .cartao canvas { width: 100%; aspect-ratio: 1 / 1; display: block; }
-.cartao b { font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cartao b { font-family: var(--serif); font-weight: 400; font-size: 22px; line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cartao span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); }
 .galeria-vazia { font-family: var(--serif); font-size: clamp(32px, 4vw, 64px); color: var(--apagado); max-width: 18ch; }
 
@@ -166,6 +182,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   .medidor { padding-top: 0; }
   .rodape { grid-column: 1; grid-row: 4; }
   .desafio-meio { grid-template-columns: minmax(0, 1fr); }
+  .mural { grid-template-columns: minmax(0, 1fr); }
   .operador { top: auto; height: 55vh; width: 100vw; border-left: 0; border-top: 1px solid #2A2A28; }
   body.com-operador .tela { margin-right: 0; padding-bottom: calc(55vh + 24px); }
   body.com-operador .camada { right: 0; bottom: 55vh; }
@@ -222,6 +239,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
     <div class="retrato" id="retrato" hidden>
       <canvas id="retrato-cv" role="img" aria-label="Sua marca no Wi-Fi: anéis desenhados com as leituras do sinal enquanto você atravessava"></canvas>
       <span class="mono" id="retrato-legenda"></span>
+      <span class="retrato-como">Miolo: a contagem, parado na partida. Cada anel: 0,1 s da travessia, de dentro para fora. Anel grosso: o instante da detecção.</span>
     </div>
   </div>
   <div class="baixo">
@@ -240,9 +258,20 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <section id="historia" hidden></section>
 
 <div class="camada" id="galeria" hidden>
-  <div class="topo mono"><span>Mural de marcas · quem passou hoje</span></div>
-  <div class="galeria" id="galeria-grade"></div>
-  <div class="baixo mono"><span>Cada anel é um momento da travessia. Anéis largos e tortos: momentos em que a pessoa mexeu mais no sinal. Nenhuma câmera foi usada.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
+  <div class="topo mono"><span>Quem passou · as últimas 12 travessias</span></div>
+  <div class="mural">
+    <section class="mural-destaque" aria-label="Como a marca é feita">
+      <canvas id="mural-cv" role="img" aria-label="A marca em destaque, se formando anel por anel"></canvas>
+      <div class="mural-quem" id="mural-quem"><b id="mural-nome"></b><span class="mono" id="mural-dado"></span></div>
+      <ol class="mural-passos" id="mural-passos">
+        <li><span class="mono">1</span><p>O Wi-Fi é lido 10 vezes por segundo. Cada leitura é uma linha, como as da tela principal.</p></li>
+        <li><span class="mono">2</span><p>Cada linha se fecha num anel, de dentro para fora. O miolo cinza são os 3 s parados na partida; depois, um anel a cada 0,1 s de travessia.</p></li>
+        <li><span class="mono">3</span><p>Quanto mais a pessoa mexeu no sinal, mais torto o anel. Quem passou sem ser detectado deixa anéis lisos; o anel grosso é o instante da detecção.</p></li>
+      </ol>
+    </section>
+    <div class="galeria" id="galeria-grade"></div>
+  </div>
+  <div class="baixo mono"><span>Sem câmera: só as leituras do Wi-Fi.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
 </div>
 
 <div class="camada" id="escuta" hidden>
@@ -315,6 +344,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <script src="historia.js"></script>
 <script src="passagem.js"></script>
 <script src="escuta.js"></script>
+<script src="marca.js"></script>
 <script>
 'use strict';
 const $ = (id) => document.getElementById(id);
@@ -565,8 +595,10 @@ function guardarLeitura(agora) {
   app.leituras.push(leitura);
   if (app.leituras.length > LINHAS + 1) app.leituras.shift();
   if (ninja.estado === 'contagem' || ninja.estado === 'correndo') {
-    ninja.rastro.push(leitura);
-    if (ninja.rastro.length > LINHAS) ninja.rastro.shift();
+    // para a marca: a leitura, o tremor daquele instante (comparado com a sala vazia) e a fase
+    const x = app.base && Number.isFinite(app.oscAtual) ? app.oscAtual / app.base : 0;
+    ninja.rastro.push({ a, d, x, fase: ninja.estado });
+    if (ninja.rastro.length > 700) ninja.rastro.shift();
   }
 }
 
@@ -633,6 +665,9 @@ function quadro() {
     desenharMedidor(corQuadro.tinta);
   }
   pulsarPonto();
+  marcasNaCorCerta();
+  formarRetrato(agora);
+  muralPasso(agora);
   passagem.quadro(agora);
 }
 
@@ -875,21 +910,21 @@ function esconderMsg() { $('msg').hidden = true; }
 function operador(aberto) { $('operador').hidden = !aberto; document.body.classList.toggle('com-operador', aberto); }
 
 /* ---------- Travessia (o desafio) e retratos ---------- */
-const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', fecharEm: 0, rastro: [], retrato: null };
+const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', fecharEm: 0, rastro: [], retrato: null, forma: null };
 let recordes = ler('wavesense-recordes', ler('wavesense-ninja', {}).ranking || []);
-let retratos = ler('wavesense-retratos', []);
+// Só as marcas no formato novo (as antigas eram ajustadas pelo próprio máximo e não dá para refazer).
+let retratos = ler('wavesense-retratos', []).filter((r) => window.WaveMarca && WaveMarca.valido(r));
 function seg(s) { return `${s.toFixed(1).replace('.', ',')} s`; }
-function numero(n) { return `Nº ${String(n).padStart(3, '0')}`; }
 
 function abrirDesafio() {
   if (!app.fonte || app.limiar === null) { mostrarMsg('Antes do desafio: ligue uma fonte de dados e calibre com a zona vazia.'); return; }
   fecharCamadas();
   ninja.estado = 'pronto'; ninja.rastro = [];
-  $('d-grande').textContent = 'Pronto?';
+  $('d-grande').textContent = 'Pronto?'; $('d-grande').classList.remove('longo');
   $('d-sub').textContent = 'Escreva seu apelido e fique na linha de partida.';
   $('apelido').hidden = false; $('apelido').value = '';
   $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true; $('d-baixar').hidden = true; $('d-ouvir').hidden = true;
-  $('retrato').hidden = true;
+  $('retrato').hidden = true; ninja.forma = null;
   $('desafio').hidden = false;
   desenharRecordes();
   setTimeout(() => $('apelido').focus(), 50);
@@ -907,43 +942,38 @@ function chegou() { if (ninja.estado === 'correndo') terminar(true, performance.
 function terminar(ok, t) {
   ninja.estado = 'resultado';
   $('d-chegou').hidden = true;
-  $('d-tempo').textContent = seg(t);
+  $('d-tempo').hidden = true;   // o tempo já está na frase
   if (ok) {
     recordes.push({ nome: ninja.apelido, tempo: t });
     recordes.sort((a, b) => a.tempo - b.tempo);
     recordes = recordes.slice(0, 5);
     gravar('wavesense-recordes', recordes);
-    $('d-grande').textContent = 'Passou.';
-    $('d-sub').textContent = `${ninja.apelido} atravessou sem o Wi-Fi perceber.`;
     somNinja();
   } else if (ok === false) {
-    $('d-grande').textContent = 'Te vi.';
-    $('d-sub').textContent = `O Wi-Fi percebeu ${ninja.apelido} depois de ${seg(t)}.`;
     somPego();
-  } else {
-    $('d-grande').textContent = 'Tempo.';
-    $('d-sub').textContent = 'Passou de 60 s. Tente de novo.';
   }
-  // O retrato: as leituras de verdade (ou simuladas) enquanto a pessoa atravessava.
+  // O registro: as leituras de verdade (ou simuladas) da contagem e da travessia, com o tremor de cada instante.
   const n = (retratos.length ? retratos[retratos.length - 1].n : 0) + 1;
-  const r = {
+  const r = WaveMarca.registro({
     n, nome: ninja.apelido, tempo: t, ok, quando: Date.now(), fonte: app.fonte,
-    linhas: ninja.rastro.map((l) => ({ a: Array.from(l.a, (x) => Math.round(x * 10) / 10), d: Array.from(l.d, (x) => Math.round(x * 10) / 10) })),
-  };
+    lim: app.base ? app.limiar / app.base : 0, rastro: ninja.rastro,
+  });
   ninja.retrato = r;
-  if (r.linhas.length >= 5) {
+  $('d-grande').textContent = WaveMarca.titulo(r); $('d-grande').classList.add('longo');
+  $('d-sub').textContent = WaveMarca.detalhe(r);
+  if (r.linhas.length) {
     retratos.push(r);
     retratos = retratos.slice(-12);
     gravar('wavesense-retratos', retratos);
     $('retrato').hidden = false;
-    $('retrato-legenda').textContent = `${numero(n)} · ${fraseDaMarca(r)}`;
-    requestAnimationFrame(() => desenharRetrato($('retrato-cv'), r));
+    $('retrato-legenda').textContent = WaveMarca.carimbo(r);
+    ninja.forma = { r, inicio: performance.now() / 1000 + 0.35 };   // a marca se forma na frente da pessoa
     $('d-baixar').hidden = EMBUTIDO;
     $('d-ouvir').hidden = false;
-    if (som.modo !== 'mudo') tocarMarca(r, 1.4);
+    if (som.modo !== 'mudo') tocarMarca(r, 0.6);
   }
   desenharRecordes();
-  ninja.fecharEm = performance.now() / 1000 + 14;
+  ninja.fecharEm = performance.now() / 1000 + 18;
 }
 function ninjaPasso(agora) {
   if (ninja.estado === 'contagem') {
@@ -968,53 +998,34 @@ function ninjaPasso(agora) {
     if (!passagem.ocupada()) subirPalavras('desafio');
   }
 }
-// A "marca" funciona como anéis de árvore: cada anel é um momento da travessia (de dentro para fora).
-// Momentos em que o sinal tremeu mais deixam anéis mais largos, mais tortos e mais girados,
-// como os anéis largos de um ano bom numa árvore. É desenho feito a partir das leituras; não identifica ninguém.
-function desenharMarca(c, W, H, ls0, fundo, tinta, esp) {
-  c.fillStyle = fundo; c.fillRect(0, 0, W, H);
-  if (!ls0.length) return;
-  const N = Math.min(32, ls0.length);
-  const ls = Array.from({ length: N }, (_, i) => ls0[Math.floor((i * ls0.length) / N)]);
-  const info = ls.map(({ a, d }) => {
-    const uteis = [];
-    let soma = 0, en = 0;
-    for (let k = 0; k < a.length; k++) if (a[k] > 0.5) { uteis.push(k); soma += a[k]; }
-    const media = uteis.length ? soma / uteis.length : 1;
-    for (const k of uteis) en += Math.abs(d[k]);
-    return { a, d, uteis, media, en: uteis.length ? en / (uteis.length * media) : 0 };
-  });
-  const emax = Math.max(...info.map((x) => x.en), 1e-6);
-  const larguras = info.map((x) => 0.5 + 1.5 * (x.en / emax));
-  const total = larguras.reduce((s1, x) => s1 + x, 0);
-  const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.44, r0 = R * 0.1, unidade = (R - r0) / N;
-  c.strokeStyle = tinta; c.lineWidth = esp; c.lineJoin = 'round';
-  let r = r0, giro = 0;
-  for (let i = 0; i < info.length; i++) {
-    const { a, d, uteis, media, en } = info[i];
-    r += ((R - r0) * larguras[i]) / total;
-    giro += (en / emax) * 0.9;
-    const m = uteis.length;
-    if (m < 3) continue;
-    const valor = (j) => (a[uteis[j]] / media - 1) * 1.2 + (2 * REALCE * d[uteis[j]]) / media;
-    const passos = 240;
-    c.beginPath();
-    for (let s2 = 0; s2 <= passos; s2++) {
-      const u = (s2 / passos) * m, j0 = Math.floor(u) % m, j1 = (j0 + 1) % m, f = u - Math.floor(u);
-      const v = (1 - f) * valor(j0) + f * valor(j1);
-      const ang = (s2 / passos) * Math.PI * 2 + giro;
-      const rr = r + v * unidade * 1.2;
-      const x = cx + rr * Math.cos(ang), y = cy + rr * Math.sin(ang);
-      if (s2) c.lineTo(x, y); else c.moveTo(x, y);
-    }
-    c.closePath(); c.stroke();
+// A marca (anéis feitos com as leituras) fica no marca.js. Aqui só as cores da tela.
+function coresMarca() { const s = getComputedStyle(document.body); return { ...cores(), apagado: s.getPropertyValue('--apagado').trim() }; }
+function desenharRetrato(canvas, r, t) {
+  const [W, H, dpr] = ajustar(canvas);
+  const cs = coresMarca();
+  WaveMarca.desenhar(canvas.getContext('2d'), W, H, r, { ...cs, esp: 1.2 * dpr, t });
+}
+// A tela inverte com movimento: as marcas já desenhadas são refeitas nas cores novas.
+let corDasMarcas = '';
+function marcasNaCorCerta() {
+  if (corQuadro.fundo === corDasMarcas) return;
+  corDasMarcas = corQuadro.fundo;
+  if (!$('retrato').hidden && ninja.retrato && !ninja.forma) desenharRetrato($('retrato-cv'), ninja.retrato);
+  if (!$('galeria').hidden) {
+    mural.pronta = false;
+    const fila = mural.fila.map((x) => [x.card.querySelector('canvas'), x.r]);
+    const vez = ++galeriaVez;
+    const proxima = () => { if (vez !== galeriaVez || !fila.length) return; desenharRetrato(...fila.shift()); requestAnimationFrame(proxima); };
+    requestAnimationFrame(proxima);
   }
 }
-function linhasDe(r) { return r.linhas.map((l) => ({ a: Float32Array.from(l.a), d: Float32Array.from(l.d) })); }
-function desenharRetrato(canvas, r, fundo, tinta) {
-  const [W, H, dpr] = ajustar(canvas);
-  const cs = cores();
-  desenharMarca(canvas.getContext('2d'), W, H, linhasDe(r), fundo || cs.fundo, tinta || cs.tinta, 1.2 * dpr);
+// A marca do resultado se formando (chamado a cada quadro).
+function formarRetrato(agora) {
+  const f = ninja.forma;
+  if (!f || $('retrato').hidden) return;
+  const t = agora - f.inicio;
+  desenharRetrato($('retrato-cv'), f.r, Math.max(0, t));
+  if (t > WaveMarca.duracao(f.r) + 0.1) { desenharRetrato($('retrato-cv'), f.r); ninja.forma = null; }
 }
 // A melodia da marca: o tremor de cada momento da travessia vira uma nota da mesma escala.
 function tocarMarca(r, atraso = 0) {
@@ -1026,16 +1037,6 @@ function tocarMarca(r, atraso = 0) {
     const e = es[Math.floor((i * es.length) / N)];
     tom(notas[Math.round((e / max) * (notas.length - 1))], 0.55, atraso + i * 0.17, 'triangle', 0.06, true);
   }
-}
-function fraseDaMarca(r) {
-  const q = new Date(r.quando);
-  const data = q.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long' });
-  const hora = q.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  return r.ok
-    ? `Em ${data}, às ${hora}, ${r.nome} atravessou e o Wi-Fi não percebeu.`
-    : r.ok === false
-      ? `Em ${data}, às ${hora}, o Wi-Fi sentiu ${r.nome} passar.`
-      : `Em ${data}, às ${hora}, ${r.nome} tentou atravessar.`;
 }
 function desenharRecordes() {
   const ol = $('recordes');
@@ -1059,24 +1060,26 @@ async function baixarRetrato() {
   const g = c.getContext('2d');
   g.fillStyle = '#0B0B0A'; g.fillRect(0, 0, W, H);
   const marca = document.createElement('canvas'); marca.width = 860; marca.height = 860;
-  desenharMarca(marca.getContext('2d'), 860, 860, linhasDe(r), '#0B0B0A', '#EDEDE8', 1.6);
-  g.drawImage(marca, 110, 120);
+  WaveMarca.desenhar(marca.getContext('2d'), 860, 860, r, { fundo: '#0B0B0A', tinta: '#EDEDE8', apagado: '#8A8A84', esp: 1.6 });
+  g.drawImage(marca, 110, 110);
   g.textBaseline = 'alphabetic';
   g.font = '500 22px "Geist Mono", monospace'; g.fillStyle = '#8A8A84';
-  g.fillText(r.ok ? 'WAVE SENSE · TRAVESSIA SEM SER PERCEBIDO' : 'WAVE SENSE · REGISTRO DE PASSAGEM', 80, 80);
+  g.fillText('WAVE SENSE · TRAVESSIA', 80, 80);
   g.textAlign = 'right';
-  g.fillStyle = '#8A8A84';
-  g.fillText(numero(r.n).toUpperCase(), W - 80, 80);
+  g.fillText(WaveMarca.numero(r.n).toUpperCase(), W - 80, 80);
   g.textAlign = 'left';
   g.fillStyle = '#EDEDE8';
-  g.font = '120px "Instrument Serif", serif';
-  g.fillText(r.nome, 80, 1110);
-  g.font = 'italic 48px "Instrument Serif", serif';
-  g.fillText(r.ok ? `passou sem ser percebido em ${seg(r.tempo)}.` : r.ok === false ? `foi percebido em ${seg(r.tempo)}.` : 'tentou atravessar.', 80, 1172);
-  g.font = '26px "Geist", sans-serif'; g.fillStyle = '#B8B8B2';
-  g.fillText(fraseDaMarca(r), 80, 1236);
-  g.font = '500 20px "Geist Mono", monospace'; g.fillStyle = '#8A8A84';
-  g.fillText('CADA ANEL É UM MOMENTO DA TRAVESSIA, DESENHADO COM O SINAL WI-FI · SEM CÂMERA', 80, 1290);
+  g.font = '112px "Instrument Serif", serif';
+  g.fillText(r.nome, 80, 1080);
+  g.font = 'italic 52px "Instrument Serif", serif';
+  g.fillText(WaveMarca.titulo(r), 80, 1146);
+  g.font = '500 22px "Geist Mono", monospace'; g.fillStyle = '#B8B8B2';
+  g.fillText(WaveMarca.carimbo(r).toUpperCase(), 80, 1206);
+  g.fillStyle = '#8A8A84';
+  g.fillText(`PICO DE TREMOR ${r.pico.toFixed(1).replace('.', ',')}× · LIMITE ${r.lim.toFixed(1).replace('.', ',')}×`, 80, 1242);
+  g.font = '500 18px "Geist Mono", monospace';
+  g.fillText('MIOLO: A CONTAGEM · CADA ANEL: 0,1 S DA TRAVESSIA, DE DENTRO PARA FORA', 80, 1290);
+  g.fillText('ANEL GROSSO: O INSTANTE DA DETECÇÃO · SEM CÂMERA, SÓ O SINAL WI-FI', 80, 1318);
   c.toBlob((b) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
@@ -1086,36 +1089,64 @@ async function baixarRetrato() {
   });
 }
 
-/* ---------- Galeria "quem passou" ---------- */
+/* ---------- Quem passou: o mural, com uma marca em destaque se formando de novo ---------- */
+const mural = { fila: [], i: 0, inicio: 0, pronta: false };
+const MURAL_PAUSA_S = 4.5;   // depois de formada, a marca em destaque fica parada esse tempo
 function abrirGaleria() {
   fecharCamadas();
   const grade = $('galeria-grade');
   grade.replaceChildren();
-  if (!retratos.length) {
+  const vazio = !retratos.length;
+  $('mural-cv').hidden = vazio; $('mural-quem').hidden = vazio;
+  if (vazio) {
     const p = document.createElement('p'); p.className = 'galeria-vazia';
-    p.textContent = 'Ninguém passou ainda. Seja o primeiro: aperte N.';
+    p.textContent = 'Ninguém atravessou ainda. Aperte N para a primeira travessia.';
     grade.appendChild(p);
   }
   $('galeria').hidden = false;
   const fila = [];
+  mural.fila = [];
   for (const r of [...retratos].reverse()) {
     const card = document.createElement('div'); card.className = 'cartao';
     const cvs = document.createElement('canvas');
     cvs.setAttribute('role', 'img'); cvs.setAttribute('aria-label', `Marca de ${r.nome}`);
     const nome = document.createElement('b'); nome.textContent = r.nome;
     const info = document.createElement('span');
-    info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}`;
+    info.textContent = WaveMarca.resumo(r);
     card.append(cvs, nome, info);
     grade.appendChild(card);
     fila.push([cvs, r]);
+    mural.fila.push({ r, card });
   }
-  // Uma marca por quadro: cada uma leva uns 5 ms, e as 12 de uma vez travavam a passagem no meio.
-  // Com a passagem, todas ficam prontas antes de o mural aparecer.
+  // Uma marca por quadro: as 12 de uma vez travavam a passagem no meio.
   const vez = ++galeriaVez;
   const proxima = () => { if (vez !== galeriaVez || !fila.length) return; desenharRetrato(...fila.shift()); requestAnimationFrame(proxima); };
   requestAnimationFrame(proxima);
+  mural.i = -1; mural.inicio = 0;
+  destacar(0);
 }
 let galeriaVez = 0;
+function destacar(i) {
+  if (!mural.fila.length) return;
+  mural.i = i % mural.fila.length;
+  mural.inicio = performance.now() / 1000; mural.pronta = false;
+  mural.fila.forEach((x, j) => x.card.classList.toggle('em-destaque', j === mural.i));
+  const r = mural.fila[mural.i].r;
+  $('mural-nome').textContent = r.nome;
+  $('mural-dado').textContent = `${WaveMarca.resumo(r)} · pico ${r.pico.toFixed(1).replace('.', ',')}× · ${WaveMarca.carimbo(r)}`;
+}
+// A cada quadro, com o mural aberto: forma a marca em destaque e, depois da pausa, passa para a próxima.
+function muralPasso(agora) {
+  if ($('galeria').hidden || !mural.fila.length) return;
+  const r = mural.fila[mural.i].r, t = agora - mural.inicio, dur = WaveMarca.duracao(r);
+  const reduzido = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!mural.pronta) desenharRetrato($('mural-cv'), r, reduzido ? undefined : t);
+  if (t > dur || reduzido) mural.pronta = true;   // pronta: não precisa redesenhar a cada quadro
+  // os passos da explicação acendem junto: as linhas chegando, os anéis se fechando, a marca pronta
+  const passo = t < 0.5 ? 0 : t < dur ? 1 : 2;
+  [...$('mural-passos').children].forEach((li, j) => li.classList.toggle('ativo', j === passo));
+  if (t > dur + MURAL_PAUSA_S && mural.fila.length > 1) destacar(mural.i + 1);
+}
 
 /* ---------- Como funciona e modo vitrine ---------- */
 const como = { automatico: false, ligado: true };
@@ -1265,7 +1296,7 @@ const PALAVRAS = {
   tela: ['#m-num', '#m-legenda', '#palavra', '#frase', '.rodape'],
   desafio: ['#desafio .topo', '#d-grande', '#d-sub', '#apelido', '#desafio .baixo'],
   escuta: ['#escuta .topo', '#escuta .desafio-grande', '#escuta .desafio-sub', '#escuta .escuta-centro .mono', '#escuta .baixo'],
-  galeria: ['#galeria .topo', '#galeria-grade > *', '#galeria .baixo'],
+  galeria: ['#galeria .topo', '.mural-destaque', '#galeria-grade > *', '#galeria .baixo'],
 };
 const REVELA_MS = { pouso: 250, travessia: 300, fecharOlhos: 620, aneis: 480, fade: 0 };
 function subirPalavras(modo, atraso = 0) {
