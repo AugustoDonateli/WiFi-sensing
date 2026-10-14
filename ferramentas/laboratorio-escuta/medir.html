@@ -1,0 +1,34 @@
+<!doctype html><meta charset="utf-8"><script src="escuta-sim.js"></script><script src="escuta-sons.js"></script>
+<script>
+async function gravar(id, roteiro, semente = 7) {
+  const total = roteiro.reduce((a, r) => a + r[1], 0);
+  const sr = 32000;
+  const ctx = new OfflineAudioContext(2, Math.ceil(sr * (total + 1)), sr);
+  const M = WaveSons.mesa(ctx);
+  const op = WaveSons.OPCOES[id]; op.reiniciar();
+  const a = op.audio(ctx, M);
+  const sala = WaveSala.criar(semente), S = sala.estado;
+  const t0 = S.t;
+  sala.ouvir((tipo) => { const e = op.calcular(S); a.aplicar(e, Math.max(0, S.t - t0), S, tipo === 'passo'); });
+  let fimCena = 0;
+  for (const [cena, dur] of roteiro) { sala.definirCena(cena); fimCena += dur; while (S.t - t0 < fimCena - 1e-9) sala.avancar(0.05); }
+  a.parar(total);
+  const buf = await ctx.startRendering();
+  const L = buf.getChannelData(0), R = buf.getChannelData(1);
+  const jan = Math.floor(sr * 0.25), rms = [], pico = [];
+  for (let i = 0; i + jan <= L.length; i += jan) {
+    let s = 0, p = 0;
+    for (let j = i; j < i + jan; j++) { s += L[j] * L[j] + R[j] * R[j]; p = Math.max(p, Math.abs(L[j]), Math.abs(R[j])); }
+    rms.push(10 * Math.log10(s / (2 * jan) + 1e-12)); pico.push(20 * Math.log10(p + 1e-12));
+  }
+  // wav 16 bits
+  const n = L.length, dv = new DataView(new ArrayBuffer(44 + n * 4));
+  const w = (o, str) => { for (let i = 0; i < str.length; i++) dv.setUint8(o + i, str.charCodeAt(i)); };
+  w(0, 'RIFF'); dv.setUint32(4, 36 + n * 4, true); w(8, 'WAVE'); w(12, 'fmt '); dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 2, true);
+  dv.setUint32(24, sr, true); dv.setUint32(28, sr * 4, true); dv.setUint16(32, 4, true); dv.setUint16(34, 16, true); w(36, 'data'); dv.setUint32(40, n * 4, true);
+  for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, Math.max(-1, Math.min(1, L[i])) * 32767, true); dv.setInt16(46 + i * 4, Math.max(-1, Math.min(1, R[i])) * 32767, true); }
+  const bytes = new Uint8Array(dv.buffer); let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return { rms, pico, wav: btoa(bin) };
+}
+</script>
