@@ -11,7 +11,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 **Arquivos** (todos na mesma pasta):
 - `index.html`: a tela.
 - `nucleo.js`: leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`.
-- `roteiro.js`: os textos da apresentação "Como funciona" e a fala de cada cena. **Só texto: o grupo pode editar.**
+- `roteiro.js`: os textos da apresentação "Como funciona" e a colinha de cada cena (fala, ações, ponte e perguntas). **Só texto: o grupo pode editar.** A colinha impressa (`docs/colinha.md`) sai dele com `python ferramentas/colinha.py`.
 - `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `escuta.js`: o som do modo escuta ("Batimento"). Sem ele, a escuta fica muda.
@@ -102,9 +102,18 @@ Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-F
 
 Uma história em motion design que explica o projeto, para passar na TV do estande. Não são slides: cada desenho se transforma no próximo (o roteador vira a placa A, as barras viram a primeira linha, a pessoa caída se levanta dentro da casa...).
 
+O arco: abre com **as linhas da sala, de verdade**, sem explicar nada ("mexa o braço"), e fecha com "Agora você sabe ler estas linhas". O miolo explica o que acontece entre a placa A e as linhas:
+1. o Wi-Fi é uma onda de ~12 cm;
+2. ela chega à placa B por vários caminhos (os longos chegam depois);
+3. **na B, os caminhos se somam**: crista com crista reforça, crista com vale cancela;
+4. **quando alguém se mexe, a soma muda**, porque meia onda (~6 cm) já troca crista por vale;
+5. são 64 ondas, e cada uma soma de um jeito (CSI);
+6. as 64 barras viram uma linha, e as linhas tremem.
+
 - **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
-- **Duas versões** (tecla `V`): **completa**, com 17 cenas, para o avaliador (5 a 7 min), e **curta**, com 11 cenas, para visitantes (cerca de 3 min).
-- **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a fala de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
+- **Duas versões** (tecla `V`): **completa**, com 19 cenas, para o avaliador (cerca de 6 min 40 s), e **curta**, com 11 cenas, para visitantes (cerca de 3 min 30 s).
+- **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a colinha de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
+  - A colinha: a fala em letra grande, as ações (APONTE, PERGUNTE, PAUSA, FAÇA) e a ponte para a próxima cena. A tecla `Q` (ou o botão) mostra as perguntas que um avaliador pode fazer, com a resposta.
   - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
   - Se o navegador bloquear a janela, a fala aparece numa faixa na própria tela.
 - `B` ou `.` deixa a tela preta (o botão de "tela preta" do passador). `Esc` fecha. `Home`/`End` vão para a primeira e a última cena.
@@ -112,7 +121,8 @@ Uma história em motion design que explica o projeto, para passar na TV do estan
 
 **Honestidade dos dados:**
 - As cenas que explicam (linhas, barras, número de exemplo, gravações) usam **dados sintéticos** do mesmo modelo da simulação, com semente fixa. Sempre que eles aparecem, o canto de cima mostra "Ilustração".
-- A cena "ao vivo" e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem: "Agora com o sinal das placas." (Placa USB), "Agora na simulação." ou "Agora com uma gravação.".
+- A abertura, a cena "ao vivo" e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem; por exemplo, na abertura: "Estas linhas são o Wi-Fi desta sala." (Placa USB), "Estas linhas imitam o Wi-Fi de uma sala." (simulação) ou "... de uma gravação.".
+- As cenas da onda, da soma e das 64 ondas são física desenhada (com a etiqueta "Ilustração"): 12 cm é o comprimento de onda de 2,4 GHz; na soma, o caminho rebatido tem 90% da força do direto.
 - A cena de resultados só mostra números quando alguém preencher `RESULTADOS` no `roteiro.js` com o resultado do `ferramentas/avaliar.py` (por coleta, com o chute ao lado). Até lá ela diz que as gravações ainda estão sendo feitas.
 
 **Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.
@@ -124,7 +134,8 @@ Uma história em motion design que explica o projeto, para passar na TV do estan
 - O que entra desenhando sai desdesenhando (casa, notebook, sala, câmera); o número e as linhas saem subindo um pouco, como o texto.
 - Passagens que mostram a causa:
   - o roteador vira a placa A;
-  - os caminhos do sinal são puxados para dentro da placa B e viram as 64 barras;
+  - os caminhos do sinal são puxados para dentro da placa B e saem dela separados (direto, rebatido e a soma);
+  - a força da soma vira uma das 64 barras, e as outras nascem em volta;
   - as gravações de teste se empilham dentro da barra do resultado;
   - uma linha varre a tela e troca o exemplo pelo sinal de verdade.
 - A placa ESP32 é desenhada como a DevKit do estande (módulo com antena, pinos, USB) e o LED pisca quando a mensagem sai de A e chega em B.

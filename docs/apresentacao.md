@@ -8,7 +8,7 @@ Todo mundo do grupo deve saber dizer essa frase do seu jeito, em 10 segundos.
 
 ## O que o visitante precisa levar para casa
 
-1. **O Wi-Fi bate nas pessoas e volta diferente.** Uma placa manda o sinal, a outra mede como ele chega.
+1. **O Wi-Fi é uma onda que chega por vários caminhos e se soma na placa B.** Quando alguém se mexe, um caminho muda de tamanho, a soma muda e as linhas tremem.
 2. **Um limite decide o que é movimento.** O medidor da tela mostra isso: "1,0×" é a sala vazia; passou da linha tracejada (por exemplo 1,3×), é movimento.
 3. **Serve para coisas boas, tem limites e tem riscos.**
    - Coisas boas: perceber queda de idoso sem câmera no banheiro, casa que apaga a luz sozinha.
@@ -60,7 +60,8 @@ Cada jogo ensina uma coisa. Não precisa fazer todos com todo mundo.
 ## Comparações que funcionam
 
 - **Piscina:** "A Placa A faz ondinhas numa piscina e a B sente as ondas do outro lado. Sem ninguém na água, elas chegam sempre iguais. Entrou alguém e se mexeu, elas mudam."
-- **Acorde:** "O Wi-Fi manda 64 frequências ao mesmo tempo, como 64 notas tocando juntas. Cada linha da tela mostra a força dessas 64. Quando você se mexe, algumas mudam e a linha treme."
+- **Corda:** "Duas pessoas balançam a mesma corda. No mesmo ritmo, a onda cresce; em ritmos opostos, uma apaga a outra. Na placa B, os caminhos do Wi-Fi fazem isso."
+- **Acorde:** "O Wi-Fi manda 64 ondas ao mesmo tempo, como 64 notas tocando juntas. Cada linha da tela mostra a força dessas 64. Quando você se mexe, algumas mudam e a linha treme."
 - **Morcego:** "O morcego se guia pelo eco do som. Aqui o eco é de rádio, e esse rádio já está no ar de qualquer jeito."
 
 ## A apresentação na TV (tecla H)
@@ -73,29 +74,34 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 3. Na TV, aperte **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
 4. Aperte **H** para abrir a apresentação. O passador de slides funciona nas duas janelas. `B` deixa a TV preta.
 
-**As cenas** (★ = também na versão curta, tecla `V`):
+**As cenas** (★ = também na versão curta, tecla `V`). A fala, as ações e as perguntas de cada cena estão na [colinha](colinha.md) e na janela do apresentador.
 
-| # | Cena | O que aparece | Onde usar no roteiro |
+A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha com "Agora você sabe ler estas linhas".
+
+| # | Cena | O que aparece | Para quê |
 |---|---|---|---|
-| 1 ★ | Wave Sense | As linhas do sinal | Abertura |
-| 2 | Como perceber que alguém caiu sem usar câmera? | Pessoa caída numa sala, câmera riscada | Problema (o dado da OMS está na fala) |
-| 3 ★ | O Wi-Fi está em quase todo lugar. | Roteador e ondas enchendo a sala | Problema |
-| 4 ★ | Usamos duas placas ESP32. | O roteador muda de forma e vira a placa A (desenhada como a do estande); mensagens indo de A para B, e o LED de cada placa pisca | Como funciona (aponte as placas de verdade) |
-| 5 ★ | O sinal chega por vários caminhos. | Caminho direto, pelo teto, pelo chão e pela pessoa | Como funciona (piscina) |
-| 6 | A placa B mede o sinal em 64 frequências. | Os caminhos são puxados para dentro da placa B, e dela saem as 64 barras | Como funciona (acorde) |
-| 7 ★ | Cada linha é uma medida das 64 frequências. | O topo das barras vira a primeira linha | Como funciona |
-| 8 ★ | Quando alguém se mexe, as linhas mudam. | A sala pequena em cima, com alguém andando; embaixo, as linhas começam a tremer | Como funciona |
-| 9 | Um número resume o quanto o sinal mudou. | Número, gráfico e a linha do limite; quando passa do limite, "movimento" dá um pulso | Como funciona |
-| 10 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | Peça para mexer o braço |
-| 11 | Como testamos. | 4 situações × 4 sessões; as sessões se separam em "ajustam o limite" e "só testam" | Método |
-| 12 | Resultados. | As gravações de teste se empilham na barra do resultado; acerto por coleta ao lado do chute (ou "ainda estamos gravando") | Resultados |
-| 13 ★ | Pessoa parada não aparece. | A mesma sala pequena, com a pessoa parada e tracejada; as linhas ficam calmas | Limites (Estátua) |
-| 14 | Dá para montar com pouco. | A sala volta ao tamanho normal e as linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
-| 15 ★ | Onde isso pode ajudar. | Pessoa caída com um sinal de alerta, luminária que apaga e acende sozinha, casa com o sino do alarme | Impacto |
-| 16 ★ | E a privacidade? | Casa de parede grossa com as ondas atravessando, alguém do lado de fora | Ética |
-| 17 ★ | Experimente a Travessia. | A tela de verdade | Convite |
+| 1 ★ | Estas linhas são o Wi-Fi desta sala. | O sinal de verdade, como na tela principal (na simulação, o título diz isso) | Gancho: o visitante mexe o braço e vê as linhas tremerem |
+| 2 | Como saber se alguém caiu sem câmera? | As linhas viram o chão; pessoa caída, câmera riscada | Por que importa |
+| 3 | O Wi-Fi é uma onda. | Roteador, anéis e uma onda andando pela sala com a régua "12 cm" | O que é o Wi-Fi |
+| 4 ★ | Duas placas: uma fala, a outra escuta. | O roteador vira a placa A; mensagens de A para B | Aponte as placas de verdade |
+| 5 ★ | O sinal chega por vários caminhos. | Os pulsos saem juntos de A; os dos caminhos longos chegam depois | Vários caminhos |
+| 6 ★ | Na placa B, os caminhos se somam. | Os caminhos entram na B e saem separados: direto, rebatido e a soma. Crista com crista: "reforça"; crista com vale: "cancela" | O centro da explicação (interferência) |
+| 7 ★ | Quando alguém se mexe, a soma muda. | A sala pequena em cima, com alguém andando; embaixo, a soma sobe e desce no ritmo dos passos | O "agora entendi" |
+| 8 ★ | O Wi-Fi usa 64 ondas juntas. | A força da soma vira uma barra; as outras 63 nascem da B | 64 subportadoras = CSI |
+| 9 | As 64 barras viram uma linha. | O topo das barras vira a primeira linha; as linhas se empilham | Ler as linhas |
+| 10 ★ | Quando alguém anda, as linhas tremem. | Sala pequena com alguém andando; as linhas tremem | Movimento → tremor |
+| 11 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
+| 12 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | O visitante testa |
+| 13 | Como testamos. | 4 situações × 4 sessões, separadas em "ajustam o limite" e "só testam" | Método |
+| 14 | Resultados. | Acerto por coleta ao lado do chute (ou "ainda estamos gravando") | Resultados |
+| 15 ★ | Pessoa parada não aparece. | A sala pequena, pessoa parada e tracejada; linhas calmas | Limites (Estátua) |
+| 16 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
+| 17 | Onde isso pode ajudar. | Queda com alerta, luz que apaga sozinha, alarme | Impacto |
+| 18 ★ | E a privacidade? | Casa com as ondas atravessando a parede, alguém do lado de fora | Ética |
+| 19 ★ | Agora você sabe ler estas linhas. | O sinal de verdade de novo | Fecha o arco e convida para a Travessia |
 
-- O que é ilustração aparece com a etiqueta "Ilustração" no canto. Fale "isto é um exemplo" nessas cenas; o número de verdade é o da cena 10.
+- O que é ilustração aparece com a etiqueta "Ilustração" no canto (as cenas 5 a 11 são física desenhada, não medida). O número de verdade é o da cena 12.
+- A colinha impressa é gerada do roteiro: `python ferramentas/colinha.py` escreve `docs/colinha.md`. Editou o roteiro, gere de novo.
 - Os textos estão em `demo/roteiro.js`. Mudem o que quiserem lá, com o mesmo cuidado: nada de número inventado.
 - No mesmo arquivo:
   - `transicao` é quantos segundos dura cada passagem de cena (hoje 2,6 s; mais = mais devagar);
@@ -115,7 +121,7 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 |---|---|---|
 | 0:00 | Convite | "Quer ver o Wi-Fi te perceber sem câmera?" |
 | 0:15 | Mexe os braços entre as placas | "Olha o número: você está mexendo no Wi-Fi 12 vezes mais que a sala vazia. Passou da linha tracejada, a tela diz *Movimento.*" (Leia o número que aparecer, não um inventado.) |
-| 0:45 | Aponta para A, B e as linhas | Comparação da piscina ou do acorde. "Cada linha é uma leitura. A de baixo, mais grossa, é agora." |
+| 0:45 | Aponta para A, B e as linhas | "O sinal chega na B por vários caminhos, e eles se somam: crista com crista fica forte, crista com vale some. Você andou, um caminho mudou de tamanho e a soma mudou." (Comparação da corda.) "Cada linha é uma leitura. A de baixo, mais grossa, é agora." |
 | 1:20 | Estátua | "Agora fica paradão... Viu? Você está aí, mas para o Wi-Fi você sumiu. A gente detecta movimento, não pessoa." |
 | 1:50 | Para que serve | "Cuidar de idoso sem câmera no banheiro, apagar a luz quando a sala esvazia, alarme." |
 | 2:15 | Limites e privacidade | "Pessoa parada some, várias pessoas viram um borrão, e cada lugar precisa calibrar. E pensa: se isso funcionar através da parede, alguém de fora saberia se tem gente na sua casa. Por isso a gente discute privacidade." |
@@ -126,7 +132,14 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visual (10), domínio do conteúdo (15), viabilidade técnica (10) e impacto (15)**.
 
 1. **Problema** (30 s): câmeras invadem a privacidade e sensores vestíveis são esquecidos. Será que o Wi-Fi resolve?
-2. **Como funciona** (1 min): CSI, as 64 subportadoras, 100 pacotes por segundo, ESP32 com o firmware oficial da Espressif. Mostre na tela, com alguém se mexendo.
+2. **Como funciona** (1 min30), nas cenas 3 a 12:
+   - o Wi-Fi é uma onda de ~12 cm e chega à placa B por vários caminhos;
+   - os caminhos se somam (interferência), e meia onda (~6 cm) de diferença troca reforço por cancelamento;
+   - movimento muda o tamanho dos caminhos e, portanto, a soma;
+   - as 64 subportadoras (CSI), 100 pacotes por segundo, ESP32 com o firmware oficial da Espressif;
+   - o tremor (desvio padrão em 1 s) e o limite calibrado.
+
+   Mostre na tela, com alguém se mexendo.
 3. **Método** (1 min30):
    - coletas rotuladas em sessões (vazio, parado, andando, queda simulada no colchonete);
    - limite calibrado com a sala vazia;
@@ -187,6 +200,33 @@ Revezem a cada 30 minutos. **Todos** precisam saber o roteiro de 3 minutos e a v
 
 ## Ensaios antes da feira
 
-1. Cronometrar o roteiro de 3 minutos com alguém de fora do grupo, que nunca ouviu falar do projeto. No fim, perguntar: "o que você entendeu?". Comparar com as três coisas do começo deste documento.
-2. Testar a Estátua, a Travessia e o número do medidor com as placas de verdade, e ajustar as falas ao que acontecer.
-3. Cada um faz a versão do avaliador pelo menos uma vez, e os outros fazem as perguntas difíceis.
+### Ensaio com alguém de fora (o mais importante)
+
+Chame alguém que **não sabe nada do projeto** (um colega de outra turma, alguém da família). Faça a versão curta (cerca de 3 min 30 s) com a TV e a janela do apresentador, como no dia.
+
+**Depois, peça para a pessoa explicar com as palavras dela.** Ela deveria conseguir dizer:
+1. O Wi-Fi é uma onda, e ela chega na placa B por vários caminhos (direto e rebatendo).
+2. Na placa B, os caminhos se somam: às vezes reforçam, às vezes se cancelam.
+3. Quando alguém se mexe, um caminho muda de tamanho, a soma muda e as linhas tremem. Um número diz quanto tremeu.
+4. Pessoa parada não aparece. E tem a questão da privacidade.
+
+**Como conferir:**
+- **Contar de volta com a TV muda:** volte a história para a cena da soma (6) e peça para a pessoa explicar a animação sem ajuda. Se ela travar, a cena precisa de ajuste, não a pessoa.
+- **Tempo:** a janela do apresentador mostra o tempo de cada cena e o total. O tempo da cena fica amarelo quando passa de 30% do sugerido. Anote as cenas que estouraram.
+- **Pontos de confusão:** durante a apresentação, quem não está falando anota numa folha, cena por cena:
+  - onde a pessoa franziu a testa;
+  - onde perguntou "como assim?";
+  - onde olhou para o celular.
+  Compare com o que ela conseguiu explicar no fim.
+- **Regra para mexer:**
+  - uma cena que ninguém consegue explicar de volta precisa de uma ideia a menos (texto mais curto) ou de uma ação a mais (apontar, perguntar);
+  - uma cena que sempre estoura o tempo provavelmente tem duas ideias, e vale separar;
+  - mudanças vão no `demo/roteiro.js`; depois, gere a colinha de novo.
+
+Repita com outra pessoa depois de ajustar. Duas rodadas costumam bastar.
+
+### Outros ensaios
+
+1. Testar a Estátua, a Travessia e o número do medidor com as placas de verdade, e ajustar as falas ao que acontecer.
+2. Cada um faz a versão completa (do avaliador) pelo menos uma vez, e os outros fazem as perguntas da colinha (tecla Q na janela do apresentador).
+3. Uma vez com a vitrine (a história tocando sozinha, sem ninguém falando): ela se explica? Onde ficou parada demais?

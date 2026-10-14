@@ -419,6 +419,7 @@
     let L = 0;
     for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(l); L += l; }
     return {
+      L,
       em(t) {
         let d = limitar(t) * L;
         for (let i = 0; i < segs.length; i++) {
@@ -665,10 +666,11 @@
   const CAMADAS = {
     sala: { padrao: {} },
     ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
+    onda12: { padrao: { x0: 0.27, x1: 0.95, y: 0.42 } },
     casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0, fachada: 0 } },
     pilha: { padrao: { agito: 0, roteiro: 0, px: PILHA.x, pw: PILHA.w, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0, teto: -1 }, sintetica: true },
     chao: { padrao: { x0: 0, x1: 1, cresce: 1, ...ZOOM_NORMAL } },
-    raios: { padrao: {} },
+    raios: { padrao: { so: 0, ...ZOOM_NORMAL } },
     pacotes: { padrao: { ...ZOOM_NORMAL } },
     roteador: { padrao: { x: 0.2, y: 0.42, prat: -1, forma: 0 } },
     camera: { padrao: { risco: 0 } },
@@ -678,10 +680,11 @@
     icones: { padrao: {} },
     vulto: { padrao: { x: 0.86 } },
     pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, fantasma: 0, andar: 0, ...ZOOM_NORMAL } },
-    barras: { padrao: {}, sintetica: true },
+    barras: { padrao: { destaque: -1 }, sintetica: true },
     curva: { padrao: { forma: 0 }, sintetica: true },
+    soma: { padrao: { x0: 0.2, x1: 0.88, xb: 0.95, py: 0.1, ph: 0.68, pessoa: 0, fecha: 0 }, sintetica: true },
     medidor: { padrao: {}, sintetica: true, sobe: true },
-    vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0 }, sobe: true },
+    vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0, relevo: 1, juntar: 0 }, sobe: true },
     grade: { padrao: { agrupar: 1, junta: 0 }, sintetica: true },
     resultado: { padrao: {} },
   };
@@ -723,6 +726,31 @@
         tracejado(c, G, true); aneis(R * 1.5, 0.45 * forca * q.vaza); tracejado(c, G, false);
         c.restore();
       }
+    },
+    onda12(c, G, q, cor, amb) {
+      // A onda do Wi-Fi saindo do roteador e andando pela sala, com a régua de 12 cm entre duas cristas
+      // (o desenho não está em escala: a onda de verdade tem 12 cm). Entra desenhando e sai desdesenhando.
+      const b = construcao(q), k = curvas.suave(janela(b, 0, 0.75));
+      const x0 = G.X(q.x0), x1 = G.X(q.x1), y0 = G.Y(q.y), a = G.bh * 0.024, Lw = G.bw * 0.072, vel = 3;
+      const env = (x) => limitar((x - x0) / (Lw * 0.9)) * (1 - 0.55 * limitar((x - x0) / (x1 - x0)));
+      const yDe = (x) => y0 - a * env(x) * Math.sin((2 * Math.PI * (x - x0)) / Lw - amb * vel);
+      const xf = misturar(x0, x1, k);
+      c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineJoin = 'round'; c.lineCap = 'round';
+      c.globalAlpha = q.dir === -1 ? limitar(q.p * 1.5) : 1; c.lineWidth = PESO.secundario * G.dpr;
+      c.beginPath();
+      for (let x = x0; x <= xf; x += 2 * G.dpr) { if (x === x0) c.moveTo(x, yDe(x)); else c.lineTo(x, yDe(x)); }
+      c.stroke();
+      // a régua anda junto com uma crista e, quando ela passa de uma onda, volta uma onda (ninguém percebe o pulo)
+      const kr = curvas.entra(janela(b, 0.6, 1));
+      if (kr > 0.01) {
+        const fase = ((((Lw * (Math.PI / 2 + amb * vel)) / (2 * Math.PI)) % Lw) + Lw) % Lw;
+        const xc = x0 + fase + Lw * 2, xd = xc + Lw, yr = y0 - a * 1.9, tick = G.bh * 0.012;
+        c.globalAlpha = kr * (q.dir === -1 ? q.p : 1); c.lineWidth = PESO.detalhe * G.dpr;
+        linha(c, xc, yr, xd, yr); linha(c, xc, yr - tick, xc, yr + tick); linha(c, xd, yr - tick, xd, yr + tick);
+        tracejado(c, G, true); linha(c, xc, yr + tick, xc, yDe(xc)); linha(c, xd, yr + tick, xd, yDe(xd)); tracejado(c, G, false);
+        rotulo(c, G, cor, '12 cm', (xc + xd) / 2, yr - tick * 1.2, { base: 'bottom', cor: cor.tinta, tam: 0.034 });
+      }
+      c.lineCap = 'butt';
     },
     casa(c, G, q, cor, amb) {
       // Paredes e telhado com beiral, desenhados do chão até a cumeeira (e recolhidos na saída); por dentro,
@@ -793,13 +821,18 @@
       const A = prm.placaA, B = prm.placaB;
       if (!A || !B) return;
       const ya = G.Y(Y_ANTENA), xa = G.X(A.x), xb = G.X(B.x), xm = (xa + xb) / 2;
-      const px = G.X(prm.pessoa ? prm.pessoa.x : 0.66) - 9 * G.dpr, py = G.Y(CHAO - ALTURA_PESSOA * 0.66);
-      const lista = [
+      // a pessoa pode estar andando (cena "mexe"): o caminho que passa por ela anda junto
+      const P = prm.pessoa, xp = P ? P.x + (P.andar || 0) * 0.2 * Math.sin(amb * 0.5) : 0.66;
+      const px = G.X(xp) - 9 * G.dpr, py = G.Y(CHAO - ALTURA_PESSOA * 0.66);
+      const todos = [
         { pts: [[xa, ya], [xb, ya]] },
         { pts: [[xa, ya], [xm, G.Y(SALA.teto)], [xb, ya]] },
         { pts: [[xa, ya], [xm, G.Y(CHAO)], [xb, ya]] },
         { pts: [[xa, ya], [px, py], [xb, ya]], forte: true },
       ];
+      const lista = q.so > 0.5 ? todos.slice(3) : todos;
+      // os pulsos saem juntos de A e andam na mesma velocidade: os caminhos longos chegam depois
+      const trs = lista.map((cm) => trajeto(cm.pts)), Lmax = Math.max(...trs.map((tr) => tr.L)) * 1.12;
       // Entrando, cada caminho é desenhado de A até B, um depois do outro. Saindo, eles não somem:
       // são "puxados" para dentro da placa B (o começo corre até B), e a B dá um pulso. É a B que mede.
       const t = linear(q), sai = saindo(q);
@@ -808,7 +841,7 @@
         const pk = curvas.suave(limitar(t * 1.9 - i * 0.3));
         const ini = curvas.suave(limitar(sai * 1.5 - i * 0.12));
         if (pk <= 0 || ini >= 1) return;
-        const tr = trajeto(cm.pts);
+        const tr = trs[i];
         c.lineWidth = (cm.forte ? 1.5 : 1.1) * G.dpr;
         c.globalAlpha = cm.forte ? 0.9 : 0.42;
         tr.tracar(c, pk, ini);
@@ -817,8 +850,8 @@
           c.beginPath(); c.arc(px, py, 4.5 * G.dpr, 0, 2 * Math.PI); c.stroke();
         }
         for (let j = 0; j < 2; j++) {
-          const s = (amb * 0.3 + i * 0.27 + j * 0.5) % 1;
-          if (s > pk || s < ini) continue;
+          const s = ((((amb * 0.3 + j * 0.5) % 1) * Lmax) / tr.L);
+          if (s > 1 || s > pk || s < ini) continue;
           const [x, y] = tr.em(s);
           c.globalAlpha = Math.pow(Math.sin(Math.PI * s), 0.7) * (cm.forte ? 1 : 0.75);
           c.beginPath(); c.arc(x, y, (cm.forte ? 2.8 : 2.1) * G.dpr, 0, 2 * Math.PI); c.fill();
@@ -1066,7 +1099,8 @@
       c.lineWidth = Math.max(G.dpr, largura * 0.34); c.lineCap = 'butt';
       for (let k = 0; k < 64; k++) {
         // entrando: cada barra sai da placa B e cresce, da esquerda para a direita; saindo: só apaga
-        const pk = q.dir === 1 ? curvas.entra(limitar(q.p * 1.6 - (k / 63) * 0.6)) : 1;
+        const destaque = k === q.destaque && q.dir === 1;
+        const pk = q.dir === 1 ? (destaque ? 1 : curvas.entra(limitar(q.p * 1.6 - (k / 63) * 0.6))) : 1;
         if (pk <= 0) continue;
         c.globalAlpha = q.dir === -1 ? q.p : Math.min(1, pk * 1.4);
         const x = misturar(origem, G.X(BARRAS.x0) + largura * (k + 0.5), pk);
@@ -1117,6 +1151,66 @@
       c.stroke();
       c.lineCap = 'butt';
     },
+    soma(c, G, q, cor, amb) {
+      // O que chega na placa B, separado: o caminho direto, um caminho rebatido e a soma dos dois. A diferença
+      // entre eles (defasagem) vai e volta sozinha na cena "soma"; na cena "mexe", segue a pessoa andando.
+      // À direita, a força do que chegou; na cena das 64 ondas, ela vira uma das barras (`fecha`).
+      const b = construcao(q), fecha = curvas.suave(limitar(q.fecha || 0)), trilhas = 1 - limitar(fecha * 1.8);
+      const x0 = G.X(q.x0), x1 = G.X(q.x1), xb = G.X(q.xb);
+      const yA = G.Y(q.py + q.ph * 0.1), yB = G.Y(q.py + q.ph * 0.4), yS = G.Y(q.py + q.ph * 0.78);
+      const a = q.ph * G.bh * 0.075, Lw = (x1 - x0) / 4.25, vel = 2.2, kB = 0.9;
+      const ciclo = ((((amb % 9) + 9) % 9) / 9);
+      const auto = ciclo < 0.12 ? 0 : ciclo < 0.42 ? curvas.suave((ciclo - 0.12) / 0.3) : ciclo < 0.62 ? 1 : ciclo < 0.92 ? 1 - curvas.suave((ciclo - 0.62) / 0.3) : 0;
+      const fi = misturar(Math.PI * auto, 2 * Math.PI * 1.6 * Math.sin(amb * 0.5), q.pessoa || 0);
+      const forca = Math.hypot(1 + kB * Math.cos(fi), kB * Math.sin(fi));          // de 0,1 (cancela) a 1,9 (reforça)
+      const th = (x) => (2 * Math.PI * (x - x0)) / Lw - amb * vel;
+      const sai = q.dir === -1 && fecha < 0.01 ? q.p : 1;
+      c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineJoin = 'round'; c.lineCap = 'round';
+      const onda = (y0, f, k, larg, alfa) => {
+        if (k <= 0.001 || alfa <= 0.001) return;
+        const xf = misturar(x0, x1, k);
+        c.globalAlpha = alfa; c.lineWidth = larg * G.dpr;
+        c.beginPath();
+        for (let x = x0; x <= xf; x += 2 * G.dpr) { const y = y0 - f(th(x)); if (x === x0) c.moveTo(x, y); else c.lineTo(x, y); }
+        c.stroke();
+      };
+      // entrando: uma trilha depois da outra, saindo da placa B; saindo: o contrário
+      const kA = curvas.suave(janela(b, 0, 0.55)), kR = curvas.suave(janela(b, 0.2, 0.75)), kS = curvas.suave(janela(b, 0.4, 1));
+      const al = sai * trilhas;
+      onda(yA, (t) => a * Math.sin(t), kA, PESO.secundario, al);
+      onda(yB, (t) => a * kB * Math.sin(t - fi), kR, PESO.secundario, al);
+      onda(yS, (t) => a * (Math.sin(t) + kB * Math.sin(t - fi)), kS, PESO.principal * 1.3, al);
+      const rt = { alinhar: 'left', base: 'bottom', tam: 0.03 };
+      c.globalAlpha = al * kA; rotulo(c, G, cor, 'caminho direto', x0, yA - a * 1.25, rt);
+      c.globalAlpha = al * kR; rotulo(c, G, cor, 'caminho que rebateu', x0, yB - a * 1.25, rt);
+      c.globalAlpha = al * kS; rotulo(c, G, cor, 'o que chega na placa B', x0, yS - a * 2.15, { ...rt, cor: cor.tinta });
+      const sinal = { tam: 0.05, base: 'middle', cor: cor.tinta };
+      c.globalAlpha = al * kR; rotulo(c, G, cor, '+', x0 - G.bw * 0.035, (yA + yB) / 2, sinal);
+      c.globalAlpha = al * kS; rotulo(c, G, cor, '=', x0 - G.bw * 0.035, (yB + yS) / 2 + a * 0.4, sinal);
+      // a guia tracejada passa por uma crista do caminho direto e anda com ela
+      if (kS > 0.5 && al > 0.01) {
+        const fase = ((((Lw * (Math.PI / 2 + amb * vel)) / (2 * Math.PI)) % Lw) + Lw) % Lw, xg = x0 + fase + Lw;
+        c.globalAlpha = al * 0.55 * (kS * 2 - 1); c.lineWidth = PESO.detalhe * G.dpr; tracejado(c, G, true);
+        linha(c, xg, yA - a * 1.05, xg, yS + a * 2.1); tracejado(c, G, false);
+      }
+      // reforça / cancela, conforme a soma
+      c.globalAlpha = al * kS * limitar((forca - 1.25) / 0.45); rotulo(c, G, cor, 'reforça', x1, yS - a * 2.15, { alinhar: 'right', base: 'bottom', tam: 0.034, cor: cor.tinta });
+      c.globalAlpha = al * kS * limitar((0.85 - forca) / 0.45); rotulo(c, G, cor, 'cancela', x1, yS - a * 2.15, { alinhar: 'right', base: 'bottom', tam: 0.034, cor: cor.tinta });
+      // a força em B: uma barra (e, na cena das 64 ondas, ela vai para o lugar de uma das barras)
+      if (kS > 0.01) {
+        const pf = perfil(), kd = q.destaque >= 0 ? q.destaque : 44;
+        let max = 0; for (let k = 0; k < 64; k++) max = Math.max(max, pf[k]);
+        const larguraB = ((BARRAS.x1 - BARRAS.x0) * G.bw) / 64;
+        const xAlvo = G.X(BARRAS.x0) + larguraB * (kd + 0.5), hAlvo = (BARRAS.alt * G.bh * pf[kd]) / max;
+        const base = misturar(yS + a * 2.1, G.Y(BARRAS.base), fecha), h = misturar((forca / 1.9) * a * 4.2, hAlvo, fecha);
+        c.globalAlpha = (q.dir === -1 ? q.p : 1) * kS; c.lineCap = 'butt';
+        c.lineWidth = misturar(4 * G.dpr, Math.max(G.dpr, larguraB * 0.34), fecha);
+        linha(c, misturar(xb, xAlvo, fecha), base, misturar(xb, xAlvo, fecha), base - h);
+        c.globalAlpha = (q.dir === -1 ? q.p : 1) * kS * trilhas;
+        rotulo(c, G, cor, 'força', xb, base + G.bh * 0.012, { tam: 0.028 });
+      }
+      c.lineCap = 'butt';
+    },
     medidor(c, G, q, cor, amb, prm, ex) {
       const t = linear(q), r = { x: G.X(0), y: G.Y(MEDIDOR.y), w: G.bw, h: MEDIDOR.h * G.bh };
       if (ex.varredura !== null && q.dir === -1) {
@@ -1133,7 +1227,7 @@
       if (varrendo) { c.beginPath(); c.rect(G.X(-0.2), G.Y(-0.1), ex.varredura - G.X(-0.2), G.bh * 1.2); c.clip(); }
       const { ls, frac } = real ? { ls: dv.leituras.slice(-49), frac: limitar(dv.frac || 0) } : pilhaSint(amb, 0, 1);
       c.globalAlpha = alfa;
-      desenharLinhas(c, { x: G.X(0), y: G.Y(q.py), w: G.bw, h: q.ph * G.bh }, ls, frac, cor, 1.4 * G.dpr, { visiveis: q.dir === 1 && !varrendo ? q.p * 50 : Infinity, destaque: true });
+      desenharLinhas(c, { x: G.X(0), y: G.Y(q.py), w: G.bw, h: q.ph * G.bh }, ls, frac, cor, 1.4 * G.dpr, { visiveis: q.dir === 1 && !varrendo ? q.p * 50 : Infinity, destaque: true, relevo: q.relevo, juntar: q.juntar });
       if (q.med <= 0.01) return;
       let d;
       if (real) {
@@ -1226,29 +1320,35 @@
   };
   const PILHA_VIRA_CHAO = { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, mover: [0.04, 0.42], saida: [0.36, 0.5] };
   const POSES = {
+    // o sinal de verdade (ou a simulação), como a tela principal: é o gancho
     abertura: {
-      pilha: { roteiro: 1 },
+      vivo: { py: PILHA.y, ph: PILHA.h, med: 0 },
     },
+    // as linhas da abertura viram o chão da sala
     pergunta: {
-      pilha: PILHA_VIRA_CHAO,
+      vivo: { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, med: 0, mover: [0.04, 0.42], saida: [0.36, 0.5] },
       chao: { cresce: 0, entrada: [0.38, 0.5] },
       sala: { entrada: [0.46, 0.86] },
       pessoa: { x: 0.62, deitada: 1, entrada: [0.4, 0.88] },
       camera: { risco: 1, entrada: [0.4, 0.88] },
     },
-    wifi: {
-      pilha: PILHA_VIRA_CHAO,
+    // a onda sai do roteador e anda pela sala, com a régua de 12 cm
+    onda: {
+      vivo: { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, med: 0, mover: [0.04, 0.42], saida: [0.36, 0.5] },
       chao: { cresce: 0, entrada: [0.38, 0.5] },
       sala: { entrada: [0.46, 0.86] },
       pessoa: { x: 0.62, deitada: 0, entrada: [0.5, 0.88], mover: { deitada: [0.2, 0.6] } },
       camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
       roteador: { x: 0.2, y: 0.42, prat: SALA.x0, entrada: [0.3, 0.7] },
       ondas: { ox: 0.2, oy: 0.42, entrada: [0.45, 0.88] },
+      onda12: { x0: 0.27, x1: 0.95, y: 0.42, entrada: [0.5, 0.88] },
     },
     placas: {
       chao: {},
+      vivo: { p: 0, saida: [0.04, 0.36] },
       sala: { p: 0, saida: [0.1, 0.5] },
       pessoa: { p: 0, x: 0.62, saida: [0.04, 0.36] },
+      onda12: { p: 0, saida: [0.02, 0.3] },
       // o roteador vai até o lugar da placa A e muda de forma até ficar igual à caixa dela; a placa nasce ali
       roteador: { p: 0, x: 0.14, y: Y_ANTENA, prat: SALA.x0, forma: 1, mover: [0.06, 0.42], saida: [0.5, 0.66] },
       ondas: { p: 0, ox: 0.14, oy: Y_ANTENA, mover: [0.06, 0.42], saida: [0.2, 0.5] },
@@ -1265,7 +1365,8 @@
       pessoa: { x: 0.66, entrada: [0.34, 0.8] },
       raios: { entrada: [0.4, 0.88] },
     },
-    acorde: {
+    // os caminhos entram na placa B e, dela, saem separados: o direto, o que rebateu e a soma
+    soma: {
       chao: {},
       sala: { p: 0, saida: [0.04, 0.3] },
       raios: { p: 0, saida: [0.04, 0.42] },              // os caminhos são puxados para dentro da placa B
@@ -1273,8 +1374,29 @@
       placaA: { p: 0, x: 0.02, saida: [0.06, 0.32], mover: [0.06, 0.32] },
       placaB: { x: 0.07, esc: 1.1, mover: [0.1, 0.5] },
       pacotes: { p: 0, saida: [0.04, 0.28] },
-      barras: { entrada: [0.44, 0.9] },
-      curva: { forma: 0, entrada: [0.62, 0.9] },
+      soma: { entrada: [0.42, 0.88] },
+    },
+    // a sala em miniatura volta, com alguém andando; a soma desce e passa a seguir a pessoa
+    mexe: {
+      chao: { ...ZOOM_MINI, mover: [0.12, 0.55] },
+      placaA: { x: 0.14, esc: 1, ...ZOOM_MINI, entrada: [0.32, 0.66] },
+      // a soma desce primeiro; depois a placa B sobe para a sala (sem passar por cima das trilhas)
+      placaB: { x: 0.86, esc: 1, ...ZOOM_MINI, mover: { _: [0.3, 0.62], x: [0.42, 0.85] } },
+      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, entrada: [0.5, 0.88] },
+      raios: { so: 1, ...ZOOM_MINI, entrada: [0.6, 0.88] },
+      soma: { x0: 0.2, x1: 0.88, xb: 0.95, py: 0.46, ph: 0.52, pessoa: 1, mover: { _: [0.04, 0.4], pessoa: [0.55, 0.88] } },
+    },
+    // a soma vira uma barra; as outras 63 nascem da placa B (cada onda soma de um jeito)
+    frequencias: {
+      chao: { ...ZOOM_NORMAL, mover: [0.1, 0.5] },
+      raios: { p: 0, so: 1, ...ZOOM_MINI, saida: [0.02, 0.26] },
+      pessoa: { p: 0, x: 0.5, ...ZOOM_MINI, saida: [0.02, 0.28] },
+      placaA: { p: 0, x: 0.14, ...ZOOM_MINI, saida: [0.04, 0.3] },
+      // as trilhas somem no lugar e a força vira a barra em destaque; só depois a placa B desce para o chão
+      placaB: { x: 0.07, esc: 1.1, ...ZOOM_NORMAL, mover: [0.42, 0.85] },
+      soma: { p: 0, fecha: 1, pessoa: 0, mover: { fecha: [0.08, 0.5], pessoa: [0.04, 0.3] }, saida: [0.62, 0.74] },
+      barras: { destaque: 44, entrada: [0.5, 0.88] },
+      curva: { forma: 0, entrada: [0.7, 0.88] },
     },
     linhas: {
       chao: { p: 0 },
@@ -1481,13 +1603,14 @@
     // A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação): nunca "ao vivo" com dado simulado.
     function fonteAtual() { const dv = dadosVivos(); return (dv && dv.fonte) || null; }
     function tituloDe(c) {
-      if (c.id !== 'aovivo') return c.titulo;
       const f = fonteAtual();
       return (f === 'sim' && c.tituloSimulacao) || (f === 'replay' && c.tituloGravacao) || (!f && c.tituloSemFonte) || c.titulo;
     }
     // Resultados: só com os números do avaliar.py (acerto por coleta e o chute ao lado); senão, a frase de espera.
     // Viabilidade: o preço só aparece se o grupo preencher CUSTO no roteiro.
     function fraseDe(c) {
+      const f = fonteAtual(), porFonte = (f === 'sim' && c.fraseSimulacao) || (f === 'replay' && c.fraseGravacao) || (!f && c.fraseSemFonte);
+      if (porFonte) return porFonte;
       if (c.fraseComCusto && typeof roteiro.CUSTO === 'string' && roteiro.CUSTO.trim()) return c.fraseComCusto.replace('{custo}', roteiro.CUSTO.trim());
       const R = roteiro.RESULTADOS;
       if (c.id !== 'resultados' || !c.fraseComResultados || !R || typeof R.acerto !== 'number' || typeof R.chute !== 'number') return c.frase;
@@ -1674,7 +1797,9 @@
 
     function mostrarNotas() {
       const i = Math.round(destino()), c = cena(i);
-      elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(semMarcas(tituloDe(c)))}</b>${escapar(c.notas || '')}`;
+      const acoes = (c.acao || []).map((a) => `<br>· ${escapar(a)}`).join('');
+      const texto = c.fala ? `${escapar(c.fala)}${acoes}${c.ponte ? `<br>→ ${escapar(c.ponte)}` : ''}` : escapar(c.notas || '');
+      elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(semMarcas(tituloDe(c)))}</b>${texto}`;
     }
 
     function laco() {

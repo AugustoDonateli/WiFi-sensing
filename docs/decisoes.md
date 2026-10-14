@@ -118,6 +118,22 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - palavra-chave do título sublinhada (marcada com `*...*` no `roteiro.js`).
   - **Ficou de fora de propósito:** câmera tremendo, zoom contínuo, desfoque e cores novas. Com a cena parada, nada muda de lugar.
 
+### "Como funciona": revisão da explicação do Wi-Fi (14/10/2026, pedido do grupo)
+- **O pedido:** a explicação do Wi-Fi estava rasa: faltava o que acontece entre transmitir o sinal e perceber movimento. O objetivo era o "agora entendi", com pouco texto, uma ideia por cena e uma colinha melhor.
+- **O arco novo:** abre com as linhas de verdade da sala ("mexa o braço") e fecha com "Agora você sabe ler estas linhas".
+- **No meio, três cenas novas:**
+  - "Na placa B, os caminhos se somam": direto + rebatido = soma; crista com crista reforça, crista com vale cancela;
+  - "Quando alguém se mexe, a soma muda": a soma sobe e desce no ritmo dos passos; meia onda ~6 cm;
+  - "O Wi-Fi usa 64 ondas juntas": a força da soma vira uma barra, e as outras 63 nascem em volta. "CSI" só aparece depois de entendido.
+- **Refeitas:**
+  - a onda, com a régua de 12 cm;
+  - os caminhos, em que os pulsos saem juntos e os longos chegam depois;
+  - a abertura e o fim.
+- **Saíram:** "O Wi-Fi está em quase todo lugar" (virou "O Wi-Fi é uma onda") e "64 frequências" (virou "64 ondas").
+- **Colinha:** cada cena tem fala, ações, ponte e perguntas de avaliador. Aparece na janela do apresentador (Q mostra as perguntas) e em `docs/colinha.md`, gerada do roteiro.
+- **Ensaio com alguém de fora:** em `docs/apresentacao.md`, com as 4 coisas que a pessoa deve saber explicar no fim.
+- **Honestidade:** as cenas novas são física desenhada, com a etiqueta "Ilustração"; a abertura diz a fonte do sinal no título.
+
 ### Passagens entre as telas do site (14/10/2026, pedido do grupo)
 - **O pedido:** toda troca de tela com uma animação de transição ambiciosa e com personalidade, que não pareça genérica. O caso citado: modo escuta → Desafio Ninja (hoje Travessia).
 - **A ideia:** toda troca passa pelo sinal. A tela que sai vira as linhas do Wi-Fi (as leituras de verdade), as linhas tomam a tela e depois viram a tela que chega, com um gesto que diz o que ela é:

@@ -43,11 +43,11 @@ out.transicao = {
 out.direcional = [H.alvoDirecional(2.2, 1), H.alvoDirecional(2.1, 1), H.alvoDirecional(2.9, -1), H.alvoDirecional(2.8, -1), H.alvoDirecional(3, 1)];
 out.curta = H.ordemDa(R.cenas, 'curta');
 out.completa = H.ordemDa(R.cenas, 'completa');
-out.remap = [H.remapear('acorde', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('resultados', R.cenas, 'curta'), H.remapear('viabilidade', R.cenas, 'curta')];
+out.remap = [H.remapear('frequencias', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('resultados', R.cenas, 'curta'), H.remapear('viabilidade', R.cenas, 'curta')];
 const a = H.sinteticas(7, 30), b = H.sinteticas(7, 30), c = H.sinteticas(8, 30);
 out.semente = { iguais: a.parado[20].a[10] === b.parado[20].a[10] && a.mexendo[25].a[40] === b.mexendo[25].a[40], diferentes: a.parado[20].a[10] !== c.parado[20].a[10] };
 // perto de cada cena inteira nada se mexe (±0,12)
-const ordem = ['placas', 'acorde', 'linhas'], pad = Object.fromEntries(Object.entries(H.CAMADAS).map(([k, v]) => [k, v.padrao]));
+const ordem = ['placas', 'frequencias', 'linhas'], pad = Object.fromEntries(Object.entries(H.CAMADAS).map(([k, v]) => [k, v.padrao]));
 const p1 = H.poseEm(1, ordem, H.POSES, pad), p2 = H.poseEm(1.1, ordem, H.POSES, pad), p0 = H.poseEm(0.9, ordem, H.POSES, pad);
 // compara só o que aparece: camadas com presença > 0, números arredondados, sem a direção e o progresso da animação
 const limpo = (p) => JSON.stringify(Object.fromEntries(Object.entries(p).filter(([k, q]) => !k.startsWith('_') && q.p > 1e-6)
@@ -74,6 +74,15 @@ for (const v of ['completa', 'curta']) {
 out.revela = [H.revelacao(0, 0, 5, 0.5, 0.9), H.revelacao(1, 4, 5, 0.5, 0.9), H.revelacao(0.7, 0, 5, 0.5, 0.9) > H.revelacao(0.7, 4, 5, 0.5, 0.9)];
 out.ids = R.cenas.map((c) => c.id);
 out.semPose = R.cenas.filter((c) => !H.POSES[c.id]).map((c) => c.id);
+// a colinha: toda cena tem fala; todas menos a última têm a ponte para a próxima; ações e perguntas bem formadas
+out.colinha = {
+  semFala: R.cenas.filter((c) => !(typeof c.fala === 'string' && c.fala.length > 20)).map((c) => c.id),
+  semPonte: R.cenas.slice(0, -1).filter((c) => !(typeof c.ponte === 'string' && c.ponte.length > 5)).map((c) => c.id),
+  acoesRuins: R.cenas.filter((c) => c.acao !== undefined && !(Array.isArray(c.acao) && c.acao.every((a) => typeof a === 'string' && a.length > 3))).map((c) => c.id),
+  perguntasRuins: [...R.cenas.flatMap((c) => c.perguntas || []), ...(R.perguntasGerais || [])].filter((q) => !(q.p && q.r)).length,
+  gerais: (R.perguntasGerais || []).length,
+  falaLonga: R.cenas.filter((c) => c.fala && c.fala.split(/[.!?]\s/).length > 6).map((c) => c.id),
+};
 console.log(JSON.stringify(out));
 """
 
@@ -125,7 +134,7 @@ class TestHistoria(unittest.TestCase):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
         self.assertEqual(len(self.r["curta"]), 11)
         self.assertEqual(self.r["curta"][0], "abertura")
-        self.assertEqual(self.r["remap"], ["linhas", "placas", "parado", "usos"])
+        self.assertEqual(self.r["remap"], ["frequencias", "placas", "parado", "privacidade"])
 
     def test_dados_de_ilustracao_deterministicos(self):
         self.assertTrue(self.r["semente"]["iguais"])
@@ -141,6 +150,15 @@ class TestHistoria(unittest.TestCase):
     def test_revelacao_das_palavras(self):
         self.assertEqual(self.r["revela"][:2], [0, 1])
         self.assertTrue(self.r["revela"][2])            # a primeira palavra chega antes da última
+
+    def test_colinha_completa(self):
+        c = self.r["colinha"]
+        self.assertEqual(c["semFala"], [])
+        self.assertEqual(c["semPonte"], [])
+        self.assertEqual(c["acoesRuins"], [])
+        self.assertEqual(c["perguntasRuins"], 0)
+        self.assertGreaterEqual(c["gerais"], 4)
+        self.assertEqual(c["falaLonga"], [])        # fala curta: no máximo 6 frases por cena
 
     def test_ids_unicos(self):
         self.assertEqual(len(set(self.r["ids"])), len(self.r["ids"]))

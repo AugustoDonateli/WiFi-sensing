@@ -28,6 +28,14 @@ header { grid-column: 1 / -1; display: flex; justify-content: space-between; ali
 .atual { min-width: 0; overflow: auto; }
 .titulo { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 2.8vw, 46px); line-height: 1.05; margin: 10px 0 20px; text-wrap: balance; }
 .notas { font-size: clamp(19px, 1.55vw, 26px); line-height: 1.5; max-width: 54ch; margin: 0; text-wrap: pretty; }
+/* a colinha: o que fazer (ações), a ponte para a próxima cena e, com Q, as perguntas de avaliador */
+.acoes { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; max-width: 62ch; }
+.acoes li { font-size: clamp(15px, 1.15vw, 19px); line-height: 1.45; color: var(--tinta); display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; }
+.acoes li .mono { padding-top: 4px; }
+.ponte { font-family: var(--serif); font-style: italic; font-size: clamp(20px, 1.6vw, 26px); color: var(--apagado); margin: 24px 0 0; max-width: 54ch; }
+.perguntas { margin-top: 26px; border-top: 1px solid var(--linha); padding-top: 18px; display: flex; flex-direction: column; gap: 14px; max-width: 70ch; }
+.perguntas b { display: block; font-weight: 500; font-size: 17px; }
+.perguntas span { font-size: 16px; line-height: 1.5; color: #C9C9C3; }
 .lado { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .mini { border: 1px solid var(--linha); }
 .proxima-t { font-family: var(--serif); font-size: 24px; line-height: 1.15; margin-top: 6px; }
@@ -55,6 +63,9 @@ button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); bor
     <div class="mono" id="cap">História fechada na TV</div>
     <h1 class="titulo" id="titulo">Na página da TV, aperte H para abrir a história.</h1>
     <p class="notas" id="notas">Quando a história abrir, a fala de cada cena aparece aqui. Setas, espaço e o passador de slides funcionam nesta janela também.</p>
+    <ul class="acoes" id="acoes"></ul>
+    <p class="ponte" id="ponte"></p>
+    <div class="perguntas" id="perguntas" hidden></div>
   </section>
 
   <aside class="lado">
@@ -73,6 +84,7 @@ button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); bor
     <button id="v-completa" aria-pressed="true">Completa</button>
     <button id="v-curta" aria-pressed="false">Curta</button>
     <button id="zerar">Zerar tempo</button>
+    <button id="ver-perguntas" aria-pressed="false">Perguntas (Q)</button>
     <button id="fechar">Fechar a história</button>
     <span class="mono dica">B ou . deixa a TV preta</span>
   </footer>
@@ -110,8 +122,8 @@ function mostrar() {
   const c = cenaPorId(palco.cenaId), i = palco.indice, n = palco.ordem.length;
   $('cap').textContent = palco.aberta ? `${c.cap ? R.capitulos[c.cap] + ' · ' : ''}cena ${i + 1} de ${n}` : 'História fechada na TV (abre ao avançar)';
   // na cena ao vivo, o mesmo título que a TV mostra (depende de onde vem o sinal)
-  $('titulo').textContent = semMarcas(c.id === 'aovivo' ? ({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte] || (palco.fonte ? c.titulo : c.tituloSemFonte) || c.titulo) : c.titulo);
-  $('notas').textContent = c.notas || '';
+  $('titulo').textContent = semMarcas(({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte]) || (!palco.fonte && c.tituloSemFonte) || c.titulo);
+  colinha(c);
   const prox = palco.ordem[i + 1];
   $('proxima').textContent = prox ? semMarcas(cenaPorId(prox).titulo) : 'Fim. Convide para a Travessia.';
   $('posicao').textContent = `${i + 1}/${n}`;
@@ -120,6 +132,24 @@ function mostrar() {
   const meta = palco.ordem.reduce((s, id) => s + segundos(cenaPorId(id), palco.versao), 0);
   $('t-meta').textContent = `no total · meta ${fmt(meta)}`;
 }
+
+// A colinha da cena: a fala, as ações (APONTE, PERGUNTE, PAUSA...), a ponte para a próxima e as perguntas.
+let verPerguntas = false;
+function colinha(c) {
+  $('notas').textContent = c.fala || c.notas || '';
+  $('acoes').replaceChildren(...(c.acao || []).map((a) => {
+    const li = document.createElement('li'), m = /^([A-ZÁÉÍÓÚÇÃÕÊ ()]+):\s*(.*)$/.exec(a);
+    const tag = document.createElement('span'); tag.className = 'mono'; tag.textContent = m ? m[1] : '·';
+    const txt = document.createElement('span'); txt.textContent = m ? m[2] : a;
+    li.append(tag, txt); return li;
+  }));
+  $('ponte').textContent = c.ponte ? `→ ${c.ponte}` : '';
+  const qs = [...(c.perguntas || []), ...(R.perguntasGerais || [])];
+  $('perguntas').replaceChildren(...qs.map((x) => { const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = x.p; const s = document.createElement('span'); s.textContent = x.r; d.append(b, s); return d; }));
+  $('perguntas').hidden = !verPerguntas;
+  $('ver-perguntas').setAttribute('aria-pressed', String(verPerguntas));
+}
+function alternarPerguntas() { verPerguntas = !verPerguntas; if (palco) colinha(cenaPorId(palco.cenaId)); }
 
 setInterval(() => {
   const ok = Date.now() - visto < 3000;
@@ -143,6 +173,7 @@ $('v-completa').addEventListener('click', () => cmd('versao', { versao: 'complet
 $('v-curta').addEventListener('click', () => cmd('versao', { versao: 'curta' }));
 $('fechar').addEventListener('click', () => cmd('fechar'));
 $('zerar').addEventListener('click', () => { inicio = Date.now(); cenaDesde = Date.now(); });
+$('ver-perguntas').addEventListener('click', alternarPerguntas);
 
 // O passador de slides pode estar mandando teclas para esta janela: repassa para a TV.
 document.addEventListener('keydown', (e) => {
@@ -153,6 +184,7 @@ document.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'BUTTON' && (k === ' ' || k === 'Enter')) return;
   if (k in nav) { e.preventDefault(); if (!e.repeat) cmd(nav[k]); }
   else if (k === 'b' || k === 'B' || k === '.') cmd('preto');
+  else if (k === 'q' || k === 'Q') alternarPerguntas();
   else if ((k === 'v' || k === 'V') && palco) cmd('versao', { versao: palco.versao === 'completa' ? 'curta' : 'completa' });
   else if (k === 'Home' && palco) cmd('ir', { cenaId: palco.ordem[0] });
   else if (k === 'End' && palco) cmd('ir', { cenaId: palco.ordem[palco.ordem.length - 1] });
