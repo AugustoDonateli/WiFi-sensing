@@ -1301,14 +1301,16 @@
       medidor: { entrada: [0.58, 0.88] },
       ...SAI_MINI,
     },
-    // vindo do número: uma linha varre e troca o exemplo pelo sinal de verdade (mesma janela nas três camadas)
+    // vindo do número: uma linha varre e troca o exemplo pelo sinal de verdade (a janela do vivo guia a linha).
+    // Vindo de outra cena (versão curta), não há varredura: as linhas de antes saem cedo, antes das novas.
     aovivo: {
-      pilha: { p: 0, agito: 1, roteiro: 1, py: 0.02, ph: 0.52, saida: [0.35, 0.86] },
+      pilha: { p: 0, agito: 1, roteiro: 1, py: 0.02, ph: 0.52, saida: [0.04, 0.4] },
       medidor: { p: 0, saida: [0.35, 0.86] },
       vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] },
       ...SAI_MINI,
     },
     metodo: {
+      vivo: { p: 0, saida: [0.02, 0.32] },
       grade: { entrada: [0.3, 0.88] },
     },
     // as gravações de teste se empilham dentro da barra do resultado; as de ajuste somem
@@ -1318,6 +1320,9 @@
     },
     // o mesmo arranjo do tremor, com a pessoa parada (some para o sistema) e as linhas calmas
     parado: {
+      // o que estava antes (resultado na completa, sinal de verdade na curta) sai antes de as linhas chegarem
+      resultado: { p: 0, saida: [0.02, 0.34] },
+      vivo: { p: 0, saida: [0.02, 0.34] },
       chao: { ...ZOOM_MINI, entrada: [0.3, 0.6] },
       placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.32, 0.66] },
       placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.36, 0.7] },
@@ -1358,7 +1363,10 @@
       ondas: { ox: 0.52, oy: 0.5, cx0: 0.1, cx1: 0.66, ctopo: 0.4, cap: 0.16, vaza: 1, entrada: [0.55, 0.88] },
       vulto: { x: 0.86, entrada: [0.5, 0.88] },
     },
+    // a casa sai antes de as linhas subirem no lugar dela
     fim: {
+      casa: { p: 0, saida: [0.02, 0.36] }, ondas: { p: 0, saida: [0.02, 0.3] }, roteador: { p: 0, saida: [0.02, 0.3] },
+      pessoa: { p: 0, saida: [0.02, 0.3] }, vulto: { p: 0, saida: [0.02, 0.3] }, chao: { p: 0, saida: [0.06, 0.38] },
       vivo: { py: PILHA.y, ph: PILHA.h, med: 0, entrada: [0.4, 0.88] },
     },
   };
@@ -1577,7 +1585,9 @@
       let sintetica = 0;
       for (const nome of Object.keys(CAMADAS)) {
         const q = prm[nome];
-        if (!q || q.p <= 0.001) continue;
+        // na varredura, o exemplo fica inteiro à direita da linha até ela passar (quem esconde é o recorte)
+        const naVarredura = ex.varredura !== null && (nome === 'pilha' || nome === 'medidor');
+        if (!q || (q.p <= 0.001 && !naVarredura)) continue;
         if (CAMADAS[nome].sintetica || (nome === 'vivo' && !ex.vivoReal)) sintetica = Math.max(sintetica, q.p);
         ctx.save();
         let Gc = G;
