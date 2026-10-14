@@ -274,7 +274,7 @@
     return n;
   }
 
-  // Desenha uma pose. `cor` = { fundo, tinta }; `aviso` = o aviso amarelo da tela (texto, cor, caixa), que
+  // Desenha uma pose. `cor` = { fundo, tinta }; `aviso` = o aviso de simulação da tela (texto, cor, caixa), que
   // continua no mesmo canto enquanto a passagem cobre a tela.
   function desenharPose(c, P, leituras, frac, cor, t, V, aviso) {
     const L = P.L, passo = L.h / N, altura = passo * 9 * (1 - P.aperto), esp = 1.4;
@@ -380,12 +380,14 @@
       c.globalAlpha = P.frente ? 1 : P.fora; c.fillStyle = cor.fundo;
       if (c.globalAlpha > 0.001) c.fillRect(borda, yBase, V.x + V.w - borda, V.y + V.h - yBase);
     }
-    // o aviso amarelo continua no mesmo canto (com "Simulação", a tela nunca fica sem dizer)
+    // o aviso de simulação continua no mesmo canto (com "Simulação", a tela nunca fica sem dizer)
     if (aviso && aviso.texto) {
       const al = P.frente ? (aviso.x > borda ? 1 : 0) : P.fora;
       if (al > 0.01) {
-        c.globalAlpha = al; c.fillStyle = aviso.cor || '#F5B83D';
-        c.beginPath(); c.arc(aviso.x + 3.5, aviso.y + aviso.h / 2, 3.5, 0, TAU); c.fill();
+        c.globalAlpha = al; c.fillStyle = c.strokeStyle = aviso.cor || '#8A8A84';
+        c.beginPath();
+        if (aviso.oco) { c.lineWidth = 1; c.arc(aviso.x + 3.5, aviso.y + aviso.h / 2, 3, 0, TAU); c.stroke(); }   // simulação ou gravação
+        else { c.arc(aviso.x + 3.5, aviso.y + aviso.h / 2, 3.5, 0, TAU); c.fill(); }                          // ao vivo
         c.font = `11px ${aviso.fonte || 'monospace'}`; c.textBaseline = 'middle';
         if ('letterSpacing' in c) c.letterSpacing = '0.88px';
         c.fillText(String(aviso.texto).toUpperCase(), aviso.x + 15, aviso.y + aviso.h / 2 + 0.5);
@@ -430,7 +432,7 @@
       if (m.historia) cx.historia = rel(m.historia);
       if (m.historiaReal) cx.historiaReal = rel(m.historiaReal);
       if (m.ponto) cx.ponto = { x: m.ponto.x - b.x, y: m.ponto.y - b.y, r: m.ponto.r };
-      if (m.aviso) cx.aviso = { ...rel(m.aviso), texto: m.aviso.texto, cor: m.aviso.cor, fonte: m.aviso.fonte };
+      if (m.aviso) cx.aviso = { ...rel(m.aviso), texto: m.aviso.texto, cor: m.aviso.cor, fonte: m.aviso.fonte, oco: m.aviso.oco };
       return cx;
     }
     const maq = criarMaquina({

@@ -1400,7 +1400,7 @@
 .h-controles { position: absolute; right: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(clamp(28px, 5vh, 48px) + var(--h-seguro)); display: none; gap: 8px; }
 .h-controles button { background: transparent; color: var(--h-tinta); border: 1px solid rgba(138, 138, 132, 0.5); border-radius: 999px; width: 44px; height: 44px; font-size: 18px; cursor: pointer; }
 .h-notas { position: absolute; left: calc(var(--h-margem) + var(--h-seguro)); right: calc(var(--h-margem) + var(--h-seguro)); top: calc(clamp(40px, 6vh, 72px) + var(--h-seguro));
-  max-width: 980px; padding: 14px 18px; border-left: 2px solid #F5B83D; background: rgba(21, 21, 20, 0.92); color: #EDEDE8; font-size: 16px; line-height: 1.45; pointer-events: none; }
+  max-width: 980px; padding: 14px 18px; border-left: 2px solid #8A8A84; background: rgba(21, 21, 20, 0.92); color: #EDEDE8; font-size: 16px; line-height: 1.45; pointer-events: none; }
 .h-notas b { display: block; font-family: var(--mono, "Geist Mono", monospace); font-weight: 400; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8A84; margin-bottom: 6px; }
 .h-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .historia.miniatura .h-topo, .historia.miniatura .h-controles { display: none; }

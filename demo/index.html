@@ -10,7 +10,7 @@
 /* Layout: duas metades. À esquerda, a palavra do estado em letra enorme; à direita, o sinal como
    linhas empilhadas (referência: o gráfico do pulsar CP1919 que virou a capa de Unknown Pleasures).
    Preto e branco com grão de papel fotográfico. Quando há movimento a tela inteira inverte.
-   A única cor é o aviso de simulação. */
+   Tudo em preto e branco: o aviso de simulação também (cinza, com um círculo vazado). */
 :root {
   color-scheme: dark;
   --fundo: #0B0B0A;
@@ -51,9 +51,13 @@ button, input { font: inherit; color: inherit; }
   padding-block: clamp(16px, 3vw, 40px);
 }
 .topo { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.aviso { color: var(--aviso); display: inline-flex; align-items: center; gap: 8px; }
-.aviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-body[data-estado="movimento"] .aviso { color: #9A6400; }
+/* De onde vêm os dados. Simulação e gravação: cinza, com um círculo vazado. Ao vivo: o círculo fica
+   cheio e "respira" devagar, como a luz de gravação de uma câmera, mas em branco. */
+.aviso { color: var(--apagado); display: inline-flex; align-items: center; gap: 8px; }
+.aviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; border: 1px solid currentColor; }
+.aviso[data-fonte="live"] { color: var(--tinta); }
+.aviso[data-fonte="live"]::before { background: currentColor; animation: aoVivo 2.4s ease-in-out infinite; }
+@keyframes aoVivo { 50% { opacity: 0.25; } }
 
 .texto { grid-column: 1; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-width: 0; padding-bottom: 4px; }
 .estado { display: flex; flex-direction: column; gap: 28px; }
@@ -77,7 +81,7 @@ body[data-estado="movimento"] .aviso { color: #9A6400; }
 .topo-dir { display: inline-flex; gap: 28px; align-items: center; flex-wrap: wrap; }
 .rodape span { white-space: nowrap; }
 .botao-texto { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta); text-decoration: underline; text-underline-offset: 4px; }
-:is(button, input):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
+:is(button, input):focus-visible { outline: 2px solid var(--tinta); outline-offset: 3px; }
 
 /* Camadas de tela cheia: desafio, como funciona, galeria */
 .camada { position: fixed; inset: 0; z-index: 5; background: var(--fundo); color: var(--tinta); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 24px; padding-inline: clamp(16px, 4vw, 64px); padding-block: clamp(16px, 3vw, 40px); transition: background-color 0.35s ease, color 0.35s ease; overflow-y: auto; }
@@ -119,7 +123,7 @@ input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 .numeros b { display: block; font-size: 18px; font-weight: 400; color: #EDEDE8; }
 .numeros span { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8A84; }
 input[type="range"] { width: 100%; accent-color: #EDEDE8; }
-.erro { border-left: 2px solid var(--aviso); padding-left: 10px; color: #EDEDE8 !important; }
+.erro { border-left: 2px solid #EDEDE8; padding-left: 10px; color: #EDEDE8 !important; }
 /* Com o painel aberto, a tela encolhe em vez de ficar por baixo dele. */
 body.com-operador .tela { margin-right: min(380px, 100vw); }
 body.com-operador .palavra { font-size: clamp(56px, calc((100vw - 380px) * 0.1), 200px); }   /* cabe no espaço que sobrou */
@@ -176,6 +180,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 }
 @media (prefers-reduced-motion: reduce) {
   body, .camada, .frase { transition: none; }
+  .aviso::before { animation: none; }
   .sobe { animation: none; }
 }
 </style>
@@ -883,7 +888,7 @@ const AVISOS = { sim: 'Simulação · dados inventados para ensaio', replay: 'Gr
 function definirFonte(f) {
   app.fonte = f;
   const txt = AVISOS[f] || 'Sem dados';
-  for (const el of [$('aviso'), ...document.querySelectorAll('.aviso-copia')]) el.textContent = txt;
+  for (const el of [$('aviso'), ...document.querySelectorAll('.aviso-copia')]) { el.textContent = txt; el.dataset.fonte = f || ''; }
   $('sim-grupo').hidden = f !== 'sim';
   for (const [id, m] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === m));
   if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
@@ -1083,7 +1088,7 @@ async function baixarRetrato() {
   g.font = '500 22px "Geist Mono", monospace'; g.fillStyle = '#8A8A84';
   g.fillText(r.ok ? 'WAVE SENSE · TRAVESSIA SEM SER PERCEBIDO' : 'WAVE SENSE · REGISTRO DE PASSAGEM', 80, 80);
   g.textAlign = 'right';
-  g.fillStyle = r.fonte === 'sim' ? '#F5B83D' : '#8A8A84';
+  g.fillStyle = '#8A8A84';
   g.fillText(`${r.fonte === 'sim' ? 'SIMULAÇÃO · ' : ''}${numero(r.n).toUpperCase()}`, W - 80, 80);
   g.textAlign = 'left';
   g.fillStyle = '#EDEDE8';
@@ -1258,7 +1263,7 @@ function medidasDe(modo) {
   }
   if (modo === 'historia') { const r = historia.retanguloLinhas(); if (r) { m.historia = r; if (r.real) m.historiaReal = r; } }
   const av = modo === 'tela' ? $('aviso') : modo === 'historia' ? null : $(modo).querySelector('.aviso-copia');
-  if (av && av.textContent) { const s = getComputedStyle(av); m.aviso = { ...caixa(av), texto: av.textContent, cor: s.color, fonte: s.fontFamily }; }
+  if (av && av.textContent) { const s = getComputedStyle(av); m.aviso = { ...caixa(av), texto: av.textContent, cor: s.color, fonte: s.fontFamily, oco: av.dataset.fonte !== 'live' }; }
   return m;
 }
 // Sem o passagem.js (ou com as passagens desligadas): troca na hora, como antes.
@@ -1448,7 +1453,7 @@ setTimeout(() => {
   const fim = () => { if (++n < 3) { requestAnimationFrame(fim); return; } if (!historia.aberta) el.hidden = true; el.style.opacity = ''; el.style.pointerEvents = ''; };
   requestAnimationFrame(fim);
 }, 2500);
-// Abre em simulação para a tela já mostrar o que faz; o aviso amarelo deixa claro que não é medição.
+// Abre em simulação para a tela já mostrar o que faz; o aviso no canto deixa claro que não é medição.
 definirFonte('sim'); iniciarSimulacao();
 </script>
 </body>

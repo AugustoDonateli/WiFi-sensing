@@ -25,7 +25,7 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **Uma palavra só para o estado:** *Parado.* ou *Movimento.*, em letra enorme.
 - **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
 - **Travessia (o desafio) em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
-- **A única cor é o aviso amarelo** "Simulação · dados inventados para ensaio". Ele some quando os dados são reais.
+- **Tudo em preto e branco, até o aviso de onde vêm os dados.** Na simulação e na gravação, ele fica em cinza, com um círculo vazado ("Simulação · dados inventados para ensaio"). Com a placa ligada, vira "Ao vivo · Placa B na USB" em branco, com o círculo cheio "respirando" devagar.
 - **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas (licença OFL), embutidas no `fontes.css`, então funcionam sem internet.
 
 O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, calculada pelo `nucleo.js` com a mesma regra do `ferramentas/detector.py` (um teste confere que as duas dão o mesmo resultado).

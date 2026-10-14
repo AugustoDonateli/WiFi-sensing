@@ -28,6 +28,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Estilo minimalista: linhas empilhadas do sinal, uma palavra grande (*Parado.* / *Movimento.*) e a tela inverte as cores quando há movimento.
 - Quando o painel do operador abre, a tela encolhe para o lado. As linhas continuam visíveis.
 - **Medidor de tremor** na coluna da esquerda: número "N,N×" comparado com a sala vazia, a regra do limite escrita embaixo, o último minuto com a linha do limite e o recorde do dia. Ele mostra a decisão do detector, em vez de escondê-la.
+- **Tudo em preto e branco** (14/10, pedido do grupo): o aviso de onde vêm os dados deixou de ser amarelo, porque quebrava o preto e branco. Na simulação e na gravação, ele fica cinza, com um círculo vazado; ao vivo, fica branco, com o círculo cheio "respirando". O aviso continua: dado inventado tem que estar escrito.
 - **Hierarquia da tela principal com proporções fixas** (14/10, pedido do grupo, a partir de um print num monitor grande): a TV e o notebook mostram a mesma hierarquia do print, com o gráfico de linhas dominando. Antes, em telas menores, a palavra e o número ficavam proporcionalmente maiores.
 - **Menos letra pequena na tela principal** (pedido do grupo): a legenda do gráfico e os rótulos do medidor viraram uma frase normal e uma linha só; contador do dia e dados técnicos foram para o painel do Operador.
 - **Roteiro do estande** em `docs/apresentacao.md`. Os jogos (número, Estátua, Travessia, Superpoder) explicam o que a tecnologia faz e onde ela falha.
@@ -106,7 +107,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Honestidade:**
   - a passagem não inverte a tela (isso é só do detector);
   - não finge que as linhas reais viram a ilustração da história;
-  - o aviso amarelo continua no canto;
+  - o aviso de simulação continua no canto;
   - sem dados, as linhas ficam retas.
 - **No estande:**
   - Esc no meio encerra o desafio na hora;
