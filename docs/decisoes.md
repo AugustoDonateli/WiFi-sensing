@@ -55,15 +55,14 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - a marca guardava só os últimos 4,8 s, quase só a contagem;
     - todas tinham 32 anéis.
   - **Agora** (`demo/marca.js`):
-    - miolo cinza = contagem;
-    - a travessia enche o disco com 28 a 64 anéis próximos (na primeira versão era um anel por leitura, mas quem era pego cedo ficava com 2 anéis enormes e tortos; o grupo preferiu a harmonia da marca antiga);
-    - entorte na escala da sala vazia (0 = sala vazia, 1 = limite);
-    - anel grosso = instante da detecção.
+    - a marca guarda a contagem e a travessia inteiras;
+    - anel grosso = instante da detecção;
+    - o resto do desenho voltou ao da marca antiga, cada marca medida em relação à própria travessia.
+  - ~~Entorte na escala fixa da sala vazia~~ (testado em 14/10): ficou honesto, mas as marcas de quem se mexeu pouco viraram círculos perfeitos, todas iguais. O grupo preferiu a marca antiga, mais pessoal. Os textos dizem "os momentos em que o sinal mais variou **na sua travessia**", não que a pessoa se mexeu muito.
   - **Textos como registro de leitura**, escolha do grupo: "Não detectado." / "Detectado aos 0,6 s.", com pico de tremor e limite, e "Registro Nº 003 · data · hora". Se o tremor passou do limite por um instante sem o detector confirmar, o texto diz isso, em vez de "abaixo do limite o tempo todo".
   - **Explicação nos dois lugares:**
     - no resultado, a marca se forma na frente da pessoa;
     - no "Quem passou", uma marca em destaque se forma de novo a cada ~8 s (vitrine), com os 3 passos de como a marca é feita.
-  - **Honestidade:** quem passa sem ser percebido mexe pouco no sinal, então essas marcas ficam parecidas (lisas). É a física do jogo; não inventamos diferença. O que muda entre elas é o tempo (número de anéis) e o formato do sinal.
 - **Falta:**
   - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
   - descobrir se haverá impressora na feira.

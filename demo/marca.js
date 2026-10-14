@@ -2,13 +2,10 @@
  *
  * Como ela é feita (é a mesma explicação que aparece na tela):
  *   1. O Wi-Fi é lido 10 vezes por segundo. Cada leitura é uma linha: o formato das 64 frequências.
- *   2. Os 3 s de contagem, com a pessoa parada na partida, viram o miolo (anéis finos, cinza).
- *   3. A travessia vira os anéis de fora, do começo (dentro) ao fim (borda). O disco sempre fica cheio:
- *      travessia curta tem as leituras interpoladas; longa, amostradas.
- *   4. O quanto o anel entorta vem do tremor daquele instante, na escala da sala vazia: abaixo do limite
- *      do detector, o anel fica quase liso; acima, fica torto. (Antes, cada marca era ajustada pelo próprio
- *      máximo, e quem passou sem ser percebido ficava com a marca mais torta. Não é mais assim.)
- *   5. Se o Wi-Fi detectou a pessoa, o último anel é grosso: é o instante da detecção.
+ *   2. Cada leitura vira um anel, de dentro para fora: a contagem no miolo (traço fino), a travessia até a borda.
+ *   3. Cada marca é medida em relação à própria travessia: o momento em que o sinal mais variou para aquela
+ *      pessoa vira o anel mais largo, torto e girado. Por isso cada marca sai diferente.
+ *   4. Se o Wi-Fi detectou a pessoa, o último anel é grosso: é o instante da detecção.
  *
  * É desenho feito com as leituras; não identifica ninguém. Partes puras testadas no Node
  * (ferramentas/testes/test_marca_js.py). No navegador: window.WaveMarca.
@@ -18,7 +15,7 @@
 
   const VERSAO = 2;
   const MAX_ANEIS = 90;        // até 9 s de travessia, um anel por leitura; mais que isso, amostra
-  const MAX_MIOLO = 6;
+  const MAX_MIOLO = 30;        // a contagem inteira (3 s)
   const REALCE = 3;            // o mesmo realce do tremor das linhas da tela
   const TAU = Math.PI * 2;
   const limitar = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
@@ -49,66 +46,75 @@
   const valido = (r) => Boolean(r && r.v === VERSAO && Array.isArray(r.linhas) && r.linhas.length);
 
   // O relevo de uma leitura em volta do anel: o formato do sinal (a) e, 3x maior, o tremor (d).
-  // A inclinação de uma ponta à outra sai, para o fim do anel encontrar o começo sem degrau.
-  function relevo(l) {
+  // Para o fim do anel encontrar o começo sem degrau, só o último trecho (20%) se curva até o começo;
+  // o resto do formato fica como o sinal mostrou.
+  // `escalaD`: quanto o tremor pesa (a marca usa o maior tremor da própria travessia; o padrão é o realce da tela).
+  function relevo(l, escalaD) {
     const uteis = [];
     let soma = 0;
     for (let k = 0; k < l.a.length; k++) if (l.a[k] > 0.5) { uteis.push(k); soma += l.a[k]; }
     if (uteis.length < 3) return null;
     const media = soma / uteis.length;
-    const v = uteis.map((k) => (l.a[k] / media - 1) * 1.2 + (2 * REALCE * l.d[k]) / media);
-    const m = v.length, ini = v[0], fim = v[m - 1];
-    return v.map((x, j) => limitar(x - (ini + ((fim - ini) * j) / (m - 1)), -2.5, 2.5));
+    const v = escalaD == null
+      ? uteis.map((k) => (l.a[k] / media - 1) * 1.2 + (2 * REALCE * l.d[k]) / media)
+      : uteis.map((k) => (l.a[k] / media - 1) * 0.8 + (escalaD * l.d[k]) / media);
+    // suaviza entre frequências vizinhas (duas passadas 1-2-1, como as linhas da tela): ondas, não espinhos
+    for (let p = 0; p < 2; p++) {
+      const w = v.slice();
+      for (let j = 0; j < v.length; j++) v[j] = (w[Math.max(0, j - 1)] + 2 * w[j] + w[Math.min(v.length - 1, j + 1)]) / 4;
+    }
+    const m = v.length, salto = v[m - 1] - v[0];
+    return v.map((x, j) => {
+      const q = limitar((j / (m - 1) - 0.8) / 0.2);
+      return limitar(x - salto * q * q * (3 - 2 * q), -2.5, 2.5);
+    });
   }
 
   // Raio, entorte, giro e espessura de cada anel, para uma marca de raio R.
-  // A travessia sempre enche o disco com 28 a 64 anéis (como a marca antiga, que o grupo achava mais bonita):
-  // travessia curta = leituras interpoladas; longa = amostradas. O entorte fica contido no espaço entre os anéis,
-  // para eles quase não se cruzarem. O que muda entre marcas vem do tremor, na escala da sala vazia.
-  const MIN_ANEIS = 28, MAX_DESENHO = 64;
+  // Como a marca antiga (a que o grupo achava mais bonita e mais pessoal): até 40 leituras reais, da contagem
+  // (miolo) ao fim da travessia (borda), cada uma um anel. Cada marca é medida em relação à própria travessia:
+  // o momento em que o sinal mais variou para aquela pessoa vira o anel mais largo, torto e girado.
+  // O anel grosso continua sendo o instante da detecção.
+  const MAX_DESENHO = 32;
+  function energia(l) {
+    let soma = 0, n = 0, en = 0;
+    for (let k = 0; k < l.a.length; k++) if (l.a[k] > 0.5) { soma += l.a[k]; en += Math.abs(l.d[k]); n++; }
+    return n ? en / soma : 0;
+  }
   function geometria(r, R) {
-    const lim = r.lim > 0 ? r.lim : 1.3;
-    const miolo = r.miolo || [], trav = r.linhas || [];
-    const rIni = 0.08 * R, rMiolo = miolo.length ? 0.22 * R : rIni;
-    const aneis = [];
-    miolo.forEach((l, i) => {
-      const raio = rIni + ((rMiolo - rIni) * (i + 1)) / miolo.length;
-      aneis.push({ raio, relevo: relevo(l), amp: 0.01 * R, giro: 0, tipo: 'miolo' });
+    const todas = (r.miolo || []).map((l) => ({ l, tipo: 'miolo' })).concat((r.linhas || []).map((l) => ({ l, tipo: 'travessia' })));
+    if (!todas.length) return [];
+    const ls = amostrar(todas, MAX_DESENHO), N = ls.length;
+    const en = ls.map((x) => energia(x.l)), emax = Math.max(...en, 1e-6);
+    // O tremor de cada leitura: é a parte que muda de pessoa para pessoa. A escala fica entre a do próprio anel
+    // e a do maior tremor da travessia, para os anéis calmos também mostrarem textura, e os agitados, mais.
+    const dRing = ls.map(({ l }) => {
+      let m = 0, n = 0; for (const a of l.a) if (a > 0.5) { m += a; n++; } m = m / (n || 1);
+      let mx = 0; for (const d of l.d) mx = Math.max(mx, Math.abs(d) / m); return mx;
     });
-    if (!trav.length) return aneis;
-    // as leituras da travessia, já como relevo e força (0 = sala vazia, 1 = no limite do detector)
-    const base = trav.map((l) => ({ rel: relevo(l), forca: limitar(((l.x || 0) - 1) / Math.max(0.05, lim - 1), 0, 4) }));
-    const N = Math.max(MIN_ANEIS, Math.min(MAX_DESENHO, base.length));
-    const em = (p) => {                      // p de 0 (começo) a 1 (fim): mistura as duas leituras vizinhas
-      const u = p * (base.length - 1), i = Math.floor(u), f = u - i, A = base[i], B = base[Math.min(base.length - 1, i + 1)];
-      const rel = A.rel && B.rel && A.rel.length === B.rel.length ? A.rel.map((x, j) => x + f * (B.rel[j] - x)) : (A.rel || B.rel);
-      return { rel, forca: A.forca + f * (B.forca - A.forca) };
-    };
-    const pontos = Array.from({ length: N }, (_, i) => em(N === 1 ? 1 : i / (N - 1)));
-    // momentos de mais tremor ganham anéis mais largos (como os anos bons de uma árvore)
-    const largura = pontos.map((q) => 0.6 + 1.4 * Math.min(1, q.forca));
-    const soma = largura.reduce((a, x) => a + x, 0);
-    let raio = rMiolo, giro = 0;
-    pontos.forEach((q, i) => {
-      const vao = ((R - rMiolo) * largura[i]) / soma;
-      raio += vao;
-      giro += 0.12 * Math.max(0, Math.min(q.forca, 3) - 0.3);   // só gira com tremor de verdade
-      aneis.push({
-        raio, relevo: q.rel, giro, forca: q.forca,
-        // abaixo do limite: quase liso; acima: torto, encostando nos vizinhos (como os anéis de um ano de seca)
-        amp: vao * (0.25 + 1.6 * Math.pow(Math.min(1.2, q.forca), 1.5)),
-        tipo: r.ok === false && i === N - 1 ? 'deteccao' : 'travessia',
-      });
+    const dmax = Math.max(...dRing, 1e-6);
+    // comprimido (raiz): o tremor forte do fim não deixa o resto da travessia sem variação
+    const rel = en.map((e) => Math.sqrt(e / emax));
+    const largura = rel.map((q) => 0.5 + 1.5 * q);
+    const total = largura.reduce((a, x) => a + x, 0);
+    const r0 = 0.1 * R, unidade = (R - r0) / N;
+    let raio = r0, giro = 0;
+    return ls.map((x, i) => {
+      raio += ((R - r0) * largura[i]) / total;
+      giro += rel[i] * 0.6 * (32 / N);
+      return {
+        raio, giro, relevo: relevo(x.l, 1.4 / (Math.pow(dmax, 0.15) * Math.pow(Math.max(dRing[i], 0.03 * dmax), 0.85))),
+        amp: unidade * 1.2,
+        tipo: r.ok === false && i === N - 1 ? 'deteccao' : x.tipo,
+      };
     });
-    return aneis;
   }
 
   // Tempo da animação em que a marca se forma: cada anel começa um pouco depois do anterior.
   const MORFE_S = 0.55;
   function passoAnel(total) { return Math.min(0.12, 3.2 / Math.max(1, total)); }
   function duracao(r) {
-    const n = (r.linhas || []).length;
-    const total = (r.miolo || []).length + (n ? Math.max(MIN_ANEIS, Math.min(MAX_DESENHO, n)) : 0);
+    const total = Math.min(MAX_DESENHO, (r.miolo || []).length + (r.linhas || []).length);
     return (total - 1) * passoAnel(total) + MORFE_S;
   }
 
@@ -140,8 +146,8 @@
       const tx = -Math.sin(base), ty = Math.cos(base);          // direção da tangente no ponto de baixo
       const comp = Math.min(TAU * an.raio, 1.9 * R);            // a linha reta (encurtada nos anéis de fora)
       c.globalAlpha = e < 1 ? Math.min(1, e * 4) : 1;
-      c.strokeStyle = an.tipo === 'miolo' ? apagado : tinta;
-      c.lineWidth = esp * (an.tipo === 'miolo' ? 0.8 : an.tipo === 'deteccao' ? 2.8 : 1);
+      c.strokeStyle = tinta;
+      c.lineWidth = esp * (an.tipo === 'miolo' ? 0.7 : an.tipo === 'deteccao' ? 2.8 : 1);
       c.beginPath();
       for (let s = 0; s <= passos; s++) {
         const q = s / passos;

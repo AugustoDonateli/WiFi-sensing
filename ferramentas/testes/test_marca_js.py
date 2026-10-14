@@ -56,7 +56,7 @@ class TestMarca(unittest.TestCase):
 
     def test_registro_separa_contagem_e_travessia(self):
         q = self.o["quieto"]
-        self.assertEqual(q["miolo"], 6)          # 30 leituras da contagem viram 6 anéis de miolo
+        self.assertEqual(q["miolo"], 30)         # a contagem inteira
         self.assertEqual(q["linhas"], 41)        # um anel por leitura da travessia
         self.assertAlmostEqual(q["pico"], 1.05)
         self.assertTrue(q["valido"])
@@ -64,30 +64,22 @@ class TestMarca(unittest.TestCase):
     def test_travessia_longa_e_amostrada(self):
         self.assertEqual(self.o["longo"]["linhas"], 90)
 
-    def test_escala_fixa_quem_passou_quieto_fica_liso(self):
-        # o problema da marca antiga: quem passou sem ser percebido ficava com a marca mais torta
-        def razoes(g):
-            t = [a for a in g if a["tipo"] != "miolo"]
-            return [a["amp"] / (a["raio"] - t[i - 1]["raio"]) for i, a in enumerate(t) if i]
-        quieto, pego = razoes(self.o["gq"]), razoes(self.o["gp"])
-        self.assertLess(max(quieto), 0.45)       # entorte bem menor que o vão entre anéis
-        self.assertGreater(max(pego), 0.9)
-        self.assertLessEqual(max(pego), 2.4)     # mas sem virar rabisco
-        self.assertLess(max(a["giro"] for a in self.o["gq"]), 0.5)
-
-    def test_disco_sempre_cheio(self):
-        # travessia curta (6 leituras) ou longa (90): sempre entre 28 e 64 anéis de travessia
+    def test_ate_32_aneis_com_leituras_reais(self):
         for g in (self.o["gp"], self.o["gq"], self.o["gl"]):
-            n = len([a for a in g if a["tipo"] != "miolo"])
-            self.assertGreaterEqual(n, 28)
-            self.assertLessEqual(n, 64)
+            self.assertLessEqual(len(g), 32)
+        self.assertEqual(len(self.o["gp"]), 32)   # 36 leituras (30 da contagem + 6 da travessia), amostradas
+        self.assertEqual([a["tipo"] for a in self.o["gp"]][-1], "deteccao")
+
+    def test_anel_mais_largo_onde_o_sinal_mais_variou(self):
+        g = self.o["gp"]
+        vaos = [b["raio"] - a["raio"] for a, b in zip(g, g[1:])]
+        self.assertEqual(vaos.index(max(vaos)), len(vaos) - 1)   # o último (9,8x) é o que mais variou
 
     def test_aneis_de_dentro_para_fora_e_dentro_do_raio(self):
         for g in (self.o["gq"], self.o["gp"]):
             raios = [a["raio"] for a in g]
             self.assertEqual(raios, sorted(raios))
             self.assertLessEqual(raios[-1], 100 + 1e-9)
-            self.assertTrue(all(a["amp"] <= 15 + 1e-9 for a in g))
 
     def test_anel_grosso_so_na_deteccao(self):
         self.assertEqual([a["tipo"] for a in self.o["gp"]][-1], "deteccao")
@@ -114,8 +106,8 @@ class TestMarca(unittest.TestCase):
 
     def test_duracao_da_formacao(self):
         q, p, l = self.o["duracao"]
-        self.assertLess(p, q)
-        self.assertLess(l, 4.0)
+        self.assertLessEqual(p, q)
+        self.assertLess(max(q, l), 4.0)
         self.assertGreater(p, 0.5)
 
     def test_registros_antigos_nao_valem(self):

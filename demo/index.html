@@ -239,7 +239,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
     <div class="retrato" id="retrato" hidden>
       <canvas id="retrato-cv" role="img" aria-label="Sua marca no Wi-Fi: anéis desenhados com as leituras do sinal enquanto você atravessava"></canvas>
       <span class="mono" id="retrato-legenda"></span>
-      <span class="retrato-como">Miolo: a contagem, parado na partida. Os anéis de fora: a travessia, do começo (dentro) ao fim (borda). Anel grosso: o instante da detecção.</span>
+      <span class="retrato-como">Cada anel é uma leitura do Wi-Fi: no miolo, a contagem; até a borda, a travessia. Anéis largos e tortos: os momentos em que o sinal mais variou na sua travessia. Anel grosso: o instante da detecção.</span>
     </div>
   </div>
   <div class="baixo">
@@ -265,8 +265,8 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
       <div class="mural-quem" id="mural-quem"><b id="mural-nome"></b><span class="mono" id="mural-dado"></span></div>
       <ol class="mural-passos" id="mural-passos">
         <li><span class="mono">1</span><p>O Wi-Fi é lido 10 vezes por segundo. Cada leitura é uma linha, como as da tela principal.</p></li>
-        <li><span class="mono">2</span><p>Cada linha se fecha num anel, de dentro para fora. O miolo cinza são os 3 s parados na partida; os anéis de fora são a travessia, do começo ao fim.</p></li>
-        <li><span class="mono">3</span><p>Quanto mais a pessoa mexeu no sinal, mais torto o anel. Quem passou sem ser detectado deixa anéis lisos; o anel grosso é o instante da detecção.</p></li>
+        <li><span class="mono">2</span><p>Cada linha se fecha num anel, de dentro para fora: no miolo, os 3 s parados na partida; até a borda, a travessia.</p></li>
+        <li><span class="mono">3</span><p>Cada marca é medida em relação à própria travessia: os momentos em que o sinal mais variou viram anéis largos, tortos e girados. Por isso nenhuma sai igual. O anel grosso é o instante da detecção.</p></li>
       </ol>
     </section>
     <div class="galeria" id="galeria-grade"></div>
@@ -1078,8 +1078,8 @@ async function baixarRetrato() {
   g.fillStyle = '#8A8A84';
   g.fillText(`PICO DE TREMOR ${r.pico.toFixed(1).replace('.', ',')}× · LIMITE ${r.lim.toFixed(1).replace('.', ',')}×`, 80, 1242);
   g.font = '500 18px "Geist Mono", monospace';
-  g.fillText('MIOLO: A CONTAGEM · ANÉIS DE FORA: A TRAVESSIA, DO COMEÇO AO FIM', 80, 1290);
-  g.fillText('ANEL GROSSO: O INSTANTE DA DETECÇÃO · SEM CÂMERA, SÓ O SINAL WI-FI', 80, 1318);
+  g.fillText('CADA ANEL É UMA LEITURA DO WI-FI · MIOLO: A CONTAGEM · BORDA: O FIM', 80, 1290);
+  g.fillText('ANÉIS LARGOS E TORTOS: ONDE O SINAL MAIS VARIOU · ANEL GROSSO: A DETECÇÃO', 80, 1318);
   c.toBlob((b) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
