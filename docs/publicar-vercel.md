@@ -29,7 +29,7 @@ Assim os amigos abrem um link em vez de receber arquivos. O site é só a pasta 
 5. Clique em **Deploy**. Em cerca de 1 minuto aparece a tela de parabéns com o endereço.
 6. Abra o endereço no Chrome e confira:
    - aparece a abertura com o contador de calibração e depois as linhas;
-   - o aviso "Simulação · dados inventados para ensaio" (em cinza, com um círculo vazado) aparece embaixo;
+   - as linhas da simulação começam a andar sozinhas (o painel do Operador mostra "Simulação" apertado);
    - no painel do operador (tecla `O`), o botão **Placa USB** abre a janela de escolher porta (sem placa, é só cancelar).
 
 Se algo der errado, veja a seção 10 do [erros-provaveis.md](erros-provaveis.md).

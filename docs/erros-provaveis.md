@@ -105,7 +105,7 @@ Se as placas ficarem com canais diferentes, a B não recebe nada.
 | Risco | Como evitar |
 |---|---|
 | Muita gente e muitas redes Wi-Fi fazem o detector disparar sozinho | Recalibrar com a zona vazia no local. Corredor de público fora da linha entre A e B. |
-| A demonstração ao vivo falha | Ter o modo replay (gravação com o aviso "GRAVAÇÃO" na tela) e um vídeo de reserva. |
+| A demonstração ao vivo falha | Ter o modo replay (uma gravação; diga ao visitante que é gravação) e um vídeo de reserva. |
 | Windows reinicia para atualizar no meio da apresentação | Pausar as atualizações do Windows na véspera. |
 | Notebook sem bateria ou sem tomada | Confirmar tomada no estande e levar extensão. |
 | Visualizador no navegador não conecta | Web Serial só funciona no **Chrome** ou no **Edge** **[oficial]**. |

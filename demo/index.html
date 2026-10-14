@@ -10,13 +10,12 @@
 /* Layout: duas metades. À esquerda, a palavra do estado em letra enorme; à direita, o sinal como
    linhas empilhadas (referência: o gráfico do pulsar CP1919 que virou a capa de Unknown Pleasures).
    Preto e branco com grão de papel fotográfico. Quando há movimento a tela inteira inverte.
-   Tudo em preto e branco: o aviso de simulação também (cinza, com um círculo vazado). */
+   A tela da TV não diz de onde vêm os dados (pedido do grupo, 14/10): isso fica no painel do Operador. */
 :root {
   color-scheme: dark;
   --fundo: #0B0B0A;
   --tinta: #EDEDE8;
   --apagado: #8A8A84;
-  --aviso: #F5B83D;
   --serif: "Instrument Serif", "Times New Roman", Georgia, serif;
   --sans: "Geist", "Segoe UI", system-ui, sans-serif;
   --mono: "Geist Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
@@ -51,13 +50,6 @@ button, input { font: inherit; color: inherit; }
   padding-block: clamp(16px, 3vw, 40px);
 }
 .topo { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-/* De onde vêm os dados. Simulação e gravação: cinza, com um círculo vazado. Ao vivo: o círculo fica
-   cheio e "respira" devagar, como a luz de gravação de uma câmera, mas em branco. */
-.aviso { color: var(--apagado); display: inline-flex; align-items: center; gap: 8px; }
-.aviso::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; border: 1px solid currentColor; }
-.aviso[data-fonte="live"] { color: var(--tinta); }
-.aviso[data-fonte="live"]::before { background: currentColor; animation: aoVivo 2.4s ease-in-out infinite; }
-@keyframes aoVivo { 50% { opacity: 0.25; } }
 
 .texto { grid-column: 1; grid-row: 2 / 4; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; min-width: 0; padding-bottom: 4px; }
 .estado { display: flex; flex-direction: column; gap: 28px; }
@@ -180,7 +172,6 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 }
 @media (prefers-reduced-motion: reduce) {
   body, .camada, .frase { transition: none; }
-  .aviso::before { animation: none; }
   .sobe { animation: none; }
 }
 </style>
@@ -189,7 +180,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <div class="tela">
   <header class="topo mono">
     <span>Wave Sense · JACITEC 2026</span>
-    <span class="topo-dir"><span class="aviso" id="aviso">Sem dados</span><button class="botao-texto mono" id="abrir-operador">Operador</button></span>
+    <span class="topo-dir"><button class="botao-texto mono" id="abrir-operador">Operador</button></span>
   </header>
 
   <div class="sinal">
@@ -220,7 +211,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 </div>
 
 <div class="camada" id="desafio" hidden>
-  <div class="topo mono"><span>Travessia · passe pela faixa sem ser percebido</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span>Travessia · passe pela faixa sem ser percebido</span></div>
   <div class="desafio-meio">
     <div class="desafio-centro">
       <div class="desafio-grande" id="d-grande">Pronto?</div>
@@ -249,13 +240,13 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <section id="historia" hidden></section>
 
 <div class="camada" id="galeria" hidden>
-  <div class="topo mono"><span>Mural de marcas · quem passou hoje</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span>Mural de marcas · quem passou hoje</span></div>
   <div class="galeria" id="galeria-grade"></div>
   <div class="baixo mono"><span>Cada anel é um momento da travessia. Anéis largos e tortos: momentos em que a pessoa mexeu mais no sinal. Nenhuma câmera foi usada.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
 </div>
 
 <div class="camada" id="escuta" hidden>
-  <div class="topo mono"><span>Modo escuta</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span>Modo escuta</span></div>
   <div class="escuta-centro">
     <div class="pulso" id="pulso" aria-hidden="true"></div>
     <div class="desafio-grande">Feche os olhos.</div>
@@ -873,11 +864,8 @@ async function pararFonte() {
   if (leitor) { try { await leitor.cancel(); leitor.releaseLock(); } catch (e) { /* já fechado */ } }
   if (porta) { try { await porta.close(); } catch (e) { /* já fechado */ } }
 }
-const AVISOS = { sim: 'Simulação · dados inventados para ensaio', replay: 'Gravação · coleta repetida em loop', live: 'Ao vivo · Placa B na USB' };
 function definirFonte(f) {
   app.fonte = f;
-  const txt = AVISOS[f] || 'Sem dados';
-  for (const el of [$('aviso'), ...document.querySelectorAll('.aviso-copia')]) { el.textContent = txt; el.dataset.fonte = f || ''; }
   $('sim-grupo').hidden = f !== 'sim';
   for (const [id, m] of [['src-sim', 'sim'], ['src-replay', 'replay'], ['src-live', 'live']]) $(id).setAttribute('aria-pressed', String(f === m));
   if (f && navigator.wakeLock) navigator.wakeLock.request('screen').catch(() => {});
@@ -948,7 +936,7 @@ function terminar(ok, t) {
     retratos = retratos.slice(-12);
     gravar('wavesense-retratos', retratos);
     $('retrato').hidden = false;
-    $('retrato-legenda').textContent = `${numero(n)} · ${fraseDaMarca(r)}${r.fonte === 'sim' ? ' (simulação)' : ''}`;
+    $('retrato-legenda').textContent = `${numero(n)} · ${fraseDaMarca(r)}`;
     requestAnimationFrame(() => desenharRetrato($('retrato-cv'), r));
     $('d-baixar').hidden = EMBUTIDO;
     $('d-ouvir').hidden = false;
@@ -1078,7 +1066,7 @@ async function baixarRetrato() {
   g.fillText(r.ok ? 'WAVE SENSE · TRAVESSIA SEM SER PERCEBIDO' : 'WAVE SENSE · REGISTRO DE PASSAGEM', 80, 80);
   g.textAlign = 'right';
   g.fillStyle = '#8A8A84';
-  g.fillText(`${r.fonte === 'sim' ? 'SIMULAÇÃO · ' : ''}${numero(r.n).toUpperCase()}`, W - 80, 80);
+  g.fillText(numero(r.n).toUpperCase(), W - 80, 80);
   g.textAlign = 'left';
   g.fillStyle = '#EDEDE8';
   g.font = '120px "Instrument Serif", serif';
@@ -1116,7 +1104,7 @@ function abrirGaleria() {
     cvs.setAttribute('role', 'img'); cvs.setAttribute('aria-label', `Marca de ${r.nome}`);
     const nome = document.createElement('b'); nome.textContent = r.nome;
     const info = document.createElement('span');
-    info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}${r.fonte === 'sim' ? ' · simulação' : ''}`;
+    info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}`;
     card.append(cvs, nome, info);
     grade.appendChild(card);
     fila.push([cvs, r]);
@@ -1251,8 +1239,6 @@ function medidasDe(modo) {
     m.ponto = { x: c.left + p.offsetLeft + p.offsetWidth / 2, y: c.top + p.offsetTop + p.offsetHeight / 2, r: p.offsetWidth / 2 };
   }
   if (modo === 'historia') { const r = historia.retanguloLinhas(); if (r) { m.historia = r; if (r.real) m.historiaReal = r; } }
-  const av = modo === 'tela' ? $('aviso') : modo === 'historia' ? null : $(modo).querySelector('.aviso-copia');
-  if (av && av.textContent) { const s = getComputedStyle(av); m.aviso = { ...caixa(av), texto: av.textContent, cor: s.color, fonte: s.fontFamily, oco: av.dataset.fonte !== 'live' }; }
   return m;
 }
 // Sem o passagem.js (ou com as passagens desligadas): troca na hora, como antes.
@@ -1442,7 +1428,7 @@ setTimeout(() => {
   const fim = () => { if (++n < 3) { requestAnimationFrame(fim); return; } if (!historia.aberta) el.hidden = true; el.style.opacity = ''; el.style.pointerEvents = ''; };
   requestAnimationFrame(fim);
 }, 2500);
-// Abre em simulação para a tela já mostrar o que faz; o aviso no canto deixa claro que não é medição.
+// Abre em simulação para a tela já mostrar o que faz. A fonte aparece no painel do Operador.
 definirFonte('sim'); iniciarSimulacao();
 </script>
 </body>

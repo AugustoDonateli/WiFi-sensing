@@ -274,9 +274,8 @@
     return n;
   }
 
-  // Desenha uma pose. `cor` = { fundo, tinta }; `aviso` = o aviso de simulação da tela (texto, cor, caixa), que
-  // continua no mesmo canto enquanto a passagem cobre a tela.
-  function desenharPose(c, P, leituras, frac, cor, t, V, aviso) {
+  // Desenha uma pose. `cor` = { fundo, tinta }.
+  function desenharPose(c, P, leituras, frac, cor, t, V) {
     const L = P.L, passo = L.h / N, altura = passo * 9 * (1 - P.aperto), esp = 1.4;
     const real = Boolean(leituras && leituras.length);
     const ls = real ? leituras : RETAS, fr = real ? limitar(frac || 0) : 0, n = ls.length;
@@ -380,19 +379,6 @@
       c.globalAlpha = P.frente ? 1 : P.fora; c.fillStyle = cor.fundo;
       if (c.globalAlpha > 0.001) c.fillRect(borda, yBase, V.x + V.w - borda, V.y + V.h - yBase);
     }
-    // o aviso de simulação continua no mesmo canto (com "Simulação", a tela nunca fica sem dizer)
-    if (aviso && aviso.texto) {
-      const al = P.frente ? (aviso.x > borda ? 1 : 0) : P.fora;
-      if (al > 0.01) {
-        c.globalAlpha = al; c.fillStyle = c.strokeStyle = aviso.cor || '#8A8A84';
-        c.beginPath();
-        if (aviso.oco) { c.lineWidth = 1; c.arc(aviso.x + 3.5, aviso.y + aviso.h / 2, 3, 0, TAU); c.stroke(); }   // simulação ou gravação
-        else { c.arc(aviso.x + 3.5, aviso.y + aviso.h / 2, 3.5, 0, TAU); c.fill(); }                          // ao vivo
-        c.font = `11px ${aviso.fonte || 'monospace'}`; c.textBaseline = 'middle';
-        if ('letterSpacing' in c) c.letterSpacing = '0.88px';
-        c.fillText(String(aviso.texto).toUpperCase(), aviso.x + 15, aviso.y + aviso.h / 2 + 0.5);
-      }
-    }
     c.restore();
   }
 
@@ -409,7 +395,7 @@
   /* ================= No navegador ================= */
 
   // opcoes: canvas, modoAtual(), executar(destino, opc), aoSair(modo), medir(modo) (caixas em px da
-  // janela: grafico, ponto, historia, historiaReal, aviso), dados() ({ leituras, frac }), paleta(modo)
+  // janela: grafico, ponto, historia, historiaReal), dados() ({ leituras, frac }), paleta(modo)
   // ({ fundo, tinta }), eventos(nome, info) ('saida' | 'entrada' | 'fim'), reduzido().
   function criar(o) {
     const canvas = o.canvas, ctx = canvas.getContext('2d');
@@ -432,7 +418,6 @@
       if (m.historia) cx.historia = rel(m.historia);
       if (m.historiaReal) cx.historiaReal = rel(m.historiaReal);
       if (m.ponto) cx.ponto = { x: m.ponto.x - b.x, y: m.ponto.y - b.y, r: m.ponto.r };
-      if (m.aviso) cx.aviso = { ...rel(m.aviso), texto: m.aviso.texto, cor: m.aviso.cor, fonte: m.aviso.fonte, oco: m.aviso.oco };
       return cx;
     }
     const maq = criarMaquina({
@@ -479,22 +464,20 @@
       if (canvas.width !== W || canvas.height !== Hc) { canvas.width = W; canvas.height = Hc; }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, b.width, b.height);
       const e = maq.estado(), V = { x: 0, y: 0, w: b.width, h: b.height };
-      let P, cor, aviso;
+      let P, cor;
       if (e.fase === 'saindo') {
-        P = poseSaida(e.gSaida, e.u, cxS); cor = paleta(e.origem); aviso = cxS.aviso;
+        P = poseSaida(e.gSaida, e.u, cxS); cor = paleta(e.origem);
       } else if (e.fase === 'sinal') {
-        // só sinal: as cores e o aviso vão da tela de origem para a de destino
+        // só sinal: as cores vão da tela de origem para a de destino
         const k = curvas.suave(limitar(e.tSinal / (SINAL_S * (e.opc.rapida ? RAPIDA : 1))));
         P = neutro({ V });
         const a = paleta(e.origem), z = paleta(e.modo);
         cor = { fundo: misturarCores(a.fundo, z.fundo, k), tinta: misturarCores(a.tinta, z.tinta, k) };
-        const s = cxS && cxS.aviso, d = cxE && cxE.aviso;
-        aviso = s && d ? { ...d, x: misturar(s.x, d.x, k), y: misturar(s.y, d.y, k) } : d || s;
       } else {
-        P = poseEntrada(e.gEntrada, e.u, cxE); cor = paleta(e.modo); aviso = cxE.aviso;
+        P = poseEntrada(e.gEntrada, e.u, cxE); cor = paleta(e.modo);
       }
       const d = o.dados();
-      desenharPose(ctx, P, d.leituras, d.frac, cor, t, V, aviso);
+      desenharPose(ctx, P, d.leituras, d.frac, cor, t, V);
     }
     function quadro(agora) {
       if (maq.estado().fase === 'livre') { if (canvas.classList.contains('ativa')) desativar(); return; }

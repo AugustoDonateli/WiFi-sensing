@@ -84,7 +84,7 @@
       tituloSemFonte: 'Aqui entra o sinal das placas.',
       frase: 'Mexa o braço entre as placas e veja o número subir.',
       seg: { completa: 35, curta: 30 },
-      notas: 'Peça para alguém mexer o braço entre as placas. Leia o número que aparecer na tela, nunca um número inventado. Se estiver na simulação ou numa gravação, diga isso: a etiqueta no canto mostra a fonte.',
+      notas: 'Peça para alguém mexer o braço entre as placas. Leia o número que aparecer na tela, nunca um número inventado. Se estiver na simulação ou numa gravação, diga isso: o título da cena e o painel do Operador mostram a fonte.',
     },
     {
       id: 'metodo', cap: 'III',

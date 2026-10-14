@@ -26,14 +26,14 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **Uma palavra só para o estado:** *Parado.* ou *Movimento.*, em letra enorme.
 - **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
 - **Travessia (o desafio) em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
-- **Tudo em preto e branco, até o aviso de onde vêm os dados.** Na simulação e na gravação, ele fica em cinza, com um círculo vazado ("Simulação · dados inventados para ensaio"). Com a placa ligada, vira "Ao vivo · Placa B na USB" em branco, com o círculo cheio "respirando" devagar.
+- **Sem aviso de fonte na tela** (pedido do grupo, 14/10): a TV não diz se os dados são da simulação, de uma gravação ou das placas. A fonte aparece no painel do Operador (botão apertado) e no título da cena ao vivo do "Como funciona". **Na feira, use as placas;** se precisar da simulação ou de uma gravação, diga isso ao visitante.
 - **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas (licença OFL), embutidas no `fontes.css`, então funcionam sem internet.
 
 O desenho das linhas realça o relevo para ficar bonito. A decisão de "parado" ou "movimento" não usa esse desenho: usa a oscilação, calculada pelo `nucleo.js` com a mesma regra do `ferramentas/detector.py` (um teste confere que as duas dão o mesmo resultado).
 
 ## Tela principal (versão 7)
 
-Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Operador, uma linha embaixo do gráfico do medidor e os quatro botões do rodapé. O resto foi tirado ou virou frase normal.
+Pouca letra pequena: só o nome do projeto, o botão Operador, uma linha embaixo do gráfico do medidor e os quatro botões do rodapé. O resto foi tirado ou virou frase normal.
 
 - **Medidor de tremor** (coluna da esquerda, em cima):
   - O número grande, como "1,0×", diz quanto o Wi-Fi está tremendo agora comparado com a sala vazia da calibração. É a mesma oscilação do detector dividida pela média da sala vazia, não um desenho à parte.
@@ -63,7 +63,7 @@ Recordes, retratos e contador ficam guardados só neste navegador. O painel do o
 
 ## Passagens entre telas (`passagem.js`)
 
-Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-Fi, que tomam a tela inteira por um instante; depois as linhas viram a tela que chega, com um gesto que diz o que ela é. As linhas são as leituras de verdade (ou a simulação, com o aviso amarelo no canto, como sempre).
+Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-Fi, que tomam a tela inteira por um instante; depois as linhas viram a tela que chega, com um gesto que diz o que ela é. As linhas são as leituras de verdade (ou da simulação).
 
 | Tela | Chegando | Saindo |
 |---|---|---|
