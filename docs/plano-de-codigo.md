@@ -8,7 +8,7 @@ Placa A (csi_send) ──Wi-Fi──> Placa B (csi_recv) ──USB 921600──>
           ┌───────────────────────────────────────────────────────┤
           │                                                       │
   demo/index.html (navegador)                          ferramentas/capturar.py
-  linhas, Parado/Movimento, Desafio Ninja              grava .csv + .json + registro
+  linhas, Parado/Movimento, Travessia                  grava .csv + .json + registro
           │                                                       │
   demo/nucleo.js  ◄──── mesma regra, conferida ────►   ferramentas/detector.py
   (leitura + detector)   pelo test_nucleo_js.py        (leitura + detector)

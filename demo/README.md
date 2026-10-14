@@ -13,7 +13,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `nucleo.js`: leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`.
 - `roteiro.js`: os textos da apresentação "Como funciona" e a fala de cada cena. **Só texto: o grupo pode editar.**
 - `historia.js`: o desenho e o movimento da apresentação.
-- `passagem.js`: as passagens entre as telas (escuta, desafio, mural, "Como funciona"). Sem ele, as telas trocam na hora.
+- `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
 
@@ -24,7 +24,7 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **O sinal como linhas empilhadas.** A referência é o gráfico do pulsar CP1919, feito por Harold Craft a partir de sinais de rádio de Arecibo. Peter Saville usou esse gráfico na capa de *Unknown Pleasures*, do Joy Division (1979). Aqui cada linha é uma leitura do Wi-Fi: a média dos pacotes de 0,1 s, com a amplitude de cada subportadora. A mais nova aparece embaixo. Com a sala parada, as linhas repetem o mesmo desenho; quando alguém se mexe, elas tremem e se cruzam.
 - **Uma palavra só para o estado:** *Parado.* ou *Movimento.*, em letra enorme.
 - **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
-- **Desafio Ninja em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
+- **Travessia (o desafio) em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → *Passou.* ou *Te vi.*
 - **A única cor é o aviso amarelo** "Simulação · dados inventados para ensaio". Ele some quando os dados são reais.
 - **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas (licença OFL), embutidas no `fontes.css`, então funcionam sem internet.
 
@@ -49,9 +49,9 @@ Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Ope
 - **Tremor realçado:** a forma das linhas mostra o "relevo" da sala, e a diferença em relação à forma média aparece 3x maior. Assim, quando o detector diz *Movimento.*, dá para ver as linhas tremerem. É só no desenho; a detecção não muda.
 - **Frases que se revezam:** com a sala parada, a frase embaixo da palavra troca a cada 7 s, convidando o visitante.
 - **Contador do dia** (no topo): quantos movimentos foram detectados. A simulação conta separado e aparece como "na simulação".
-- **Marca de cada visitante:** no Desafio Ninja, as leituras dos 3 s de contagem e da travessia viram uma marca em anéis, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos, tortos e girados. Cada marca é numerada (Nº 001, Nº 002...) e tem uma frase com data e hora.
+- **Marca de cada visitante:** na Travessia, as leituras dos 3 s de contagem e da travessia viram uma marca em anéis, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos, tortos e girados. Cada marca é numerada (Nº 001, Nº 002...) e tem uma frase com data e hora.
 - **Melodia da marca** (tecla `M`): as mesmas leituras viram 16 notas.
-- **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome e a frase. Diz "Carteira de ninja" se a pessoa passou, ou "Registro de passagem" se foi percebida. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
+- **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome e a frase. Diz "Travessia sem ser percebido" se a pessoa passou, ou "Registro de passagem" se foi percebida. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
 - **Mural de marcas** (tecla `G`): os últimos 12.
 - **Modo escuta** (tecla `E`): tela "Feche os olhos." com som de vento baixo que abre e ganha "gotas" quando alguém se mexe. Para usar com fone de ouvido.
 - **Painel do operador não cobre mais as linhas:** quando abre, a tela encolhe para o lado (no celular, o painel abre embaixo).
@@ -67,7 +67,7 @@ Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-F
 |---|---|---|
 | Principal | As linhas encolhem até caber no gráfico e viram o próprio gráfico. | O gráfico cresce até ocupar a tela. |
 | Escuta | **Fechar os olhos:** as linhas se juntam numa só, que vira o ponto que pulsa com o som. | **Abrir os olhos:** o ponto vira linha e a linha se abre nas 48. |
-| Desafio Ninja | **Travessia:** alguém invisível atravessa da partida (esquerda) para a chegada (direita). Ninguém aparece; só o sinal treme onde a pessoa passa. Atrás dela, o desafio. | A mesma travessia, de volta. |
+| Travessia | Alguém invisível atravessa da partida (esquerda) para a chegada (direita). Ninguém aparece; só o sinal treme onde a pessoa passa. Atrás dela, o desafio. | A mesma travessia, de volta. |
 | Mural | As linhas se curvam em anéis, como os das marcas, e o mural aparece de dentro deles. | Os anéis se fecham e desenrolam em linhas. |
 | Como funciona | As linhas vão para a metade direita e somem por cima da primeira cena (que é ilustração). | O sinal é desenhado por cima da história, uma linha por vez. Na cena "ao vivo" e na última, as próprias linhas de verdade da história crescem até a tela inteira. |
 
@@ -150,13 +150,13 @@ Teste o volume no lugar da feira.
 
 ## Atalhos
 
-`N` desafio · `Enter` começar · `Espaço` chegou · `M` melodia da marca · `B` salvar cartão · `G` mural · `E` escutar · `H` como funciona · `P` janela do apresentador · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
+`N` travessia · `Enter` começar · `Espaço` chegou · `M` melodia da marca · `B` salvar cartão · `G` mural · `E` escutar · `H` como funciona · `P` janela do apresentador · `Esc` voltar · `O` operador · `S` som · `C` calibrar · `F` tela cheia · `1`–`5` cenas da simulação
 
 Com a apresentação aberta: setas, `Espaço` e `PageUp`/`PageDown` navegam · `V` versão curta ou completa · `B` ou `.` tela preta · `Home`/`End` primeira e última cena.
 
 ## Situação
 
-- Testado no Chromium: simulação, calibração, detecção, inversão de cor, Desafio Ninja (passando e sendo pego), gravação e celular.
+- Testado no Chromium: simulação, calibração, detecção, inversão de cor, Travessia (passando e sendo pego), gravação e celular.
 - Testado também servido por HTTP, como no Vercel: carrega o `nucleo.js`, calibra, detecta e libera o Web Serial (página segura), sem erros no console.
 - A leitura pela USB segue o jeito do visualizador oficial da Espressif (`csi_viewer.html`), mas **ainda não foi testada com a placa**.
 - O limiar e as constantes (janela de 1 s, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com dados reais, no `nucleo.js` **e** no `ferramentas/detector.py`.

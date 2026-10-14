@@ -54,7 +54,7 @@ Medidas de exemplo para 2,5 m × 2 m. **Confirmar o tamanho real com a organiza�
 | **Elipse de LED** | Fita LED branca USB contornando a zona sensível no chão | R$ 25–60; ligar numa tomada ou power bank, longe do caminho dos pés |
 | **Tatame preto (EVA)** | Peças de 50 × 50 cm formam a "arena" | 9 peças para 1,5 × 1,5 m: R$ 70–140 |
 | **Cantinho do Superpoder** | Gancho impresso para o fone, uma máscara de dormir escrita "superpoder" e a frase "Feche os olhos." | Gancho: 1–2 h |
-| **Troféu "Ninja do Wi-Fi"** | Um por turno, para quem passou mais devagar sem ser visto | Pequeno, 1–2 h cada |
+| **Troféu da Travessia** | Um por turno, para quem passou mais devagar sem ser visto | Pequeno, 1–2 h cada |
 | **Brinde** | Chaveirinho de 3 cm com o relevo das linhas, impresso em lote durante a semana | 10–15 min cada |
 
 ### Ambicioso (se der tempo)

@@ -97,7 +97,7 @@ function canvasFalso() {
   const a = new Float32Array(64).fill(10), d = new Float32Array(64);
   for (const k of [0, 1, 2, 3, 4, 60, 61, 62, 63]) a[k] = 0;
   const ls = Array.from({ length: 49 }, () => ({ a, d }));
-  const Q = P.poseEntrada('aneis', 0.5, cx);   // aneis = 1, ainda sem abrir
+  const Q = P.poseEntrada('aneis', 0.5, cx);   // aneis = 1 (os anéis já fechados, começando a abrir)
   const { c, tracos } = canvasFalso(); P.desenharPose(c, Q, ls, 0, { fundo: '#000000', tinta: '#ffffff' }, 0, V, null);
   // com amplitude igual em todas as subportadoras o relevo só vem da borda (seno): a ponta reta de cada linha fica no raio-base
   const raioPonta = tracos.map((t) => Math.hypot(t[0][0] - 960, t[0][1] - 540));

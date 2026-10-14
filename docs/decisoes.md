@@ -29,7 +29,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Quando o painel do operador abre, a tela encolhe para o lado. As linhas continuam visíveis.
 - **Medidor de tremor** na coluna da esquerda: número "N,N×" comparado com a sala vazia, a regra do limite escrita embaixo, o último minuto com a linha do limite e o recorde do dia. Ele mostra a decisão do detector, em vez de escondê-la.
 - **Menos letra pequena na tela principal** (pedido do grupo): a legenda do gráfico e os rótulos do medidor viraram uma frase normal e uma linha só; contador do dia e dados técnicos foram para o painel do Operador.
-- **Roteiro do estande** em `docs/apresentacao.md`. Os jogos (número, Estátua, Ninja, Superpoder) explicam o que a tecnologia faz e onde ela falha.
+- **Roteiro do estande** em `docs/apresentacao.md`. Os jogos (número, Estátua, Travessia, Superpoder) explicam o que a tecnologia faz e onde ela falha.
 
 ### Som
 - Tudo suave: sem onda quadrada e com limitador de volume.
@@ -38,9 +38,9 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Na parte de ética da apresentação: a mesma ideia poderia ser usada para espionar. É justamente por isso que o projeto discute privacidade.
 
 ### Marca de cada visitante (em desenvolvimento)
-- No Desafio Ninja, a travessia vira uma **marca em anéis**, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos e tortos.
+- Na Travessia, o percurso vira uma **marca em anéis**, como anéis de árvore. Cada anel é um momento da travessia; momentos de mais movimento deixam anéis mais largos e tortos.
 - A marca tem uma **melodia** (tecla M), feita com as mesmas leituras.
-- A marca vira um **cartão para guardar** (tecla B), com nome, número, data e hora. Ele diz "Carteira de ninja" se a pessoa passou, ou "Registro de passagem" se o Wi-Fi a percebeu.
+- A marca vira um **cartão para guardar** (tecla B), com nome, número, data e hora. Ele diz "Travessia sem ser percebido" se a pessoa passou, ou "Registro de passagem" se o Wi-Fi a percebeu.
 - O mural de marcas (tecla G) mostra os últimos 12.
 - **Falta:**
   - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
@@ -95,10 +95,10 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - **Ficou de fora de propósito:** câmera tremendo, zoom contínuo, desfoque e cores novas. Com a cena parada, nada muda de lugar.
 
 ### Passagens entre as telas do site (14/10/2026, pedido do grupo)
-- **O pedido:** toda troca de tela com uma animação de transição ambiciosa e com personalidade, que não pareça genérica. O caso citado: modo escuta → Desafio Ninja.
+- **O pedido:** toda troca de tela com uma animação de transição ambiciosa e com personalidade, que não pareça genérica. O caso citado: modo escuta → Desafio Ninja (hoje Travessia).
 - **A ideia:** toda troca passa pelo sinal. A tela que sai vira as linhas do Wi-Fi (as leituras de verdade), as linhas tomam a tela e depois viram a tela que chega, com um gesto que diz o que ela é:
   - escuta: fechar os olhos (as linhas viram o ponto que pulsa com o som);
-  - desafio: uma pessoa invisível atravessa e só o sinal treme;
+  - Travessia: uma pessoa invisível atravessa e só o sinal treme;
   - mural: as linhas viram anéis, como as marcas;
   - principal: as linhas pousam no gráfico;
   - história: na saída, o sinal é desenhado por cima.

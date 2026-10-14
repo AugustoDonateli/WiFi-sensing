@@ -13,7 +13,7 @@ Assim os amigos abrem um link em vez de receber arquivos. O site é só a pasta 
 
 - **O link é público.** Quem tiver o endereço vê a tela. O site não tem dados pessoais e não envia nada para servidor nenhum: recordes, marcas e o mural ficam guardados só no navegador de cada aparelho.
 - **Na feira, não dependa da internet.** Leve a pasta `demo/` no notebook. Abrir o `index.html` direto no Chrome funciona sem internet (só as fontes trocam por outras parecidas). O site fica como reserva, ou o contrário.
-- **No celular**, a simulação e o Desafio Ninja funcionam; os controles ficam no botão "Operador (O)". A placa pela USB é coisa do computador.
+- **No celular**, a simulação e a Travessia funcionam; os controles ficam no botão "Operador (O)". A placa pela USB é coisa do computador.
 
 ## Passo a passo (uma vez só, uns 5 minutos)
 

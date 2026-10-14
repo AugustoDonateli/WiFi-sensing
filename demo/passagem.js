@@ -1,4 +1,4 @@
-/* Passagens entre as telas do site: principal, escuta, Desafio Ninja, mural e "Como funciona".
+/* Passagens entre as telas do site: principal, escuta, Travessia, mural e "Como funciona".
  *
  * Toda troca de tela passa pelo sinal. A tela de origem se desfaz nas linhas do Wi-Fi (as leituras de
  * verdade, as mesmas do gráfico), as linhas tomam a tela inteira por um instante e depois viram a tela
@@ -132,7 +132,7 @@
   const caixaFundo = (L) => ({ x: L.x, y: L.y - (0.16 / 0.81) * L.h, w: L.w, h: L.h / 0.81 });
   const entre = (a, b, t) => ({ x: misturar(a.x, b.x, t), y: misturar(a.y, b.y, t), w: misturar(a.w, b.w, t), h: misturar(a.h, b.h, t) });
   const metadeDireita = (V) => ({ x: V.x + V.w * 0.45, y: V.y + V.h * 0.2, w: V.w * 0.5, h: V.h * 0.6 });
-  const raiosAneis = (V) => { const m = Math.min(V.w, V.h); return { r0: 0.07 * m, R: 0.46 * m }; };
+  const raiosAneis = (V) => { const m = Math.min(V.w, V.h); return { r0: 0.025 * m, R: 0.46 * m }; };   // miolo pequeno, como numa árvore
 
   // O SINAL: fundo na tela toda e a pilha de linhas ocupando a tela. Toda saída termina aqui e toda
   // entrada começa aqui.
@@ -204,10 +204,13 @@
     aneis(u, cx) {
       const P = neutro(cx);
       if (u <= 0) return P;
-      const e = janela(u, 0.42, 1);
+      // o abrir começa antes de os anéis terminarem de se fechar: o movimento não para no meio
+      // o abrir começa antes de os anéis terminarem de se fechar (o movimento não para no meio), mas o mural
+      // só aparece com os anéis já fechados
+      const e = janela(u, 0.25, 1);
       P.aneis = curvas.suave(janela(u, 0, 0.5));
-      P.escala = 1 + 3.4 * e * e;
-      P.revela = e;
+      P.escala = 1 + 3.4 * (0.3 * e + 0.7 * e * e);   // já sai andando e acelera, como onda
+      P.revela = janela(u, 0.5, 1);
       P.centro = cx.centro || { x: cx.V.x + cx.V.w / 2, y: cx.V.y + cx.V.h / 2 };
       return P;
     },
@@ -413,8 +416,12 @@
     let cxS = null, cxE = null, ultimo = 0, congelado = false, relogio = 0, vigia = null, ultimoQuadro = 0;
     const tempos = [];
 
+    // Tamanho do canvas: lido de novo só quando muda (ler a cada quadro força o navegador a refazer o layout).
+    let tam = null;
+    const medirCanvas = () => { const r = canvas.getBoundingClientRect(); tam = { x: r.left, y: r.top, width: r.width, height: r.height }; return tam; };
+    if (typeof ResizeObserver !== 'undefined') new ResizeObserver(medirCanvas).observe(canvas);
     function medidas(modo) {
-      const b = canvas.getBoundingClientRect();
+      const b = medirCanvas();
       const V = { x: 0, y: 0, w: b.width || raiz.innerWidth, h: b.height || raiz.innerHeight };
       const m = (o.medir && o.medir(modo)) || {};
       const rel = (r) => r && { x: r.x - b.x, y: r.y - b.y, w: r.w ?? r.width, h: r.h ?? r.height };
@@ -465,7 +472,7 @@
     function concluir() { maq.concluir(); desativar(); }
 
     function desenhar(t) {
-      const b = canvas.getBoundingClientRect(), dpr = Math.min(raiz.devicePixelRatio || 1, 1.5);
+      const b = tam || medirCanvas(), dpr = Math.min(raiz.devicePixelRatio || 1, 1.5);
       const W = Math.max(1, Math.round(b.width * dpr)), Hc = Math.max(1, Math.round(b.height * dpr));
       if (canvas.width !== W || canvas.height !== Hc) { canvas.width = W; canvas.height = Hc; }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, b.width, b.height);

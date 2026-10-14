@@ -187,7 +187,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   </div>
 
   <footer class="rodape mono">
-    <span><button class="botao-texto mono" id="abrir-desafio">Desafio ninja</button></span>
+    <span><button class="botao-texto mono" id="abrir-desafio">Travessia</button></span>
     <span><button class="botao-texto mono" id="abrir-escuta">Escutar o Wi-Fi</button></span>
     <span><button class="botao-texto mono" id="abrir-como">Como funciona</button></span>
     <span><button class="botao-texto mono" id="abrir-galeria">Quem passou</button></span>
@@ -195,7 +195,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 </div>
 
 <div class="camada" id="desafio" hidden>
-  <div class="topo mono"><span>Desafio ninja · atravesse a faixa sem ser percebido</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span>Travessia · passe pela faixa sem ser percebido</span><span class="aviso aviso-copia"></span></div>
   <div class="desafio-meio">
     <div class="desafio-centro">
       <div class="desafio-grande" id="d-grande">Pronto?</div>
@@ -290,7 +290,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   <section>
     <span class="mono">Tela e dados do dia</span>
     <div class="opcoes"><button id="btn-tela">Tela cheia (F)</button><button id="btn-passagem" aria-pressed="true">Passagens entre telas</button><button id="btn-zerar">Zerar recordes e galeria</button></div>
-    <p>Atalhos: N desafio · E escutar · H como funciona · P apresentador · G mural · C calibrar · S som · O este painel.</p>
+    <p>Atalhos: N travessia · E escutar · H como funciona · P apresentador · G mural · C calibrar · S som · O este painel.</p>
   </section>
 </aside>
 
@@ -872,7 +872,7 @@ function mostrarMsg(t) { $('msg').textContent = t; $('msg').hidden = false; oper
 function esconderMsg() { $('msg').hidden = true; }
 function operador(aberto) { $('operador').hidden = !aberto; document.body.classList.toggle('com-operador', aberto); }
 
-/* ---------- Desafio Ninja e retratos ---------- */
+/* ---------- Travessia (o desafio) e retratos ---------- */
 const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', fecharEm: 0, rastro: [], retrato: null };
 let recordes = ler('wavesense-recordes', ler('wavesense-ninja', {}).ranking || []);
 let retratos = ler('wavesense-retratos', []);
@@ -1061,7 +1061,7 @@ async function baixarRetrato() {
   g.drawImage(marca, 110, 120);
   g.textBaseline = 'alphabetic';
   g.font = '500 22px "Geist Mono", monospace'; g.fillStyle = '#8A8A84';
-  g.fillText(r.ok ? 'WAVE SENSE · CARTEIRA DE NINJA' : 'WAVE SENSE · REGISTRO DE PASSAGEM', 80, 80);
+  g.fillText(r.ok ? 'WAVE SENSE · TRAVESSIA SEM SER PERCEBIDO' : 'WAVE SENSE · REGISTRO DE PASSAGEM', 80, 80);
   g.textAlign = 'right';
   g.fillStyle = r.fonte === 'sim' ? '#F5B83D' : '#8A8A84';
   g.fillText(`${r.fonte === 'sim' ? 'SIMULAÇÃO · ' : ''}${numero(r.n).toUpperCase()}`, W - 80, 80);
@@ -1095,6 +1095,7 @@ function abrirGaleria() {
     grade.appendChild(p);
   }
   $('galeria').hidden = false;
+  const fila = [];
   for (const r of [...retratos].reverse()) {
     const card = document.createElement('div'); card.className = 'cartao';
     const cvs = document.createElement('canvas');
@@ -1104,9 +1105,15 @@ function abrirGaleria() {
     info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}${r.fonte === 'sim' ? ' · simulação' : ''}`;
     card.append(cvs, nome, info);
     grade.appendChild(card);
-    requestAnimationFrame(() => desenharRetrato(cvs, r));
+    fila.push([cvs, r]);
   }
+  // Uma marca por quadro: cada uma leva uns 5 ms, e as 12 de uma vez travavam a passagem no meio.
+  // Com a passagem, todas ficam prontas antes de o mural aparecer.
+  const vez = ++galeriaVez;
+  const proxima = () => { if (vez !== galeriaVez || !fila.length) return; desenharRetrato(...fila.shift()); requestAnimationFrame(proxima); };
+  requestAnimationFrame(proxima);
 }
+let galeriaVez = 0;
 
 /* ---------- Como funciona e modo vitrine ---------- */
 const como = { automatico: false, ligado: true };
@@ -1409,6 +1416,18 @@ document.addEventListener('keydown', (e) => {
 
 setInterval(avaliar, AVALIAR_MS);
 requestAnimationFrame(quadro);
+// A primeira vez que a história aparece, o navegador leva uns 150 ms montando e pintando os textos dela.
+// Isso é feito logo depois de abrir a página, com a história quase transparente por 3 quadros, para a
+// primeira abertura não engasgar no meio da passagem.
+setTimeout(() => {
+  if (historia.aberta) return;
+  const el = $('historia');
+  el.style.opacity = '0.001'; el.style.pointerEvents = 'none'; el.hidden = false;
+  try { historia._teste.quadro(); } catch (e) { /* é só aquecimento */ }
+  let n = 0;
+  const fim = () => { if (++n < 3) { requestAnimationFrame(fim); return; } if (!historia.aberta) el.hidden = true; el.style.opacity = ''; el.style.pointerEvents = ''; };
+  requestAnimationFrame(fim);
+}, 2500);
 // Abre em simulação para a tela já mostrar o que faz; o aviso amarelo deixa claro que não é medição.
 definirFonte('sim'); iniciarSimulacao();
 </script>

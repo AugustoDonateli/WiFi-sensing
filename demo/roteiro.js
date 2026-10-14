@@ -126,9 +126,9 @@
     },
     {
       id: 'fim', cap: null,
-      titulo: 'Experimente o Desafio Ninja.', frase: 'Tente atravessar a faixa sem que as placas percebam.',
+      titulo: 'Experimente a Travessia.', frase: 'Tente atravessar a faixa sem que as placas percebam.',
       seg: { completa: 15, curta: 12 },
-      notas: 'Convide para o Desafio Ninja (tecla N). Para o avaliador: "Usamos um assistente de IA como apoio no código e nos textos. Revisamos tudo, e os dados foram medidos por nós." Agradeça.',
+      notas: 'Convide para a Travessia (tecla N). Para o avaliador: "Usamos um assistente de IA como apoio no código e nos textos. Revisamos tudo, e os dados foram medidos por nós." Agradeça.',
     },
   ];
 

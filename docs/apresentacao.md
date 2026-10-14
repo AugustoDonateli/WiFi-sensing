@@ -52,7 +52,7 @@ Cada jogo ensina uma coisa. Não precisa fazer todos com todo mundo.
 |---|---|---|
 | **Faça o número subir** | Mexe os braços entre as placas e tenta bater o recorde do dia (embaixo do gráfico do medidor) | Movimento muda o sinal. O limite decide o que é movimento. |
 | **Estátua** | Fica totalmente parada no meio da faixa por 10 s | A tela volta para *Parado.* com a pessoa ali. O detector vê **movimento**, não **pessoa**. É o maior limite do projeto. |
-| **Desafio Ninja** (tecla `N`) | Atravessa a faixa bem devagar tentando não ser percebida | Até onde vai a sensibilidade. No fim ela ganha a marca em anéis e o cartão. |
+| **Travessia** (tecla `N`) | Atravessa a faixa bem devagar tentando não ser percebida | Até onde vai a sensibilidade. No fim ela ganha a marca em anéis e o cartão. |
 | **Superpoder** (tecla `E`) | Fecha os olhos com fone; alguém do grupo se mexe (atrás de um painel, se o teste de parede der certo); ela diz quando ouviu | O Wi-Fi "vê" sem câmera, e isso pode invadir a privacidade. |
 
 **Teste a Estátua com as placas antes da feira.** Se a pessoa parada ainda fizer o número subir (respiração, balanço do corpo), mude a fala para: "ele percebe até você respirando, olha o número". É um achado interessante de qualquer jeito, e só vale dizer o que foi visto.
@@ -93,7 +93,7 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 | 14 | Dá para montar com pouco. | A sala volta ao tamanho normal e as linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
 | 15 ★ | Onde isso pode ajudar. | Pessoa caída com um sinal de alerta, luminária que apaga e acende sozinha, casa com o sino do alarme | Impacto |
 | 16 ★ | E a privacidade? | Casa de parede grossa com as ondas atravessando, alguém do lado de fora | Ética |
-| 17 ★ | Experimente o Desafio Ninja. | A tela de verdade | Convite |
+| 17 ★ | Experimente a Travessia. | A tela de verdade | Convite |
 
 - O que é ilustração aparece com a etiqueta "Ilustração" no canto. Fale "isto é um exemplo" nessas cenas; o número de verdade é o da cena 10.
 - Os textos estão em `demo/roteiro.js`. Mudem o que quiserem lá, com o mesmo cuidado: nada de número inventado.
@@ -107,7 +107,7 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 1. "Quer ver o Wi-Fi te perceber sem câmera? Fica aqui na partida."
 2. "Mexe os braços." A tela inverte, o número sobe.
 3. "Não tem câmera nenhuma. É só o sinal entre essas duas plaquinhas."
-4. "Quer tentar passar sem ser visto? É o Desafio Ninja."
+4. "Quer tentar passar sem ser visto? É a Travessia."
 
 ### 3 minutos (visitante curioso)
 
@@ -119,7 +119,7 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 | 1:20 | Estátua | "Agora fica paradão... Viu? Você está aí, mas para o Wi-Fi você sumiu. A gente detecta movimento, não pessoa." |
 | 1:50 | Para que serve | "Cuidar de idoso sem câmera no banheiro, apagar a luz quando a sala esvazia, alarme." |
 | 2:15 | Limites e privacidade | "Pessoa parada some, várias pessoas viram um borrão, e cada lugar precisa calibrar. E pensa: se isso funcionar através da parede, alguém de fora saberia se tem gente na sua casa. Por isso a gente discute privacidade." |
-| 2:40 | Convite final | Desafio Ninja e o cartão, ou o modo escuta. |
+| 2:40 | Convite final | A Travessia e o cartão, ou o modo escuta. |
 
 ### 5 a 7 minutos (avaliador)
 
@@ -188,5 +188,5 @@ Revezem a cada 30 minutos. **Todos** precisam saber o roteiro de 3 minutos e a v
 ## Ensaios antes da feira
 
 1. Cronometrar o roteiro de 3 minutos com alguém de fora do grupo, que nunca ouviu falar do projeto. No fim, perguntar: "o que você entendeu?". Comparar com as três coisas do começo deste documento.
-2. Testar a Estátua, o Desafio Ninja e o número do medidor com as placas de verdade, e ajustar as falas ao que acontecer.
+2. Testar a Estátua, a Travessia e o número do medidor com as placas de verdade, e ajustar as falas ao que acontecer.
 3. Cada um faz a versão do avaliador pelo menos uma vez, e os outros fazem as perguntas difíceis.

@@ -113,7 +113,7 @@ function mostrar() {
   $('titulo').textContent = semMarcas(c.id === 'aovivo' ? ({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte] || (palco.fonte ? c.titulo : c.tituloSemFonte) || c.titulo) : c.titulo);
   $('notas').textContent = c.notas || '';
   const prox = palco.ordem[i + 1];
-  $('proxima').textContent = prox ? semMarcas(cenaPorId(prox).titulo) : 'Fim. Convide para o Desafio Ninja.';
+  $('proxima').textContent = prox ? semMarcas(cenaPorId(prox).titulo) : 'Fim. Convide para a Travessia.';
   $('posicao').textContent = `${i + 1}/${n}`;
   $('v-completa').setAttribute('aria-pressed', String(palco.versao === 'completa'));
   $('v-curta').setAttribute('aria-pressed', String(palco.versao === 'curta'));
