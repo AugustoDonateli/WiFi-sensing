@@ -70,21 +70,26 @@ body[data-estado="movimento"] .aviso { color: #9A6400; }
 .frase.trocando { opacity: 0; }
 
 .sinal { grid-column: 2; grid-row: 2; display: flex; align-items: center; justify-content: center; min-height: 0; }
-.grafico { position: relative; margin: 0; width: min(100%, 72vh); }
+.grafico { position: relative; margin: 0; width: min(100%, 72vh, calc((100svh - 248px) / 1.08)); }
 #linhas { width: 100%; aspect-ratio: 1 / 1.08; display: block; }
 
 .rodape { grid-column: 2; grid-row: 3; display: flex; justify-content: space-between; gap: 10px 24px; flex-wrap: wrap; color: var(--apagado); padding-top: 34px; }
 .topo-dir { display: inline-flex; gap: 28px; align-items: center; flex-wrap: wrap; }
 .rodape span { white-space: nowrap; }
-.botao-texto { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta); text-decoration: underline; text-underline-offset: 4px; }
-:is(button, input):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
+.botao-texto { background: none; border: 0; padding: 0; cursor: pointer; color: var(--tinta); text-decoration: underline; text-underline-offset: 4px; min-height: 44px; display: inline-flex; align-items: center; font-size: 13px; line-height: 1.4; }
+:is(button, input):focus-visible { outline: 2px solid var(--tinta); outline-offset: 4px; }
+.botao-texto:hover { text-decoration-thickness: 2px; }
+.botao-primario { min-height: 48px; padding: 12px 22px; border: 1px solid var(--tinta); background: var(--tinta); color: var(--fundo); text-decoration: none; font-family: var(--sans); font-size: 16px; letter-spacing: 0; text-transform: none; }
+.botao-primario:hover { background: transparent; color: var(--tinta); }
+.sinal-legenda { display: flex; justify-content: space-between; gap: 16px; margin-top: 16px; color: var(--apagado); font-size: 14px; line-height: 1.4; }
+.sinal-legenda span:last-child { color: var(--tinta); }
 
 /* Camadas de tela cheia: desafio, como funciona, galeria */
 .camada { position: fixed; inset: 0; z-index: 5; background: var(--fundo); color: var(--tinta); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 24px; padding-inline: clamp(16px, 4vw, 64px); padding-block: clamp(16px, 3vw, 40px); transition: background-color 0.35s ease, color 0.35s ease; overflow-y: auto; }
-.desafio-meio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); gap: 6vw; align-items: center; }
+.desafio-meio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); gap: 6vw; align-items: center; overflow-y: auto; }
 .desafio-centro { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 18px; min-width: 0; }
 .desafio-grande { font-family: var(--serif); font-size: clamp(90px, 20vw, 360px); line-height: 0.85; letter-spacing: -0.03em; }
-.desafio-sub { font-size: clamp(18px, 1.8vw, 28px); max-width: 32ch; }
+.desafio-sub { font-size: clamp(18px, 1.8vw, 28px); max-width: 32ch; line-height: 1.4; }
 .desafio-tempo { font-family: var(--mono); font-size: clamp(28px, 3.2vw, 52px); font-variant-numeric: tabular-nums; }
 .retrato { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .retrato canvas { width: 100%; max-width: 520px; aspect-ratio: 1 / 1; display: block; }
@@ -94,19 +99,26 @@ body[data-estado="movimento"] .aviso { color: #9A6400; }
 .recordes li { display: flex; justify-content: space-between; gap: 24px; font-family: var(--mono); font-size: 13px; }
 .recordes li.titulo { color: var(--apagado); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 .acoes { display: flex; gap: 22px; flex-wrap: wrap; }
-input.apelido { background: transparent; border: 0; border-bottom: 1px solid var(--apagado); padding: 6px 0; font-family: var(--serif); font-size: clamp(28px, 3vw, 44px); width: min(14ch, 80vw); }
-input.apelido::placeholder { color: var(--apagado); font-style: italic; }
+input.apelido { background: transparent; border: 0; border-bottom: 1px solid var(--apagado); padding: 8px 0; font-family: var(--sans); font-size: 22px; line-height: 1.5; width: min(320px, 100%); }
+input.apelido::placeholder { color: var(--apagado); font-style: normal; }
+.apelido-rotulo { display: block; font-size: 14px; color: var(--apagado); }
+.desafio-acao { display: flex; gap: 16px; flex-wrap: wrap; }
+.desafio-acao small { font-size: 13px; opacity: 0.7; margin-left: 16px; }
 
 
-.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 40px 32px; align-content: start; }
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 40px 32px; align-content: start; overflow-y: auto; min-height: 0; }
 .cartao { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .cartao canvas { width: 100%; aspect-ratio: 1 / 1; display: block; }
 .cartao b { font-family: var(--serif); font-weight: 400; font-size: 26px; line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cartao span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); }
-.galeria-vazia { font-family: var(--serif); font-size: clamp(32px, 4vw, 64px); color: var(--apagado); max-width: 18ch; }
+.cartao span { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); line-height: 1.5; overflow-wrap: anywhere; }
+.galeria-vazia { font-family: var(--serif); font-size: clamp(32px, 4vw, 64px); max-width: 18ch; grid-column: 1 / -1; color: var(--tinta); margin: 0 0 16px; }
+.galeria-convite { grid-column: 1 / -1; display: grid; justify-items: start; gap: 24px; padding-block: 6vh; }
+.galeria-convite p:not(.galeria-vazia) { font-size: 18px; line-height: 1.5; color: var(--apagado); max-width: 36ch; margin: 0; }
+.galeria-legenda { font-family: var(--sans); font-size: 15px; line-height: 1.5; letter-spacing: 0; text-transform: none; max-width: 70ch; margin: 0; color: var(--apagado); }
+.cartao .cartao-resultado { font-family: var(--sans); font-size: 16px; letter-spacing: 0; text-transform: none; color: var(--tinta); }
 
 /* Painel do operador (tecla O) */
-.operador { position: fixed; top: 0; right: 0; bottom: 0; z-index: 10; width: min(380px, 100vw); overflow-y: auto; background: #151514; color: #EDEDE8; border-left: 1px solid #2A2A28; padding: 22px 22px 32px; display: flex; flex-direction: column; gap: 24px; }
+.operador { --tinta: #EDEDE8; --fundo: #151514; position: fixed; top: 0; right: 0; bottom: 0; z-index: 10; width: min(380px, 100vw); overflow-y: auto; background: #151514; color: #EDEDE8; border-left: 1px solid #2A2A28; padding: 22px 22px 32px; display: flex; flex-direction: column; gap: 24px; }
 .operador h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 32px; }
 .operador section { display: flex; flex-direction: column; gap: 10px; }
 .operador .mono { color: #8A8A84; }
@@ -129,6 +141,14 @@ body.com-operador .camada { right: min(380px, 100vw); }
 .escuta-centro { display: flex; flex-direction: column; justify-content: center; gap: 22px; max-width: 980px; }
 .escuta-centro .mono { color: var(--apagado); max-width: 60ch; line-height: 1.6; }
 .pulso { position: absolute; right: 14vw; top: 50%; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: var(--tinta); opacity: 0.25; transition: transform 0.25s ease, opacity 0.25s ease; }
+.escuta-centro .desafio-grande { font-size: clamp(84px, 16vw, 288px); max-width: 7ch; }
+.escuta-centro .escuta-nota { max-width: 48ch; font-family: var(--sans); font-size: 16px; line-height: 1.5; letter-spacing: 0; text-transform: none; color: var(--apagado); margin: 0; }
+.escuta-acoes { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.escuta-volume { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--apagado); }
+.escuta-volume input { width: 120px; }
+/* Controles editoriais; o palco, os gestos e os tempos da história continuam iguais. */
+.historia:not(.miniatura) .h-controles { display: flex; }
+.historia button:focus-visible { outline-color: var(--h-tinta); }
 
 /* Passagem entre telas (passagem.js): por cima das camadas e da história, embaixo do Operador e do grão.
    Parada, fica invisível e não pega clique; durante a passagem, segura os cliques para nada atingir
@@ -150,6 +170,10 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   .medidor { padding-top: 0; }
   .rodape { grid-column: 1; grid-row: 4; }
   .desafio-meio { grid-template-columns: minmax(0, 1fr); }
+  .escuta-centro .desafio-grande { font-size: clamp(84px, 18vw, 154px); }
+  .escuta-centro .desafio-sub { max-width: 28ch; }
+  .pulso { right: 64px; top: 18%; width: 12px; height: 12px; margin-top: -6px; }
+  .sinal-legenda { font-size: 13px; }
   .operador { top: auto; height: 55vh; width: 100vw; border-left: 0; border-top: 1px solid #2A2A28; }
   body.com-operador .tela { margin-right: 0; padding-bottom: calc(55vh + 24px); }
   body.com-operador .camada { right: 0; bottom: 55vh; }
@@ -170,13 +194,14 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   <div class="sinal">
     <figure class="grafico">
       <canvas id="linhas" role="img" aria-label="Cada linha é uma leitura do sinal Wi-Fi, da mais antiga, em cima, à mais recente, embaixo"></canvas>
+      <figcaption class="sinal-legenda"><span>O tempo sobe.</span><span>A linha de baixo é agora.</span></figcaption>
     </figure>
   </div>
 
   <div class="texto">
     <section class="medidor" aria-label="Quanto o Wi-Fi está tremendo">
       <div class="medidor-num" id="m-num">–</div>
-      <p class="medidor-legenda" id="m-legenda">Tremor do Wi-Fi, comparado com a sala vazia.</p>
+      <p class="medidor-legenda" id="m-legenda">Variação do sinal, comparada com a sala vazia.</p>
       <canvas id="m-hist" role="img" aria-label="Tremor do Wi-Fi no último minuto, com a linha do limite"></canvas>
       <div class="medidor-eixo mono" id="m-eixo">Último minuto</div>
     </section>
@@ -199,9 +224,14 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   <div class="desafio-meio">
     <div class="desafio-centro">
       <div class="desafio-grande" id="d-grande">Pronto?</div>
-      <div class="desafio-sub" id="d-sub">Escreva seu apelido e fique na linha de partida.</div>
-      <input class="apelido" id="apelido" type="text" maxlength="16" autocomplete="off" placeholder="seu apelido" aria-label="Apelido">
+      <div class="desafio-sub" id="d-sub">Fique na linha de partida. A travessia começa depois da contagem.</div>
+      <label class="apelido-rotulo" id="apelido-rotulo" for="apelido">Seu apelido · opcional</label>
+      <input class="apelido" id="apelido" type="text" maxlength="16" autocomplete="off" placeholder="Como podemos te chamar?" aria-describedby="d-sub">
       <div class="desafio-tempo" id="d-tempo" hidden>0,0 s</div>
+      <div class="desafio-acao">
+        <button class="botao-texto botao-primario" id="d-comecar">Começar <small>Enter</small></button>
+        <button class="botao-texto botao-primario" id="d-chegou" hidden>Cheguei <small>Espaço</small></button>
+      </div>
     </div>
     <div class="retrato" id="retrato" hidden>
       <canvas id="retrato-cv" role="img" aria-label="Sua marca no Wi-Fi: anéis desenhados com as leituras do sinal enquanto você atravessava"></canvas>
@@ -211,8 +241,6 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   <div class="baixo">
     <ol class="recordes" id="recordes"></ol>
     <div class="acoes mono">
-      <button class="botao-texto mono" id="d-comecar">Começar (enter)</button>
-      <button class="botao-texto mono" id="d-chegou" hidden>Chegou (espaço)</button>
       <button class="botao-texto mono" id="d-ouvir" hidden>Ouvir sua marca (M)</button>
       <button class="botao-texto mono" id="d-baixar" hidden>Salvar cartão (B)</button>
       <button class="botao-texto mono" id="d-fechar">Voltar (esc)</button>
@@ -224,20 +252,24 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <section id="historia" hidden></section>
 
 <div class="camada" id="galeria" hidden>
-  <div class="topo mono"><span>Mural de marcas · quem passou hoje</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span id="galeria-total">Quem passou · registros de passagem</span><span class="aviso aviso-copia"></span></div>
   <div class="galeria" id="galeria-grade"></div>
-  <div class="baixo mono"><span>Cada anel é um momento da travessia. Anéis largos e tortos: momentos em que a pessoa mexeu mais no sinal. Nenhuma câmera foi usada.</span><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
+  <div class="baixo mono"><p class="galeria-legenda">Cada anel registra um momento da travessia, do centro para a borda. A forma vem das variações do sinal; o apelido é informado pelo participante. Os registros ficam neste navegador.</p><button class="botao-texto mono" id="galeria-fechar">Voltar (esc)</button></div>
 </div>
 
 <div class="camada" id="escuta" hidden>
-  <div class="topo mono"><span>Modo escuta</span><span class="aviso aviso-copia"></span></div>
+  <div class="topo mono"><span>Escutar o Wi-Fi</span><span class="aviso aviso-copia"></span></div>
   <div class="escuta-centro">
     <div class="pulso" id="pulso" aria-hidden="true"></div>
     <div class="desafio-grande">Feche os olhos.</div>
-    <div class="desafio-sub">O som que você está ouvindo é o Wi-Fi desta sala. Quando alguém se mexe perto das placas, ele muda.</div>
-    <p class="mono">Dá para ouvir alguém andando do outro lado de uma parede? Essa é uma das perguntas que o projeto vai testar.</p>
+    <div class="desafio-sub">Transformamos as variações do sinal em som. Quando o sinal muda, você ouve a diferença.</div>
+    <p class="escuta-nota mono">Coloque os fones, mantenha o volume baixo e escute. Perceber movimento através de uma parede é uma hipótese que ainda vamos testar.</p>
+    <div class="escuta-acoes">
+      <button class="botao-texto" id="escuta-pausar" aria-pressed="false">Pausar escuta</button>
+      <label class="escuta-volume" for="escuta-volume">Volume <input id="escuta-volume" type="range" min="0" max="1" step="0.05" value="0.6"></label>
+    </div>
   </div>
-  <div class="baixo mono"><span>Use fone de ouvido, com volume baixo.</span><button class="botao-texto mono" id="escuta-fechar">Voltar (esc)</button></div>
+  <div class="baixo mono"><span id="escuta-status" role="status">Escuta ativa</span><button class="botao-texto mono" id="escuta-fechar">Voltar (esc)</button></div>
 </div>
 
 <!-- Passagem entre as telas: o sinal toma a tela e vira a próxima (passagem.js) -->
@@ -410,18 +442,29 @@ function fmt(x) {
 
 /* ---------- Palavra e frase ---------- */
 const CONVITES = [
-  'Cada linha é uma leitura do Wi-Fi desta sala. A de baixo é agora.',
+  'Cada linha guarda uma leitura. As novas entram embaixo e sobem com o tempo.',
   'Quando alguém se mexe, as linhas tremem e o número sobe.',
   'Passe pela faixa marcada no chão e veja as linhas.',
   'Não tem câmera aqui. Só duas plaquinhas e o Wi-Fi.',
   'Ande bem devagar. Será que ele percebe?',
+];
+const CONVITES_SIMULACAO = [
+  'Estas linhas vêm de uma simulação, para ensaiar a experiência.',
+  'Experimente as cenas no painel Operador e compare as mudanças no sinal.',
+  'Cada linha guarda uma leitura. As novas entram embaixo e sobem com o tempo.',
+  'O teste com pessoas começa quando as placas estiverem conectadas.',
+];
+const CONVITES_GRAVACAO = [
+  'Estas linhas vêm de uma coleta gravada, reproduzida em loop.',
+  'Observe como as mudanças da gravação aparecem nas linhas e no número.',
+  'Cada linha guarda uma leitura. As novas entram embaixo e sobem com o tempo.',
 ];
 const FRASES = {
   aguardando: 'Nenhuma fonte de dados ligada.',
   semsinal: 'Nenhum pacote chegou nos últimos 2 segundos.',
   calibrando: 'Aprendendo como esta sala é quando está vazia. Fique fora da faixa, por favor.',
   semlimiar: 'Falta calibrar com a zona vazia.',
-  movimento: 'Você mexeu no Wi-Fi desta sala. É isso que as linhas estão mostrando.',
+  movimento: 'O sinal mudou. As linhas guardam essa mudança enquanto sobem.',
 };
 let estadoAtual = '', fraseAtual = '', convite = 0, proximoConvite = 0;
 function trocarFrase(txt) {
@@ -456,7 +499,8 @@ function atualizarEstado(agora) {
     proximoConvite = agora;
   }
   if (e === 'parado') {
-    if (agora >= proximoConvite) { trocarFrase(CONVITES[convite % CONVITES.length]); convite++; proximoConvite = agora + 7; }
+    const convites = app.fonte === 'sim' ? CONVITES_SIMULACAO : app.fonte === 'replay' ? CONVITES_GRAVACAO : CONVITES;
+    if (agora >= proximoConvite) { trocarFrase(convites[convite % convites.length]); convite++; proximoConvite = agora + 7; }
   } else {
     trocarFrase(FRASES[e]);
   }
@@ -476,11 +520,11 @@ function atualizarEstado(agora) {
 const fmtX = (x) => `${x < 10 ? x.toFixed(1).replace('.', ',') : Math.round(x)}×`;
 function atualizarMedidorTexto(e) {
   const leg = { aguardando: 'Nenhuma fonte de dados ligada.', semsinal: 'Nenhum pacote chegando.', calibrando: 'Medindo como a sala vazia treme. Esse é o 1,0×.', semlimiar: 'Falta calibrar com a sala vazia.' };
-  const t = leg[e] || `Tremor do Wi-Fi, comparado com a sala vazia.\nPassou da linha tracejada (${fmtX(app.limiar / app.base)}), é movimento.`;
+  const t = leg[e] || `Variação do sinal · 1,0× é a referência da sala vazia.\nA linha tracejada (${fmtX(app.limiar / app.base)}) marca o limite de detecção.`;
   if ($('m-legenda').textContent !== t) $('m-legenda').textContent = t;
   // Uma linha só embaixo do gráfico. O recorde só entra depois de algum movimento de verdade.
   const pico = (dia.pico || {})[app.fonte];
-  const r = `Último minuto${pico && app.base && pico > app.limiar / app.base ? ` · recorde de hoje ${fmtX(pico)}` : ''}`;
+  const r = `Último minuto${pico && app.base && pico > app.limiar / app.base ? ` · pico de hoje ${fmtX(pico)}` : ''}`;
   if ($('m-eixo').textContent !== r) $('m-eixo').textContent = r;
 }
 const cvM = $('m-hist'), ctxM = cvM.getContext('2d');
@@ -702,6 +746,17 @@ function definirSom(m) {
   if (m !== 'mudo') audio();
   if (m === 'escuta') ligarVento(); else desligarVento();
   for (const [id, modo] of [['som-mudo', 'mudo'], ['som-alerta', 'alerta'], ['som-escuta', 'escuta']]) $(id).setAttribute('aria-pressed', String(m === modo));
+  const pausada = m !== 'escuta';
+  $('escuta-pausar').textContent = pausada ? 'Retomar escuta' : 'Pausar escuta';
+  $('escuta-pausar').setAttribute('aria-pressed', String(pausada));
+  $('escuta-status').textContent = pausada ? 'Escuta pausada' : 'Escuta ativa';
+  if (pausada) { $('pulso').style.transform = ''; $('pulso').style.opacity = '0.15'; }
+}
+function definirVolume(v) {
+  som.vol = Number(v);
+  if (som.mestre) som.mestre.gain.value = som.vol;
+  $('volume').value = String(som.vol);
+  $('escuta-volume').value = String(som.vol);
 }
 function abrirEscuta() {
   fecharCamadas();
@@ -884,7 +939,8 @@ function abrirDesafio() {
   fecharCamadas();
   ninja.estado = 'pronto'; ninja.rastro = [];
   $('d-grande').textContent = 'Pronto?';
-  $('d-sub').textContent = 'Escreva seu apelido e fique na linha de partida.';
+  $('d-sub').textContent = 'Fique na linha de partida. A travessia começa depois da contagem.';
+  $('apelido-rotulo').hidden = false;
   $('apelido').hidden = false; $('apelido').value = '';
   $('d-tempo').hidden = true; $('d-comecar').hidden = false; $('d-chegou').hidden = true; $('d-baixar').hidden = true; $('d-ouvir').hidden = true;
   $('retrato').hidden = true;
@@ -898,8 +954,9 @@ function comecar() {
   ninja.estado = 'contagem'; ninja.rastro = [];
   ninja.fimContagem = performance.now() / 1000 + 3; ninja.numero = 4;
   $('apelido').hidden = true; $('d-comecar').hidden = true;
+  $('apelido-rotulo').hidden = true;
   $('apelido').blur();
-  $('d-sub').textContent = `${ninja.apelido}, prepare-se.`;
+  $('d-sub').textContent = `${ninja.apelido}, espere a contagem terminar. Atravesse quando aparecer “Vai.”`;
 }
 function chegou() { if (ninja.estado === 'correndo') terminar(true, performance.now() / 1000 - ninja.inicio); }
 function terminar(ok, t) {
@@ -912,11 +969,11 @@ function terminar(ok, t) {
     recordes = recordes.slice(0, 5);
     gravar('wavesense-recordes', recordes);
     $('d-grande').textContent = 'Passou.';
-    $('d-sub').textContent = `${ninja.apelido} atravessou sem o Wi-Fi perceber.`;
+    $('d-sub').textContent = `${ninja.apelido} chegou sem movimento detectado. Esta é a marca da passagem.`;
     somNinja();
   } else if (ok === false) {
     $('d-grande').textContent = 'Te vi.';
-    $('d-sub').textContent = `O Wi-Fi percebeu ${ninja.apelido} depois de ${seg(t)}.`;
+    $('d-sub').textContent = `O sistema detectou movimento depois de ${seg(t)}. Esta é a marca da tentativa de ${ninja.apelido}.`;
     somPego();
   } else {
     $('d-grande').textContent = 'Tempo.';
@@ -949,7 +1006,7 @@ function ninjaPasso(agora) {
     if (falta <= 0) {
       ninja.estado = 'correndo'; ninja.inicio = agora;
       $('d-grande').textContent = 'Vai.';
-      $('d-sub').textContent = 'Atravesse a faixa sem ser percebido.';
+      $('d-sub').textContent = 'Atravesse até a chegada. Ao terminar, pressione Espaço ou toque em “Cheguei”.';
       $('d-tempo').hidden = false; $('d-chegou').hidden = false;
       somContagem(0);
     } else {
@@ -1038,7 +1095,7 @@ function fraseDaMarca(r) {
 function desenharRecordes() {
   const ol = $('recordes');
   ol.replaceChildren();
-  const t = document.createElement('li'); t.className = 'titulo'; t.textContent = 'Recordes'; ol.appendChild(t);
+  const t = document.createElement('li'); t.className = 'titulo'; t.textContent = 'Mais rápidas · sem detecção'; ol.appendChild(t);
   if (!recordes.length) { const li = document.createElement('li'); li.textContent = 'Ninguém passou ainda.'; ol.appendChild(li); return; }
   recordes.forEach((r, i) => {
     const li = document.createElement('li');
@@ -1089,10 +1146,15 @@ function abrirGaleria() {
   fecharCamadas();
   const grade = $('galeria-grade');
   grade.replaceChildren();
+  $('galeria-total').textContent = `Quem passou · ${retratos.length} ${retratos.length === 1 ? 'registro' : 'registros'} neste navegador`;
   if (!retratos.length) {
+    const convite = document.createElement('div'); convite.className = 'galeria-convite';
     const p = document.createElement('p'); p.className = 'galeria-vazia';
-    p.textContent = 'Ninguém passou ainda. Seja o primeiro: aperte N.';
-    grade.appendChild(p);
+    p.textContent = 'A primeira marca pode ser sua.';
+    const frase = document.createElement('p'); frase.textContent = 'Participe da Travessia. As leituras da sua passagem viram uma marca em anéis.';
+    const botao = document.createElement('button'); botao.className = 'botao-texto botao-primario'; botao.textContent = 'Experimentar a Travessia';
+    botao.addEventListener('click', () => trocarPara('desafio'));
+    convite.append(p, frase, botao); grade.appendChild(convite);
   }
   $('galeria').hidden = false;
   const fila = [];
@@ -1101,9 +1163,12 @@ function abrirGaleria() {
     const cvs = document.createElement('canvas');
     cvs.setAttribute('role', 'img'); cvs.setAttribute('aria-label', `Marca de ${r.nome}`);
     const nome = document.createElement('b'); nome.textContent = r.nome;
+    const resultado = document.createElement('span'); resultado.className = 'cartao-resultado';
+    resultado.textContent = r.ok ? 'Passou sem detecção' : r.ok === false ? 'Movimento detectado' : 'Tempo encerrado';
     const info = document.createElement('span');
-    info.textContent = `${numero(r.n)} · ${r.ok ? 'passou' : r.ok === false ? 'te vi' : 'tempo'} · ${seg(r.tempo)}${r.fonte === 'sim' ? ' · simulação' : ''}`;
-    card.append(cvs, nome, info);
+    const fonte = r.fonte === 'sim' ? 'simulação' : r.fonte === 'replay' ? 'gravação' : r.fonte === 'live' ? 'placas' : 'fonte não registrada';
+    info.textContent = `${numero(r.n)} · ${seg(r.tempo)} · ${fonte}`;
+    card.append(cvs, nome, resultado, info);
     grade.appendChild(card);
     fila.push([cvs, r]);
   }
@@ -1353,7 +1418,9 @@ $('limiar').addEventListener('input', (e) => {
 $('som-mudo').addEventListener('click', () => definirSom('mudo'));
 $('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
 $('som-escuta').addEventListener('click', () => definirSom('escuta'));
-$('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); if (som.mestre) som.mestre.gain.value = som.vol; });
+$('volume').addEventListener('input', (e) => definirVolume(e.target.value));
+$('escuta-volume').addEventListener('input', (e) => definirVolume(e.target.value));
+$('escuta-pausar').addEventListener('click', () => definirSom(som.modo === 'escuta' ? 'mudo' : 'escuta'));
 $('vitrine').addEventListener('click', (e) => { como.ligado = !como.ligado; e.target.setAttribute('aria-pressed', String(como.ligado)); });
 $('btn-zerar').addEventListener('click', (e) => {
   if (e.target.dataset.confirmar !== 'sim') { e.target.dataset.confirmar = 'sim'; e.target.textContent = 'Clique de novo para apagar'; return; }

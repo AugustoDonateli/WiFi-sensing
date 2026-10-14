@@ -26,9 +26,9 @@
   const cenas = [
     {
       id: 'abertura', cap: null,
-      titulo: 'Wave Sense', frase: 'Um projeto que usa o sinal do Wi-Fi para perceber movimento, sem câmera.',
+      titulo: 'Wave Sense', frase: 'Investigamos como as variações do Wi-Fi podem indicar movimento, sem câmera.',
       seg: { completa: 15, curta: 12 },
-      notas: 'Apresente o projeto numa frase: o Wi-Fi que já existe em todo lugar consegue perceber quando alguém se mexe, sem nenhuma câmera. Diga que vão mostrar como funciona, até onde funciona e por que isso também é uma questão de privacidade.',
+      notas: 'Apresente o projeto numa frase: investigamos se as variações do Wi-Fi permitem perceber movimento sem câmera. Diga de onde vêm os dados da demonstração: simulação, gravação ou placas. Mostre o que já foi testado e o que ainda é uma hipótese.',
     },
     {
       id: 'pergunta', cap: 'I',
@@ -74,7 +74,7 @@
     },
     {
       id: 'numero', cap: 'II',
-      titulo: '*Um número* resume o quanto o sinal mudou.', frase: '1,0× é o tremor da sala vazia. Se passar da linha tracejada, o sistema marca movimento.',
+      titulo: '*Um número* resume o quanto o sinal mudou.', frase: '1,0× é a referência da sala vazia. A linha tracejada marca o limite; leituras seguidas acima dele confirmam movimento.',
       seg: { completa: 30 },
       notas: 'O tremor é o desvio padrão de cada uma das 64 medidas em 1 segundo, com a média entre elas. Antes, medimos a sala vazia: ela vale 1,0×. O limite é a média da sala vazia mais 3 desvios. Três medidas seguidas acima do limite viram "movimento"; cinco abaixo voltam para "parado".',
     },
@@ -82,15 +82,15 @@
       id: 'aovivo', cap: 'II', vitrine: false,
       titulo: 'Agora com o sinal das placas.', tituloSimulacao: 'Agora na simulação.', tituloGravacao: 'Agora com uma gravação.',
       tituloSemFonte: 'Aqui entra o sinal das placas.',
-      frase: 'Mexa o braço entre as placas e veja o número subir.',
+      frase: 'Observe como as mudanças no sinal aparecem nas linhas e no número.',
       seg: { completa: 35, curta: 30 },
       notas: 'Peça para alguém mexer o braço entre as placas. Leia o número que aparecer na tela, nunca um número inventado. Se estiver na simulação ou numa gravação, diga isso: a etiqueta no canto mostra a fonte.',
     },
     {
       id: 'metodo', cap: 'III',
-      titulo: 'Como testamos.', frase: 'Gravamos a sala vazia, uma pessoa parada, andando e caindo no colchonete. Parte das gravações ajusta o limite; a outra parte só serve para testar.',
+      titulo: 'Como vamos testar.', frase: 'O protocolo compara sala vazia, pessoa parada, caminhada e queda simulada. Uma parte das gravações ajusta o limite; a outra serve apenas para testar.',
       seg: { completa: 30 },
-      notas: 'Gravamos coletas com rótulo: sala vazia, pessoa parada, andando e queda simulada no colchonete (nunca queda de verdade), com voluntários que assinaram o termo de consentimento. Cada sessão é um bloco gravado de uma vez. As sessões ímpares ajustam o limite; as pares só testam. Assim o teste é honesto.',
+      notas: 'Explique o protocolo planejado; só fale de coletas realizadas quando elas existirem. Vamos registrar sala vazia, pessoa parada, caminhada e queda simulada no colchonete, com consentimento dos voluntários. Cada sessão é um bloco gravado de uma vez. As sessões ímpares ajustam o limite; as pares só testam.',
     },
     {
       id: 'resultados', cap: 'III', vitrine: false,
@@ -114,9 +114,9 @@
     },
     {
       id: 'usos', cap: 'IV',
-      titulo: 'Onde isso pode ajudar.', frase: 'Avisar quando um idoso cai, apagar a luz de uma sala vazia, alarme sem câmera.',
+      titulo: 'O que ainda queremos investigar.', frase: 'Detecção de quedas, automação de luzes e alarmes sem câmera. São possibilidades para testar, ainda não funções comprovadas deste protótipo.',
       seg: { completa: 25, curta: 18 },
-      notas: 'Usos: perceber queda de idoso sem câmera no banheiro (uma queda é um movimento forte e depois silêncio), apagar a luz quando a sala esvazia, alarme sem câmera.',
+      notas: 'Apresente usos possíveis, não resultados do protótipo. Detectar movimento não basta para confirmar uma queda nem para saber se uma sala está vazia: uma pessoa parada pode passar despercebida. Cada aplicação precisa de testes próprios.',
     },
     {
       id: 'privacidade', cap: 'IV',
