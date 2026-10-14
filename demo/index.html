@@ -132,7 +132,7 @@ body.com-operador .camada { right: min(380px, 100vw); }
 /* Modo escuta */
 .escuta-centro { display: flex; flex-direction: column; justify-content: center; gap: 22px; max-width: 980px; }
 .escuta-centro .mono { color: var(--apagado); max-width: 60ch; line-height: 1.6; }
-.pulso { position: absolute; right: 14vw; top: 50%; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: var(--tinta); opacity: 0.25; transition: transform 0.25s ease, opacity 0.25s ease; }
+.pulso { position: absolute; right: 14vw; top: 50%; width: 28px; height: 28px; margin-top: -14px; border-radius: 50%; background: var(--tinta); opacity: 0.2; }
 
 /* Passagem entre telas (passagem.js): por cima das camadas e da história, embaixo do Operador e do grão.
    Parada, fica invisível e não pega clique; durante a passagem, segura os cliques para nada atingir
@@ -296,7 +296,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
       <button id="som-escuta" aria-pressed="false">Escuta</button>
     </div>
     <input type="range" id="volume" min="0" max="1" step="0.05" value="0.6" aria-label="Volume">
-    <p>Alerta: dois toques suaves quando começa um movimento. Escuta: um sopro baixo, como vento, que abre e ganha "gotas" quando alguém se mexe. Tudo passa por um limitador de volume.</p>
+    <p>Alerta: dois toques suaves quando começa um movimento. Escuta: um acorde calmo que cresce e pulsa quando alguém se mexe, sem os toques de alerta. Tudo passa por um limitador de volume.</p>
   </section>
   <section>
     <span class="mono">Apresentação</span>
@@ -323,6 +323,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <script src="roteiro.js"></script>
 <script src="historia.js"></script>
 <script src="passagem.js"></script>
+<script src="escuta.js"></script>
 <script>
 'use strict';
 const $ = (id) => document.getElementById(id);
@@ -392,7 +393,7 @@ function avaliar() {
   }
   app.maxRecente = app.historico.reduce((m, x) => Math.max(m, x), 0);
   if (app.detectado && !antes) {
-    somAlerta();
+    if (som.modo !== 'escuta') somAlerta();   // na escuta, o próprio acorde avisa: ele cresce e pulsa
     if (dia.data !== hoje()) dia = { data: hoje(), live: 0, sim: 0 };
     if (app.fonte === 'live' || app.fonte === 'sim') { dia[app.fonte]++; gravar('wavesense-dia', dia); }
     // a vitrine dá lugar a quem chegou (também se ela ainda estiver abrindo), com a passagem rápida
@@ -640,11 +641,12 @@ function quadro() {
     desenharPilha(ctx, W, H, app.leituras, corQuadro.fundo, corQuadro.tinta, 1.4 * dpr, Math.min(1, (agora - app.ultimaLeitura) / LEITURA_S), true);
     desenharMedidor(corQuadro.tinta);
   }
+  pulsarPonto();
   passagem.quadro(agora);
 }
 
 /* ---------- Som: suave de propósito. Nada de onda quadrada, tudo passa por um limitador. ---------- */
-const som = { modo: 'mudo', antes: 'mudo', ctx: null, vol: 0.6, saida: null, mestre: null, vento: null, filtro: null, ventoGanho: null, nivel: 0 };
+const som = { modo: 'mudo', antes: 'mudo', ctx: null, vol: 0.6, saida: null, mestre: null, leve: null, escuta: null };
 function audio() {
   if (!som.ctx) {
     const c = new (window.AudioContext || window.webkitAudioContext)();
@@ -668,55 +670,42 @@ function tom(freq, dur, quando = 0, tipo = 'sine', ganho = 0.08, forcar = false)
   o.connect(g).connect(som.saida);
   o.start(t); o.stop(t + dur + 0.05);
 }
-// "Vento": ruído rosado num filtro. Sala parada = sopro grave e baixinho; movimento = o som abre e sobe.
-function ligarVento() {
+// Modo escuta: o "Batimento" (escuta.js). Um acorde calmo; quando alguém se mexe, ele cresce, abre e pulsa.
+// Passa por um limitador próprio, mais leve que o dos alertas, para não achatar a diferença entre
+// sala parada e movimento.
+function ligarEscuta() {
   const c = audio();
-  if (som.vento) return;
-  const n = c.sampleRate * 2, buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
-  let b0 = 0, b1 = 0, b2 = 0;
-  for (let i = 0; i < n; i++) {
-    const w = Math.random() * 2 - 1;
-    b0 = 0.997 * b0 + w * 0.0296; b1 = 0.985 * b1 + w * 0.0325; b2 = 0.95 * b2 + w * 0.048;
-    d[i] = (b0 + b1 + b2 + w * 0.05) * 0.5;
+  if (som.escuta || !window.WaveEscuta) return;
+  if (!som.leve) {
+    const l = c.createDynamicsCompressor();
+    l.threshold.value = -10; l.knee.value = 6; l.ratio.value = 12; l.attack.value = 0.003; l.release.value = 0.25;
+    l.connect(som.mestre);
+    som.leve = l;
   }
-  const fonte = c.createBufferSource(); fonte.buffer = buf; fonte.loop = true;
-  const filtro = c.createBiquadFilter(); filtro.type = 'lowpass'; filtro.frequency.value = 260; filtro.Q.value = 0.7;
-  const g = c.createGain(); g.gain.value = 0.0001;
-  fonte.connect(filtro).connect(g).connect(som.saida);
-  fonte.start();
-  Object.assign(som, { vento: fonte, filtro, ventoGanho: g, nivel: 0 });
+  som.escuta = WaveEscuta.criar(c, som.leve);
 }
-function desligarVento() {
-  if (!som.vento) return;
-  const f = som.vento;
-  som.ventoGanho.gain.setTargetAtTime(0.0001, som.ctx.currentTime, 0.2);
-  setTimeout(() => { try { f.stop(); } catch (e) { /* já parou */ } }, 900);
-  som.vento = null;
+function desligarEscuta() {
+  if (!som.escuta) return;
+  som.escuta.parar();
+  som.escuta = null;
 }
-const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66];   // pentatônica de dó
-function gota(quando, forca) {
-  const c = audio(), t = c.currentTime + quando;
-  const f = PENTA[Math.floor(Math.random() * PENTA.length)];
-  const o = c.createOscillator(), g = c.createGain();
-  o.type = 'sine';
-  o.frequency.setValueAtTime(f * 1.5, t); o.frequency.exponentialRampToValueAtTime(f, t + 0.05);
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.exponentialRampToValueAtTime(0.03 + 0.04 * forca, t + 0.008);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
-  o.connect(g).connect(som.saida); o.start(t); o.stop(t + 0.5);
-}
+// A cada medida do detector (0,2 s). Sem sinal ou sem calibração, o acorde fica calado.
 function somEscuta(v) {
-  if (!som.vento || app.limiar === null || app.calibracao || Number.isNaN(v)) return;
-  const c = som.ctx;
-  const x = Math.max(0, Math.min(1, (v / app.limiar - 0.7) / 3));   // 0 = sala parada, 1 = bem agitada
-  som.nivel += 0.35 * (x - som.nivel);
-  som.filtro.frequency.setTargetAtTime(260 + 2000 * som.nivel, c.currentTime, 0.25);
-  som.ventoGanho.gain.setTargetAtTime(0.03 + 0.15 * som.nivel, c.currentTime, 0.25);
-  const taxa = 5 * Math.max(0, som.nivel - 0.08);                    // gotas por segundo
-  let t = 0;
-  while (taxa > 0) { t += -Math.log(1 - Math.random()) / taxa; if (t >= AVALIAR_MS / 1000) break; gota(t, som.nivel); }
+  if (!som.escuta) return;
+  if (app.limiar === null || app.calibracao || Number.isNaN(v)) { som.escuta.calar(); return; }
+  som.escuta.atualizar({ v, limiar: app.limiar }, AVALIAR_MS / 1000);
+}
+// O ponto da escuta acompanha o volume do próprio som (medido no áudio, não estimado).
+let pontoNivel = 0;
+function pulsarPonto() {
   const p = $('pulso');
-  if (p) { p.style.transform = `scale(${1 + som.nivel * 7})`; p.style.opacity = String(0.2 + som.nivel * 0.5); }
+  if (!p || $('escuta').hidden) return;
+  const n = som.escuta ? som.escuta.nivel() : 0;
+  pontoNivel += (n > pontoNivel ? 0.6 : 0.25) * (n - pontoNivel);
+  const x = Math.max(0, Math.min(1, (pontoNivel - 0.02) / 0.22));
+  const reduzido = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  p.style.transform = reduzido ? '' : `scale(${(1 + 6 * x).toFixed(3)})`;
+  p.style.opacity = (0.2 + 0.6 * x).toFixed(3);
 }
 function somAlerta() { tom(659.25, 0.5, 0, 'sine', 0.07); tom(880, 0.7, 0.14, 'sine', 0.06); }
 function somContagem(n) { tom(n > 0 ? 523.25 : 1046.5, n > 0 ? 0.25 : 0.6, 0, 'sine', 0.07); }
@@ -725,7 +714,7 @@ function somPego() { tom(196, 0.9, 0, 'sine', 0.1); tom(164.81, 1.1, 0.12, 'sine
 function definirSom(m) {
   som.modo = m;
   if (m !== 'mudo') audio();
-  if (m === 'escuta') ligarVento(); else desligarVento();
+  if (m === 'escuta') ligarEscuta(); else desligarEscuta();
   for (const [id, modo] of [['som-mudo', 'mudo'], ['som-alerta', 'alerta'], ['som-escuta', 'escuta']]) $(id).setAttribute('aria-pressed', String(m === modo));
 }
 function abrirEscuta() {
@@ -1242,7 +1231,7 @@ const MODOS = {
   },
   escuta: {
     abrir: () => abrirEscuta(),
-    // o vento começa a sumir junto com o gesto de abrir os olhos
+    // o acorde começa a sumir junto com o gesto de abrir os olhos
     sair: () => { if (som.modo === 'escuta' && !$('escuta').hidden) definirSom(som.antes === 'escuta' ? 'mudo' : som.antes); },
   },
   galeria: { abrir: () => abrirGaleria() },
@@ -1303,7 +1292,7 @@ function subirPalavras(modo, atraso = 0) {
   });
   setTimeout(() => els.forEach((el) => el.classList.remove('sobe')), atraso + els.length * 70 + 1000);
 }
-// Som da passagem: um sopro baixo de ruído filtrado (o mesmo "ar" do modo escuta). Na travessia, ele passa
+// Som da passagem: um sopro baixo de ruído filtrado. Na travessia, ele passa
 // de uma caixa de som para a outra, junto com a pessoa invisível. Só com o som ligado, pelo limitador.
 let ruidoRosa = null;
 function sopro(dur, { f0 = 300, f1 = 900, ganho = 0.05, pan0 = 0, pan1 = 0, tipo = 'lowpass' } = {}) {
@@ -1336,7 +1325,7 @@ function aoPassar(nome, info) {
     if (info.gesto === 'travessia') sopro(info.dur, { f0: 500, f1: 1100, ganho: 0.06, pan0: -0.8, pan1: 0.8, tipo: 'bandpass' });
     else if (info.gesto === 'aneis') sopro(info.dur, { f0: 900, f1: 220, ganho: 0.04 });
     else if (info.gesto === 'pouso' || info.gesto === 'historia') sopro(info.dur, { f0: 900, f1: 240, ganho: 0.035 });
-    // fechar os olhos: o vento da escuta já entra sozinho
+    // fechar os olhos: o acorde da escuta já entra sozinho
   }
 }
 

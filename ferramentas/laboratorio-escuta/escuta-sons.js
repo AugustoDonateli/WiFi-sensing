@@ -200,8 +200,8 @@
 
   /* ---------- 3. Batimento: o acorde desafina e pulsa ---------- */
   const NOTAS_B = [146.83, 220.0, 329.63];   // ré, lá, mi
-  const batimento = {
-    id: 'batimento',
+  const batimento1 = {
+    id: 'batimento1',
     calcular(S) {
       const g = S.grupos;
       const acts = [media([g[0], g[1], g[2]]), media([g[3], g[4]]), media([g[5], g[6], g[7]])];
@@ -232,6 +232,35 @@
           s.gain.setTargetAtTime(1 + 0.7 * e.nivel, t, 0.5);    // e o acorde cresce um pouco
         },
         parar(t) { sumir(s, t, fontes); },
+      };
+    },
+  };
+
+  /* ---------- 3b. Batimento, versão 2: o som do demo/escuta.js, o mesmo que vai para o site ---------- */
+  const batimento = {
+    id: 'batimento',
+    calcular(S) {
+      const E = raiz.WaveEscuta || (typeof require !== 'undefined' && require('./escuta.js'));
+      const dt = this.t == null ? 0.2 : S.t - this.t;
+      if (dt <= 0 && this.e) return this.e;
+      this.t = S.t;
+      this.e = E.passo(this.e, { v: S.v, limiar: S.cal && S.cal.limiar, leitura: ultima(S) }, dt);
+      return this.e;
+    },
+    audio(ctx, M) {
+      const E = raiz.WaveEscuta;
+      const som = E.criar(ctx, M.seco);
+      let tAnt = null;
+      return {
+        som,
+        // o site atualiza o som a cada medida do detector (0,2 s); aqui é igual
+        aplicar(e, t, S, passo) {
+          if (!passo) return;
+          const dt = tAnt == null ? 0.2 : Math.max(0.01, t - tAnt);
+          tAnt = t;
+          som.atualizar({ v: S.v, limiar: S.cal && S.cal.limiar, leitura: ultima(S) }, dt, t);
+        },
+        parar(t) { som.parar(t); },
       };
     },
   };
@@ -348,8 +377,8 @@
     },
   };
 
-  const OPCOES = { vogal, harpa, batimento, partitura, hoje };
-  for (const o of Object.values(OPCOES)) o.reiniciar = function () { this.forma = null; };
+  const OPCOES = { vogal, harpa, batimento, batimento1, partitura, hoje };
+  for (const o of Object.values(OPCOES)) o.reiniciar = function () { this.forma = null; this.e = null; this.t = null; };
   const api = { OPCOES, mesa, HARMONICOS, ESCALA, PASSOS, PASSO_NOTA, NOTAS_B };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.WaveSons = api;

@@ -35,7 +35,12 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 
 ### Som
 - Tudo suave: sem onda quadrada e com limitador de volume.
-- **Modo escuta** (tecla E): tela "Feche os olhos." e um som de vento baixo que abre e ganha "gotas" quando alguém se mexe. É para usar com fone de ouvido.
+- **Modo escuta** (tecla E): tela "Feche os olhos." e um som que muda quando alguém se mexe. É para usar com fone de ouvido.
+  - ~~Vento baixo que abre e ganha "gotas".~~ Saiu em 14/10: misturado com o alerta de dois toques, não ficou agradável.
+  - **Batimento** (14/10, escolhido pelo grupo entre quatro propostas no laboratório de escuta, `ferramentas/laboratorio-escuta/`): um acorde calmo; com movimento, as notas desafinam e pulsam, porque duas ondas quase iguais se somam e se cancelam, o mesmo fenômeno do Wi-Fi entre os caminhos da sala.
+  - O pedido: a pessoa tem que sentir que está ouvindo uma onda, sem a mudança passar despercebida. Por isso, na versão 2: o pulso começa já no limiar do detector, o acorde sobe uns 11 dB (medido na simulação), abre, ganha uma nota grave pulsando e o pulso passa de um ouvido para o outro.
+  - No modo escuta, os dois toques de alerta não tocam. Nos outros modos, continuam.
+  - **Falta:** ouvir com as placas, no estande, e ajustar o volume com fone.
 - A pergunta "dá para ouvir alguém atrás da parede?" fica ligada ao teste de parede do projeto. Não vamos afirmar que funciona antes de testar.
 - Na parte de ética da apresentação: a mesma ideia poderia ser usada para espionar. É justamente por isso que o projeto discute privacidade.
 

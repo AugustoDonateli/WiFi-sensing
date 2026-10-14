@@ -1,4 +1,4 @@
-<!doctype html><meta charset="utf-8"><script src="escuta-sim.js"></script><script src="escuta-sons.js"></script>
+<!doctype html><meta charset="utf-8"><script src="escuta-sim.js"></script><script src="../../demo/escuta.js"></script><script src="escuta-sons.js"></script>
 <script>
 async function gravar(id, roteiro, semente = 7) {
   const total = roteiro.reduce((a, r) => a + r[1], 0);
@@ -21,6 +21,9 @@ async function gravar(id, roteiro, semente = 7) {
     for (let j = i; j < i + jan; j++) { s += L[j] * L[j] + R[j] * R[j]; p = Math.max(p, Math.abs(L[j]), Math.abs(R[j])); }
     rms.push(10 * Math.log10(s / (2 * jan) + 1e-12)); pico.push(20 * Math.log10(p + 1e-12));
   }
+  // envelope de 25 ms em cada ouvido (com fone, cada ouvido ouve o seu)
+  const j2 = Math.floor(sr * 0.025), envL = [], envR = [];
+  for (let i = 0; i + j2 <= L.length; i += j2) { let a = 0, b = 0; for (let j = i; j < i + j2; j++) { a += L[j] * L[j]; b += R[j] * R[j]; } envL.push(Math.sqrt(a / j2)); envR.push(Math.sqrt(b / j2)); }
   // wav 16 bits
   const n = L.length, dv = new DataView(new ArrayBuffer(44 + n * 4));
   const w = (o, str) => { for (let i = 0; i < str.length; i++) dv.setUint8(o + i, str.charCodeAt(i)); };
@@ -29,6 +32,6 @@ async function gravar(id, roteiro, semente = 7) {
   for (let i = 0; i < n; i++) { dv.setInt16(44 + i * 4, Math.max(-1, Math.min(1, L[i])) * 32767, true); dv.setInt16(46 + i * 4, Math.max(-1, Math.min(1, R[i])) * 32767, true); }
   const bytes = new Uint8Array(dv.buffer); let bin = '';
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  return { rms, pico, wav: btoa(bin) };
+  return { rms, pico, envL, envR, wav: btoa(bin) };
 }
 </script>

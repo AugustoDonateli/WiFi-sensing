@@ -85,6 +85,14 @@ dl div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 dt { color: var(--apagado); }
 dd { margin: 0; font-size: 15px; line-height: 1.55; }
 
+.escolhida { border-top-color: var(--apagado); }
+.selo { color: var(--apagado); margin: 0 0 4px; }
+.vis-alta { height: 168px; }
+.comparar { display: flex; align-items: center; gap: 20px; padding-top: 4px; }
+.comparar p { margin: 0; font-size: 14px; color: var(--apagado); max-width: 70ch; }
+.comparar b { color: var(--tinta); font-weight: 500; }
+.tocar.fraco { border-color: var(--fraco); font-size: 14px; }
+.outras { color: var(--apagado); margin: 24px 0 0; padding-top: 40px; }
 .opcao.hoje h2 { font-size: clamp(30px, 3.2vw, 40px); color: var(--apagado); }
 .opcao.hoje .vis { height: 72px; }
 .opcao.hoje dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -111,6 +119,7 @@ footer .mono { color: var(--tinta); }
 }
 @media (max-width: 560px) {
   dl { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .comparar { flex-direction: column; align-items: flex-start; }
   .cab { align-items: flex-start; flex-direction: column; }
   .opcao.hoje dl { grid-template-columns: minmax(0, 1fr); }
 }
@@ -125,6 +134,7 @@ footer .mono { color: var(--tinta); }
     <div class="cenas" role="group" aria-label="O que acontece perto das placas">
       <button class="cena" id="cena-vazio" data-cena="vazio" aria-pressed="true">Sala vazia</button>
       <button class="cena" id="cena-parado" data-cena="parado" aria-pressed="false">Pessoa parada</button>
+      <button class="cena" id="cena-devagar" data-cena="devagar" aria-pressed="false">Bem devagar</button>
       <button class="cena" id="cena-andando" data-cena="andando" aria-pressed="false">Andando</button>
       <button class="cena" id="cena-mao" data-cena="mao" aria-pressed="false">Mão perto</button>
     </div>
@@ -136,9 +146,29 @@ footer .mono { color: var(--tinta); }
   <main>
     <header>
       <p class="mono">Wave Sense · modo escuta (tecla E)</p>
-      <h1>Quatro sons para o modo escuta.</h1>
-      <p class="intro">Nenhum tem bipe de alerta: o próprio som muda quando alguém se mexe perto das placas. <span>Use fone, com volume baixo. Aperte “Ouvir” e mude a sala no painel.</span></p>
+      <h1>O som do modo escuta.</h1>
+      <p class="intro">O grupo escolheu o Batimento. Esta é a versão 2, feita para a mudança não passar despercebida. Sem bipe de alerta: o próprio som avisa. <span>Use fone e ajuste o volume com a sala vazia: com movimento, ele sobe bastante. Teste com “Alguém passa” e com “Bem devagar”.</span></p>
     </header>
+
+    <section class="opcao escolhida" data-op="batimento" aria-labelledby="t-batimento">
+      <div class="cab">
+        <div><p class="mono selo">Escolhido · versão 2 · é o que está no site (tecla E)</p><h2 id="t-batimento">Batimento</h2><p class="resumo">Um acorde calmo que, quando alguém se mexe, cresce e pulsa como uma onda.</p></div>
+        <button class="tocar" id="tocar-batimento" data-op="batimento" aria-pressed="false"><svg viewBox="0 0 18 18" aria-hidden="true"><path class="ouvir" d="M5 3.5v11l9-5.5z" fill="currentColor"/><rect class="parar" x="4.5" y="4.5" width="9" height="9" fill="currentColor"/></svg><span class="rot">Ouvir</span></button>
+      </div>
+      <canvas class="vis vis-alta" id="vis-batimento" aria-hidden="true"></canvas>
+      <dl>
+        <div><dt class="mono">Sala parada</dt><dd>Três notas afinadas, quase paradas, com um respiro lento a cada 17 segundos.</dd></div>
+        <div><dt class="mono">Alguém se mexe</dt><dd>Em um quarto de segundo o acorde cresce, abre e pulsa fundo, uá-uá-uá. Uma nota grave entra pulsando junto, para sentir no corpo, e o pulso passa de um ouvido para o outro.</dd></div>
+        <div><dt class="mono">Mais forte, mais rápido</dt><dd>No limite do detector, cerca de 1 pulso por segundo; com movimento forte, 4,5. Quando a pessoa para, o som acalma em uns 2 segundos.</dd></div>
+        <div><dt class="mono">Por quê</dt><dd>É o mesmo fenômeno do Wi-Fi: duas ondas quase iguais se somam e se cancelam. No sinal, entre os caminhos da sala; no som, entre duas notas. O ritmo vem do tremor medido.</dd></div>
+      </dl>
+      <div class="comparar">
+        <button class="tocar fraco" id="tocar-batimento1" data-op="batimento1" aria-pressed="false"><svg viewBox="0 0 18 18" aria-hidden="true"><path class="ouvir" d="M5 3.5v11l9-5.5z" fill="currentColor"/><rect class="parar" x="4.5" y="4.5" width="9" height="9" fill="currentColor"/></svg><span class="rot">Ouvir</span></button>
+        <p>A primeira versão, para comparar. Medido na simulação: da sala vazia para alguém andando, a versão 2 sobe <b>11 dB</b> (a primeira, 1,5 dB); com movimento bem devagar, 6 dB. O pulso ficou tão fundo quanto o da primeira.</p>
+      </div>
+    </section>
+
+    <p class="mono outras">As outras propostas</p>
 
     <section class="opcao" data-op="vogal" aria-labelledby="t-vogal">
       <div class="cab">
@@ -165,20 +195,6 @@ footer .mono { color: var(--tinta); }
         <div><dt class="mono">Alguém se mexe</dt><dd>O vento abre e as cordas começam a soar. Cada corda é um grupo de frequências do Wi-Fi: a que mais tremeu soa mais.</dd></div>
         <div><dt class="mono">Por quê</dt><dd>A harpa eólica existe de verdade: é um instrumento tocado pelo vento. Aqui, o vento é o tremor do sinal.</dd></div>
         <div><dt class="mono">No estande</dt><dd>É a que mais muda de volume entre parado e movimento, então funciona melhor num estande barulhento.</dd></div>
-      </dl>
-    </section>
-
-    <section class="opcao" data-op="batimento" aria-labelledby="t-batimento">
-      <div class="cab">
-        <div><h2 id="t-batimento">Batimento</h2><p class="resumo">Um acorde afinado que desafina e pulsa.</p></div>
-        <button class="tocar" id="tocar-batimento" data-op="batimento" aria-pressed="false"><svg viewBox="0 0 18 18" aria-hidden="true"><path class="ouvir" d="M5 3.5v11l9-5.5z" fill="currentColor"/><rect class="parar" x="4.5" y="4.5" width="9" height="9" fill="currentColor"/></svg><span class="rot">Ouvir</span></button>
-      </div>
-      <canvas class="vis" id="vis-batimento" aria-hidden="true"></canvas>
-      <dl>
-        <div><dt class="mono">Sala parada</dt><dd>Três notas paradas e afinadas, com um respiro lento a cada 14 segundos.</dd></div>
-        <div><dt class="mono">Alguém se mexe</dt><dd>As notas desafinam de leve e começam a pulsar, uá-uá-uá. Quanto mais forte o movimento, mais rápido o pulso.</dd></div>
-        <div><dt class="mono">Por quê</dt><dd>É o mesmo fenômeno do Wi-Fi. Duas ondas quase iguais se somam e se cancelam: no sinal, entre os caminhos da sala; no som, entre duas notas.</dd></div>
-        <div><dt class="mono">No estande</dt><dd>A mais sutil das quatro. Pede fone bem encaixado e é a melhor para explicar a física.</dd></div>
       </dl>
     </section>
 
@@ -216,13 +232,15 @@ footer .mono { color: var(--tinta); }
 </div>
 
 <script src="escuta-sim.js"></script>
+<script src="../../demo/escuta.js"></script>
 <script src="escuta-sons.js"></script>
 <script>
 (() => {
   'use strict';
   const $ = (id) => document.getElementById(id);
   const OP = WaveSons.OPCOES;
-  const IDS = ['vogal', 'harpa', 'batimento', 'partitura', 'hoje'];
+  const IDS = ['batimento', 'batimento1', 'vogal', 'harpa', 'partitura', 'hoje'];   // as que tocam
+  const DESENHOS = ['batimento', 'vogal', 'harpa', 'partitura', 'hoje'];             // as que têm desenho
   const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cor = { fundo: '#0B0B0A', tinta: '#EDEDE8', apagado: '#8A8A84', fraco: '#4C4C48' };
 
@@ -366,13 +384,20 @@ footer .mono { color: var(--tinta); }
       c.fillRect(0, H - 2 * dpr, W * (0.08 + 0.92 * e.nivel), 2 * dpr);
     },
     batimento(c, W, H, e, agora, on, dpr) {
+      // três linhas (as notas) e, embaixo, a nota grave. A altura acompanha o volume; o vale, a força do pulso.
       c.strokeStyle = on ? cor.tinta : cor.apagado; c.lineWidth = 1.2 * dpr;
-      for (let i = 0; i < 3; i++) {
-        const y0 = (H * (i + 0.5)) / 3, A = H / 8, lam = W / (30 + 14 * i), df = e.df[i];
+      const fase = (this.fase || 0);
+      const vol = e.ganho / 1.65;
+      for (let i = 0; i < 4; i++) {
+        const grave = i === 3;
+        if (grave && e.corpo < 0.01) continue;
+        const y0 = (H * (i + 0.5)) / 4, lam = grave ? W / 9 : W / (34 + 12 * i);
+        const A = (H / 9) * (grave ? e.corpo : vol);
+        c.lineWidth = (grave ? 2 : 1.2) * dpr;
         c.beginPath();
         for (let x = 0; x <= W; x += 2 * dpr) {
-          const env = 0.5 + 0.5 * Math.cos(Math.PI * 2 * df * (agora - (x / W) * 1.2));
-          const y = y0 + A * (0.25 + 0.75 * env) * Math.sin((2 * Math.PI * x) / lam);
+          const env = 1 - e.fundo * (0.5 - 0.5 * Math.cos(2 * Math.PI * (fase - (x / W) * 1.4)));
+          const y = y0 + A * env * Math.sin((2 * Math.PI * x) / lam);
           x ? c.lineTo(x, y) : c.moveTo(x, y);
         }
         c.stroke();
@@ -421,10 +446,10 @@ footer .mono { color: var(--tinta); }
   };
 
   function desenharOpcoes(agora) {
-    for (const id of IDS) {
+    for (const id of DESENHOS) {
       const { c, W, H, dpr } = preparar($('vis-' + id));
       c.fillStyle = cor.fundo; c.fillRect(0, 0, W, H);
-      vis[id](c, W, H, estados[id], agora, !!ativo && ativo.id === id, dpr);
+      vis[id].call(vis, c, W, H, estados[id], agora, !!ativo && ativo.id === id, dpr);
     }
   }
 
@@ -446,6 +471,8 @@ footer .mono { color: var(--tinta); }
     if (reduzido && agoraMs - ultimoDesenho < 200) return;
     ultimoDesenho = agoraMs;
     const agora = agoraMs / 1000;
+    const eb = estados.batimento;
+    if (eb && eb.pulso) vis.fase = ((vis.fase || 0) + eb.pulso * dt) % 1;
     desenharLinhas();
     desenharOpcoes(agora);
     textos();

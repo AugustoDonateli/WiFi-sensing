@@ -14,6 +14,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `roteiro.js`: os textos da apresentação "Como funciona" e a fala de cada cena. **Só texto: o grupo pode editar.**
 - `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
+- `escuta.js`: o som do modo escuta ("Batimento"). Sem ele, a escuta fica muda.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
 
@@ -54,7 +55,7 @@ Pouca letra pequena: só o nome do projeto, o aviso de simulação, o botão Ope
 - **Melodia da marca** (tecla `M`): as mesmas leituras viram 16 notas.
 - **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome e a frase. Diz "Travessia sem ser percebido" se a pessoa passou, ou "Registro de passagem" se foi percebida. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
 - **Mural de marcas** (tecla `G`): os últimos 12.
-- **Modo escuta** (tecla `E`): tela "Feche os olhos." com som de vento baixo que abre e ganha "gotas" quando alguém se mexe. Para usar com fone de ouvido.
+- **Modo escuta** (tecla `E`): tela "Feche os olhos." com o som "Batimento" (`escuta.js`): um acorde calmo que, quando alguém se mexe, cresce, abre e pulsa (uá-uá-uá), com uma nota grave pulsando junto e o pulso passando de um ouvido para o outro. O ponto da tela pulsa com o volume do próprio som. Para usar com fone de ouvido. Detalhes em "Som do modo escuta", abaixo.
 - **Painel do operador não cobre mais as linhas:** quando abre, a tela encolhe para o lado (no celular, o painel abre embaixo).
 - **Grão de foto** bem leve por cima de tudo, para a tela não parecer "plástica".
 
@@ -144,10 +145,27 @@ Tudo que é técnico fica no **painel do operador** (tecla `O`):
 
 **Som** (começa mudo; tudo suave, sem onda quadrada e com limitador de volume):
 - **Alerta:** dois toques suaves quando começa um movimento.
-- **Escuta:** sopro baixo, como vento, que abre e ganha "gotas" quando alguém se mexe.
+- **Escuta:** o "Batimento" (veja abaixo). Os dois toques de alerta não tocam nesse modo: o próprio acorde avisa.
 - **Desafio:** notas na contagem, um arpejo no *Passou.* e duas notas graves no *Te vi.*
 
 Teste o volume no lugar da feira.
+
+### Som do modo escuta (`escuta.js`)
+
+Três notas (ré, lá, mi). Cada uma é tocada por dois osciladores: um fixo e um que desafina um pouco. As duas ondas se somam e se cancelam e o som pulsa, como o sinal do Wi-Fi entre os caminhos da sala. O ritmo vem do tremor medido pelo detector (a cada 0,2 s), comparado com o limiar da calibração:
+
+| Tremor | O que se ouve |
+|---|---|
+| Abaixo do limiar (sala parada) | O acorde baixo e calmo, com um respiro a cada ~17 s. |
+| No limiar (quando a tela diz *Movimento.*) | Já pulsa, cerca de 1 vez por segundo, e fica um pouco mais alto. |
+| 2,5× o limiar ou mais | Pulso de 4,5 por segundo, bem mais alto (uns 11 dB, na simulação), mais brilhante, com a nota grave (ré, 73 Hz) pulsando junto. |
+
+- O pulso chega em 0,25 s e vai embora em cerca de 1,6 s.
+- O ouvido direito pulsa 12% mais rápido que o esquerdo, então o pulso passeia de um lado para o outro.
+- Sem sinal ou durante a calibração, fica calado.
+- Tem um limitador próprio, mais leve que o dos alertas, para não achatar a diferença entre parado e movimento.
+- Os números ficam no começo do `escuta.js`. Teste: `ferramentas/testes/test_escuta_js.py`.
+- Medido na simulação (`ferramentas/laboratorio-escuta/medir.py`): sala vazia -27 dBFS, alguém andando -16 dBFS, movimento bem devagar -21 dBFS. Com as placas, o tremor real é menor que o simulado; por isso o pulso já começa no limiar.
 
 ## Atalhos
 
