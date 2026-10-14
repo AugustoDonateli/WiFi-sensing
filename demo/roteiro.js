@@ -1,147 +1,148 @@
-/* Conteúdo da apresentação. A colinha usa Diga / Faça / Conecte; detalhes ficam recolhidos.
- * O projeto está em simulação. Ilustrações nunca são apresentadas como medições.
+/* Roteiro da história "Como funciona". SÓ CONTEÚDO: pode editar à vontade.
+ *
+ * Cada cena tem:
+ *   id       nome interno (não mude: o desenho de cada cena é ligado a ele)
+ *   cap      capítulo (chave de `capitulos`) ou null
+ *   titulo   frase grande da tela (a cena ao vivo tem um título para cada fonte de dados).
+ *            A palavra-chave vai entre *asteriscos*: ela é sublinhada na tela. No máximo uma por título.
+ *   frase    frase menor, embaixo do título
+ *   notas    o que falar (aparece só na janela do apresentador)
+ *   seg      segundos sugeridos em cada versão (sem `curta`, a cena não entra na versão curta)
+ *   vitrine  false = não aparece quando a explicação toca sozinha
+ *
+ * Jeito de escrever: direto, como quem explica para um colega. Nada de frase de efeito.
+ * Regras do projeto: nada de número inventado, e simulação nunca vira "medição".
  */
 (function (raiz) {
   'use strict';
-  const capitulos = { I: 'I · O invisível', II: 'II · Do sinal ao movimento', III: 'III · O que falta provar', IV: 'IV · Sua vez' };
+
+  const capitulos = {
+    I: 'I · A pergunta',
+    II: 'II · Como funciona',
+    III: 'III · O experimento',
+    IV: 'IV · Limites e usos',
+  };
+
   const cenas = [
     {
-      id: 'abertura', cap: 'I', layout: 'lateral',
-      titulo: 'O que mudou *aqui*?', frase: 'Uma sala. Nenhuma câmera. Um sinal que conta outra história.',
-      seg: { completa: 16, curta: 12 },
-      diga: 'Algo se moveu nesta sala. Como perceber isso sem uma câmera? O Wave Sense explora uma pista que atravessa o ambiente: o Wi-Fi. Hoje, vocês vão ver uma simulação dessa ideia.',
-      faca: 'Espere o desenho mudar. Pergunte o que o público percebeu antes de explicar.',
-      conecte: 'Para entender essa pista, vamos acompanhar uma mensagem.',
-      detalhes: 'A abertura é uma ilustração. Ainda não realizamos medições com as placas. Identificar quedas exigiria outra etapa de pesquisa.',
+      id: 'abertura', cap: null,
+      titulo: 'Wave Sense', frase: 'Um projeto que usa o sinal do Wi-Fi para perceber movimento, sem câmera.',
+      seg: { completa: 15, curta: 12 },
+      notas: 'Apresente o projeto numa frase: o Wi-Fi que já existe em todo lugar consegue perceber quando alguém se mexe, sem nenhuma câmera. Diga que vão mostrar como funciona, até onde funciona e por que isso também é uma questão de privacidade.',
     },
     {
-      id: 'mensagem', cap: 'I', layout: 'lateral',
-      titulo: 'Uma mensagem. Uma *onda de rádio*.', frase: 'A envia. B recebe. Entre as duas, existe uma sala inteira.',
-      seg: { completa: 23, curta: 16 },
-      diga: 'Wi-Fi transmite informações usando ondas de rádio. No experimento planejado, uma ESP32 envia mensagens e outra recebe. Vamos observar como o ambiente altera o sinal que chega.',
-      faca: 'Acompanhe o ponto de A até B. Se houver placas no estande, mostre-as como o próximo passo.',
-      conecte: 'Só que a mensagem não chega por uma estrada única.',
-      detalhes: 'O ESP-CSI da Espressif permite acessar informações do canal nas ESP32. Roteadores domésticos comuns nem sempre expõem esses dados. A taxa de mensagens será verificada nas coletas.',
+      id: 'pergunta', cap: 'I',
+      titulo: 'Como perceber que alguém caiu *sem usar câmera*?', frase: 'Câmeras expõem a intimidade da pessoa. Pulseiras dependem de ela lembrar de usar.',
+      seg: { completa: 20 },
+      notas: 'Segundo a Organização Mundial da Saúde (2021), quedas são a segunda maior causa de morte por acidente no mundo, e quem mais morre por queda são pessoas com mais de 60 anos. Para saber se alguém caiu, hoje se usa câmera, que invade a privacidade, ou pulseira, que a pessoa esquece de usar. Nosso objetivo: testar se duas placas baratas percebem movimento e queda só pelo Wi-Fi, e até onde isso funciona. (Fonte: who.int, ficha "Falls", 26/04/2021.)',
     },
     {
-      id: 'caminhos', cap: 'I', layout: 'panorama',
-      titulo: 'A sala também *participa* da mensagem.', frase: 'Paredes, móveis e pessoas criam vários caminhos até o receptor.',
-      seg: { completa: 26, curta: 18 },
-      diga: 'Uma parte do sinal chega diretamente. Outras partes refletem no ambiente. Quando algo se move, esses caminhos mudam. O receptor recebe uma mistura dessas contribuições.',
-      faca: 'Mostre o caminho direto e depois as reflexões. Espere a pessoa deslocar um caminho.',
-      conecte: 'O que acontece quando essas ondas se encontram?',
-      detalhes: 'A planta é esquemática, sem escala física. Ela não representa uma posição calculada pelo sistema. Os caminhos reais são muito mais numerosos.',
+      id: 'wifi', cap: 'I',
+      titulo: 'O Wi-Fi está em *quase todo lugar*.', frase: 'É uma onda de rádio que se espalha pelo ambiente e bate em paredes, móveis e pessoas.',
+      seg: { completa: 20, curta: 14 },
+      notas: 'O Wi-Fi é onda de rádio: 2,4 GHz, ondas de uns 12 cm. Ele enche o ambiente e bate em tudo. A ideia é usar isso como sensor, sem colocar nada no corpo de ninguém.',
     },
     {
-      id: 'mistura', cap: 'II', layout: 'panorama',
-      titulo: 'Juntas, as ondas podem *mudar tudo*.', frase: 'Às vezes se reforçam. Às vezes se cancelam. O receptor mede o resultado.',
-      seg: { completa: 29, curta: 21 },
-      diga: 'Estas ondas são um exemplo simplificado. Alinhadas, elas se reforçam. Deslocadas, podem se cancelar. Mover uma pessoa altera os caminhos e a maneira como as contribuições se somam.',
-      faca: 'Espere a soma crescer e diminuir. Use Repetir para mostrar o efeito outra vez.',
-      conecte: 'Essa mistura não é igual em todas as partes do canal Wi-Fi.',
-      detalhes: 'A soma envolve a fase dos sinais. A animação usa duas contribuições iguais para deixar o cancelamento visível; isso não significa que todo o sinal desapareça numa sala real.',
-    },
-    {
-      id: 'acorde', cap: 'II', layout: 'panorama',
-      titulo: 'Um retrato do *canal*.', frase: 'O CSI descreve como o sinal chegou em diferentes subportadoras.',
-      seg: { completa: 26, curta: 19 },
-      diga: 'O canal Wi-Fi usa várias subportadoras. O CSI descreve como o sinal chegou em cada uma. Aqui mostramos amplitudes: as barras formam um perfil. É um retrato do canal, não uma imagem da pessoa.',
-      faca: 'Mostre a mesma forma nas barras e na curva. Diga partes do canal antes de usar subportadoras.',
-      conecte: 'Um perfil mostra um instante. E se guardarmos os próximos?',
-      detalhes: 'CSI significa Channel State Information e inclui amplitude e fase. Nosso detector usa a variação das amplitudes. O vetor tem 64 posições, mas posições inválidas ou nulas são descartadas; não são 64 frequências úteis em toda configuração.',
-    },
-    {
-      id: 'linhas', cap: 'II', layout: 'lateral',
-      titulo: 'O presente vira *memória*.', frase: 'A nova leitura entra embaixo. As anteriores sobem guardando sua forma.',
-      seg: { completa: 24, curta: 17 },
-      diga: 'O perfil vira uma linha. A próxima leitura entra embaixo e a anterior sobe sem perder o desenho. Assim vemos a mudança ao longo do tempo. Não estamos desenhando o corpo de alguém.',
-      faca: 'Aponte a linha mais recente e acompanhe-a subindo. Espere duas leituras.',
-      conecte: 'Mas um sinal nunca fica perfeitamente imóvel. Como decidir o que é movimento?',
-      detalhes: 'A tela principal recebe uma linha a cada 0,1 segundo. O detector usa as amplitudes antes do realce visual. Nesta ilustração usamos menos linhas e tempo mais lento para acompanhar cada leitura.',
-    },
-    {
-      id: 'calibracao', cap: 'II', layout: 'panorama',
-      titulo: 'Primeiro, aprender o *normal*.', frase: 'Referência → variação → confirmação. Um pico sozinho não decide.',
-      seg: { completa: 29, curta: 21 },
-      diga: 'Começamos com a sala vazia e parada, porque o sinal já oscila um pouco. Essa referência ajuda a definir um limite. Depois comparamos a variação recente e exigimos confirmações seguidas antes de marcar movimento.',
-      faca: 'Siga a referência, o pico isolado e as três confirmações. O gráfico é um exemplo, sem valores medidos.',
-      conecte: 'Agora faça uma previsão: o que acontece se a pessoa parar?',
-      detalhes: 'O detector calcula a média dos desvios padrão das amplitudes em 1 s, a cada 0,2 s. O limiar usa média + 3 desvios da referência, com mínimo de 1,3 vezes sua média. Liga após 3 confirmações; desliga após 5.',
-    },
-    {
-      id: 'aovivo', cap: 'II', layout: 'lateral', vitrine: false,
-      titulo: 'E se a pessoa *parar*?', tituloGravacao: 'O que mudou na *gravação*?', tituloSemFonte: 'Vamos testar uma *previsão*.',
-      frase: 'Observe a variação recente e a memória que continua subindo.',
-      fraseSimulacao: 'Faça uma previsão. Depois escolha Mover e Parar na simulação.',
-      fraseGravacao: 'O trecho já aconteceu. Esta reprodução não responde ao movimento do público.',
-      fraseSemFonte: 'Conecte uma fonte de dados para observar as linhas e o detector.',
-      seg: { completa: 40, curta: 32 },
-      diga: 'O detector procura mudanças ao longo do tempo. O que acontece quando a pessoa para? Vamos observar o número e esperar a memória passar.',
-      digaSimulacao: 'Esta é a simulação do site. O que acontece quando a pessoa para? Vou escolher Mover e depois Parar. Observem a variação diminuir e o movimento antigo continuar subindo na memória.',
-      digaGravacao: 'Este sinal vem de uma gravação. Podemos observar o que aconteceu, mas mover o braço agora não altera estes dados.',
-      digaSemFonte: 'Estamos sem uma fonte conectada. Para a demonstração, precisamos da simulação, de uma gravação ou das placas.',
-      faca: 'Pergunte, espere a resposta, escolha Mover, aguarde o detector e escolha Parar. Espere cerca de 5 s para observar a memória.',
-      facaAoVivo: 'Peça um movimento entre as placas e depois uma pausa. Leia o resultado que aparecer, mesmo se não houver detecção.',
-      facaGravacao: 'Aponte trechos de mudança e de calma. Não peça uma ação como se alterasse o sinal.',
-      facaSemFonte: 'Avance ou conecte uma fonte nas opções do site.',
-      conecte: 'Uma simulação explica a ideia. O experimento vai dizer até onde ela funciona.',
-      detalhes: 'Pouca variação não prova que a sala está vazia. A janela de análise e as confirmações causam atraso. Uma pessoa parada ainda pode produzir pequenas mudanças. O desempenho real permanece por medir.',
-    },
-    {
-      id: 'metodo', cap: 'III', layout: 'panorama',
-      titulo: 'Da demonstração à *evidência*.', frase: 'Hoje: simulação. Próximo passo: coletar, separar sessões e testar.',
-      seg: { completa: 31 },
-      diga: 'Ainda estamos na simulação. Vamos coletar situações identificadas, separar sessões para ajustar e outras para testar. Só depois apresentaremos acertos e erros, comparados com uma resposta simples de referência.',
-      faca: 'Mostre a divisão entre ajustar e testar. A seta representa um plano de trabalho.',
-      conecte: 'Mesmo um bom resultado precisa vir acompanhado dos seus limites.',
-      detalhes: 'Plano inicial: sala vazia, pessoa parada e movimento, em sessões independentes. Avaliar por coleta, sem misturar janelas vizinhas entre ajuste e teste. Queda exigiria protocolo seguro e validação próprios. Ainda não há porcentagem de acerto.',
-    },
-    {
-      id: 'limites', cap: 'III', layout: 'lateral',
-      titulo: 'Movimento é uma *pista*.', frase: 'Não é identidade, localização nem prova de que a sala está vazia.',
-      seg: { completa: 25, curta: 19 },
-      diga: 'O detector resume quanto o canal variou. Não identifica quem passou nem determina onde está a pessoa. Pouca variação não prova ausência. Paredes, distância e outras mudanças precisam entrar no teste.',
-      faca: 'Use as três perguntas. Dê um exemplo: uma pessoa parada pode continuar ali.',
-      conecte: 'Com esses limites claros, podemos pensar numa aplicação responsável.',
-      detalhes: 'O apelido da Travessia é informado pela pessoa. O desenho registra aquela passagem, sem comprovação de identidade. Outras pessoas, interferência e objetos em movimento podem alterar o canal.',
-    },
-    {
-      id: 'aplicacao', cap: 'III', layout: 'panorama',
-      titulo: 'Uma pista abre *uma pergunta*.', frase: 'Uma mudança inesperada poderia motivar uma verificação. Reconhecer uma queda é outra pesquisa.',
-      seg: { completa: 25 },
-      diga: 'Uma possibilidade futura é perceber uma mudança inesperada e pedir que alguém verifique o ambiente. Detectar movimento não basta para reconhecer uma queda. Essa aplicação exigiria outro detector e testes específicos.',
-      faca: 'Siga o movimento até a pergunta Vale verificar? Esta é uma hipótese de uso.',
-      conecte: 'Até uma pista sem imagem pode revelar algo sobre uma pessoa.',
-      detalhes: 'Não há um sistema de monitoramento de saúde validado. Movimento seguido de silêncio não comprova uma queda; silêncio não comprova sala vazia.',
-    },
-    {
-      id: 'privacidade', cap: 'IV', layout: 'panorama',
-      titulo: 'Sem imagem. Ainda com *responsabilidade*.', frase: 'O que medir? Quem pode ver? Por quanto tempo guardar?',
+      id: 'placas', cap: 'II',
+      titulo: 'Usamos *duas placas* ESP32.', frase: 'A placa A envia 100 mensagens de Wi-Fi por segundo. A placa B recebe e mede cada uma.',
       seg: { completa: 25, curta: 18 },
-      diga: 'Sem câmera, não produzimos uma imagem da pessoa. Ainda assim, registros de movimento podem revelar hábitos. Precisamos explicar a coleta, limitar o acesso e guardar só o necessário.',
-      faca: 'Passe pelas três escolhas. Relacione-as ao convite voluntário para a Travessia.',
-      conecte: 'Agora vocês podem participar sabendo o que o desenho significa.',
-      detalhes: 'Não demonstramos sensoriamento através de paredes com estas placas. A Travessia atual guarda registros neste navegador; isso não equivale a uma política completa para um experimento real.',
+      notas: 'Aponte para as placas A e B do estande. A placa A manda 100 mensagens por segundo; a B recebe e mede como cada uma chegou. São placas ESP32 de baixo custo, com o programa oficial da Espressif (ESP-CSI). Se perguntarem por que não usar o roteador de casa: os roteadores comuns não mostram essas medidas, e a ESP32 mostra.',
     },
     {
-      id: 'fim', cap: null, layout: 'lateral',
-      titulo: 'Sua passagem deixa *um desenho*.', frase: 'Wave Sense · Experimente a Travessia. O apelido é seu; o registro é do sinal.',
-      seg: { completa: 16, curta: 12 },
-      diga: 'Na Travessia, a mudança do sinal vira um desenho da participação. O apelido é escolhido pela pessoa; o desenho não identifica ninguém. Quer experimentar a versão simulada?',
-      digaAoVivo: 'Na Travessia, a mudança do sinal durante sua participação vira um desenho. Ele não identifica você. O apelido é opcional. Quer experimentar?',
-      faca: 'Espere as linhas virarem anéis. Aperte N para abrir a Travessia.',
-      conecte: 'Convide uma pessoa por vez e explique os controles.',
-      detalhes: 'O encerramento é uma transformação artística de dados ilustrativos. No jogo, os anéis usam o registro da participação. Na simulação, a mudança vem dos controles. A IA apoiou código e textos; a revisão é do grupo e as medições físicas ainda serão realizadas.',
+      id: 'caminhos', cap: 'II',
+      titulo: 'O sinal chega por *vários caminhos*.', frase: 'Uma parte vai direto. O resto rebate no teto, no chão e nas pessoas antes de chegar.',
+      seg: { completa: 25, curta: 18 },
+      notas: 'Se ajudar, use a piscina: a placa A faz ondinhas e a B sente do outro lado. Sem ninguém na água, as ondas chegam sempre iguais. Quando alguém se mexe, os caminhos mudam e o que chega na B muda.',
+    },
+    {
+      id: 'acorde', cap: 'II',
+      titulo: 'A placa B mede o sinal em *64 frequências*.', frase: 'Os caminhos se somam: em algumas frequências o sinal chega forte, em outras se cancela. Essas 64 medidas se chamam CSI.',
+      seg: { completa: 30 },
+      notas: 'O canal do Wi-Fi é dividido em 64 partes (subportadoras), a cada 312,5 kHz. Os vários caminhos do sinal chegam juntos e se somam: em algumas frequências eles se reforçam, em outras se cancelam. Por isso cada barra tem uma altura. A placa B mede a força de cada uma; esse conjunto de medidas se chama CSI, Channel State Information. Se ajudar, compare com um acorde: 64 notas tocando juntas.',
+    },
+    {
+      id: 'linhas', cap: 'II',
+      titulo: 'Cada linha é uma medida das 64 frequências.', frase: 'Chega uma nova a cada 0,1 segundo. A mais recente fica embaixo e empurra as outras para cima.',
+      seg: { completa: 20, curta: 14 },
+      notas: 'Cada linha é a média de um décimo de segundo dessas 64 medidas. A mais nova entra embaixo e empurra as outras para cima; a de baixo, mais grossa, é agora. Isto ainda é ilustração: a tela de verdade vem daqui a pouco.',
+    },
+    {
+      id: 'tremor', cap: 'II',
+      titulo: 'Quando alguém se mexe, *as linhas mudam*.', frase: 'Com a sala parada, o desenho se repete. Quando alguém anda, os caminhos do sinal mudam e as linhas tremem.',
+      seg: { completa: 20, curta: 14 },
+      notas: 'Em cima, a sala pequena: alguém andando entre as placas. Embaixo, as linhas daquele sinal. Quando a pessoa entra, os caminhos do sinal mudam a cada instante e as linhas começam a tremer. Com a sala parada, elas repetem sempre o mesmo relevo.',
+    },
+    {
+      id: 'numero', cap: 'II',
+      titulo: '*Um número* resume o quanto o sinal mudou.', frase: '1,0× é o tremor da sala vazia. Se passar da linha tracejada, o sistema marca movimento.',
+      seg: { completa: 30 },
+      notas: 'O tremor é o desvio padrão de cada uma das 64 medidas em 1 segundo, com a média entre elas. Antes, medimos a sala vazia: ela vale 1,0×. O limite é a média da sala vazia mais 3 desvios. Três medidas seguidas acima do limite viram "movimento"; cinco abaixo voltam para "parado".',
+    },
+    {
+      id: 'aovivo', cap: 'II', vitrine: false,
+      titulo: 'Agora com o sinal das placas.', tituloSimulacao: 'Agora na simulação.', tituloGravacao: 'Agora com uma gravação.',
+      tituloSemFonte: 'Aqui entra o sinal das placas.',
+      frase: 'Mexa o braço entre as placas e veja o número subir.',
+      seg: { completa: 35, curta: 30 },
+      notas: 'Peça para alguém mexer o braço entre as placas. Leia o número que aparecer na tela, nunca um número inventado. Se estiver na simulação ou numa gravação, diga isso: a etiqueta no canto mostra a fonte.',
+    },
+    {
+      id: 'metodo', cap: 'III',
+      titulo: 'Como testamos.', frase: 'Gravamos a sala vazia, uma pessoa parada, andando e caindo no colchonete. Parte das gravações ajusta o limite; a outra parte só serve para testar.',
+      seg: { completa: 30 },
+      notas: 'Gravamos coletas com rótulo: sala vazia, pessoa parada, andando e queda simulada no colchonete (nunca queda de verdade), com voluntários que assinaram o termo de consentimento. Cada sessão é um bloco gravado de uma vez. As sessões ímpares ajustam o limite; as pares só testam. Assim o teste é honesto.',
+    },
+    {
+      id: 'resultados', cap: 'III', vitrine: false,
+      titulo: 'Resultados.', frase: 'Ainda estamos fazendo as gravações. Os números entram aqui.',
+      fraseComResultados: 'Nas {coletas} gravações de teste, o sistema acertou {acerto}. Chutando sempre a resposta mais comum, acertaria {chute}.',
+      seg: { completa: 35 },
+      notas: 'Diga o resultado por coleta (não por janela: as janelas vizinhas se parecem), sempre ao lado do chute, que é responder sempre a classe mais comum. Se ainda não houver números, diga que estão medindo.',
+    },
+    {
+      id: 'parado', cap: 'IV',
+      titulo: 'Pessoa parada *não aparece*.', frase: 'Com ela parada ali, as linhas ficam calmas. O sistema só percebe quando alguém se mexe.',
+      seg: { completa: 25, curta: 18 },
+      notas: 'Compare com a cena do tremor: a mesma sala, mas agora a pessoa fica parada e as linhas ficam calmas. Jogo da Estátua: peça para alguém ficar parado entre as placas. Ele some para o Wi-Fi, porque o detector percebe movimento, não pessoas. Outros limites: distância entre as placas, paredes, várias pessoas ao mesmo tempo e interferência. Cada lugar precisa calibrar.',
+    },
+    {
+      id: 'viabilidade', cap: 'IV',
+      titulo: 'Dá para montar *com pouco*.', frase: 'Duas placas ESP32, o programa aberto da Espressif e um notebook com Python.',
+      fraseComCusto: 'Duas placas ESP32, o programa aberto da Espressif e um notebook com Python. As duas placas custaram {custo}.',
+      seg: { completa: 25 },
+      notas: 'As placas ESP32 são baratas, e o programa que mede o CSI é o oficial da Espressif (ESP-CSI), aberto. A tela e a análise são em JavaScript e Python. Falem o preço que pagaram (e preencham CUSTO aqui no roteiro.js para ele aparecer na tela). Em 2025 o IEEE publicou um padrão só para sensoriamento por Wi-Fi, o 802.11bf: a ideia está indo para produtos.',
+    },
+    {
+      id: 'usos', cap: 'IV',
+      titulo: 'Onde isso pode ajudar.', frase: 'Avisar quando um idoso cai, apagar a luz de uma sala vazia, alarme sem câmera.',
+      seg: { completa: 25, curta: 18 },
+      notas: 'Usos: perceber queda de idoso sem câmera no banheiro (uma queda é um movimento forte e depois silêncio), apagar a luz quando a sala esvazia, alarme sem câmera.',
+    },
+    {
+      id: 'privacidade', cap: 'IV',
+      titulo: 'E a *privacidade*?', frase: 'Se der para perceber alguém através da parede, quem está do lado de fora também poderia. Por isso medimos os limites.',
+      seg: { completa: 25, curta: 18 },
+      notas: 'O lado ruim: se o sinal atravessa paredes, alguém de fora poderia saber se tem gente em casa. Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, é o que estamos testando. Por isso medimos os limites e discutimos regras de uso.',
+    },
+    {
+      id: 'fim', cap: null,
+      titulo: 'Experimente a Travessia.', frase: 'Tente atravessar a faixa sem que as placas percebam.',
+      seg: { completa: 15, curta: 12 },
+      notas: 'Convide para a Travessia (tecla N). Para o avaliador: "Usamos um assistente de IA como apoio no código e nos textos. Revisamos tudo, e os dados foram medidos por nós." Agradeça.',
     },
   ];
-  const CUSTO = null, RESULTADOS = null, transicao = 2.6;
-  function conteudo(c, fonte) {
-    const sufixo = { sim: 'Simulacao', replay: 'Gravacao', live: 'AoVivo' }[fonte] || 'SemFonte';
-    const obter = (chave) => c[chave + sufixo] || c[chave] || '';
-    return { titulo: obter('titulo'), frase: obter('frase'), diga: obter('diga'), faca: obter('faca'), conecte: c.conecte || '', detalhes: c.detalhes || '' };
-  }
-  cenas.forEach((c) => { c.notas = c.diga + '\n\nFaça: ' + c.faca + '\n\nConecte: ' + c.conecte; });
-  const api = { capitulos, cenas, CUSTO, RESULTADOS, transicao, conteudo };
+
+  // Preço que vocês pagaram nas duas placas, como texto. Exemplo: 'R$ 90'. Sem preço, a frase não fala de valor.
+  const CUSTO = null;
+
+  // Segundos de cada transição entre cenas, nas setas e no passador. Mais = mais devagar.
+  const transicao = 2.6;
+
+  // Preencher só com números do ferramentas/avaliar.py (resultado POR COLETA), sempre com o chute ao lado.
+  // Exemplo: { coletas: 24, acerto: 0.88, chute: 0.5, data: '19/10/2026' }
+  const RESULTADOS = null;
+
+  const api = { capitulos, cenas, RESULTADOS, CUSTO, transicao };
   raiz.WaveRoteiro = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

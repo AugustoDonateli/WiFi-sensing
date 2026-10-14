@@ -96,13 +96,6 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - palavra-chave do título sublinhada (marcada com `*...*` no `roteiro.js`).
   - **Ficou de fora de propósito:** câmera tremendo, zoom contínuo, desfoque e cores novas. Com a cena parada, nada muda de lugar.
 
-### Nova narrativa da apresentação (14/10/2026)
-- Reestruturação para 13 cenas, com planta da sala, soma das ondas, perfil CSI, construção da memória, calibração e passagem do registro para anéis.
-- Versão curta mantém a cadeia causal completa; reduz profundidade, em vez de pular a explicação do CSI e da decisão.
-- Colinha com Diga / Faça e espere / Conecte e detalhes recolhidos. Controles Mover e Parar na demonstração simulada.
-- O grupo confirmou que ainda está na simulação. Método e aplicações são planos; não afirmamos medições, acertos, detecção de queda ou leitura através de paredes.
-- As transições entre abas, a memória do gráfico principal e a alternância preto/branco permanecem preservadas. Os itens das rodadas anteriores acima são histórico da apresentação anterior.
-
 ### Passagens entre as telas do site (14/10/2026, pedido do grupo)
 - **O pedido:** toda troca de tela com uma animação de transição ambiciosa e com personalidade, que não pareça genérica. O caso citado: modo escuta → Desafio Ninja (hoje Travessia).
 - **A ideia:** toda troca passa pelo sinal. A tela que sai vira as linhas do Wi-Fi (as leituras de verdade), as linhas tomam a tela e depois viram a tela que chega, com um gesto que diz o que ela é:

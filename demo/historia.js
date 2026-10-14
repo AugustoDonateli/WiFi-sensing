@@ -663,8 +663,6 @@
 
   // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "Ilustração".
   const CAMADAS = {
-    composicao: { padrao: { x: 0.44, y: 0.15, w: 0.52, h: 0.65, prop: 1.45 } },
-    editorial: { padrao: {}, sintetica: true },
     sala: { padrao: {} },
     ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
     casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0, fachada: 0 } },
@@ -692,8 +690,6 @@
   // Cada desenho recebe (contexto, geometria, parâmetros da camada, cores, tempo, todas as camadas, extras).
   // q.p é a presença (0 a 1) e q.dir diz se a camada está entrando (1), saindo (−1) ou parada (0).
   const DESENHOS = {
-    composicao() {},
-    editorial(c, G, q, cor, amb, prm, ex) { raiz.WaveCenas.desenhar(c, G, q, cor, ex.tempoCena, prm, ex); },
     sala(c, G, q, cor) {
       // paredes e teto: entram subindo dos cantos do chão e se encontram no meio do teto
       const x0 = G.X(SALA.x0), x1 = G.X(SALA.x1), yc = G.Y(CHAO), yt = G.Y(SALA.teto);
@@ -1229,24 +1225,150 @@
     pacotes: { p: 0, saida: [0.02, 0.26] }, pessoa: { p: 0, saida: [0.02, 0.3] },
   };
   const PILHA_VIRA_CHAO = { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, mover: [0.04, 0.42], saida: [0.36, 0.5] };
-  // As composições mudam junto com a linha do tempo. O motor de curvas continua o mesmo.
-  const LATERAL = { x: 0.45, y: 0.17, w: 0.50, h: 0.64, prop: 1.45 };
-  const PANORAMA = { x: 0.06, y: 0.43, w: 0.88, h: 0.43, prop: 3.4 };
-  const editorial = (layout) => ({ composicao: layout, editorial: {} });
   const POSES = {
-    abertura: editorial(LATERAL),
-    mensagem: editorial(LATERAL),
-    caminhos: editorial(PANORAMA),
-    mistura: editorial(PANORAMA),
-    acorde: editorial(PANORAMA),
-    linhas: editorial(LATERAL),
-    calibracao: editorial(PANORAMA),
-    aovivo: { composicao: LATERAL, editorial: { p: 0 }, vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] } },
-    metodo: editorial(PANORAMA),
-    limites: editorial(LATERAL),
-    aplicacao: editorial(PANORAMA),
-    privacidade: editorial(PANORAMA),
-    fim: editorial(LATERAL),
+    abertura: {
+      pilha: { roteiro: 1 },
+    },
+    pergunta: {
+      pilha: PILHA_VIRA_CHAO,
+      chao: { cresce: 0, entrada: [0.38, 0.5] },
+      sala: { entrada: [0.46, 0.86] },
+      pessoa: { x: 0.62, deitada: 1, entrada: [0.4, 0.88] },
+      camera: { risco: 1, entrada: [0.4, 0.88] },
+    },
+    wifi: {
+      pilha: PILHA_VIRA_CHAO,
+      chao: { cresce: 0, entrada: [0.38, 0.5] },
+      sala: { entrada: [0.46, 0.86] },
+      pessoa: { x: 0.62, deitada: 0, entrada: [0.5, 0.88], mover: { deitada: [0.2, 0.6] } },
+      camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
+      roteador: { x: 0.2, y: 0.42, prat: SALA.x0, entrada: [0.3, 0.7] },
+      ondas: { ox: 0.2, oy: 0.42, entrada: [0.45, 0.88] },
+    },
+    placas: {
+      chao: {},
+      sala: { p: 0, saida: [0.1, 0.5] },
+      pessoa: { p: 0, x: 0.62, saida: [0.04, 0.36] },
+      // o roteador vai até o lugar da placa A e muda de forma até ficar igual à caixa dela; a placa nasce ali
+      roteador: { p: 0, x: 0.14, y: Y_ANTENA, prat: SALA.x0, forma: 1, mover: [0.06, 0.42], saida: [0.5, 0.66] },
+      ondas: { p: 0, ox: 0.14, oy: Y_ANTENA, mover: [0.06, 0.42], saida: [0.2, 0.5] },
+      placaA: { x: 0.14, nasce: 1, entrada: [0.42, 0.86] },
+      placaB: { x: 0.86, entrada: [0.5, 0.88] },
+      pacotes: { entrada: [0.6, 0.88] },
+    },
+    caminhos: {
+      chao: {},
+      placaA: { x: 0.14, nasce: 0 },
+      placaB: { x: 0.86 },
+      pacotes: { p: 0, saida: [0.04, 0.3] },
+      sala: { entrada: [0.3, 0.7] },
+      pessoa: { x: 0.66, entrada: [0.34, 0.8] },
+      raios: { entrada: [0.4, 0.88] },
+    },
+    acorde: {
+      chao: {},
+      sala: { p: 0, saida: [0.04, 0.3] },
+      raios: { p: 0, saida: [0.04, 0.42] },              // os caminhos são puxados para dentro da placa B
+      pessoa: { p: 0, x: 0.66, saida: [0.02, 0.26] },
+      placaA: { p: 0, x: 0.02, saida: [0.06, 0.32], mover: [0.06, 0.32] },
+      placaB: { x: 0.07, esc: 1.1, mover: [0.1, 0.5] },
+      pacotes: { p: 0, saida: [0.04, 0.28] },
+      barras: { entrada: [0.44, 0.9] },
+      curva: { forma: 0, entrada: [0.62, 0.9] },
+    },
+    linhas: {
+      chao: { p: 0 },
+      sala: { p: 0, saida: [0.04, 0.34] },
+      raios: { p: 0, saida: [0.02, 0.24] },
+      pessoa: { p: 0, x: 0.66, saida: [0.02, 0.28] },
+      placaA: { p: 0, x: 0.14, saida: [0.06, 0.36] },
+      placaB: { p: 0, x: 0.07, esc: 1.1, saida: [0.1, 0.4] },
+      barras: { p: 0, saida: [0.12, 0.45] },
+      curva: { p: 0, forma: 1, saida: [0.7, 0.92] },
+      pilha: { agito: 0, entrada: [0.5, 0.9] },
+    },
+    // a sala pequena em cima (alguém andando) e as linhas embaixo: primeiro a pessoa entra, depois as linhas tremem
+    tremor: {
+      pilha: { agito: 1, ...PILHA_MINI, mover: { _: [0.06, 0.42], agito: [0.5, 0.88] } },
+      chao: { ...ZOOM_MINI, entrada: [0.26, 0.56] },
+      placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.3, 0.66] },
+      placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.34, 0.7] },
+      pacotes: { ...ZOOM_MINI, entrada: [0.5, 0.86] },
+      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, entrada: [0.4, 0.84] },
+    },
+    numero: {
+      pilha: { agito: 1, roteiro: 1, py: 0.02, ph: 0.52, mover: [0.2, 0.66] },
+      medidor: { entrada: [0.58, 0.88] },
+      ...SAI_MINI,
+    },
+    // vindo do número: uma linha varre e troca o exemplo pelo sinal de verdade (a janela do vivo guia a linha).
+    // Vindo de outra cena (versão curta), não há varredura: as linhas de antes saem cedo, antes das novas.
+    aovivo: {
+      pilha: { p: 0, agito: 1, roteiro: 1, py: 0.02, ph: 0.52, saida: [0.04, 0.4] },
+      medidor: { p: 0, saida: [0.35, 0.86] },
+      vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] },
+      ...SAI_MINI,
+    },
+    metodo: {
+      vivo: { p: 0, saida: [0.02, 0.32] },
+      grade: { entrada: [0.3, 0.88] },
+    },
+    // as gravações de teste se empilham dentro da barra do resultado; as de ajuste somem
+    resultados: {
+      grade: { p: 0, junta: 1, mover: [0.04, 0.52], saida: [0.44, 0.66] },
+      resultado: { entrada: [0.4, 0.88] },
+    },
+    // o mesmo arranjo do tremor, com a pessoa parada (some para o sistema) e as linhas calmas
+    parado: {
+      // o que estava antes (resultado na completa, sinal de verdade na curta) sai antes de as linhas chegarem
+      resultado: { p: 0, saida: [0.02, 0.34] },
+      vivo: { p: 0, saida: [0.02, 0.34] },
+      chao: { ...ZOOM_MINI, entrada: [0.3, 0.6] },
+      placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.32, 0.66] },
+      placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.36, 0.7] },
+      pacotes: { ...ZOOM_MINI, entrada: [0.5, 0.86] },
+      pessoa: { x: 0.5, fantasma: 1, ...ZOOM_MINI, entrada: [0.4, 0.88] },
+      pilha: { agito: 0, ...PILHA_MINI, entrada: [0.4, 0.86] },
+    },
+    // a sala volta ao tamanho normal e as linhas encolhem até virar a tela do notebook
+    // ordem: as linhas encolhem até o lugar da tela, depois a sala cresce (sem passar por cima delas)
+    viabilidade: {
+      // o chão encurta e a placa B anda para a esquerda antes do zoom, para não cruzarem a tela do notebook
+      chao: { x1: 0.6, ...ZOOM_NORMAL, mover: { _: [0.36, 0.8], x1: [0.06, 0.4] } },
+      placaA: { x: 0.14, ...ZOOM_NORMAL, mover: [0.36, 0.8] },
+      placaB: { x: 0.52, ...ZOOM_NORMAL, mover: { _: [0.36, 0.8], x: [0.06, 0.4] } },
+      pacotes: { ...ZOOM_NORMAL, mover: [0.36, 0.8] },
+      pessoa: { p: 0, saida: [0.04, 0.3] },
+      pilha: { agito: 0, relevo: 0.55, ...PILHA_NOTE, teto: -1, mover: [0.06, 0.44] },
+      notebook: { entrada: [0.4, 0.88] },
+    },
+    // (vindo da pessoa parada, na versão curta, a sala em miniatura volta ao tamanho normal)
+    usos: {
+      chao: { ...ZOOM_NORMAL, mover: [0.24, 0.56] },
+      pilha: { p: 0, saida: [0.02, 0.26] },
+      notebook: { p: 0, saida: [0.04, 0.34] },
+      placaA: { p: 0, x: 0.14, saida: [0.06, 0.36] },
+      placaB: { p: 0, x: 0.86, saida: [0.06, 0.36] },
+      pacotes: { p: 0, saida: [0.04, 0.3] },
+      pessoa: { x: 0.33, fantasma: 0, deitada: 1, esc: 0.8, ...ZOOM_NORMAL, mover: { _: [0.24, 0.56], x: [0.24, 0.56], fantasma: [0.2, 0.45], esc: [0.3, 0.6], deitada: [0.54, 0.82] } },
+      icones: { entrada: [0.5, 0.88] },
+      casa: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 1, fachada: 1, entrada: [0.45, 0.88] },
+    },
+    privacidade: {
+      chao: {},
+      icones: { p: 0, saida: [0.04, 0.3] },
+      casa: { cx: 0.38, larg: 0.56, alt: 0.4, tel: 0.16, sino: 0, fachada: 0, mover: { _: [0.12, 0.6], sino: [0.04, 0.24], fachada: [0.04, 0.28] } },
+      pessoa: { x: 0.28, deitada: 0, esc: 1, fantasma: 0, mover: { _: [0.2, 0.6], deitada: [0.1, 0.42] } },
+      roteador: { x: 0.52, y: 0.5, prat: 0.66, entrada: [0.5, 0.8] },
+      ondas: { ox: 0.52, oy: 0.5, cx0: 0.1, cx1: 0.66, ctopo: 0.4, cap: 0.16, vaza: 1, entrada: [0.55, 0.88] },
+      vulto: { x: 0.86, entrada: [0.5, 0.88] },
+    },
+    // a casa sai antes de as linhas subirem no lugar dela
+    fim: {
+      casa: { p: 0, saida: [0.02, 0.36] }, ondas: { p: 0, saida: [0.02, 0.3] }, roteador: { p: 0, saida: [0.02, 0.3] },
+      pessoa: { p: 0, saida: [0.02, 0.3] }, vulto: { p: 0, saida: [0.02, 0.3] }, chao: { p: 0, saida: [0.06, 0.38] },
+      vivo: { py: PILHA.y, ph: PILHA.h, med: 0, entrada: [0.4, 0.88] },
+    },
   };
 
   /* ================= O palco ================= */
@@ -1259,8 +1381,8 @@
 .historia[hidden] { display: none !important; }
 .historia.miniatura { position: relative; inset: auto; z-index: auto; width: 100%; aspect-ratio: 16 / 9; height: auto; --h-margem: 4%; --h-margem-b: 9%; }
 .h-palco { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.h-textos { position: absolute; inset: 0; pointer-events: none; }
-.h-texto { position: absolute; left: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(var(--h-margem-b) + var(--h-seguro)); width: min(36vw, 700px); visibility: hidden; }
+.h-textos { position: absolute; left: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(var(--h-margem-b) + var(--h-seguro)); width: min(38vw, 760px); pointer-events: none; }
+.h-texto { position: absolute; left: 0; bottom: 0; width: 100%; visibility: hidden; }
 .h-titulo { font-family: var(--serif, "Instrument Serif", Georgia, serif); font-weight: 400; font-size: clamp(38px, 4.3vw, 92px); line-height: 1.0; letter-spacing: -0.012em; margin: 0 0 0.45em; text-wrap: balance; }
 .h-frase { margin: 0; font-size: clamp(16px, 1.25vw, 24px); line-height: 1.4; color: var(--h-apagado); max-width: 36ch; text-wrap: pretty; }
 .h-m { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0.12em 0.05em 0.22em; margin: -0.12em -0.05em -0.22em; }
@@ -1275,42 +1397,22 @@
 .h-progresso { position: absolute; left: calc(var(--h-margem) + var(--h-seguro)); right: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(clamp(18px, 3vh, 32px) + var(--h-seguro)); height: 1px; background: rgba(138, 138, 132, 0.28); pointer-events: none; }
 .h-progresso i { display: block; height: 100%; background: var(--h-tinta); transform-origin: 0 50%; transform: scaleX(0); }
 .h-cortina { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
-.h-controles { position: absolute; right: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(clamp(28px, 5vh, 48px) + var(--h-seguro)); display: flex; gap: 8px; }
-.h-controles button { background: transparent; color: var(--h-tinta); border: 1px solid rgba(138, 138, 132, 0.5); border-radius: 999px; min-width: 44px; height: 44px; padding: 0 12px; font-size: 18px; cursor: pointer; }
+.h-controles { position: absolute; right: calc(var(--h-margem) + var(--h-seguro)); bottom: calc(clamp(28px, 5vh, 48px) + var(--h-seguro)); display: none; gap: 8px; }
+.h-controles button { background: transparent; color: var(--h-tinta); border: 1px solid rgba(138, 138, 132, 0.5); border-radius: 999px; width: 44px; height: 44px; font-size: 18px; cursor: pointer; }
 .h-notas { position: absolute; left: calc(var(--h-margem) + var(--h-seguro)); right: calc(var(--h-margem) + var(--h-seguro)); top: calc(clamp(40px, 6vh, 72px) + var(--h-seguro));
   max-width: 980px; padding: 14px 18px; border-left: 2px solid #8A8A84; background: rgba(21, 21, 20, 0.92); color: #EDEDE8; font-size: 16px; line-height: 1.45; pointer-events: none; }
 .h-notas b { display: block; font-family: var(--mono, "Geist Mono", monospace); font-weight: 400; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8A84; margin-bottom: 6px; }
 .h-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .historia.miniatura .h-topo, .historia.miniatura .h-controles { display: none; }
 .historia.miniatura { container-type: inline-size; }
-.historia.miniatura .h-texto { width: 36%; }
+.historia.miniatura .h-textos { width: 38%; }
 .historia.miniatura .h-titulo { font-size: 3.6cqw; }
 .historia.miniatura .h-frase { font-size: 1.15cqw; }
+@media (pointer: coarse) { .historia:not(.miniatura) .h-controles { display: flex; } }
 @media (max-aspect-ratio: 11/10) {
+  .historia:not(.miniatura) .h-textos { right: calc(var(--h-margem) + var(--h-seguro)); width: auto; bottom: calc(110px + var(--h-seguro)); }
   .historia:not(.miniatura) .h-titulo { font-size: clamp(30px, 8.5vw, 64px); }
-}
-.h-texto[data-layout="panorama"] { top: calc(13vh + var(--h-seguro)); bottom: auto; width: 88%; max-width: 1320px; }
-.h-texto[data-layout="panorama"] .h-titulo { font-size: clamp(36px, 4.1vw, 82px); margin-bottom: 0.24em; }
-.h-texto[data-layout="panorama"] .h-frase { max-width: 78ch; }
-.h-experimento { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; pointer-events: auto; }
-.h-experimento button { font: inherit; font-size: 15px; padding: 10px 20px; border: 1px solid var(--h-apagado); border-radius: 999px; color: var(--h-tinta); background: transparent; cursor: pointer; }
-.h-experimento button[aria-pressed="true"] { background: var(--h-tinta); color: var(--h-fundo); }
-.historia button:focus-visible { outline: 2px solid var(--h-tinta); outline-offset: 4px; }
-.h-notas { overflow: auto; max-height: 60vh; pointer-events: auto; border-color: var(--h-tinta); }
-.h-notas p { margin: 8px 0 18px; }
-.h-notas b { margin-bottom: 4px; }
-.historia.miniatura .h-texto[data-layout="panorama"] { top: 13%; width: 88%; }
-.historia.miniatura .h-texto[data-layout="panorama"] .h-titulo { font-size: 3.9cqw; }
-@media (max-aspect-ratio: 11/10) {
-  .historia:not(.miniatura) .h-texto, .historia:not(.miniatura) .h-texto[data-layout="panorama"] { left: var(--h-margem); right: var(--h-margem); width: auto; top: auto; bottom: 115px; }
-  .historia:not(.miniatura) .h-texto[data-layout="panorama"] .h-titulo { font-size: clamp(30px, 8.5vw, 64px); }
-  .h-enf { white-space: normal; }
-  .h-topo { font-size: 10px; gap: 14px; }
-  .h-ilustra { text-align: right; }
-  .h-controles { left: var(--h-margem); right: auto; bottom: 44px; }
-}
-@media (prefers-reduced-motion: reduce) { .h-p { will-change: auto; } }
-`;
+}`;
 
   function injetarCSS() {
     if (typeof document === 'undefined' || document.getElementById('historia-css')) return;
@@ -1350,16 +1452,16 @@
     if (miniatura) el.classList.add('miniatura');
     if (!miniatura) { el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Como funciona'); el.tabIndex = -1; }
     el.innerHTML = `<canvas class="h-palco" aria-hidden="true"></canvas>
-<div class="h-textos"></div>
+<div class="h-textos" aria-hidden="true"></div>
 <div class="h-topo"><span class="h-cap"></span><span class="h-ilustra">Ilustração</span></div>
 <div class="h-progresso" aria-hidden="true"><i></i></div>
-<div class="h-controles"><button type="button" data-acao="repetir" aria-label="Repetir animação da cena">Repetir</button><button type="button" data-acao="anterior" aria-label="Cena anterior">←</button><button type="button" data-acao="proxima" aria-label="Próxima cena">→</button><button type="button" data-acao="fechar" aria-label="Fechar">✕</button></div>
+<div class="h-controles"><button type="button" data-acao="anterior" aria-label="Cena anterior">←</button><button type="button" data-acao="proxima" aria-label="Próxima cena">→</button><button type="button" data-acao="fechar" aria-label="Fechar">✕</button></div>
 <div class="h-notas" hidden></div>
 <div class="h-cortina" aria-hidden="true"></div>
 <div class="h-sr" aria-live="polite"></div>`;
     const cv = el.querySelector('.h-palco'), ctx = cv.getContext('2d');
     const elTextos = el.querySelector('.h-textos'), elCap = el.querySelector('.h-cap'), elIlustra = el.querySelector('.h-ilustra');
-    const elBarra = el.querySelector('.h-progresso i'), elCortina = el.querySelector('.h-cortina'), elSr = el.querySelector(':scope > .h-sr');
+    const elBarra = el.querySelector('.h-progresso i'), elCortina = el.querySelector('.h-cortina'), elSr = el.querySelector('.h-sr');
     const elNotas = el.querySelector('.h-notas');
 
     const temPose = (c) => Boolean(POSES[c.id]);
@@ -1368,7 +1470,6 @@
       T: 0, v: 0, alvo: 0, ultimo: 0, congelado: null, quadroPedido: false,
       rolando: null, direcao: 0, toque: null, corte: null, preto: false, anunciado: -1,
       cache: { tam: [0, 0] }, escala: 1, auto: null, notas: false, fonte: null, suave: { v: NaN },
-      cenaRelogio: null, cenaDesde: 0,
       anim: null,   // transição em andamento (setas, passador, apresentador, encaixe): { t0, de, para, D, m0 }
     };
     // Setas e passador: cada transição dura TRANSICAO_S segundos (ajustável no roteiro.js).
@@ -1379,16 +1480,26 @@
 
     // A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação): nunca "ao vivo" com dado simulado.
     function fonteAtual() { const dv = dadosVivos(); return (dv && dv.fonte) || null; }
-    const conteudoDe = (c) => roteiro.conteudo(c, fonteAtual());
-    const tituloDe = (c) => conteudoDe(c).titulo;
-    const fraseDe = (c) => conteudoDe(c).frase;
+    function tituloDe(c) {
+      if (c.id !== 'aovivo') return c.titulo;
+      const f = fonteAtual();
+      return (f === 'sim' && c.tituloSimulacao) || (f === 'replay' && c.tituloGravacao) || (!f && c.tituloSemFonte) || c.titulo;
+    }
+    // Resultados: só com os números do avaliar.py (acerto por coleta e o chute ao lado); senão, a frase de espera.
+    // Viabilidade: o preço só aparece se o grupo preencher CUSTO no roteiro.
+    function fraseDe(c) {
+      if (c.fraseComCusto && typeof roteiro.CUSTO === 'string' && roteiro.CUSTO.trim()) return c.fraseComCusto.replace('{custo}', roteiro.CUSTO.trim());
+      const R = roteiro.RESULTADOS;
+      if (c.id !== 'resultados' || !c.fraseComResultados || !R || typeof R.acerto !== 'number' || typeof R.chute !== 'number') return c.frase;
+      const pct = (x) => `${Math.round(x * 100)}%`;
+      return c.fraseComResultados.replace('{coletas}', String(R.coletas ?? '')).replace('{acerto}', pct(R.acerto)).replace('{chute}', pct(R.chute));
+    }
     function montarTextos() {
       st.ordem = ordemDa(roteiro.cenas, st.versao, temPose);
       st.fonte = fonteAtual();
       elTextos.innerHTML = st.ordem.map((id) => {
         const c = roteiro.cenas.find((x) => x.id === id);
-        const botoes = !miniatura && id === 'aovivo' && st.fonte === 'sim' ? '<div class="h-experimento"><button type="button" data-acao="mover" aria-pressed="false">Mover</button><button type="button" data-acao="parar" aria-pressed="false">Parar</button><span class="h-sr">Controles de movimento simulado</span></div>' : '';
-        return `<div class="h-texto" data-id="${id}" data-layout="${c.layout || 'lateral'}"><h2 class="h-titulo">${palavras(tituloDe(c))}</h2><p class="h-frase">${palavras(fraseDe(c))}</p>${botoes}</div>`;
+        return `<div class="h-texto" data-id="${id}"><h2 class="h-titulo">${palavras(tituloDe(c))}</h2><p class="h-frase">${palavras(fraseDe(c))}</p></div>`;
       }).join('');
       st.blocos = [...elTextos.children].map((b) => ({
         el: b, tit: [...b.querySelectorAll('.h-titulo .h-p')], fra: [...b.querySelectorAll('.h-frase .h-p')], vis: null, ult: new Map(),
@@ -1412,12 +1523,10 @@
 
     function geometria(W, H, dpr) {
       const seguro = (st.cache.seguro || 0) * dpr;
-      const prm = poseEm(st.T, st.ordem, POSES, PADROES);
-      const layout = prm.composicao || LATERAL;
       let fx, fy, fw, fh;
-      if (W / H > 1.1) { fx = W * layout.x; fy = H * layout.y + seguro; fw = W * layout.w - seguro; fh = H * layout.h - seguro; }
+      if (W / H > 1.1) { fx = W * 0.43; fy = H * 0.11; fw = W * 0.52 - seguro; fh = H * 0.66; }
       else { fx = W * 0.06; fy = H * 0.08 + seguro; fw = W * 0.88; fh = H * 0.42; }
-      const prop = W / H > 1.1 ? layout.prop : 1.45, bw = Math.min(fw, fh * prop), bh = bw / prop;
+      const prop = 1.45, bw = Math.min(fw, fh * prop), bh = bw / prop;
       const bx = fx + (fw - bw) / 2, by = fy + (fh - bh) / 2;
       return { bx, by, bw, bh, dpr, X: (u) => bx + u * bw, Y: (v) => by + v * bh, serif: st.cache.serif || 'Georgia, serif', sans: st.cache.sans || 'system-ui, sans-serif' };
     }
@@ -1467,15 +1576,12 @@
       const prm = poseEm(st.T, st.ordem, POSES, PADROES);
       // o sinal de verdade (placas, simulação ou gravação), quando a página principal passa um
       const dv = dadosVivos();
-      const indiceVisual = Math.min(ultimaCena(), prm._i + (prm._u >= 0.5 ? 1 : 0));
-      if (st.cenaRelogio !== st.ordem[indiceVisual]) { st.cenaRelogio = st.ordem[indiceVisual]; st.cenaDesde = agora; }
-      const ex = { tempoCena: Math.max(0, agora - st.cenaDesde), reduz: Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
-        cenaDe: st.ordem[prm._i], cenaPara: st.ordem[Math.min(ultimaCena(), prm._i + 1)], vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), resultados: roteiro.RESULTADOS, suave: st.suave };
+      const ex = { vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), resultados: roteiro.RESULTADOS, suave: st.suave };
       // Do número de exemplo para o sinal de verdade: uma linha varre da esquerda para a direita; à esquerda
       // dela já é o sinal das placas, à direita ainda é a ilustração (só quando o layout é o mesmo).
       const varre = prm.vivo && prm.vivo.dir === 1 && prm.medidor && prm.medidor.dir === -1 && prm.pilha ? curvas.suave(prm.vivo.lin) : null;
       ex.varredura = varre === null ? null : G.X(-0.02 + 1.04 * varre);
-      if (fonteAtual() !== st.fonte) { montarTextos(); st.anunciado = -1; if (st.notas) mostrarNotas(); }
+      if (fonteAtual() !== st.fonte) { montarTextos(); }
       let sintetica = 0;
       for (const nome of Object.keys(CAMADAS)) {
         const q = prm[nome];
@@ -1513,10 +1619,6 @@
       if (elIlustra.textContent !== etiqueta) elIlustra.textContent = etiqueta;
       const forca = Math.max(vivo, sintetica);
       elIlustra.style.opacity = forca > 0.05 ? String(limitar(forca * 1.5)) : '0';
-      el.querySelectorAll('.h-experimento button').forEach((b) => {
-        const ativo = dv && dv.cenaSim === (b.dataset.acao === 'mover' ? 'andando' : 'parado');
-        b.setAttribute('aria-pressed', String(Boolean(ativo)));
-      });
       textos(prm._i, prm._u);
       // capítulo: troca no meio da transição, com fade
       const ci = cena(prm._i), cj = cena(Math.min(prm._i + 1, ultimaCena()));
@@ -1571,9 +1673,8 @@
     }
 
     function mostrarNotas() {
-      const i = Math.round(st.T), c = cena(i), fala = conteudoDe(c);
-      elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(semMarcas(fala.titulo))}</b>` +
-        ['diga', 'faca', 'conecte'].map((k) => `<b>${{ diga: 'Diga', faca: 'Faça e espere', conecte: 'Conecte' }[k]}</b><p>${escapar(fala[k])}</p>`).join('');
+      const i = Math.round(destino()), c = cena(i);
+      elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(semMarcas(tituloDe(c)))}</b>${escapar(c.notas || '')}`;
     }
 
     function laco() {
@@ -1639,7 +1740,7 @@
       if (opcoes.aoInteragir) opcoes.aoInteragir();
     }
     function tocar(e) {
-      if (e.pointerType === 'mouse' || e.target.closest('button, .h-notas')) return;
+      if (e.pointerType === 'mouse') return;
       if (e.type === 'pointerdown') { st.toque = { y: e.clientY, x: e.clientX, mexeu: false }; return; }
       if (!st.toque) return;
       if (e.type === 'pointermove') {
@@ -1656,15 +1757,14 @@
     }
     function clique(e) {
       const b = e.target.closest('button');
-      if (b) { const a = b.dataset.acao; if (a === 'repetir') { st.cenaDesde = relogio(); } else if (a === 'mover' || a === 'parar') { if (fonteAtual() === 'sim' && opcoes.aoSimular) opcoes.aoSimular(a === 'mover' ? 'andando' : 'parado'); } else if (a === 'anterior') anterior(); else if (a === 'proxima') proxima(); else if (a === 'fechar') opcoes.aoFechar && opcoes.aoFechar(); }
-      else if (!st.toque && !e.target.closest('.h-notas')) proxima();
+      if (b) { const a = b.dataset.acao; if (a === 'anterior') anterior(); else if (a === 'proxima') proxima(); else if (a === 'fechar') opcoes.aoFechar && opcoes.aoFechar(); }
+      else if (!st.toque) proxima();
       if (opcoes.aoInteragir) opcoes.aoInteragir();
     }
     // Devolve true se a tecla foi usada pela história (aí o resto da página não deve tratá-la).
     function tecla(e) {
       if (!st.aberta || miniatura || e.ctrlKey || e.metaKey || e.altKey) return false;
       const k = e.key;
-      if (e.target.closest && e.target.closest('button, .h-notas') && (k === ' ' || k === 'Enter')) return false;
       const nav = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ' ': 1, Enter: 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 };
       if (k in nav || k === 'Home' || k === 'End' || k === 'F5' || k === '.' || k === 'b' || k === 'B') {
         e.preventDefault();
@@ -1689,7 +1789,7 @@
 
     function estado() {
       const i = Math.round(destino());
-      return { indiceVisivel: Math.round(st.T), cenaVisivel: st.ordem[Math.round(st.T)], cenaSim: (dadosVivos() || {}).cenaSim, aberta: st.aberta, versao: st.versao, ordem: st.ordem.slice(), indice: i, cenaId: st.ordem[i], T: st.T, alvo: st.alvo, preto: st.preto, auto: Boolean(st.auto), notas: st.notas };
+      return { aberta: st.aberta, versao: st.versao, ordem: st.ordem.slice(), indice: i, cenaId: st.ordem[i], T: st.T, alvo: st.alvo, preto: st.preto, auto: Boolean(st.auto), notas: st.notas };
     }
 
     montarTextos();
@@ -1728,7 +1828,6 @@
         return { x: r.x + b.x, y: r.y + b.y, w: r.w, h: r.h, real: ehReal };
       },
       preto(sim) { st.preto = sim === undefined ? !st.preto : Boolean(sim); },
-      repetir() { st.cenaDesde = relogio(); },
       notas(sim) { st.notas = sim === undefined ? !st.notas : Boolean(sim); elNotas.hidden = !st.notas; if (st.notas) mostrarNotas(); return st.notas; },
       tecla, proxima, anterior, irPara, irParaId, versao, estado,
       // ganchos para testes e para gravar vídeo quadro a quadro

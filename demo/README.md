@@ -12,8 +12,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `index.html`: a tela.
 - `nucleo.js`: leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`.
 - `roteiro.js`: os textos da apresentação "Como funciona" e a fala de cada cena. **Só texto: o grupo pode editar.**
-- `historia.js`: o palco, a navegação e as curvas de movimento da apresentação.
-- `cenas.js`: as novas composições e animações didáticas (rádio, mistura, CSI, calibração e memória).
+- `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
@@ -94,18 +93,38 @@ Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-F
 
 ## Apresentação "Como funciona" (tecla `H`)
 
-Uma narrativa em 13 cenas: pergunta → mensagem de rádio → caminhos → soma das ondas → CSI → memória → calibração → previsão interativa → plano de experimento → limites → aplicação futura → privacidade → Travessia.
+Uma história em motion design que explica o projeto, para passar na TV do estande. Não são slides: cada desenho se transforma no próximo (o roteador vira a placa A, as barras viram a primeira linha, a pessoa caída se levanta dentro da casa...).
 
-- **Navegar:** setas, Espaço, PageUp/PageDown, passador, rolagem ou toque. O motor de transição continua com as mesmas curvas e duração de 2,6 s. Repetir reinicia a animação didática da cena atual.
-- **Versões (V):** completa com 13 cenas, duração de fala sugerida de 5:35; curta com 11 cenas, 3:45. A curta preserva toda a explicação do sinal até a detecção. Ensaiar também as pausas e as transições.
-- **Colinha (P):** Diga / Faça e espere / Conecte; respostas técnicas em Se perguntarem. A miniatura é ilustrativa e não recebe os dados da TV. Para montar: abrir P, mover a página principal para a TV e então apertar F.
-- **Demonstração:** na simulação, Mover e Parar controlam o simulador existente, pela TV ou pela colinha. Com placas ou gravação, esses botões não aparecem. As falas mudam conforme a fonte.
-- **B ou .:** tela preta. Esc fecha. Home/End: primeira/última cena.
-- **Vitrine:** mantém a versão curta automática após 45 s de calma, pulando a demonstração interativa; pausa com o apresentador conectado.
+- **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
+- **Duas versões** (tecla `V`): **completa**, com 17 cenas, para o avaliador (5 a 7 min), e **curta**, com 11 cenas, para visitantes (cerca de 3 min).
+- **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a fala de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
+  - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
+  - Se o navegador bloquear a janela, a fala aparece numa faixa na própria tela.
+- `B` ou `.` deixa a tela preta (o botão de "tela preta" do passador). `Esc` fecha. `Home`/`End` vão para a primeira e a última cena.
+- **Modo vitrine:** depois de 45 s sem movimento, a versão curta passa sozinha (6 s por cena) e some no primeiro movimento. Ela pula as cenas "ao vivo" e "resultados" e fica desligada enquanto a janela do apresentador estiver aberta.
 
-**Dados e estágio:** hoje o projeto está em simulação. Os diagramas são ilustrações; o encerramento usa dados ilustrativos, transformando linhas em anéis. A demonstração mostra a fonte ativa e sua etiqueta. Coletas, resultados e reconhecimento de quedas são próximos passos, sem porcentagens inventadas. CSI não é uma imagem da pessoa; as posições nulas/ inválidas do vetor são descartadas.
+**Honestidade dos dados:**
+- As cenas que explicam (linhas, barras, número de exemplo, gravações) usam **dados sintéticos** do mesmo modelo da simulação, com semente fixa. Sempre que eles aparecem, o canto de cima mostra "Ilustração".
+- A cena "ao vivo" e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem: "Agora com o sinal das placas." (Placa USB), "Agora na simulação." ou "Agora com uma gravação.".
+- A cena de resultados só mostra números quando alguém preencher `RESULTADOS` no `roteiro.js` com o resultado do `ferramentas/avaliar.py` (por coleta, com o chute ao lado). Até lá ela diz que as gravações ainda estão sendo feitas.
 
-**Editar:** títulos, frases, tempos e colinha ficam em roteiro.js. O campo layout alterna composições lateral e panorama. Não mudar os IDs sem alterar também as poses em historia.js. Um trecho entre asteriscos no título recebe sublinhado. Desenhos ficam em cenas.js; a memória guarda cada leitura e só muda sua posição ao subir. Preferência por movimento reduzido deixa os diagramas no estado final.
+**Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.
+
+**Palavra-chave:** no título, o trecho entre `*asteriscos*` é sublinhado na tela depois que o título aparece (por exemplo `'O sinal chega por *vários caminhos*.'`). No máximo um trecho por título; a janela do apresentador mostra o texto sem os asteriscos.
+
+**Como o movimento foi feito** (para quem for mexer no `historia.js`):
+- Curvas de aceleração como as do After Effects (Bézier): o que entra chega rápido e assenta devagar, o que sai acelera.
+- O que entra desenhando sai desdesenhando (casa, notebook, sala, câmera); o número e as linhas saem subindo um pouco, como o texto.
+- Passagens que mostram a causa:
+  - o roteador vira a placa A;
+  - os caminhos do sinal são puxados para dentro da placa B e viram as 64 barras;
+  - as gravações de teste se empilham dentro da barra do resultado;
+  - uma linha varre a tela e troca o exemplo pelo sinal de verdade.
+- A placa ESP32 é desenhada como a DevKit do estande (módulo com antena, pinos, USB) e o LED pisca quando a mensagem sai de A e chega em B.
+
+**Velocidade:** cada passagem de cena dura `transicao` segundos (no `roteiro.js`, hoje 2,6). A animação começa assim que a tecla é apertada; apertar de novo no meio continua sem tranco, e um salto de mais de uma cena e meia vira um corte rápido.
+
+**Preço das placas:** preencha `CUSTO` no `roteiro.js` (por exemplo `'R$ 90'`) para a cena "Dá para montar com pouco." falar o valor. Sem isso, ela não fala de preço.
 
 ## Controles
 

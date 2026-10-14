@@ -321,7 +321,6 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 
 <script src="nucleo.js"></script>
 <script src="roteiro.js"></script>
-<script src="cenas.js"></script>
 <script src="historia.js"></script>
 <script src="passagem.js"></script>
 <script>
@@ -1149,10 +1148,9 @@ historia = WaveHistoria.criarPalco({
   aoInteragir: () => { como.automatico = false; historia.pararAuto(); },   // mexeu na história: a vitrine para de mandar nela
   aoMudar: () => enviarEstadoHistoria(),
   aoApresentador: () => abrirApresentador(),
-  aoSimular: (id) => escolherCena(id),
-  // A demonstração mostra a fonte ativa, com controles disponíveis somente para simulação.
+  // a cena "ao vivo" e a última mostram o sinal de verdade (placas, simulação ou gravação, com a etiqueta certa)
   dadosVivos: () => ({
-    fonte: app.fonte, cenaSim: sim.cena, leituras: app.leituras, frac: Math.min(1, (performance.now() / 1000 - app.ultimaLeitura) / LEITURA_S),
+    fonte: app.fonte, leituras: app.leituras, frac: Math.min(1, (performance.now() / 1000 - app.ultimaLeitura) / LEITURA_S),
     osc: app.oscAtual, base: app.base, limiar: app.limiar, detectado: app.detectado,
     historico: app.historico, historicoDet: app.historicoDet, calibrando: Boolean(app.calibracao),
   }),
@@ -1172,8 +1170,6 @@ const canalHistoria = WaveHistoria.criarCanal('palco', (msg) => {
       else if (msg.acao === 'ir') historia.irParaId(msg.cenaId);
       else if (msg.acao === 'versao') historia.versao(msg.versao);
       else if (msg.acao === 'preto') historia.preto();
-      else if (msg.acao === 'repetir') historia.repetir();
-      else if (msg.acao === 'simular' && app.fonte === 'sim' && historia.estado().cenaVisivel === 'aovivo' && ['andando', 'parado'].includes(msg.cenaSim)) escolherCena(msg.cenaSim);
     });
   }
   enviarEstadoHistoria();

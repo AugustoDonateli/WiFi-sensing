@@ -13,7 +13,7 @@ DEMO = Path(__file__).resolve().parents[2] / "demo"
 NODE = shutil.which("node")
 
 SCRIPT = r"""
-const H = require(process.argv[1] + '/historia.js'), R = require(process.argv[1] + '/roteiro.js'), C = require(process.argv[1] + '/cenas.js');
+const H = require(process.argv[1] + '/historia.js'), R = require(process.argv[1] + '/roteiro.js');
 const out = {};
 // mola: chega exatamente no alvo e não passa dele
 let x = 0, v = 0, maior = 0, passos = 0;
@@ -43,11 +43,11 @@ out.transicao = {
 out.direcional = [H.alvoDirecional(2.2, 1), H.alvoDirecional(2.1, 1), H.alvoDirecional(2.9, -1), H.alvoDirecional(2.8, -1), H.alvoDirecional(3, 1)];
 out.curta = H.ordemDa(R.cenas, 'curta');
 out.completa = H.ordemDa(R.cenas, 'completa');
-out.remap = [H.remapear('acorde', R.cenas, 'curta'), H.remapear('mensagem', R.cenas, 'curta'), H.remapear('metodo', R.cenas, 'curta'), H.remapear('aplicacao', R.cenas, 'curta')];
+out.remap = [H.remapear('acorde', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('resultados', R.cenas, 'curta'), H.remapear('viabilidade', R.cenas, 'curta')];
 const a = H.sinteticas(7, 30), b = H.sinteticas(7, 30), c = H.sinteticas(8, 30);
 out.semente = { iguais: a.parado[20].a[10] === b.parado[20].a[10] && a.mexendo[25].a[40] === b.mexendo[25].a[40], diferentes: a.parado[20].a[10] !== c.parado[20].a[10] };
 // perto de cada cena inteira nada se mexe (±0,12)
-const ordem = ['mistura', 'acorde', 'linhas'], pad = Object.fromEntries(Object.entries(H.CAMADAS).map(([k, v]) => [k, v.padrao]));
+const ordem = ['placas', 'acorde', 'linhas'], pad = Object.fromEntries(Object.entries(H.CAMADAS).map(([k, v]) => [k, v.padrao]));
 const p1 = H.poseEm(1, ordem, H.POSES, pad), p2 = H.poseEm(1.1, ordem, H.POSES, pad), p0 = H.poseEm(0.9, ordem, H.POSES, pad);
 // compara só o que aparece: camadas com presença > 0, números arredondados, sem a direção e o progresso da animação
 const limpo = (p) => JSON.stringify(Object.fromEntries(Object.entries(p).filter(([k, q]) => !k.startsWith('_') && q.p > 1e-6)
@@ -74,13 +74,6 @@ for (const v of ['completa', 'curta']) {
 out.revela = [H.revelacao(0, 0, 5, 0.5, 0.9), H.revelacao(1, 4, 5, 0.5, 0.9), H.revelacao(0.7, 0, 5, 0.5, 0.9) > H.revelacao(0.7, 4, 5, 0.5, 0.9)];
 out.ids = R.cenas.map((c) => c.id);
 out.semPose = R.cenas.filter((c) => !H.POSES[c.id]).map((c) => c.id);
-// A mesma leitura mantém seus valores ao subir: só a idade e a posição mudam.
-const antes = C.memoria(5.6), depois = C.memoria(6.2);
-out.memoria = antes.linhas.filter(l => depois.linhas.some(d => d.indice === l.indice)).every(l =>
-  JSON.stringify(l.a) === JSON.stringify(depois.linhas.find(d => d.indice === l.indice).a));
-out.onda = { reforco: C.soma(Math.PI / 2, 0), cancelamento: C.soma(Math.PI / 2, Math.PI) };
-const demo = R.cenas.find(c => c.id === 'aovivo');
-out.falasFonte = ['sim', 'replay', 'live', null].map(f => R.conteudo(demo, f));
 console.log(JSON.stringify(out));
 """
 
@@ -89,7 +82,7 @@ console.log(JSON.stringify(out));
 class TestHistoria(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        r = subprocess.run([NODE, "-e", SCRIPT, str(DEMO)], capture_output=True, text=True, encoding="utf-8", timeout=60)
+        r = subprocess.run([NODE, "-e", SCRIPT, str(DEMO)], capture_output=True, text=True, timeout=60)
         if r.returncode != 0:
             raise AssertionError(r.stderr)
         cls.r = json.loads(r.stdout)
@@ -132,26 +125,7 @@ class TestHistoria(unittest.TestCase):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
         self.assertEqual(len(self.r["curta"]), 11)
         self.assertEqual(self.r["curta"][0], "abertura")
-        self.assertEqual(self.r["remap"], ["acorde", "mensagem", "limites", "privacidade"])
-        for id in ("mensagem", "caminhos", "mistura", "acorde", "linhas", "calibracao"):
-            self.assertIn(id, self.r["curta"])  # a versão curta ainda explica a cadeia causal
-
-    def test_todas_as_cenas_tem_composicao(self):
-        self.assertEqual(self.r["semPose"], [])
-
-    def test_memoria_preserva_leituras_anteriores(self):
-        self.assertTrue(self.r["memoria"])
-
-    def test_soma_de_ondas_reforca_e_cancela(self):
-        self.assertAlmostEqual(self.r["onda"]["reforco"], 2)
-        self.assertAlmostEqual(self.r["onda"]["cancelamento"], 0)
-
-    def test_colinha_depende_da_fonte(self):
-        sim, replay, live, vazio = self.r["falasFonte"]
-        self.assertIn("simulação", sim["diga"])
-        self.assertIn("gravação", replay["diga"])
-        self.assertIn("placas", live["faca"])
-        self.assertIn("sem uma fonte", vazio["diga"])
+        self.assertEqual(self.r["remap"], ["linhas", "placas", "parado", "usos"])
 
     def test_dados_de_ilustracao_deterministicos(self):
         self.assertTrue(self.r["semente"]["iguais"])
