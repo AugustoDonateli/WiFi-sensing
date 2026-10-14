@@ -56,7 +56,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - todas tinham 32 anéis.
   - **Agora** (`demo/marca.js`):
     - miolo cinza = contagem;
-    - um anel por leitura da travessia;
+    - a travessia enche o disco com 28 a 64 anéis próximos (na primeira versão era um anel por leitura, mas quem era pego cedo ficava com 2 anéis enormes e tortos; o grupo preferiu a harmonia da marca antiga);
     - entorte na escala da sala vazia (0 = sala vazia, 1 = limite);
     - anel grosso = instante da detecção.
   - **Textos como registro de leitura**, escolha do grupo: "Não detectado." / "Detectado aos 0,6 s.", com pico de tremor e limite, e "Registro Nº 003 · data · hora". Se o tremor passou do limite por um instante sem o detector confirmar, o texto diz isso, em vez de "abaixo do limite o tempo todo".

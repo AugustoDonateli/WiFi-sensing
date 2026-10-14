@@ -30,6 +30,7 @@ out.quieto = { miolo: quieto.miolo.length, linhas: quieto.linhas.length, pico: q
 out.longo = { linhas: longo.linhas.length, miolo: longo.miolo.length };
 const gq = M.geometria(quieto, 100), gp = M.geometria(pego, 100);
 out.gq = gq.map((a) => ({ raio: a.raio, amp: a.amp, tipo: a.tipo, giro: a.giro }));
+out.gl = M.geometria(longo, 100).map((a) => ({ raio: a.raio, amp: a.amp, tipo: a.tipo, giro: a.giro }));
 out.gp = gp.map((a) => ({ raio: a.raio, amp: a.amp, tipo: a.tipo, giro: a.giro }));
 out.relevoFecha = (() => { const r = M.relevo(l(3, 'correndo', 7)); return [r[0], r[r.length - 1]]; })();
 out.textos = {
@@ -65,13 +66,21 @@ class TestMarca(unittest.TestCase):
 
     def test_escala_fixa_quem_passou_quieto_fica_liso(self):
         # o problema da marca antiga: quem passou sem ser percebido ficava com a marca mais torta
-        quieto = [a for a in self.o["gq"] if a["tipo"] != "miolo"]
-        pego = [a for a in self.o["gp"] if a["tipo"] != "miolo"]
-        rel_q = max(a["amp"] / (a["raio"] - quieto[i - 1]["raio"] if i else 1) for i, a in enumerate(quieto) if i)
-        rel_p = max(a["amp"] / (a["raio"] - pego[i - 1]["raio"]) for i, a in enumerate(pego) if i)
-        self.assertLess(rel_q, 0.5)              # entorte menor que metade do espaço entre anéis
-        self.assertGreater(rel_p, rel_q * 3)
-        self.assertTrue(all(a["giro"] == 0 for a in quieto))
+        def razoes(g):
+            t = [a for a in g if a["tipo"] != "miolo"]
+            return [a["amp"] / (a["raio"] - t[i - 1]["raio"]) for i, a in enumerate(t) if i]
+        quieto, pego = razoes(self.o["gq"]), razoes(self.o["gp"])
+        self.assertLess(max(quieto), 0.45)       # entorte bem menor que o vão entre anéis
+        self.assertGreater(max(pego), 0.9)
+        self.assertLessEqual(max(pego), 2.4)     # mas sem virar rabisco
+        self.assertLess(max(a["giro"] for a in self.o["gq"]), 0.5)
+
+    def test_disco_sempre_cheio(self):
+        # travessia curta (6 leituras) ou longa (90): sempre entre 28 e 64 anéis de travessia
+        for g in (self.o["gp"], self.o["gq"], self.o["gl"]):
+            n = len([a for a in g if a["tipo"] != "miolo"])
+            self.assertGreaterEqual(n, 28)
+            self.assertLessEqual(n, 64)
 
     def test_aneis_de_dentro_para_fora_e_dentro_do_raio(self):
         for g in (self.o["gq"], self.o["gp"]):

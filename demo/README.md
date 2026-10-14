@@ -54,7 +54,7 @@ Pouca letra pequena: só o nome do projeto, o botão Operador, uma linha embaixo
 - **Contador do dia** (no topo): quantos movimentos foram detectados. A simulação conta separado e aparece como "na simulação".
 - **Marca de cada visitante** (`marca.js`): na Travessia, as leituras viram uma marca em anéis, como anéis de árvore.
   - Os 3 s de contagem (parado na partida) viram o miolo, em cinza.
-  - Cada leitura da travessia (0,1 s) vira um anel, de dentro para fora: travessia longa, mais anéis (até 90).
+  - A travessia vira os anéis de fora, do começo (dentro) ao fim (borda). O disco sempre fica cheio, com 28 a 64 anéis próximos: travessia curta tem as leituras interpoladas; longa, amostradas. Momentos de mais tremor deixam anéis mais largos.
   - O quanto o anel entorta vem do tremor daquele instante, na escala da sala vazia: abaixo do limite, quase liso; acima, torto. Quem passou sem ser detectado deixa anéis lisos e apertados; quem foi pego cedo, poucos anéis, largos e tortos.
   - Se o Wi-Fi detectou, o último anel é grosso: o instante da detecção.
   - No resultado, a marca **se forma na frente da pessoa**: cada linha aparece reta e se fecha no seu anel.
