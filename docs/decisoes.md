@@ -81,6 +81,26 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Citar no pôster e na apresentação o resultado **por coleta**, sempre ao lado do "chute" (responder sempre a classe mais comum).
 - Classificador (Random Forest) só depois de o detector funcionar com dados reais, e só se sobrar tempo.
 
+### Primeiros testes com as placas (15/10/2026, em casa, sessão S0)
+- **Funcionou de ponta a ponta:** as duas placas gravadas, linhas `CSI_DATA` chegando, site mostrando o sinal real e coletas salvas. O `len` veio **384**, como previsto pela documentação.
+- **Antenas:** com as antenas viradas uma para a outra, o RSSI a 1,5 m passou de -80 para -67 dBm.
+- **Perda de pacotes, duas causas:**
+  - **O cabo tem teto.** Cada linha tem ~1.280 letras e a 921600 baud cabem ~92 mil letras por segundo: no máximo **~72 linhas por segundo**. A placa A mandava ~91/s. Enquanto a placa B escreve uma linha (~14 ms), o pacote seguinte se perde.
+  - **O roteador de casa estava ao lado da placa B.** A B escuta todos os pacotes do canal; com muito tráfego, chegou a 42/s.
+  - Os buracos eram quase todos de 1 ou 2 pacotes, espalhados: placa ocupada, não sinal ruim no ar.
+- **Decisão: placa A em 50 pacotes por segundo** (`CONFIG_SEND_FREQUENCY 50` no `csi_send/main/app_main.c`), abaixo do teto do cabo. 50/s sobra para detectar movimento: o detector pede no mínimo 10 por janela de 1 s. Todas as coletas S1 em diante com 50/s, e placas **longe do roteador**.
+- **Detector: cada pacote é levado ao volume médio da janela antes de medir a oscilação** (`normalizar_volume` no `detector.py`, `volume` no `nucleo.js`).
+  - **Por quê:** a placa B tem ganho automático, que sobe e desce o volume do pacote inteiro. Nos chips mais novos o exemplo oficial corrige isso (`esp_csi_gain_ctrl`), mas **no ESP32 não**. Com a sala vazia, a oscilação pulava entre 0,8 e 4,8 sozinha, e a calibração punha o limiar alto demais.
+  - **Medido nas 3 coletas S0** (1 vazio perto, 1 andando perto, 1 andando com parede a 3,75 m):
+
+    | | Oscilação típica (vazio / andando perto / andando parede) | Andando detectado (perto / parede) | Vazio marcado como movimento |
+    |---|---|---|---|
+    | Antes | 1,49 / 3,44 / 4,83 | 5% / 11% | 0% |
+    | Depois | 0,40 / 1,27 / 1,40 | 97% / 98% | 10% |
+
+  - **Não é resultado:** é 1 coleta de cada, com a placa perdendo metade dos pacotes, e o limiar foi calibrado e conferido nas mesmas coletas. Serve para escolher o método; o número de acertos vem da S2.
+  - A simulação do site continua separando as cenas do mesmo jeito (conferido).
+
 ### Site no Vercel (aprovado)
 - A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.
 - O site não guarda nada em servidor; recordes e marcas ficam no navegador de cada aparelho.

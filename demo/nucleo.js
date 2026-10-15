@@ -36,22 +36,39 @@
     return { id, rssi, amps };
   }
 
+  // Volume de um pacote: a amplitude média (as subportadoras ignoradas contam como zero).
+  function volume(amps) {
+    let s = 0;
+    for (let k = 0; k < amps.length; k++) if (!IGNORAR.includes(k)) s += amps[k];
+    return s / amps.length;
+  }
+
   // Oscilação de uma janela: desvio padrão de cada subportadora útil, média entre elas.
+  // Antes, cada pacote é levado ao volume médio da janela: o ganho automático da placa B
+  // sobe e desce o volume de tudo de uma vez, pacote a pacote, e isso não é movimento
+  // (no ESP32 o exemplo oficial não corrige o ganho; testado com as coletas S0 de 15/10).
   function oscilacao(pacotes) {
     if (pacotes.length < MIN_PACOTES) return NaN;
     const K = pacotes[pacotes.length - 1].amps.length;
-    const ps = pacotes.filter((p) => p.amps.length === K);
+    const ps = [], vols = [];
+    for (const p of pacotes) {
+      if (p.amps.length !== K) continue;
+      const v = volume(p.amps);
+      if (v > 0) { ps.push(p); vols.push(v); }
+    }
     const n = ps.length;
     if (n < MIN_PACOTES) return NaN;
+    const ref = vols.reduce((s, v) => s + v, 0) / n;
+    const esc = vols.map((v) => ref / v);
     let soma = 0, cont = 0;
     for (let k = 0; k < K; k++) {
       if (IGNORAR.includes(k)) continue;
       let m = 0;
-      for (const p of ps) m += p.amps[k];
+      for (let i = 0; i < n; i++) m += ps[i].amps[k] * esc[i];
       m /= n;
       if (m < 0.5) continue;                    // subportadora nula
       let v = 0;
-      for (const p of ps) { const d = p.amps[k] - m; v += d * d; }
+      for (let i = 0; i < n; i++) { const d = ps[i].amps[k] * esc[i] - m; v += d * d; }
       soma += Math.sqrt(v / n);
       cont++;
     }

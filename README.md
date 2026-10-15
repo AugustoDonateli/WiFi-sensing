@@ -5,13 +5,13 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 ## Status
 
 - [ ] Inscrição na JACITEC enviada
-- [ ] Placas compradas (decidido: 2× ESP32 DevKit USB-C/CP2102)
-- [ ] Placas recebidas
-- [ ] ESP-IDF v5.5.5 instalado no Windows (`idf.py --version` funcionando)
-- [ ] Exemplos `csi_send` e `csi_recv` compilados no Windows (sem placa)
+- [x] Placas compradas (2× ESP32 DevKit USB-C/CP2102)
+- [x] Placas recebidas
+- [x] ESP-IDF v5.5.5 instalado no Windows (`idf.py --version` funcionando)
+- [x] Exemplos `csi_send` e `csi_recv` compilados no Windows (15/10)
   - Já verificado no ambiente da IA: os dois compilam com ESP-IDF v5.5.5 para `esp32` (Linux, 13/10)
-- [ ] Firmware gravado nas duas placas
-- [ ] Primeira captura de CSI salva em arquivo
+- [x] Firmware gravado nas duas placas (15/10; placa A vai para 50 pacotes/s)
+- [x] Primeira captura de CSI salva em arquivo (15/10, sessão S0 de teste em casa)
 - [ ] Script Python lendo e plotando o CSI de uma coleta real
   - Ferramentas prontas e testadas sem placa: `ferramentas/` (captura, leitura do formato, gráficos, detector, avaliação, classificador, pôster)
 - [ ] Coletas: vazio / pessoa parada / pessoa caminhando

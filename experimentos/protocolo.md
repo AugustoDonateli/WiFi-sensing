@@ -5,6 +5,9 @@ Rascunho para a primeira sessão. Os números (duração, repetições) são pon
 ## Antes de cada sessão
 
 1. Montar as placas paradas, na mesma altura, a mais de 1 m uma da outra (recomendação da Espressif).
+   - Antenas (a ponta com o zigue-zague dourado, do lado oposto ao USB) viradas uma para a outra.
+   - Longe do roteador e de aparelhos usando Wi-Fi (em 15/10, o roteador ao lado da placa B fez metade dos pacotes se perder).
+   - Placa A gravada com **50 pacotes por segundo** (ver `docs/decisoes.md`, 15/10). Anotar no `--obs`.
 2. Marcar com fita no chão a posição das placas, da mesa e da área onde a pessoa anda.
 3. Tirar uma foto da montagem e anotar a distância entre as placas.
 4. Dar um código para a sessão (S1, S2...) e usar em todas as coletas dela, com `--sessao S1`.
@@ -29,7 +32,7 @@ Depois, se a primeira etapa funcionar: `sentar_levantar` e `queda_simulada` (sem
 Comando, no "ESP-IDF PowerShell":
 
 ```
-python ferramentas/capturar.py --porta COM3 --sessao S1 --rotulo andando --duracao 30 --participante P1 --distancia 2 --parede nao
+python ferramentas/capturar.py --porta COM3 --sessao S1 --rotulo andando --duracao 30 --espera 10 --participante P1 --distancia 2 --parede nao --obs "A em 50/s"
 ```
 
 ## Separar ajuste e teste

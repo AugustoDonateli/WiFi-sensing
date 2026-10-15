@@ -46,6 +46,13 @@ console.log(JSON.stringify({ id: p.id, rssi: p.rssi, amps: Array.from(p.amps) })
 """
 
 
+SCRIPT_JANELA = r"""
+const N = require(process.argv[1]);
+const ps = JSON.parse(process.argv[2]).map((a) => ({ amps: Float64Array.from(a) }));
+console.log(JSON.stringify({ v: N.oscilacao(ps) }));
+"""
+
+
 def rodar_node(script, *args):
     # Com "node -e", os argumentos extras começam em process.argv[1].
     r = subprocess.run([NODE, "-e", script, str(NUCLEO), *map(str, args)], capture_output=True, text=True, timeout=60)
@@ -110,6 +117,30 @@ class TestMesmaRegra(unittest.TestCase):
         self.assertTrue(estados[(tempos > 5.5) & (tempos < 7)].all(), "o movimento deveria ser detectado")
         self.assertFalse(estados[tempos < 4].any())
         self.assertFalse(estados[tempos > 9.0].any())  # desliga 5 medidas (1 s) depois que a janela esvazia
+
+    def test_ganho_automatico_nao_e_movimento(self):
+        # A placa B sobe e desce o volume do pacote inteiro (ganho automático). Mesmo formato com
+        # volumes diferentes tem que dar oscilação ~0 nas duas versões; formato mudando, não.
+        import numpy as np
+
+        import detector
+
+        rng = np.random.default_rng(5)
+        forma = 10 + 6 * np.sin(np.arange(64) / 5.0)
+        forma[[0, 1, 32]] = 0.0
+        ganho = forma[None, :] * rng.uniform(0.6, 1.6, size=(40, 1))
+        mexe = ganho * (1 + 0.15 * np.sin(np.arange(64)[None, :] / 3.0 + rng.uniform(0, 6, size=(40, 1))))
+        for amps, quase_zero in ((ganho, True), (mexe, False)):
+            py = detector.oscilacao_janela(amps)
+            js = rodar_node(SCRIPT_JANELA, json.dumps(amps.tolist()))["v"]
+            self.assertAlmostEqual(js, py, places=9)
+            if quase_zero:
+                self.assertLess(py, 1e-9)
+            else:
+                self.assertGreater(py, 0.5)
+        # sem a normalização, o mesmo ganho daria uma oscilação grande
+        self.assertGreater(ganho[:, 2:].std(axis=0).mean(), 2.0)
+
 
 if __name__ == "__main__":
     unittest.main()

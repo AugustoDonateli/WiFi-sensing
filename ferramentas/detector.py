@@ -5,7 +5,8 @@ ferramentas/testes/test_nucleo_js.py confere isso rodando as duas.
 
 Regra:
   1. A cada PASSO_S segundos, pega os pacotes do último JANELA_S segundo.
-  2. Oscilação = desvio padrão da amplitude de cada subportadora nessa janela,
+  2. Cada pacote é levado ao volume médio da janela (tira o efeito do ganho automático).
+     Oscilação = desvio padrão da amplitude de cada subportadora nessa janela,
      média entre as subportadoras úteis (média >= 0,5; as nulas ficam de fora).
      As subportadoras 0 e 1 são sempre ignoradas, porque a Espressif avisa que
      os 4 primeiros bytes do CSI podem vir inválidos (campo first_word).
@@ -33,16 +34,38 @@ IGNORAR = (0, 1)
 
 
 def oscilacao_janela(amps):
-    """amps: matriz (pacotes x subportadoras). Devolve NaN se houver poucos pacotes."""
+    """amps: matriz (pacotes x subportadoras). Devolve NaN se houver poucos pacotes.
+
+    Antes de medir, cada pacote é levado ao volume médio da janela (normalizar_volume).
+    """
     if amps.shape[0] < MIN_PACOTES:
         return float("nan")
     a = np.array(amps, dtype=float)
     a[:, list(IGNORAR)] = 0.0
+    a = normalizar_volume(a)
+    if a.shape[0] < MIN_PACOTES:
+        return float("nan")
     medias = a.mean(axis=0)
     uteis = medias >= 0.5
     if not uteis.any():
         return float("nan")
     return float(a[:, uteis].std(axis=0).mean())
+
+
+def normalizar_volume(a):
+    """Leva cada pacote (linha) ao volume médio da janela; tira os pacotes com volume zero.
+
+    O ganho automático da placa B sobe e desce o volume de todas as subportadoras de uma vez,
+    pacote a pacote. Isso não é movimento, mas aparecia como oscilação. No ESP32 o exemplo
+    oficial (csi_recv) não corrige o ganho. Volume = amplitude média do pacote, com as
+    subportadoras ignoradas valendo zero. Testado com as coletas S0 de 15/10/2026.
+    """
+    vol = a.mean(axis=1)
+    a = a[vol > 0]
+    vol = vol[vol > 0]
+    if len(vol) == 0:
+        return a
+    return a * (vol.mean() / vol)[:, None]
 
 
 def serie_oscilacao(t, amps, janela=JANELA_S, passo=PASSO_S):

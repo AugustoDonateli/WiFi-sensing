@@ -80,7 +80,8 @@ Se as placas ficarem com canais diferentes, a B não recebe nada.
 | `Não consegui abrir COMx` | Porta errada ou ocupada | Conferir o número e fechar o monitor. |
 | `pyserial não encontrado` | Script rodado fora do "ESP-IDF PowerShell" | Rodar dentro do ESP-IDF PowerShell, que já tem o pyserial **[testado]**. |
 | `! Nenhuma linha CSI_DATA ainda` | Mesmas causas da seção 5 | Ver seção 5. |
-| Bem menos de 100 pacotes/s ou muitos "perdidos" | Distância, obstáculos ou canal congestionado **[provável]** | Anotar na coleta (`--obs`). Se for sempre assim, aproximar as placas ou mudar de lugar. |
+| Teto de ~70 pacotes/s mesmo com a placa A em 100/s | O cabo não dá conta: cada linha tem ~1.280 letras e a 921600 baud cabem ~72 por segundo **[testado: 15/10]** | Placa A em 50/s (`CONFIG_SEND_FREQUENCY 50` no `csi_send/main/app_main.c`, compilar e gravar só a A). |
+| Bem menos pacotes/s que a placa A manda, ou muitos "perdidos" | Roteador ou aparelhos com Wi-Fi perto da placa B **[testado: 15/10, roteador ao lado deu 42/s]**; distância, obstáculos ou canal congestionado **[provável]** | Afastar as placas do roteador. Antenas (a ponta com o zigue-zague dourado) viradas uma para a outra. Anotar na coleta (`--obs`). |
 | Muitas "linhas inválidas" | Computador não está lendo a porta rápido o bastante **[oficial: "element number is not equal"]** | Fechar programas pesados, usar outra porta USB. |
 | `len` diferente de 128, 256 ou 384 | Tipo de pacote não previsto na tabela que usamos | O `plotar.py` avisa quantos ignorou. Mande o número, ajustamos. |
 
