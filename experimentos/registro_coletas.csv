@@ -1,1 +1,4 @@
 arquivo,inicio,sessao,rotulo,participante,distancia_m,parede,duracao_s,pacotes_validos,linhas_invalidas,pacotes_perdidos,taxa_media_por_s,status,obs
+20261015-150251_vazio.csv,2026-10-15T15:02:51,S0,vazio,-,1.5,nao,30.0,1265,0,1461,42.2,completa,"casa, perto sem parede, antenas viradas uma para a outra"
+20261015-150643_andando.csv,2026-10-15T15:06:43,S0,andando,P1,1.5,nao,30.05,1331,0,1395,44.3,completa,"casa, perto sem parede, antenas viradas uma para a outra"
+20261015-150929_andando.csv,2026-10-15T15:09:29,S0,andando,P1,3.75,sim,30.0,816,0,1896,27.2,completa,"casa, longe com parede, antenas viradas uma para a outra"

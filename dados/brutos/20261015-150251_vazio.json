@@ -1,0 +1,18 @@
+{
+  "arquivo": "20261015-150251_vazio.csv",
+  "inicio": "2026-10-15T15:02:51",
+  "sessao": "S0",
+  "rotulo": "vazio",
+  "participante": "-",
+  "distancia_m": "1.5",
+  "parede": "nao",
+  "obs": "casa, perto sem parede, antenas viradas uma para a outra",
+  "porta": "COM3",
+  "baud": 921600,
+  "pacotes_validos": 1265,
+  "linhas_invalidas": 0,
+  "pacotes_perdidos": 1461,
+  "status": "completa",
+  "duracao_s": 30.0,
+  "taxa_media_por_s": 42.2
+}
