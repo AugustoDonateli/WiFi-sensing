@@ -1,0 +1,18 @@
+{
+  "arquivo": "20261015-165723_andando.csv",
+  "inicio": "2026-10-15T16:57:23",
+  "sessao": "S0",
+  "rotulo": "andando",
+  "participante": "P1",
+  "distancia_m": "3.75",
+  "parede": "sim",
+  "obs": "casa, longe com parede, antenas viradas, A em 50/s, longe do roteador",
+  "porta": "COM9",
+  "baud": 921600,
+  "pacotes_validos": 1087,
+  "linhas_invalidas": 0,
+  "pacotes_perdidos": 340,
+  "status": "completa",
+  "duracao_s": 30.0,
+  "taxa_media_por_s": 36.2
+}
