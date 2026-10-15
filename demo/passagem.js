@@ -6,7 +6,7 @@
  *   principal  pouso: as linhas encolhem até virar o próprio gráfico (na saída, o mergulho)
  *   escuta     fechar os olhos: as linhas se juntam numa só, que vira o ponto que pulsa com o som
  *   desafio    travessia: alguém invisível atravessa da partida para a chegada; só o sinal treme
- *   mural      anéis: as linhas se curvam em anéis, como os das marcas, e o mural aparece de dentro
+ *   mural      anéis: as linhas se curvam numa estrela em espiral, como as marcas, e o mural aparece de dentro
  *   história   as linhas vão para a metade direita e somem por cima da primeira cena; na saída,
  *              o sinal é desenhado por cima da história, uma linha por vez
  * A saída de cada tela é a entrada tocada de trás para a frente (menos a da história). Saída e entrada
@@ -199,8 +199,8 @@
       P.frente = { x: misturar(V.x - 3 * s, V.x + V.w + 3 * s, misturar(u, curvas.suave(u), 0.5)), s };
       return P;
     },
-    // anéis: as linhas se curvam em anéis (a mais antiga por dentro, como na marca) e se abrem como
-    // ondas; o mural aparece de dentro deles
+    // anéis: as linhas se curvam numa estrela em espiral (a mais antiga por dentro, como na marca) e se
+    // abrem como ondas; o mural aparece de dentro delas
     aneis(u, cx) {
       const P = neutro(cx);
       if (u <= 0) return P;
@@ -339,9 +339,11 @@
         }
         if (P.aneis > 0) {
           // o relevo aponta para dentro (para as leituras mais antigas, como "para cima" na pilha), menor nos
-          // anéis de dentro, e nunca passa do centro
+          // anéis de dentro, e nunca passa do centro. Cada anel é uma estrela de 6 pontas, um pouco mais
+          // girada que a de dentro: juntas, uma espiral, como nas marcas.
           const th = Math.PI / 2 + TAU * fxL, co = Math.cos(th), se = Math.sin(th);
-          const rt = Math.max(rho0 * 0.15, rho0 - rel * alturaPolar * (rho0 / R)) * P.escala, rb = rho0 * P.escala;
+          const fi = th - 1.5 * (rho0 / R) * P.aneis, ponta = 1 + 0.12 * P.aneis * (2 * Math.pow((1 + Math.cos(6 * fi)) / 2, 1.4) - 0.6);
+          const rt = Math.max(rho0 * 0.15, rho0 - rel * alturaPolar * (rho0 / R)) * P.escala * ponta, rb = rho0 * P.escala * ponta;
           x = misturar(x, P.centro.x + rt * co, P.aneis); y = misturar(y, P.centro.y + rt * se, P.aneis);
           xb = misturar(xb, P.centro.x + rb * co, P.aneis); yb = misturar(yb, P.centro.y + rb * se, P.aneis);
         }

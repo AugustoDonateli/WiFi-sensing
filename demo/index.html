@@ -237,9 +237,9 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
       <div class="desafio-tempo" id="d-tempo" hidden>0,0 s</div>
     </div>
     <div class="retrato" id="retrato" hidden>
-      <canvas id="retrato-cv" role="img" aria-label="Sua marca no Wi-Fi: anéis desenhados com as leituras do sinal enquanto você atravessava"></canvas>
+      <canvas id="retrato-cv" role="img" aria-label="Sua marca no Wi-Fi: uma estrela em espiral desenhada com as leituras do sinal enquanto você atravessava"></canvas>
       <span class="mono" id="retrato-legenda"></span>
-      <span class="retrato-como">Cada anel é uma leitura do Wi-Fi: no miolo, a contagem; até a borda, a travessia. Anéis largos e tortos: os momentos em que o sinal mais variou na sua travessia. Anel grosso: o instante da detecção.</span>
+      <span class="retrato-como">Cada contorno é uma leitura do Wi-Fi, do centro (a partida) até a borda (o fim). As pontas e o giro saem das suas leituras; onde o sinal mais variou, mais pontudo. Contorno grosso: o instante da detecção.</span>
     </div>
   </div>
   <div class="baixo">
@@ -261,12 +261,12 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   <div class="topo mono"><span>Quem passou · as últimas 12 travessias</span></div>
   <div class="mural">
     <section class="mural-destaque" aria-label="Como a marca é feita">
-      <canvas id="mural-cv" role="img" aria-label="A marca em destaque, se formando anel por anel"></canvas>
+      <canvas id="mural-cv" role="img" aria-label="A marca em destaque, se formando contorno por contorno"></canvas>
       <div class="mural-quem" id="mural-quem"><b id="mural-nome"></b><span class="mono" id="mural-dado"></span></div>
       <ol class="mural-passos" id="mural-passos">
-        <li><span class="mono">1</span><p>O Wi-Fi é lido 10 vezes por segundo. Cada leitura é uma linha, como as da tela principal.</p></li>
-        <li><span class="mono">2</span><p>Cada linha se fecha num anel, de dentro para fora: no miolo, os 3 s parados na partida; até a borda, a travessia.</p></li>
-        <li><span class="mono">3</span><p>Cada marca é medida em relação à própria travessia: os momentos em que o sinal mais variou viram anéis largos, tortos e girados. Por isso nenhuma sai igual. O anel grosso é o instante da detecção.</p></li>
+        <li><span class="mono">1</span><p>O Wi-Fi é lido 10 vezes por segundo durante a travessia.</p></li>
+        <li><span class="mono">2</span><p>Cada leitura vira um contorno, de dentro para fora: o centro é a partida, a borda é o fim.</p></li>
+        <li><span class="mono">3</span><p>O número de pontas e o giro saem das leituras de cada um, como uma impressão digital. Onde o sinal mais variou, o contorno fica mais pontudo e gira mais. Contorno grosso: o instante da detecção.</p></li>
       </ol>
     </section>
     <div class="galeria" id="galeria-grade"></div>
@@ -998,7 +998,7 @@ function ninjaPasso(agora) {
     if (!passagem.ocupada()) subirPalavras('desafio');
   }
 }
-// A marca (anéis feitos com as leituras) fica no marca.js. Aqui só as cores da tela.
+// A marca (a estrela feita com as leituras) fica no marca.js. Aqui só as cores da tela.
 function coresMarca() { const s = getComputedStyle(document.body); return { ...cores(), apagado: s.getPropertyValue('--apagado').trim() }; }
 function desenharRetrato(canvas, r, t) {
   const [W, H, dpr] = ajustar(canvas);
@@ -1023,9 +1023,9 @@ function marcasNaCorCerta() {
 function formarRetrato(agora) {
   const f = ninja.forma;
   if (!f || $('retrato').hidden) return;
-  const t = agora - f.inicio;
-  desenharRetrato($('retrato-cv'), f.r, Math.max(0, t));
-  if (t > WaveMarca.duracao(f.r) + 0.1) { desenharRetrato($('retrato-cv'), f.r); ninja.forma = null; }
+  // forma e, depois de pronta, continua respirando enquanto o resultado está na tela
+  const reduzido = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  desenharRetrato($('retrato-cv'), f.r, reduzido ? undefined : Math.max(0, agora - f.inicio));
 }
 // A melodia da marca: o tremor de cada momento da travessia vira uma nota da mesma escala.
 function tocarMarca(r, atraso = 0) {
@@ -1078,8 +1078,8 @@ async function baixarRetrato() {
   g.fillStyle = '#8A8A84';
   g.fillText(`PICO DE TREMOR ${r.pico.toFixed(1).replace('.', ',')}× · LIMITE ${r.lim.toFixed(1).replace('.', ',')}×`, 80, 1242);
   g.font = '500 18px "Geist Mono", monospace';
-  g.fillText('CADA ANEL É UMA LEITURA DO WI-FI · MIOLO: A CONTAGEM · BORDA: O FIM', 80, 1290);
-  g.fillText('ANÉIS LARGOS E TORTOS: ONDE O SINAL MAIS VARIOU · ANEL GROSSO: A DETECÇÃO', 80, 1318);
+  g.fillText('CADA CONTORNO É UMA LEITURA DO WI-FI · CENTRO: A PARTIDA · BORDA: O FIM', 80, 1290);
+  g.fillText('PONTAS E GIRO: AS SUAS LEITURAS · CONTORNO GROSSO: A DETECÇÃO', 80, 1318);
   c.toBlob((b) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
@@ -1140,9 +1140,10 @@ function muralPasso(agora) {
   if ($('galeria').hidden || !mural.fila.length) return;
   const r = mural.fila[mural.i].r, t = agora - mural.inicio, dur = WaveMarca.duracao(r);
   const reduzido = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!mural.pronta) desenharRetrato($('mural-cv'), r, reduzido ? undefined : t);
-  if (t > dur || reduzido) mural.pronta = true;   // pronta: não precisa redesenhar a cada quadro
-  // os passos da explicação acendem junto: as linhas chegando, os anéis se fechando, a marca pronta
+  // a marca em destaque se forma e depois respira (com movimento reduzido, fica parada e pronta)
+  if (!reduzido || !mural.pronta) desenharRetrato($('mural-cv'), r, reduzido ? undefined : t);
+  mural.pronta = true;
+  // os passos da explicação acendem junto: as leituras chegando, os contornos se formando, a marca pronta
   const passo = t < 0.5 ? 0 : t < dur ? 1 : 2;
   [...$('mural-passos').children].forEach((li, j) => li.classList.toggle('ativo', j === passo));
   if (t > dur + MURAL_PAUSA_S && mural.fila.length > 1) destacar(mural.i + 1);

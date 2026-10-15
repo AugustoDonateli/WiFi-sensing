@@ -15,7 +15,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `escuta.js`: o som do modo escuta ("Batimento"). Sem ele, a escuta fica muda.
-- `marca.js`: a marca em anéis de cada travessia, os textos do resultado e o registro.
+- `marca.js`: a marca em estrela de cada travessia, os textos do resultado e o registro.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
 
@@ -52,11 +52,12 @@ Pouca letra pequena: só o nome do projeto, o botão Operador, uma linha embaixo
 - **Tremor realçado:** a forma das linhas mostra o "relevo" da sala, e a diferença em relação à forma média aparece 3x maior. Assim, quando o detector diz *Movimento.*, dá para ver as linhas tremerem. É só no desenho; a detecção não muda.
 - **Frases que se revezam:** com a sala parada, a frase embaixo da palavra troca a cada 7 s, convidando o visitante.
 - **Contador do dia** (no topo): quantos movimentos foram detectados. A simulação conta separado e aparece como "na simulação".
-- **Marca de cada visitante** (`marca.js`): na Travessia, as leituras viram uma marca em anéis, como anéis de árvore.
-  - Cada leitura vira um anel (até 32), de dentro para fora: a contagem no miolo (traço fino), a travessia até a borda.
-  - Cada marca é medida em relação à própria travessia: os momentos em que o sinal mais variou para aquela pessoa viram anéis largos, tortos e girados. Por isso cada marca sai diferente.
-  - Se o Wi-Fi detectou, o último anel é grosso: o instante da detecção.
-  - No resultado, a marca **se forma na frente da pessoa**: cada linha aparece reta e se fecha no seu anel.
+- **Marca de cada visitante** (`marca.js`): na Travessia, as leituras viram uma estrela de contornos lisos, encaixados, que gira em espiral.
+  - Cada leitura vira um contorno (28 no total), de dentro para fora: a contagem no centro (traço fino), a travessia até a borda.
+  - Todas as leituras juntas, como uma impressão digital, escolhem a família: 4 a 9 pontas, pontas redondas ou finas, onde a estrela é mais pontuda, quanto e para que lado a espiral gira. Por isso cada marca sai diferente.
+  - Onde o sinal mais variou (na própria travessia), o contorno fica mais pontudo e gira mais.
+  - Se o Wi-Fi detectou, o último contorno é grosso: o instante da detecção.
+  - No resultado, a marca **se forma na frente da pessoa** (~3 s, do centro para fora). Depois respira, a espiral enrola e desenrola devagar, e um brilho corre do centro até a borda de 6 em 6 s.
   - Cada marca tem um registro: "Registro Nº 003 · 21/10/2026 · 14:32:08".
 - **Melodia da marca** (tecla `M`): as leituras da travessia viram 16 notas.
 - **Cartão para guardar** (tecla `B`): PNG de 1080×1350 com a marca, o nome, o resultado, o registro, o pico de tremor e o limite. Na versão do claude.ai o botão fica escondido, porque lá não dá para salvar arquivos.
@@ -76,7 +77,7 @@ Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-F
 | Principal | As linhas encolhem até caber no gráfico e viram o próprio gráfico. | O gráfico cresce até ocupar a tela. |
 | Escuta | **Fechar os olhos:** as linhas se juntam numa só, que vira o ponto que pulsa com o som. | **Abrir os olhos:** o ponto vira linha e a linha se abre nas 48. |
 | Travessia | Alguém invisível atravessa da partida (esquerda) para a chegada (direita). Ninguém aparece; só o sinal treme onde a pessoa passa. Atrás dela, o desafio. | A mesma travessia, de volta. |
-| Mural | As linhas se curvam em anéis, como os das marcas, e o mural aparece de dentro deles. | Os anéis se fecham e desenrolam em linhas. |
+| Mural | As linhas se curvam numa estrela em espiral, como as marcas, e o mural aparece de dentro dela. | A estrela se fecha e desenrola em linhas. |
 | Como funciona | As linhas vão para a metade direita e somem por cima da primeira cena (que é ilustração). | O sinal é desenhado por cima da história, uma linha por vez. Na cena "ao vivo" e na última, as próprias linhas de verdade da história crescem até a tela inteira. |
 
 **Regras:**

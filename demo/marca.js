@@ -1,11 +1,13 @@
-/* A marca de cada travessia: anéis feitos com as leituras do Wi-Fi, como anéis de árvore.
+/* A marca de cada travessia: uma estrela de contornos lisos, encaixados, que gira em espiral.
  *
  * Como ela é feita (é a mesma explicação que aparece na tela):
- *   1. O Wi-Fi é lido 10 vezes por segundo. Cada leitura é uma linha: o formato das 64 frequências.
- *   2. Cada leitura vira um anel, de dentro para fora: a contagem no miolo (traço fino), a travessia até a borda.
- *   3. Cada marca é medida em relação à própria travessia: o momento em que o sinal mais variou para aquela
- *      pessoa vira o anel mais largo, torto e girado. Por isso cada marca sai diferente.
- *   4. Se o Wi-Fi detectou a pessoa, o último anel é grosso: é o instante da detecção.
+ *   1. O Wi-Fi é lido 10 vezes por segundo durante a travessia.
+ *   2. Cada leitura vira um contorno, de dentro para fora: o centro é a partida (a contagem), a borda é o fim.
+ *   3. O número de pontas, o jeito das pontas e o sentido do giro saem de todas as leituras juntas, como uma
+ *      impressão digital: leituras diferentes dão marcas diferentes.
+ *   4. Onde o sinal mais variou (em relação à própria travessia), o contorno fica mais pontudo e gira mais;
+ *      o contorno mais forte é o momento de maior tremor.
+ *   5. Se o Wi-Fi detectou a pessoa, o último contorno é grosso: é o instante da detecção.
  *
  * É desenho feito com as leituras; não identifica ninguém. Partes puras testadas no Node
  * (ferramentas/testes/test_marca_js.py). No navegador: window.WaveMarca.
@@ -16,7 +18,6 @@
   const VERSAO = 2;
   const MAX_ANEIS = 90;        // até 9 s de travessia, um anel por leitura; mais que isso, amostra
   const MAX_MIOLO = 30;        // a contagem inteira (3 s)
-  const REALCE = 3;            // o mesmo realce do tremor das linhas da tela
   const TAU = Math.PI * 2;
   const limitar = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
   const r1 = (x) => Math.round(x * 10) / 10;
@@ -45,126 +46,138 @@
   }
   const valido = (r) => Boolean(r && r.v === VERSAO && Array.isArray(r.linhas) && r.linhas.length);
 
-  // O relevo de uma leitura em volta do anel: o formato do sinal (a) e, 3x maior, o tremor (d).
-  // Para o fim do anel encontrar o começo sem degrau, só o último trecho (20%) se curva até o começo;
-  // o resto do formato fica como o sinal mostrou.
-  // `escalaD`: quanto o tremor pesa (a marca usa o maior tremor da própria travessia; o padrão é o realce da tela).
-  function relevo(l, escalaD) {
-    const uteis = [];
-    let soma = 0;
-    for (let k = 0; k < l.a.length; k++) if (l.a[k] > 0.5) { uteis.push(k); soma += l.a[k]; }
-    if (uteis.length < 3) return null;
-    const media = soma / uteis.length;
-    const v = escalaD == null
-      ? uteis.map((k) => (l.a[k] / media - 1) * 1.2 + (2 * REALCE * l.d[k]) / media)
-      : uteis.map((k) => (l.a[k] / media - 1) * 0.8 + (escalaD * l.d[k]) / media);
-    // suaviza entre frequências vizinhas (duas passadas 1-2-1, como as linhas da tela): ondas, não espinhos
-    for (let p = 0; p < 2; p++) {
-      const w = v.slice();
-      for (let j = 0; j < v.length; j++) v[j] = (w[Math.max(0, j - 1)] + 2 * w[j] + w[Math.min(v.length - 1, j + 1)]) / 4;
-    }
-    const m = v.length, salto = v[m - 1] - v[0];
-    return v.map((x, j) => {
-      const q = limitar((j / (m - 1) - 0.8) / 0.2);
-      return limitar(x - salto * q * q * (3 - 2 * q), -2.5, 2.5);
-    });
-  }
+  /* ---------- a forma: uma estrela de contornos lisos que gira em espiral ---------- */
 
-  // Raio, entorte, giro e espessura de cada anel, para uma marca de raio R.
-  // Como a marca antiga (a que o grupo achava mais bonita e mais pessoal): até 40 leituras reais, da contagem
-  // (miolo) ao fim da travessia (borda), cada uma um anel. Cada marca é medida em relação à própria travessia:
-  // o momento em que o sinal mais variou para aquela pessoa vira o anel mais largo, torto e girado.
-  // O anel grosso continua sendo o instante da detecção.
-  const MAX_DESENHO = 32;
+  // Uma "impressão digital" das leituras: um número tirado de todas elas (como um hash). Leituras diferentes
+  // dão números diferentes, e o número escolhe a família da forma (quantas pontas, o jeito das pontas,
+  // o sentido do giro). O registro guarda as leituras arredondadas, então a mesma travessia dá sempre a mesma marca.
+  function assinatura(r) {
+    let h = 2166136261 >>> 0;
+    for (const l of [...(r.miolo || []), ...(r.linhas || [])]) {
+      for (let k = 0; k < l.a.length; k += 2) { h ^= Math.round(l.a[k] * 10) & 0xffff; h = Math.imul(h, 16777619) >>> 0; }
+      h ^= Math.round((l.x || 0) * 100) & 0xffff; h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h || 1;
+  }
+  function aleatorio(semente) {
+    let a = semente >>> 0;
+    return () => {
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  // Quanto aquela leitura se afastou da forma média do sinal (o tremor daquele instante).
   function energia(l) {
     let soma = 0, n = 0, en = 0;
     for (let k = 0; k < l.a.length; k++) if (l.a[k] > 0.5) { soma += l.a[k]; en += Math.abs(l.d[k]); n++; }
     return n ? en / soma : 0;
   }
+
+  // Os anéis de uma marca de raio R: do centro (a partida) até a borda (o fim da travessia), um anel por
+  // leitura (28 leituras espalhadas pela contagem e pela travessia). Todos são a mesma estrela, cada um
+  // um pouco girado em relação ao de dentro: as pontas, somadas, desenham os braços da espiral.
+  //   - A impressão digital (todas as leituras juntas) escolhe a família: quantas pontas (4 a 9), se são
+  //     redondas ou finas, onde a estrela é mais pontuda (perto do centro, na borda ou igual em tudo),
+  //     quanto a espiral gira e para que lado.
+  //   - As leituras uma a uma decidem o resto: onde o sinal mais variou (em relação à própria travessia),
+  //     o anel fica mais pontudo e gira mais. Médias de vizinhos deixam a espiral lisa.
+  const N_ANEIS = 28, N_MIOLO = 8;
+  const PONTAS = [4, 5, 5, 6, 6, 7, 7, 8, 9];
+  const PERFIS = ['estrela', 'flor', 'nucleo'];   // igual em tudo; mais pontuda na borda; mais pontuda no centro
   function geometria(r, R) {
     const todas = (r.miolo || []).map((l) => ({ l, tipo: 'miolo' })).concat((r.linhas || []).map((l) => ({ l, tipo: 'travessia' })));
-    if (!todas.length) return [];
-    const ls = amostrar(todas, MAX_DESENHO), N = ls.length;
+    const aneis = [];
+    if (!todas.length) return Object.assign(aneis, { k: 5, agudo: 1, sentido: 1, perfil: 'estrela', torcao: 0 });
+    const rnd = aleatorio(assinatura(r));
+    const k = PONTAS[Math.floor(rnd() * PONTAS.length)];
+    // 1 = pontas redondas; 3 = pontas finas (com muitas pontas, finas demais viram uma teia)
+    const agudo = Math.min(1 + rnd() * rnd() * 2.6, k >= 8 ? 1.9 : 3);
+    const perfil = PERFIS[Math.floor(rnd() * PERFIS.length)];
+    const sentido = rnd() < 0.5 ? -1 : 1;
+    // quanto a espiral gira do centro à borda: de 0,6 a 2 pontas inteiras (mais que isso vira uma renda;
+    // pontuda na borda, gira menos, senão as pontas de fora se cruzam)
+    const torcao = (0.6 + rnd() * 1.4) * (perfil === 'flor' ? 0.75 : 1) * TAU / k;
+    let giro = rnd() * TAU;
+    // 8 contornos para a contagem (o miolo) e 20 para a travessia, espalhados pelas leituras de cada parte
+    const espalhar = (xs, n) => (xs.length ? Array.from({ length: n }, (_, i) => xs[Math.round((i * (xs.length - 1)) / Math.max(1, n - 1))]) : []);
+    const mi = todas.filter((x) => x.tipo === 'miolo'), tr = todas.filter((x) => x.tipo === 'travessia');
+    const nMi = mi.length ? N_MIOLO : 0;
+    const ls = espalhar(mi, nMi).concat(espalhar(tr.length ? tr : mi, N_ANEIS - nMi)), N = ls.length;
     const en = ls.map((x) => energia(x.l)), emax = Math.max(...en, 1e-6);
-    // O tremor de cada leitura: é a parte que muda de pessoa para pessoa. A escala fica entre a do próprio anel
-    // e a do maior tremor da travessia, para os anéis calmos também mostrarem textura, e os agitados, mais.
-    const dRing = ls.map(({ l }) => {
-      let m = 0, n = 0; for (const a of l.a) if (a > 0.5) { m += a; n++; } m = m / (n || 1);
-      let mx = 0; for (const d of l.d) mx = Math.max(mx, Math.abs(d) / m); return mx;
+    const rel = en.map((e) => Math.sqrt(e / emax));      // comprimido: os momentos calmos também contam
+    let iPico = 0;
+    rel.forEach((q, i) => { if (ls[i].tipo === 'travessia' && q > rel[iPico]) iPico = i; });
+    // médias de vizinhos: as pontas andam numa espiral lisa, sem tremer de um anel para o outro
+    const media = (xs, m) => xs.map((_, i) => { let a = 0, n = 0; for (let j = Math.max(0, i - m); j <= Math.min(xs.length - 1, i + m); j++) { a += xs[j]; n++; } return a / n; });
+    const liso = media(rel, 2), peso = media(rel.map((q) => 0.25 + q), 3);
+    const soma = peso.reduce((a, b) => a + b, 0);
+    ls.forEach((x, i) => {
+      const u = N > 1 ? i / (N - 1) : 1;
+      if (i) giro += sentido * torcao * peso[i] / soma;   // a torção, repartida pelas leituras
+      const base = perfil === 'flor' ? 0.05 + 0.2 * u : perfil === 'nucleo' ? 0.28 - 0.15 * u : 0.17;
+      const amp = base * (0.6 + 0.4 * liso[i]);
+      aneis.push({
+        raio: R * (0.08 + 0.92 * Math.pow(u, 0.95)) / (1 + 1.4 * amp), amp, giro,   // a ponta mais longa cabe em R
+        alfa: 0.3 + 0.7 * Math.pow(u, 0.8), forca: rel[i],
+        tipo: r.ok === false && i === N - 1 ? 'deteccao' : i === iPico && x.tipo === 'travessia' ? 'pico' : x.tipo,
+      });
     });
-    const dmax = Math.max(...dRing, 1e-6);
-    // comprimido (raiz): o tremor forte do fim não deixa o resto da travessia sem variação
-    const rel = en.map((e) => Math.sqrt(e / emax));
-    const largura = rel.map((q) => 0.5 + 1.5 * q);
-    const total = largura.reduce((a, x) => a + x, 0);
-    const r0 = 0.1 * R, unidade = (R - r0) / N;
-    let raio = r0, giro = 0;
-    return ls.map((x, i) => {
-      raio += ((R - r0) * largura[i]) / total;
-      giro += rel[i] * 0.6 * (32 / N);
-      return {
-        raio, giro, relevo: relevo(x.l, 1.4 / (Math.pow(dmax, 0.15) * Math.pow(Math.max(dRing[i], 0.03 * dmax), 0.85))),
-        amp: unidade * 1.2,
-        tipo: r.ok === false && i === N - 1 ? 'deteccao' : x.tipo,
-      };
-    });
+    return Object.assign(aneis, { k, agudo, sentido, perfil, torcao });
+  }
+  // O raio da estrela no ângulo fi (já descontado o giro do anel), em vezes o raio do anel: de 1 - 0,6·amp
+  // (no vão) até 1 + 1,4·amp (na ponta). agudo > 1 afina as pontas e alarga os vãos.
+  function contorno(fi, k, amp, agudo) {
+    return 1 + amp * (2 * Math.pow((1 + Math.cos(k * fi)) / 2, agudo) - 0.6);
   }
 
-  // Tempo da animação em que a marca se forma: cada anel começa um pouco depois do anterior.
-  const MORFE_S = 0.55;
-  function passoAnel(total) { return Math.min(0.12, 3.2 / Math.max(1, total)); }
-  function duracao(r) {
-    const total = Math.min(MAX_DESENHO, (r.miolo || []).length + (r.linhas || []).length);
-    return (total - 1) * passoAnel(total) + MORFE_S;
-  }
+  // A animação: os anéis nascem do centro para fora; cada um cresce, desabrocha as pontas e gira até o lugar,
+  // enquanto o traço corre em volta (como uma caneta). Pronta, a marca não para: respira, a espiral enrola e
+  // desenrola devagar, e de 6 em 6 s um brilho corre do centro até a borda (uma leitura passando).
+  const PASSO_ANEL = 0.075, MORFE_S = 0.95, LUZ_S = 6;
+  function duracao(r) { return (N_ANEIS - 1) * PASSO_ANEL + MORFE_S; }
 
-  const suave = (x) => { x = limitar(x); return x * x * (3 - 2 * x); };
+  const chega = (x) => 1 - Math.pow(1 - limitar(x), 3);
+  const desabrocha = (x) => { x = limitar(x); return 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2); };   // passa um pouco e volta
 
-  // Desenha a marca. o = { fundo, tinta, apagado, esp, t } (t em segundos desde o começo da formação;
-  // sem t, a marca já pronta). Durante a formação, cada linha aparece reta, encostada embaixo do seu anel,
-  // e se fecha nele: o meio encosta primeiro, as pontas dão a volta por último.
+  // Desenha a marca. o = { fundo, tinta, esp, t }: t em segundos desde o começo da formação (sem t, a marca
+  // pronta e parada, como no mural e no cartão).
   function desenhar(c, W, H, r, o = {}) {
-    const fundo = o.fundo || '#0B0B0A', tinta = o.tinta || '#EDEDE8', apagado = o.apagado || tinta, esp = o.esp || 1;
+    const fundo = o.fundo || '#0B0B0A', tinta = o.tinta || '#EDEDE8', esp = o.esp || 1;
     if (o.limpar !== false) { c.fillStyle = fundo; c.fillRect(0, 0, W, H); }
     if (!valido(r)) return;
     const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.44;
-    const aneis = geometria(r, R), total = aneis.length;
-    // anéis muito tortos passariam da borda: a marca inteira encolhe para caber
-    let ext = R;
-    for (const an of aneis) if (an.relevo) ext = Math.max(ext, an.raio + an.amp * Math.max(...an.relevo.map(Math.abs)));
-    const k = Math.min(1, (Math.min(W, H) * 0.48) / ext);
-    if (k < 1) for (const an of aneis) { an.raio *= k; an.amp *= k; }
-    const dt = passoAnel(total), t = o.t == null ? Infinity : o.t;
-    const passos = R > 150 ? 220 : 140;
-    c.lineJoin = 'round'; c.lineCap = 'round';
-    for (let k = 0; k < total; k++) {
-      const e = t === Infinity ? 1 : limitar((t - k * dt) / MORFE_S);
+    const g = geometria(r, R), total = g.length, k = g.k;
+    const t = o.t == null ? Infinity : o.t, dur = duracao(r);
+    const pronta = t === Infinity ? 0 : Math.max(0, t - dur);
+    const vem = limitar(pronta / 2);                     // o movimento de "pronta" entra devagar
+    const rot = pronta * 0.04 * g.sentido;
+    const passos = R > 150 ? 300 : 180;
+    c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = tinta;
+    for (let i = 0; i < total; i++) {
+      const an = g[i], u = total > 1 ? i / (total - 1) : 1;
+      const e = t === Infinity ? 1 : limitar((t - i * PASSO_ANEL) / MORFE_S);
       if (e <= 0) break;
-      const an = aneis[k], rel = an.relevo;
-      if (!rel) continue;
-      const m = rel.length, base = Math.PI / 2 + an.giro;
-      const tx = -Math.sin(base), ty = Math.cos(base);          // direção da tangente no ponto de baixo
-      const comp = Math.min(TAU * an.raio, 1.9 * R);            // a linha reta (encurtada nos anéis de fora)
-      c.globalAlpha = e < 1 ? Math.min(1, e * 4) : 1;
-      c.strokeStyle = tinta;
-      c.lineWidth = esp * (an.tipo === 'miolo' ? 0.7 : an.tipo === 'deteccao' ? 2.8 : 1);
+      const raio = an.raio * (0.55 + 0.45 * chega(e));
+      const resp = 1 + 0.08 * Math.sin(pronta * 1.2 - i * 0.3) * vem;
+      const amp = an.amp * desabrocha(e) * resp;
+      const enrola = 0.28 * Math.sin(pronta * 0.55) * u * vem * g.sentido;   // cada anel gira um pouco diferente
+      const giro = an.giro + (1 - chega(e)) * 1.3 * g.sentido + rot + enrola;
+      const trilha = limitar(e * 1.7);
+      const frente = pronta > 0 ? ((pronta % LUZ_S) / 1.8) * 1.3 - 0.15 : -1;
+      const luz = Math.exp(-Math.pow(u - frente, 2) / 0.006);
+      c.globalAlpha = Math.min(1, an.alfa * limitar(e * 3) + 0.55 * luz);
+      c.lineWidth = esp * (an.tipo === 'deteccao' ? 2.6 : an.tipo === 'pico' ? 1.7 : an.tipo === 'miolo' ? 0.8 : 1) * (1 + 0.7 * luz);
       c.beginPath();
-      for (let s = 0; s <= passos; s++) {
-        const q = s / passos;
-        const u = q * m, j0 = Math.floor(u) % m, j1 = (j0 + 1) % m, f = u - Math.floor(u);
-        const v = (1 - f) * rel[j0] + f * rel[j1];
-        const ang = base + TAU * (q - 0.5);
-        const rr = an.raio + v * an.amp;
-        let x = cx + rr * Math.cos(ang), y = cy + rr * Math.sin(ang);
-        if (e < 1) {
-          const es = suave((e * 1.6 - Math.abs(q - 0.5) * 1.1) / 0.5);
-          const px = cx + an.raio * Math.cos(base) + tx * comp * (q - 0.5) + Math.cos(base) * v * an.amp;
-          const py = cy + an.raio * Math.sin(base) + ty * comp * (q - 0.5) + Math.sin(base) * v * an.amp;
-          x = px + (x - px) * es; y = py + (y - py) * es;
-        }
+      const fim = Math.round(passos * trilha);
+      for (let s = 0; s <= fim; s++) {
+        const fi = (s / passos) * TAU, th = fi + giro;
+        const rr = raio * contorno(fi, k, amp, g.agudo);
+        const x = cx + rr * Math.cos(th), y = cy + rr * Math.sin(th);
         if (s) c.lineTo(x, y); else c.moveTo(x, y);
       }
-      if (e >= 1) c.closePath();
+      if (trilha >= 1) c.closePath();
       c.stroke();
     }
     c.globalAlpha = 1;
@@ -196,7 +209,7 @@
     return `Registro ${numero(r.n)} · ${p(q.getDate())}/${p(q.getMonth() + 1)}/${q.getFullYear()} · ${p(q.getHours())}:${p(q.getMinutes())}:${p(q.getSeconds())}`;
   }
 
-  const api = { VERSAO, MAX_ANEIS, MAX_MIOLO, registro, valido, relevo, geometria, duracao, desenhar, titulo, detalhe, resumo, numero, carimbo, amostrar };
+  const api = { VERSAO, MAX_ANEIS, MAX_MIOLO, N_ANEIS, registro, valido, assinatura, geometria, contorno, duracao, desenhar, titulo, detalhe, resumo, numero, carimbo, amostrar };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else raiz.WaveMarca = api;
 })(typeof window !== 'undefined' ? window : globalThis);

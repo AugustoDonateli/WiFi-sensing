@@ -46,7 +46,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Na parte de ética da apresentação: a mesma ideia poderia ser usada para espionar. É justamente por isso que o projeto discute privacidade.
 
 ### Marca de cada visitante
-- Na Travessia, o percurso vira uma **marca em anéis**, como anéis de árvore.
+- Na Travessia, o percurso vira uma **marca em estrela**: contornos lisos, encaixados, que giram em espiral.
 - A marca tem uma **melodia** (tecla M), feita com as mesmas leituras.
 - A marca vira um **cartão para guardar** (tecla B).
 - **Refeita em 14/10 (pedido do grupo: o "Quem passou" era confuso e as frases "Te vi." e "o Wi-Fi sentiu X passar" não combinavam com o site):**
@@ -56,16 +56,21 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
     - todas tinham 32 anéis.
   - **Agora** (`demo/marca.js`):
     - a marca guarda a contagem e a travessia inteiras;
-    - anel grosso = instante da detecção;
-    - o resto do desenho voltou ao da marca antiga, cada marca medida em relação à própria travessia.
-  - ~~Entorte na escala fixa da sala vazia~~ (testado em 14/10): ficou honesto, mas as marcas de quem se mexeu pouco viraram círculos perfeitos, todas iguais. O grupo preferiu a marca antiga, mais pessoal. Os textos dizem "os momentos em que o sinal mais variou **na sua travessia**", não que a pessoa se mexeu muito.
+    - contorno grosso = instante da detecção.
+  - ~~Entorte na escala fixa da sala vazia~~ (testado em 14/10): ficou honesto, mas as marcas de quem se mexeu pouco viraram círculos perfeitos, todas iguais. O grupo preferiu a marca antiga, mais pessoal. Os textos dizem "onde o sinal mais variou" (na própria travessia), não que a pessoa se mexeu muito.
   - **Textos como registro de leitura**, escolha do grupo: "Não detectado." / "Detectado aos 0,6 s.", com pico de tremor e limite, e "Registro Nº 003 · data · hora". Se o tremor passou do limite por um instante sem o detector confirmar, o texto diz isso, em vez de "abaixo do limite o tempo todo".
   - **Explicação nos dois lugares:**
     - no resultado, a marca se forma na frente da pessoa;
     - no "Quem passou", uma marca em destaque se forma de novo a cada ~8 s (vitrine), com os 3 passos de como a marca é feita.
-- **Falta:**
-  - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
-  - descobrir se haverá impressora na feira.
+- **Estrela no lugar dos anéis (15/10, pedido do grupo):** os anéis pareciam um miolo de árvore, sem harmonia, e as marcas ficavam parecidas demais. O grupo mandou uma referência de estrelas encaixadas, girando em espiral.
+  - **Como a estrela sai das leituras:**
+    - 28 contornos, um por leitura (8 da contagem, 20 da travessia), do centro (a partida) até a borda (o fim);
+    - todas as leituras juntas viram uma "impressão digital" (um hash), que escolhe a família da marca: 4 a 9 pontas, pontas redondas ou finas, onde a estrela é mais pontuda (centro, borda ou igual), quanto e para que lado a espiral gira;
+    - as leituras uma a uma decidem o resto: onde o sinal mais variou, o contorno fica mais pontudo e gira mais. O contorno mais forte é o de maior tremor.
+  - **O que é honesto dizer:** a família vem de um hash das leituras. Leituras diferentes dão marcas diferentes, mas a família não "quer dizer" nada (5 pontas não é melhor que 7). O que tem leitura direta é o giro e as pontas de cada contorno, e o contorno grosso da detecção.
+  - **Animação:** os contornos nascem do centro para fora (a caneta corre em volta, as pontas desabrocham e giram até o lugar, ~3 s). Pronta, a marca respira, a espiral enrola e desenrola devagar, e de 6 em 6 s um brilho corre do centro à borda. Com movimento reduzido, fica parada.
+  - **Para ficar harmônica:** o giro total é medido em pontas (de 0,6 a 2 pontas inteiras, do centro à borda), então uma estrela de 9 pontas gira menos que uma de 4. Os giros e as pontas de cada contorno são médias com os vizinhos, então a espiral fica lisa.
+  - Ficou de fora (testado com 40 marcas lado a lado): a espiral que vai e volta (um S) e o giro grande demais viravam uma renda embaralhada; pontas finas com 8 ou 9 pontas viravam uma teia; e as estrelas de 3 pontas pareciam um triângulo arredondado.
 - **Falta:**
   - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
   - descobrir se haverá impressora na feira.
@@ -139,7 +144,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **A ideia:** toda troca passa pelo sinal. A tela que sai vira as linhas do Wi-Fi (as leituras de verdade), as linhas tomam a tela e depois viram a tela que chega, com um gesto que diz o que ela é:
   - escuta: fechar os olhos (as linhas viram o ponto que pulsa com o som);
   - Travessia: uma pessoa invisível atravessa e só o sinal treme;
-  - mural: as linhas viram anéis, como as marcas;
+  - mural: as linhas viram uma estrela em espiral, como as marcas (até 15/10, anéis);
   - principal: as linhas pousam no gráfico;
   - história: na saída, o sinal é desenhado por cima.
 - **Honestidade:**
