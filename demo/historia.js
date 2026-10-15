@@ -283,6 +283,18 @@
   const perfil = () => cachePerfil || (cachePerfil = perfilParado());
   const ciclico = (i, n) => ((i % n) + n) % n;
 
+  // O "rolo de pianola" da cena do salto de frequência: uma sequência fixa de colunas (frequências), como um rolo
+  // perfurado uma vez. Nunca repete a coluna anterior nem cai nas subportadoras vazias.
+  const ROLO = (() => {
+    const rnd = mulberry32(1942), seq = [];
+    while (seq.length < 96) {
+      const k = 5 + Math.floor(rnd() * 55);
+      if (k !== seq[seq.length - 1] && Math.abs(k - (seq[seq.length - 1] ?? -99)) > 3) seq.push(k);
+    }
+    return seq;
+  })();
+  const SALTOS_POR_S = 2.2;
+
   // As 49 leituras de ilustração que terminam no `tempo`. `agito` (0 a 1) mistura a sala parada com
   // alguém andando, começando pelas linhas de baixo (as mais novas); `roteiro` usa a linha do tempo acima.
   function pilhaSint(tempo, agito, roteiro) {
@@ -668,8 +680,9 @@
     icones: { padrao: {} },
     vulto: { padrao: { x: 0.86 } },
     pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, fantasma: 0, andar: 0, ...ZOOM_NORMAL } },
-    barras: { padrao: { destaque: -1 }, sintetica: true },
-    curva: { padrao: { forma: 0 }, sintetica: true },
+    barras: { padrao: { destaque: -1, luz: 1 }, sintetica: true },
+    curva: { padrao: { forma: 0, luz: 1 }, sintetica: true },
+    salto: { padrao: {}, sintetica: true },
     soma: { padrao: { x0: 0.2, x1: 0.88, xb: 0.95, py: 0.1, ph: 0.68, pessoa: 0, fecha: 0 }, sintetica: true },
     medidor: { padrao: {}, sintetica: true, sobe: true },
     vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0, relevo: 1, juntar: 0 }, sobe: true },
@@ -1089,12 +1102,121 @@
         const destaque = k === q.destaque && q.dir === 1;
         const pk = q.dir === 1 ? (destaque ? 1 : curvas.entra(limitar(q.p * 1.6 - (k / 63) * 0.6))) : 1;
         if (pk <= 0) continue;
-        c.globalAlpha = q.dir === -1 ? q.p : Math.min(1, pk * 1.4);
+        c.globalAlpha = (q.dir === -1 ? q.p : Math.min(1, pk * 1.4)) * q.luz;
         const x = misturar(origem, G.X(BARRAS.x0) + largura * (k + 0.5), pk);
         if (NULAS.has(k)) { c.beginPath(); c.arc(x, base, 1.4 * G.dpr, 0, 2 * Math.PI); c.globalAlpha *= 0.45; c.fill(); continue; }
         const h = ((BARRAS.alt * G.bh * a[k]) / max) * pk * (1 + 0.018 * Math.sin(amb * 1.7 + k * 0.9));
         linha(c, x, base, x, base - h);
       }
+    },
+    salto(c, G, q, cor, amb) {
+      // 1942: o salto de frequência de Hedy Lamarr e George Antheil. Um rolo de pianola desce sobre as 64 barras
+      // (apagadas); cada furo que passa pela barra de leitura acende uma frequência, uma de cada vez. Os furos
+      // ligados por um fio mostram o caminho do sinal. Entrando, o rolo se desenrola de cima para baixo; saindo,
+      // se enrola de volta.
+      const t = linear(q), sai = q.dir === -1;
+      const largura = ((BARRAS.x1 - BARRAS.x0) * G.bw) / 64, xCol = (k) => G.X(BARRAS.x0) + largura * (k + 0.5);
+      const xa = G.X(BARRAS.x0) - largura * 0.8, xb = G.X(BARRAS.x1) + largura * 0.8;
+      const yT = G.Y(0.035), yR = G.Y(0.205), gap = G.bh * 0.024;
+      const desenrola = sai ? curvas.suave(q.p) : curvas.suave(janela(t, 0.06, 0.5));
+      const yFim = misturar(yT, yR, desenrola);
+      const ativo = sai ? q.p : curvas.suave(janela(t, 0.48, 0.78));
+      const off = amb * SALTOS_POR_S;
+      c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta;
+
+      // o carretel em cima: cresce do meio para os lados
+      const abre = sai ? 1 : curvas.suave(janela(t, 0, 0.22)), meioX = (xa + xb) / 2, meiaL = ((xb - xa) / 2 + largura * 0.6) * abre;
+      c.globalAlpha = (sai ? q.p : 1) * 0.9; c.lineWidth = 2.4 * G.dpr;
+      linha(c, meioX - meiaL, yT, meioX + meiaL, yT);
+      c.lineWidth = G.dpr; c.globalAlpha *= 0.5;
+      linha(c, meioX - meiaL, yT - G.bh * 0.012, meioX + meiaL, yT - G.bh * 0.012);
+
+      // o papel: bordas e um véu bem leve, só até onde já desenrolou
+      if (yFim > yT + 1) {
+        c.globalAlpha = 0.06 * (sai ? q.p : 1); c.fillRect(xa, yT, xb - xa, yFim - yT);
+        c.globalAlpha = 0.55 * (sai ? q.p : 1); c.lineWidth = G.dpr;
+        linha(c, xa, yT, xa, yFim); linha(c, xb, yT, xb, yFim);
+        // os furos e o fio que liga um ao outro (o caminho do sinal no tempo)
+        c.save(); c.beginPath(); c.rect(xa, yT + G.dpr, xb - xa, yFim - yT - G.dpr); c.clip();
+        const j0 = Math.floor(off), nVis = Math.ceil((yR - yT) / gap) + 2, pts = [];
+        for (let j = j0; j <= j0 + nVis; j++) {
+          const y = yR - (j - off) * gap, k = ROLO[ciclico(j, ROLO.length)];
+          if (y < yT - gap || y > yR + gap) continue;
+          pts.push([xCol(k), y, j]);
+        }
+        c.globalAlpha = 0.32 * (sai ? q.p : 1); c.lineWidth = G.dpr;
+        c.beginPath(); pts.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.stroke();
+        const hw = Math.max(2 * G.dpr, largura * 0.62), hh = gap * 0.5;
+        pts.forEach(([x, y]) => {
+          const perto = 1 - limitar(Math.abs(y - yR) / (gap * 4));         // os furos perto da leitura ficam mais nítidos
+          c.globalAlpha = (0.45 + 0.55 * perto) * (sai ? q.p : 1);
+          c.fillStyle = cor.fundo; c.fillRect(x - hw / 2, y - hh / 2, hw, hh);
+          c.strokeRect(x - hw / 2, y - hh / 2, hw, hh);
+        });
+        c.restore();
+      }
+
+      // a barra de leitura: um furinho por frequência; só o da vez fica aberto
+      const traco = sai ? 1 : curvas.suave(janela(t, 0.3, 0.6));
+      c.globalAlpha = (sai ? q.p : 1) * 0.85; c.lineWidth = 1.6 * G.dpr; c.fillStyle = cor.tinta;
+      linha(c, xa, yR + gap * 0.5, xa + (xb - xa) * traco, yR + gap * 0.5);
+      for (let k = 0; k < 64; k++) {
+        if (NULAS.has(k) || xCol(k) > xa + (xb - xa) * traco) continue;
+        c.globalAlpha = (sai ? q.p : 1) * 0.35; c.beginPath(); c.arc(xCol(k), yR + gap * 0.5, 0.9 * G.dpr, 0, 2 * Math.PI); c.fill();
+      }
+
+      // a frequência da vez: a barra acende inteira, com um fio descendo da leitura até o topo dela
+      if (ativo > 0.001) {
+        const a = perfil();
+        let max = 0;
+        for (let k = 0; k < 64; k++) max = Math.max(max, a[k]);
+        const base = G.Y(BARRAS.base);
+        // o rastro: as últimas frequências por onde o sinal passou ainda brilham um pouco, e apagam
+        c.lineCap = 'butt'; c.strokeStyle = cor.tinta; c.lineWidth = Math.max(G.dpr, largura * 0.34);
+        for (let j = Math.floor(off) - 4; j < Math.floor(off); j++) {
+          const k = ROLO[ciclico(j, ROLO.length)], idade = off - j;
+          const h = ((BARRAS.alt * G.bh * a[k]) / max) * (1 + 0.018 * Math.sin(amb * 1.7 + k * 0.9));
+          c.globalAlpha = ativo * 0.55 * Math.exp(-(idade - 0.5) * 1.1);
+          linha(c, xCol(k), base, xCol(k), base - h);
+        }
+        for (const j of [Math.floor(off), Math.floor(off) + 1]) {
+          const y = yR - (j - off) * gap, f = 1 - limitar(Math.abs(y - yR) / (gap * 0.9));
+          if (f <= 0) continue;
+          const k = ROLO[ciclico(j, ROLO.length)], x = xCol(k);
+          const h = ((BARRAS.alt * G.bh * a[k]) / max) * (1 + 0.018 * Math.sin(amb * 1.7 + k * 0.9));
+          const e = ativo * curvas.suave(f);
+          c.globalAlpha = e; c.strokeStyle = cor.tinta; c.lineCap = 'butt';
+          c.lineWidth = Math.max(G.dpr, largura * 0.34) * 1.25;
+          linha(c, x, base, x, base - h);
+          c.lineCap = 'round'; c.lineWidth = G.dpr; c.globalAlpha = e * 0.5; tracejado(c, G, true);
+          linha(c, x, yR + gap, x, base - h - G.bh * 0.012); tracejado(c, G, false);
+          c.globalAlpha = e; c.fillStyle = cor.tinta;
+          c.beginPath(); c.arc(x, yR + gap * 0.5, 2.6 * G.dpr, 0, 2 * Math.PI); c.fill();
+          c.beginPath(); c.arc(x, base - h, 2.2 * G.dpr, 0, 2 * Math.PI); c.fill();
+        }
+      }
+
+      // à esquerda: o ano e o que é o rolo
+      const rot = (u) => (sai ? q.p : curvas.suave(janela(t, u, u + 0.25)));
+      const xL = G.X(0), sobe = (u) => (1 - rot(u)) * G.bh * 0.02;
+      c.globalAlpha = rot(0.22); c.fillStyle = cor.tinta;
+      c.font = `${Math.round(G.bh * 0.075)}px ${G.serif}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+      c.fillText('1942', xL, G.Y(0.1) + sobe(0.22));
+      // as duas linhas pequenas, espaçadas pelo tamanho real da letra (no celular ela tem um mínimo de 11 px);
+      // no celular a coluna da esquerda é estreita: o que não couber antes do rolo quebra em duas linhas
+      const fs = Math.max(11 * G.dpr, G.bh * 0.03), livre = xa - xL - 6 * G.dpr;
+      c.font = `${Math.round(fs)}px ${G.sans}`;
+      const quebra = (txt, a, b) => (c.measureText(txt).width < livre ? [txt] : [a, b]);
+      // bem estreito (celular): fica só "rolo de pianola", em duas linhas, para não encostar na placa B
+      const estreito = c.measureText('rolo de pianola').width >= livre;
+      const linhasL = [
+        ...quebra('rolo de pianola', 'rolo de', 'pianola').map((txt) => [txt, cor.tinta, 0.32]),
+        ...(estreito ? [] : quebra('cada furo, um salto', 'cada furo,', 'um salto').map((txt) => [txt, cor.apagado, 0.4])),
+      ];
+      linhasL.forEach(([txt, tom, u], i) => {
+        c.globalAlpha = rot(u);
+        rotulo(c, G, cor, txt, xL, G.Y(0.1) + fs * (0.55 + i * 1.25) + sobe(u), { alinhar: 'left', cor: tom, tam: 0.03 });
+      });
     },
     pilha(c, G, q, cor, amb, prm, ex) {
       const { ls, frac } = pilhaSint(amb, q.agito, q.roteiro);
@@ -1123,7 +1245,7 @@
       // entrando: a curva é "desenhada" da esquerda para a direita, como uma caneta
       const m = q.dir === 1 ? curvas.suave(q.p) : 1;
       const ultimo = Math.max(1, Math.floor(m * (P.length - 1)));
-      c.globalAlpha = q.dir === -1 ? q.p : 1;
+      c.globalAlpha = (q.dir === -1 ? q.p : 1) * q.luz;
       c.strokeStyle = cor.tinta; c.lineJoin = 'round'; c.lineCap = 'round';
       c.lineWidth = misturar(2, 2.8, f) * G.dpr;
       c.beginPath();
@@ -1374,6 +1496,15 @@
       barras: { destaque: 44, entrada: [0.5, 0.88] },
       curva: { forma: 0, entrada: [0.7, 0.88] },
     },
+    // 1942: as 64 apagam e um rolo de pianola desce sobre elas; cada furo acende uma frequência, uma de cada vez.
+    // Na cena seguinte, elas acendem de novo, todas juntas, e viram a linha.
+    salto: {
+      chao: { ...ZOOM_NORMAL },
+      placaB: { x: 0.07, esc: 1.1, ...ZOOM_NORMAL },
+      barras: { destaque: -1, luz: 0.16, mover: [0.04, 0.4] },
+      curva: { forma: 0, luz: 0.12, mover: [0.04, 0.36] },
+      salto: { entrada: [0.2, 0.88] },
+    },
     linhas: {
       chao: { p: 0 },
       sala: { p: 0, saida: [0.04, 0.34] },
@@ -1384,10 +1515,12 @@
       barras: { p: 0, saida: [0.12, 0.45] },
       curva: { p: 0, forma: 1, saida: [0.7, 0.92] },
       pilha: { agito: 0, entrada: [0.5, 0.9] },
+      salto: { p: 0, saida: [0.02, 0.3] },
     },
     // a sala pequena em cima (alguém andando) e as linhas embaixo: primeiro a pessoa entra, depois as linhas tremem
     tremor: {
       pilha: { agito: 1, ...PILHA_MINI, mover: { _: [0.06, 0.42], agito: [0.5, 0.88] } },
+      salto: { p: 0, saida: [0.02, 0.3] },   // na versão curta, vem direto do salto de frequência
       chao: { ...ZOOM_MINI, entrada: [0.26, 0.56] },
       placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.3, 0.66] },
       placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.34, 0.7] },

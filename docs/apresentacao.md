@@ -88,24 +88,25 @@ A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha c
 | 6 ★ | Na placa B, os caminhos se somam. | Os caminhos entram na B e saem separados: direto, rebatido e a soma. Crista com crista: "reforça"; crista com vale: "cancela" | O centro da explicação (interferência) |
 | 7 ★ | Quando alguém se mexe, a soma muda. | A sala pequena em cima, com alguém andando; embaixo, a soma sobe e desce no ritmo dos passos | O "agora entendi" |
 | 8 ★ | O Wi-Fi usa 64 ondas juntas. | A força da soma vira uma barra; as outras 63 nascem da B | 64 subportadoras = CSI |
-| 9 | As 64 barras viram uma linha. | O topo das barras vira a primeira linha; as linhas se empilham | Ler as linhas |
-| 10 ★ | Quando alguém anda, as linhas tremem. | Sala pequena com alguém andando; as linhas tremem | Movimento → tremor |
-| 11 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
-| 12 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | O visitante testa |
-| 13 | Como testamos. | Dados reais: o tremor da sala vazia (em cima) e de alguém cruzando a linha (embaixo), 30 s cada, e o limite tracejado saindo da sala vazia | Método |
-| 14 | O que os testes mostraram. | O mesmo gráfico: acendem as 7 travessias detectadas (numeradas) e os 2 alarmes da sala vazia | Resultados dos testes |
-| 15 ★ | Pessoa parada não aparece. | A sala pequena, pessoa parada e tracejada; linhas calmas | Limites (Estátua) |
-| 16 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
-| 17 | Onde isso pode ajudar. | Queda com alerta, luz que apaga sozinha, alarme | Impacto |
-| 18 ★ | E a privacidade? | Casa com as ondas atravessando a parede, alguém do lado de fora | Ética |
-| 19 ★ | Agora você sabe ler estas linhas. | O sinal de verdade de novo | Fecha o arco e convida para a Travessia |
+| 9 ★ | Uma ideia de Hedy Lamarr. | As 64 barras apagam; um rolo de pianola desce sobre elas e cada furo acende uma frequência, uma de cada vez (o salto de frequência, 1942) | Ciência Delas (tema da JACITEC) |
+| 10 | As 64 barras viram uma linha. | O topo das barras vira a primeira linha; as linhas se empilham | Ler as linhas |
+| 11 ★ | Quando alguém anda, as linhas tremem. | Sala pequena com alguém andando; as linhas tremem | Movimento → tremor |
+| 12 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
+| 13 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | O visitante testa |
+| 14 | Como testamos. | Dados reais: o tremor da sala vazia (em cima) e de alguém cruzando a linha (embaixo), 30 s cada, e o limite tracejado saindo da sala vazia | Método |
+| 15 | O que os testes mostraram. | O mesmo gráfico: acendem as 7 travessias detectadas (numeradas) e os 2 alarmes da sala vazia | Resultados dos testes |
+| 16 ★ | Pessoa parada não aparece. | A sala pequena, pessoa parada e tracejada; linhas calmas | Limites (Estátua) |
+| 17 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
+| 18 | Onde isso pode ajudar. | Queda com alerta, luz que apaga sozinha, alarme | Impacto |
+| 19 ★ | E a privacidade? | Casa com as ondas atravessando a parede, alguém do lado de fora | Ética |
+| 20 ★ | Agora você sabe ler estas linhas. | O sinal de verdade de novo | Fecha o arco e convida para a Travessia |
 
-- O que é ilustração aparece com a etiqueta "Ilustração" no canto (as cenas 5 a 11 são física desenhada, não medida). O número de verdade é o da cena 12.
+- O que é ilustração aparece com a etiqueta "Ilustração" no canto (as cenas 5 a 12 são física desenhada, não medida). O número de verdade é o da cena 13. As cenas 14 e 15 mostram dados reais dos testes.
 - A colinha impressa é gerada do roteiro: `python ferramentas/colinha.py` escreve `docs/colinha.md`. Editou o roteiro, gere de novo.
 - Os textos estão em `demo/roteiro.js`. Mudem o que quiserem lá, com o mesmo cuidado: nada de número inventado.
 - No mesmo arquivo:
   - `transicao` é quantos segundos dura cada passagem de cena (hoje 2,6 s; mais = mais devagar);
-  - `CUSTO` é o preço que pagaram nas duas placas (por exemplo `'R$ 90'`). Com ele preenchido, a cena 14 fala o valor.
+  - `CUSTO` é o preço que pagaram nas duas placas (por exemplo `'R$ 90'`). Com ele preenchido, a cena 17 fala o valor.
 
 ## Roteiros
 
@@ -132,7 +133,7 @@ A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha c
 Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visual (10), domínio do conteúdo (15), viabilidade técnica (10) e impacto (15)**.
 
 1. **Problema** (30 s): câmeras invadem a privacidade e sensores vestíveis são esquecidos. Será que o Wi-Fi resolve?
-2. **Como funciona** (1 min30), nas cenas 3 a 12:
+2. **Como funciona** (1 min30), nas cenas 3 a 13:
    - o Wi-Fi é uma onda de ~12 cm e chega à placa B por vários caminhos;
    - os caminhos se somam (interferência), e meia onda (~6 cm) de diferença troca reforço por cancelamento;
    - movimento muda o tamanho dos caminhos e, portanto, a soma;
@@ -155,7 +156,7 @@ Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visu
 7. **Impacto e ética** (30 s): cuidado de idosos e economia de energia de um lado, privacidade do outro.
 8. **Uso de IA** (15 s): "Usamos um assistente de IA como apoio no código e nos textos. Revisamos tudo, e os dados foram medidos por nós." Está declarado na inscrição; é regra do edital.
 
-**Tema da JACITEC ("Ciência delas"), opcional, 15 s (não está na tela, só na fala):** em 1942, a atriz e inventora Hedy Lamarr patenteou, com George Antheil, o salto de frequência, uma das ideias que abriram caminho para comunicações sem fio como o Bluetooth.
+**Tema da JACITEC ("Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação"), 20 s, cena 9:** em 1942, a atriz e inventora Hedy Lamarr patenteou, com George Antheil, o salto de frequência (patente nº 2.292.387): o rádio pula de uma frequência para outra numa ordem que só quem manda e quem recebe conhecem, guardada num rolo de pianola com 88 frequências, uma por tecla. O Bluetooth pula de frequência até hoje, e a primeira versão do Wi-Fi (1997) tinha um modo com salto. **Não digam que ela inventou o Wi-Fi:** ela inventou o salto de frequência, uma das ideias que abriram caminho.
 
 ## Quem faz o quê
 

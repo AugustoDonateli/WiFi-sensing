@@ -139,10 +139,29 @@
       seg: { completa: 25, curta: 20 },
       fala: 'O canal do Wi-Fi é dividido em 64 ondas, de tamanhos um pouquinho diferentes. Como o tamanho muda, cada uma soma de um jeito: umas chegam fortes, outras fracas. A placa B mede as 64 de uma vez. Esse conjunto se chama CSI.',
       acao: ['APONTE: a barra que veio da cena anterior; depois, as outras 63 nascendo da placa B.'],
-      ponte: 'Agora, vamos transformar essas barras numa linha.',
+      ponte: 'Espalhar o sinal por várias frequências tem uma inventora.',
       perguntas: [
         { p: 'O que é CSI?', r: 'Channel State Information: para cada uma das 64 partes do canal, quanto a viagem mudou a força e a fase da onda. Usamos só a força (amplitude).' },
         { p: 'Por que 64?', r: 'O canal de 20 MHz do Wi-Fi é dividido em 64 subportadoras, a cada 312,5 kHz. Algumas ficam vazias (bordas e centro): são os pontinhos sem barra.' },
+      ],
+    },
+    {
+      id: 'salto', cap: 'II',
+      titulo: 'Uma ideia de *Hedy Lamarr*.',
+      frase: 'Em 1942, a atriz e inventora Hedy Lamarr patenteou, com George Antheil, o salto de frequência: o sinal pula de uma frequência para outra.',
+      seg: { completa: 30, curta: 18 },
+      fala: 'O tema desta JACITEC é Ciência Delas, e essa parte do Wi-Fi tem uma inventora. Em 1942, a atriz Hedy Lamarr e o compositor George Antheil patentearam o salto de frequência: o rádio pula de uma frequência para outra, numa ordem que só quem manda e quem recebe conhecem. A ordem vinha de um rolo de pianola, com 88 frequências, uma para cada tecla do piano. A ideia era guiar torpedos sem que o inimigo bloqueasse o sinal. Espalhar o sinal por várias frequências virou base da comunicação sem fio: o Bluetooth pula de frequência até hoje, e o Wi-Fi de hoje usa as 64 de uma vez.',
+      acao: [
+        'APONTE: o rolo descendo; cada furo que passa pela barra de leitura acende uma frequência, uma de cada vez.',
+        'FALE: o tema da JACITEC, "Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação".',
+        'NÃO DIGA: que ela inventou o Wi-Fi. Ela inventou o salto de frequência, uma das ideias que abriram caminho.',
+      ],
+      ponte: 'Hoje, as 64 acendem juntas. E viram uma linha.',
+      perguntas: [
+        { p: 'Ela inventou o Wi-Fi?', r: 'Não o Wi-Fi inteiro. Ela inventou, com George Antheil, o salto de frequência, uma forma de espalhar o sinal por várias frequências. O Bluetooth usa salto de frequência até hoje, e a primeira versão do Wi-Fi, de 1997, tinha um modo com salto. O Wi-Fi de hoje espalha o sinal de outro jeito (as 64 ondas ao mesmo tempo).' },
+        { p: 'Funcionou na guerra?', r: 'A Marinha dos EUA não adotou na época, e a patente venceu sem que ela ganhasse dinheiro com ela. O reconhecimento veio depois: o prêmio Pioneer da Electronic Frontier Foundation, em 1997, e o Hall da Fama dos Inventores dos EUA, em 2014.' },
+        { p: 'Por que um rolo de pianola?', r: 'O transmissor e o receptor precisavam pular juntos, na mesma ordem. Antheil era compositor e já sincronizava pianolas; os rolos perfurados guardavam a ordem, como uma partitura. A patente é a nº 2.292.387, de 11 de agosto de 1942.' },
+        { p: 'O que é o tema "Ciência Delas"?', r: 'É o tema da JACITEC 2026: "Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação". É também o tema da Semana Nacional de Ciência e Tecnologia deste ano.' },
       ],
     },
     {

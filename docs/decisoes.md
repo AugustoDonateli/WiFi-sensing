@@ -113,6 +113,14 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - **O que isso mostra:** perto, só treme quando a pessoa **cruza a linha** entre as placas (picos a cada ~3,3 s, entre eles volta ao nível do vazio). É o que a Travessia precisa. Longe e com parede, a zona sensível é maior. Os 2 alarmes no vazio perto ainda não têm causa conhecida (alguém andando na casa? a TV?).
   - **Ainda não é resultado:** 1 coleta de cada, em casa. O resultado vem das sessões S1 (ajuste) e S2 (teste), na escola.
 
+### Hedy Lamarr volta, agora como cena (15/10/2026, pedido do grupo)
+- O tema da JACITEC 2026 é **"Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação"** (o mesmo da 23ª Semana Nacional de Ciência e Tecnologia). Na rodada 2 a cena tinha saído; o grupo pediu de volta, por causa do tema.
+- **Onde:** logo depois de "O Wi-Fi usa 64 ondas juntas" (cena 9, nas duas versões). As 64 barras apagam, um rolo de pianola desce, e cada furo acende uma frequência, uma de cada vez. Na cena seguinte, as 64 acendem juntas e viram a linha: "em 1942, uma de cada vez; hoje, todas juntas".
+- **O que é verdade e o que não é:**
+  - verdade: em 1942 (patente nº 2.292.387, de 11/08/1942), Hedy Lamarr e George Antheil patentearam o salto de frequência, com rolos perfurados como os de pianola (88 frequências); a Marinha dos EUA não adotou na época; prêmio Pioneer da EFF em 1997 e Hall da Fama dos Inventores dos EUA em 2014; o Bluetooth pula de frequência até hoje; a primeira versão do Wi-Fi (IEEE 802.11, 1997) tinha um modo com salto de frequência;
+  - **não dizer** que ela inventou o Wi-Fi. A colinha tem a frase "NÃO DIGA" e a resposta para "Ela inventou o Wi-Fi?".
+- O rolo da tela tem 64 colunas (as subportadoras), não 88: é ilustração, com a etiqueta.
+
 ### Site no Vercel (aprovado)
 - A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.
 - O site não guarda nada em servidor; recordes e marcas ficam no navegador de cada aparelho.
@@ -122,7 +130,7 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Virou uma **história em motion design** na própria página (tecla H), para ser o apoio da apresentação no estande. Cada desenho se transforma no próximo; não são slides.
 - **Rolagem contínua** (a animação anda com a rolagem e volta exatamente se rolar para trás), mais setas e passador de slides.
 - **Janela do apresentador** no notebook com a fala de cada cena; a TV mostra só a animação.
-- **Duas versões:** completa (17 cenas, para o avaliador) e curta (11 cenas, para visitantes).
+- **Duas versões:** completa (17 cenas, para o avaliador) e curta (11 cenas, para visitantes). Em 15/10: 20 e 12 cenas.
 - **Textos diretos**, sem frase de efeito (pedido do grupo). Ficam em `demo/roteiro.js`, separados do código.
 - Dados sintéticos só com a etiqueta "Ilustração". A cena ao vivo diz de onde vem o sinal (placas, simulação ou gravação). Resultados só com números do `avaliar.py`.
 - **Rodada 2 (pedido do grupo):**

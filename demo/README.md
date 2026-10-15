@@ -112,7 +112,7 @@ O arco: abre com **as linhas da sala, de verdade**, sem explicar nada ("mexa o b
 6. as 64 barras viram uma linha, e as linhas tremem.
 
 - **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
-- **Duas versões** (tecla `V`): **completa**, com 19 cenas, para o avaliador (cerca de 6 min 40 s), e **curta**, com 11 cenas, para visitantes (cerca de 3 min 30 s).
+- **Duas versões** (tecla `V`): **completa**, com 20 cenas, para o avaliador (cerca de 7 min), e **curta**, com 12 cenas, para visitantes (cerca de 3 min 45 s).
 - **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a colinha de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
   - A colinha: a fala em letra grande, as ações (APONTE, PERGUNTE, PAUSA, FAÇA) e a ponte para a próxima cena. A tecla `Q` (ou o botão) mostra as perguntas que um avaliador pode fazer, com a resposta.
   - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
@@ -124,6 +124,7 @@ O arco: abre com **as linhas da sala, de verdade**, sem explicar nada ("mexa o b
 - As cenas que explicam (linhas, barras, número de exemplo, gravações) usam **dados sintéticos** do mesmo modelo da simulação, com semente fixa. Sempre que eles aparecem, o canto de cima mostra "Ilustração".
 - A abertura, a cena "ao vivo" e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem; por exemplo, na abertura: "Estas linhas são o Wi-Fi desta sala." (Placa USB), "Estas linhas imitam o Wi-Fi de uma sala." (simulação) ou "... de uma gravação.".
 - As cenas da onda, da soma e das 64 ondas são física desenhada (com a etiqueta "Ilustração"): 12 cm é o comprimento de onda de 2,4 GHz; na soma, o caminho rebatido tem 90% da força do direto.
+- **Cena "Uma ideia de Hedy Lamarr"** (tema da JACITEC, "Ciência Delas"): depois das 64 ondas, as barras apagam e um rolo de pianola desce sobre elas; cada furo que passa pela barra de leitura acende uma frequência, uma de cada vez, com um rastro que apaga. É o salto de frequência patenteado em 1942 por Hedy Lamarr e George Antheil. Na cena seguinte, as 64 acendem juntas e viram a linha. A sequência de saltos é fixa (semente 1942).
 - A cena de resultados só mostra números quando alguém preencher `RESULTADOS` no `roteiro.js` com o resultado do `ferramentas/avaliar.py` (por coleta, com o chute ao lado). Até lá ela diz que as gravações ainda estão sendo feitas.
 
 **Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.

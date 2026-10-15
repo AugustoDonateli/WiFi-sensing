@@ -2,8 +2,8 @@
 
 Gerada por `ferramentas/colinha.py` a partir do `demo/roteiro.js`. Não edite aqui: edite o roteiro e gere de novo.
 
-- **Completa:** 19 cenas, cerca de 6:38 (para avaliador).
-- **Curta:** 11 cenas, cerca de 3:25 (para visitante). As cenas da curta estão marcadas com ●.
+- **Completa:** 20 cenas, cerca de 7:08 (para avaliador).
+- **Curta:** 12 cenas, cerca de 3:43 (para visitante). As cenas da curta estão marcadas com ●.
 - Na janela do apresentador (tecla P na TV), a mesma colinha aparece cena a cena. A tecla Q mostra as perguntas.
 
 Como ler: a **fala** é o que dizer, em frases curtas (não precisa decorar). As **ações** dizem o que fazer:
@@ -105,13 +105,32 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 - APONTE: a barra que veio da cena anterior; depois, as outras 63 nascendo da placa B.
 
-→ *Agora, vamos transformar essas barras numa linha.*
+→ *Espalhar o sinal por várias frequências tem uma inventora.*
 
 > **O que é CSI?** Channel State Information: para cada uma das 64 partes do canal, quanto a viagem mudou a força e a fase da onda. Usamos só a força (amplitude).
 >
 > **Por que 64?** O canal de 20 MHz do Wi-Fi é dividido em 64 subportadoras, a cada 312,5 kHz. Algumas ficam vazias (bordas e centro): são os pontinhos sem barra.
 
-### 9. As 64 barras viram uma linha.
+### 9. Uma ideia de Hedy Lamarr. ●
+*30 s (curta: 18 s)*
+
+**Fala.** O tema desta JACITEC é Ciência Delas, e essa parte do Wi-Fi tem uma inventora. Em 1942, a atriz Hedy Lamarr e o compositor George Antheil patentearam o salto de frequência: o rádio pula de uma frequência para outra, numa ordem que só quem manda e quem recebe conhecem. A ordem vinha de um rolo de pianola, com 88 frequências, uma para cada tecla do piano. A ideia era guiar torpedos sem que o inimigo bloqueasse o sinal. Espalhar o sinal por várias frequências virou base da comunicação sem fio: o Bluetooth pula de frequência até hoje, e o Wi-Fi de hoje usa as 64 de uma vez.
+
+- APONTE: o rolo descendo; cada furo que passa pela barra de leitura acende uma frequência, uma de cada vez.
+- FALE: o tema da JACITEC, "Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação".
+- NÃO DIGA: que ela inventou o Wi-Fi. Ela inventou o salto de frequência, uma das ideias que abriram caminho.
+
+→ *Hoje, as 64 acendem juntas. E viram uma linha.*
+
+> **Ela inventou o Wi-Fi?** Não o Wi-Fi inteiro. Ela inventou, com George Antheil, o salto de frequência, uma forma de espalhar o sinal por várias frequências. O Bluetooth usa salto de frequência até hoje, e a primeira versão do Wi-Fi, de 1997, tinha um modo com salto. O Wi-Fi de hoje espalha o sinal de outro jeito (as 64 ondas ao mesmo tempo).
+>
+> **Funcionou na guerra?** A Marinha dos EUA não adotou na época, e a patente venceu sem que ela ganhasse dinheiro com ela. O reconhecimento veio depois: o prêmio Pioneer da Electronic Frontier Foundation, em 1997, e o Hall da Fama dos Inventores dos EUA, em 2014.
+>
+> **Por que um rolo de pianola?** O transmissor e o receptor precisavam pular juntos, na mesma ordem. Antheil era compositor e já sincronizava pianolas; os rolos perfurados guardavam a ordem, como uma partitura. A patente é a nº 2.292.387, de 11 de agosto de 1942.
+>
+> **O que é o tema "Ciência Delas"?** É o tema da JACITEC 2026: "Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação". É também o tema da Semana Nacional de Ciência e Tecnologia deste ano.
+
+### 10. As 64 barras viram uma linha.
 *15 s*
 
 **Fala.** Ligando o topo das barras, temos uma linha. Chega uma nova a cada décimo de segundo e empurra as outras para cima. São as linhas que vocês viram no começo.
@@ -122,7 +141,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 > **Cada linha é uma mensagem?** É a média das mensagens de 0,1 s (cerca de 10). O desenho realça o tremor 3 vezes para ficar visível; a detecção usa os valores sem realce.
 
-### 10. Quando alguém anda, as linhas tremem. ●
+### 11. Quando alguém anda, as linhas tremem. ●
 *15 s (curta: 15 s)*
 
 **Fala.** Com a sala parada, as linhas repetem o mesmo desenho. Quando alguém anda, as 64 somas mudam a cada passo, e as linhas tremem. É isso que o Wave Sense procura.
@@ -131,7 +150,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 → *Para o computador decidir sozinho, o tremor vira um número.*
 
-### 11. Um número diz o quanto tremeu.
+### 12. Um número diz o quanto tremeu.
 *25 s*
 
 **Fala.** O número compara o tremor de agora com o da sala vazia, que vale 1,0. Quando passa da linha tracejada, o sistema marca movimento.
@@ -147,7 +166,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **E a linha tracejada?** Média da sala vazia + 3 desvios, no mínimo 1,3×. Três medidas seguidas acima viram "movimento"; cinco abaixo voltam a "parado".
 
-### 12. Agora com o sinal das placas. ●
+### 13. Agora com o sinal das placas. ●
 *35 s (curta: 30 s)*
 
 Na simulação, a TV mostra: "Agora na simulação."
@@ -162,7 +181,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 ## III · O experimento
 
-### 13. Como testamos.
+### 14. Como testamos.
 *25 s*
 
 **Fala.** Gravamos 30 segundos com a sala vazia e 30 com alguém andando, cruzando a linha entre as placas. Cada traço é o tremor medido de verdade. O limite, a linha tracejada, sai da sala vazia: o normal dela, mais uma folga.
@@ -176,7 +195,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 >
 > **Por que não têm a porcentagem de acerto?** Porque ainda não fizemos as sessões separadas (uma para ajustar, outra para testar). Preferimos não dar um número que não foi medido do jeito certo.
 
-### 14. O que os testes mostraram.
+### 15. O que os testes mostraram.
 *25 s*
 
 **Fala.** Cada faixa clara é um momento em que o sistema disse "movimento". A pessoa cruzou a linha 7 vezes, e ele percebeu as 7. Com a sala vazia, deu 2 alarmes curtos em 30 segundos. Num outro teste, a 3,75 metros e com uma parede no meio, ele também percebeu a pessoa andando. É um teste de cada: mostra que funciona, ainda não é a taxa de acerto.
@@ -195,7 +214,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 ## IV · Limites e usos
 
-### 15. Pessoa parada não aparece. ●
+### 16. Pessoa parada não aparece. ●
 *20 s (curta: 18 s)*
 
 **Fala.** Lembra da pergunta da pessoa parada? A soma não muda, e as linhas ficam calmas. O sistema percebe movimento, não pessoas.
@@ -208,7 +227,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 >
 > **Quais são os outros limites?** Distância entre as placas, paredes, várias pessoas ao mesmo tempo, interferência de outras redes e objetos que se mexem (ventilador, cortina, bicho). Cada lugar precisa calibrar de novo.
 
-### 16. Dá para montar com pouco.
+### 17. Dá para montar com pouco.
 *20 s*
 
 **Fala.** São duas placas baratas, o programa oficial e aberto da Espressif e um notebook. A tela e a análise são nossas, em JavaScript e Python.
@@ -219,14 +238,14 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 > **Isso já existe no mercado?** Em 2025 o IEEE publicou um padrão só para sensoriamento por Wi-Fi, o 802.11bf. A ideia está indo para produtos; nosso projeto testa os limites com placas simples.
 
-### 17. Onde isso pode ajudar.
+### 18. Onde isso pode ajudar.
 *15 s*
 
 **Fala.** Uma queda é um movimento forte e depois silêncio: dá para avisar alguém. Também dá para apagar a luz de uma sala vazia, ou fazer um alarme sem câmera.
 
 → *Mas tem o outro lado.*
 
-### 18. E a privacidade? ●
+### 19. E a privacidade? ●
 *20 s (curta: 18 s)*
 
 **Fala.** Se o sinal atravessa paredes, alguém de fora poderia saber se tem gente em casa. Por isso medimos até onde funciona e discutimos regras de uso.
@@ -237,7 +256,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 > **Dá mesmo para ver através da parede?** Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, num teste, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi um teste só: funciona, mas ainda não sabemos o quanto acerta.
 
-### 19. Agora você sabe ler estas linhas. ●
+### 20. Agora você sabe ler estas linhas. ●
 *15 s (curta: 12 s)*
 
 **Fala.** Lembra das linhas do começo? São ondas se somando na placa B. Quer testar? Tente atravessar a faixa sem que elas tremam.

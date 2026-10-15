@@ -132,7 +132,7 @@ class TestHistoria(unittest.TestCase):
 
     def test_versoes(self):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
-        self.assertEqual(len(self.r["curta"]), 11)
+        self.assertEqual(len(self.r["curta"]), 12)
         self.assertEqual(self.r["curta"][0], "abertura")
         self.assertEqual(self.r["remap"], ["frequencias", "placas", "parado", "privacidade"])
 
