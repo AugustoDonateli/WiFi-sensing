@@ -15,6 +15,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 - `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
 - `escuta.js`: o som do modo escuta ("Batimento"). Sem ele, a escuta fica muda.
+- `sons.js`: o som das trocas de tela (três propostas: Sinal, Notas e Ar). Sem ele, as trocas ficam mudas.
 - `marca.js`: a marca em estrela de cada travessia, os textos do resultado e o registro.
 - `apresentador.html`: a janela do apresentador (fica no notebook).
 - `fontes.css`: as fontes embutidas, para a tela ficar igual sem internet.
@@ -92,7 +93,7 @@ Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-F
 - Enter, Espaço e as setas da história esperam a tela nova aparecer.
 - A lógica da tela que sai para na hora. Esc no meio da travessia encerra o desafio, sem salvar marca.
 
-**Som:** com o som ligado (Alerta ou Escuta), um sopro baixo acompanha cada passagem; na travessia, ele passa de uma caixa de som para a outra, junto com a pessoa invisível. Com o som mudo, nada toca.
+**Som:** cada tela tem um som de entrar e de sair (`sons.js`), que segue o gesto da passagem. Detalhes em "Som das trocas de tela", abaixo.
 
 **Desligar:**
 - Botão "Passagens entre telas" no painel do Operador (fica guardado no navegador);
@@ -185,6 +186,27 @@ Três notas (ré, lá, mi). Cada uma é tocada por dois osciladores: um fixo e u
 - Tem um limitador próprio, mais leve que o dos alertas, para não achatar a diferença entre parado e movimento.
 - Os números ficam no começo do `escuta.js`. Teste: `ferramentas/testes/test_escuta_js.py`.
 - Medido na simulação (`ferramentas/laboratorio-escuta/medir.py`): sala vazia -27 dBFS, alguém andando -16 dBFS, movimento bem devagar -21 dBFS. Com as placas, o tremor real é menor que o simulado; por isso o pulso já começa no limiar.
+
+### Som das trocas de tela (`sons.js`)
+
+O som acompanha o desenho da passagem. A saída de uma tela é a entrada dela tocada de trás para a frente, como no desenho (menos a da história, que tem saída própria). Toda saída termina no mesmo som, o do instante em que as linhas cobrem a tela, e toda entrada começa nele: qualquer saída emenda em qualquer entrada.
+
+Três propostas, para o grupo escolher no laboratório (`ferramentas/laboratorio-passagens/`, com as passagens de verdade e as telas simplificadas):
+
+| | Sinal (padrão por enquanto) | Notas | Ar |
+|---|---|---|---|
+| A ideia | O som é feito da última leitura do Wi-Fi: 12 notas igualmente espaçadas, como as subportadoras, cada uma com a força do seu pedaço do sinal. Se alguém se mexe perto das placas, elas tremem. | Uma frase curta de marimba por tela, nas notas da marca e da escuta. | Sopros de ruído filtrado com o gesto de cada tela. A mais discreta. |
+| Principal | As notas se apertam e abafam; um grave quando o gráfico pousa. | Ré, lá, ré, descendo, com um grave. | O sopro abafa até um grave. |
+| Escuta | As 12 notas escorregam para o acorde da escuta (ré, lá, mi). | Mi, lá, ré, cada vez mais longas, até o acorde. | O sopro vira um assobio em ré. |
+| Travessia | O som treme quando a pessoa invisível passa no meio; sopro e passos vão de uma caixa de som para a outra; duas notas na chegada. | Cinco notas subindo no ritmo dos passos. | O sopro vai com a pessoa, com passos. |
+| Quem passou | As notas afinam na escala da marca e giram; seis sininhos, um por ponta da estrela. | Seis notas em espiral. | Um redemoinho e um sininho. |
+| Como funciona | O som vai para a direita e as notas apagam uma a uma; duas notas abrem a história. Saindo: uma nota pinçada por linha desenhada. | Ré, mi, lá, devagar. Saindo: oito notas subindo. | Um farfalhar de página. Saindo: riscos de lápis. |
+
+- Toca mesmo com o detector no Mudo (o Mudo é o som do detector). Desliga em "Trocas de tela", no painel do Operador; a escolha fica guardada no navegador. `?trocas=notas` na URL escolhe pela URL; `?trocas=antigo` toca o sopro de antes, para comparar.
+- Sem fonte de dados, a proposta Sinal toca as 12 notas iguais, sem tremor (nada inventado).
+- Tudo feito na hora pelo navegador (Web Audio): nenhum arquivo de som, funciona sem internet. Passa pelo limitador do site.
+- Volume medido pela cadeia do site (`ferramentas/laboratorio-passagens/medir.py`, pico em janelas de 50 ms, média das 20 trocas): Sinal −26,8 dBFS, Notas −26,5, Ar −26,3; o alerta do detector dá −25,4. O sopro de antes dava −43,9 (quase não se ouvia).
+- Teste: `ferramentas/testes/test_sons_js.py` (toda troca passa pelo som do meio, a saída é a entrada ao contrário, a saída responde em até 0,2 s, o sopro antigo igual ao de antes).
 
 ## Atalhos
 

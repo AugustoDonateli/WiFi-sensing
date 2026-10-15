@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><title>Medir sons das passagens</title></head>
+<body>
+<script src="../../demo/historia.js"></script>
+<script src="../../demo/passagem.js"></script>
+<script src="../../demo/escuta.js"></script>
+<script src="../../demo/sons.js"></script>
+<script>
+/* Grava sons das passagens sem tocar (OfflineAudioContext), pela mesma cadeia do site:
+   limitador (os mesmos números do index.html) e volume 0,6. Usado pelo medir.py. */
+const TAXA = 44100;
+const ENTRADA = WavePassagem.ENTRADA, TEMPOS = WavePassagem.TEMPOS, SINAL_S = WavePassagem.SINAL_S;
+function cadeia(ctx) {
+  const lim = ctx.createDynamicsCompressor();
+  lim.threshold.value = -28; lim.knee.value = 20; lim.ratio.value = 8; lim.attack.value = 0.01; lim.release.value = 0.3;
+  const mestre = ctx.createGain(); mestre.gain.value = 0.6;
+  lim.connect(mestre).connect(ctx.destination);
+  lim.mestre = mestre;
+  return lim;
+}
+// eventos: [{ t, evento, gesto, dur }]; contexto: o espectro. Devolve os dois canais.
+async function gravar(familia, eventos, total, contexto = {}) {
+  const ctx = new OfflineAudioContext(2, Math.ceil(total * TAXA), TAXA);
+  const sons = WaveSons.criar(ctx, cadeia(ctx));
+  for (const e of eventos) {
+    ctx.suspend(e.t).then(() => { sons.tocar(familia, e.evento, { gesto: e.gesto, dur: e.dur }, contexto); ctx.resume(); });
+  }
+  const buf = await ctx.startRendering();
+  return [Array.from(buf.getChannelData(0)), Array.from(buf.getChannelData(1))];
+}
+// Uma troca inteira, como no site: a saída da tela de origem, o SINAL e a entrada da de destino.
+function troca(origem, destino, t = 0.05) {
+  const gs = WavePassagem.gestoDeSaida(origem, {}), ge = ENTRADA[destino];
+  const ds = TEMPOS[gs][0], de = TEMPOS[ge][1];
+  return { eventos: [{ t, evento: 'saida', gesto: gs, dur: ds }, { t: t + ds + SINAL_S + 0.03, evento: 'entrada', gesto: ge, dur: de }], fim: t + ds + SINAL_S + 0.03 + de };
+}
+// Uma linha do tempo gravada no site (para o vídeo): trocas e, na escuta, o acorde (escuta.js) com as
+// medidas de verdade. eventos: [{ t, tipo: 'troca', nome, info, espectro } | { t, tipo: 'escuta', acao: 'ligar' | 'desligar' }
+// | { t, tipo: 'medida', v, limiar }]
+async function gravarLinha(familia, eventos, total) {
+  const ctx = new OfflineAudioContext(2, Math.ceil(total * TAXA), TAXA);
+  const lim = cadeia(ctx), sons = WaveSons.criar(ctx, lim);
+  const leve = ctx.createDynamicsCompressor();
+  leve.threshold.value = -10; leve.knee.value = 6; leve.ratio.value = 12; leve.attack.value = 0.003; leve.release.value = 0.25;
+  leve.connect(lim.mestre);   // como no site: o limitador da escuta vai direto para o volume
+  let escuta = null;
+  // o suspend só para em pedaços de 128 amostras: junta o que cai no mesmo pedaço
+  const grupos = new Map();
+  for (const e of eventos) { const q = Math.ceil((e.t * TAXA) / 128) * 128 / TAXA; if (q < total) { if (!grupos.has(q)) grupos.set(q, []); grupos.get(q).push(e); } }
+  for (const [q, es] of grupos) {
+    ctx.suspend(q).then(() => {
+      for (const e of es) {
+        if (e.tipo === 'troca') sons.tocar(familia, e.nome, e.info, { espectro: e.espectro });
+        else if (e.tipo === 'escuta' && e.acao === 'ligar' && !escuta) escuta = WaveEscuta.criar(ctx, leve);
+        else if (e.tipo === 'escuta' && e.acao === 'desligar' && escuta) { escuta.parar(); escuta = null; }
+        else if (e.tipo === 'medida' && escuta) escuta.atualizar({ v: e.v, limiar: e.limiar }, 0.2);
+      }
+      ctx.resume();
+    });
+  }
+  const buf = await ctx.startRendering();
+  return [Array.from(buf.getChannelData(0)), Array.from(buf.getChannelData(1))];
+}
+window.medir = { gravar, gravarLinha, troca, ENTRADA, TEMPOS };
+</script>
+</body>
+</html>

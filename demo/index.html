@@ -319,6 +319,16 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
     <p>Alerta: dois toques suaves quando começa um movimento. Escuta: um acorde calmo que cresce e pulsa quando alguém se mexe, sem os toques de alerta. Tudo passa por um limitador de volume.</p>
   </section>
   <section>
+    <span class="mono">Trocas de tela</span>
+    <div class="opcoes" id="trocas">
+      <button data-trocas="sinal" aria-pressed="false">Sinal</button>
+      <button data-trocas="notas" aria-pressed="false">Notas</button>
+      <button data-trocas="ar" aria-pressed="false">Ar</button>
+      <button data-trocas="desligado" aria-pressed="false">Sem som</button>
+    </div>
+    <p>O som de entrar e sair de cada tela. Toca mesmo com o detector no Mudo. Sinal: feito da última leitura do Wi-Fi. Notas: uma frase de marimba por tela. Ar: sopros, o mais discreto. Para comparar: ferramentas/laboratorio-passagens.</p>
+  </section>
+  <section>
     <span class="mono">Apresentação</span>
     <div class="opcoes"><button id="btn-apresentador">Abrir janela do apresentador (P)</button></div>
     <p>Ordem com TV: aperte P, arraste esta página para a TV, aperte F (tela cheia) e H (história). Setas, espaço, rolagem ou o passador navegam; V troca entre a versão completa e a curta.</p>
@@ -344,6 +354,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 <script src="historia.js"></script>
 <script src="passagem.js"></script>
 <script src="escuta.js"></script>
+<script src="sons.js"></script>
 <script src="marca.js"></script>
 <script>
 'use strict';
@@ -1311,41 +1322,29 @@ function subirPalavras(modo, atraso = 0) {
   });
   setTimeout(() => els.forEach((el) => el.classList.remove('sobe')), atraso + els.length * 70 + 1000);
 }
-// Som da passagem: um sopro baixo de ruído filtrado. Na travessia, ele passa
-// de uma caixa de som para a outra, junto com a pessoa invisível. Só com o som ligado, pelo limitador.
-let ruidoRosa = null;
-function sopro(dur, { f0 = 300, f1 = 900, ganho = 0.05, pan0 = 0, pan1 = 0, tipo = 'lowpass' } = {}) {
-  if (som.modo === 'mudo' || !som.ctx || dur <= 0) return;
-  const c = som.ctx, t = c.currentTime;
-  if (!ruidoRosa) {
-    const n = c.sampleRate * 2, d = (ruidoRosa = c.createBuffer(1, n, c.sampleRate)).getChannelData(0);
-    let b0 = 0, b1 = 0, b2 = 0;
-    for (let i = 0; i < n; i++) { const w = Math.random() * 2 - 1; b0 = 0.997 * b0 + w * 0.0296; b1 = 0.985 * b1 + w * 0.0325; b2 = 0.95 * b2 + w * 0.048; d[i] = (b0 + b1 + b2 + w * 0.05) * 0.5; }
-  }
-  const fonte = c.createBufferSource(); fonte.buffer = ruidoRosa; fonte.loop = true;
-  const filtro = c.createBiquadFilter(); filtro.type = tipo; filtro.Q.value = tipo === 'bandpass' ? 0.9 : 0.7;
-  filtro.frequency.setValueAtTime(f0, t); filtro.frequency.exponentialRampToValueAtTime(f1, t + dur);
-  const g = c.createGain();
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(ganho, t + dur * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  let saida = g;
-  if (c.createStereoPanner && (pan0 || pan1)) {
-    const p = c.createStereoPanner(); p.pan.setValueAtTime(pan0, t); p.pan.linearRampToValueAtTime(pan1, t + dur);
-    g.connect(p); saida = p;
-  }
-  fonte.connect(filtro).connect(g); saida.connect(som.saida);
-  fonte.start(t, Math.random()); fonte.stop(t + dur + 0.05);
+// Som das trocas de tela (sons.js): cada tela tem o seu som de entrar e de sair, que segue o gesto da
+// passagem. Não depende do Mudo (que é o som do detector); desliga em "Trocas de tela", no painel.
+// ?trocas=antigo toca o sopro de antes, para comparar.
+const TROCAS = ['sinal', 'notas', 'ar', 'desligado', 'antigo'];
+let trocas = (() => {
+  const v = new URLSearchParams(location.search).get('trocas') || ler('wavesense-trocas', window.WaveSons ? WaveSons.PADRAO : 'desligado');
+  return TROCAS.includes(v) ? v : 'sinal';
+})();
+let sonsTroca = null;
+function definirTrocas(f, guardar = true) {
+  trocas = TROCAS.includes(f) ? f : 'sinal';
+  if (guardar) gravar('wavesense-trocas', trocas);
+  for (const b of document.querySelectorAll('[data-trocas]')) b.setAttribute('aria-pressed', String(b.dataset.trocas === trocas));
+}
+function tocarTroca(nome, info) {
+  if (nome === 'fim' || trocas === 'desligado' || !window.WaveSons || !som.ctx) return;
+  if (!sonsTroca) sonsTroca = WaveSons.criar(som.ctx, som.saida);
+  const l = app.fonte ? app.leituras[app.leituras.length - 1] : null;   // sem fonte: notas iguais, sem tremor
+  sonsTroca.tocar(trocas, nome, info, { espectro: WaveSons.espectro(l) });
 }
 function aoPassar(nome, info) {
-  if (nome === 'saida') {
-    if (info.gesto === 'travessia') sopro(info.dur, { f0: 500, f1: 1100, ganho: 0.05, pan0: 0.8, pan1: -0.8, tipo: 'bandpass' });   // a volta, da direita para a esquerda
-    else if (info.gesto !== 'fecharOlhos') sopro(info.dur, { f0: 260, f1: 900, ganho: 0.04 });
-  } else if (nome === 'entrada') {
-    subirPalavras(info.modo, REVELA_MS[info.gesto] ?? 250);
-    if (info.gesto === 'travessia') sopro(info.dur, { f0: 500, f1: 1100, ganho: 0.06, pan0: -0.8, pan1: 0.8, tipo: 'bandpass' });
-    else if (info.gesto === 'aneis') sopro(info.dur, { f0: 900, f1: 220, ganho: 0.04 });
-    else if (info.gesto === 'pouso' || info.gesto === 'historia') sopro(info.dur, { f0: 900, f1: 240, ganho: 0.035 });
-    // fechar os olhos: o acorde da escuta já entra sozinho
-  }
+  if (nome === 'entrada') subirPalavras(info.modo, REVELA_MS[info.gesto] ?? 250);
+  tocarTroca(nome, info);
 }
 
 function modoAlvo() { const a = passagem.alvo(); return a ? a.modo : modoAtual(); }
@@ -1353,7 +1352,7 @@ function trocarPara(modo, opc = {}) {
   const M = MODOS[modo];
   if (M.pode && !M.pode()) { mostrarMsg(M.recusa); return; }
   if (modo !== 'historia') filaHistoria.length = 0;
-  if (modo === 'escuta' || som.modo !== 'mudo') audio();   // libera o áudio aqui, dentro da tecla ou do clique
+  if (modo === 'escuta' || som.modo !== 'mudo' || trocas !== 'desligado') audio();   // libera o áudio aqui, dentro da tecla ou do clique
   // página escondida (sem quadros de animação): troca na hora
   if (document.hidden) { passagem.concluir(); SEM_PASSAGEM.passar(modo, opc); return; }
   passagem.passar(modo, opc);
@@ -1387,6 +1386,8 @@ $('som-mudo').addEventListener('click', () => definirSom('mudo'));
 $('som-alerta').addEventListener('click', () => { definirSom('alerta'); somAlerta(); });
 $('som-escuta').addEventListener('click', () => definirSom('escuta'));
 $('volume').addEventListener('input', (e) => { som.vol = Number(e.target.value); if (som.mestre) som.mestre.gain.value = som.vol; });
+for (const b of document.querySelectorAll('[data-trocas]')) b.addEventListener('click', () => { definirTrocas(b.dataset.trocas); if (trocas !== 'desligado') audio(); });
+definirTrocas(trocas, false);   // a escolha da URL não fica guardada
 $('vitrine').addEventListener('click', (e) => { como.ligado = !como.ligado; e.target.setAttribute('aria-pressed', String(como.ligado)); });
 $('btn-zerar').addEventListener('click', (e) => {
   if (e.target.dataset.confirmar !== 'sim') { e.target.dataset.confirmar = 'sim'; e.target.textContent = 'Clique de novo para apagar'; return; }

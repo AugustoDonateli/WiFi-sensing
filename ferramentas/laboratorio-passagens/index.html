@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Laboratório de Passagens</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Laboratório: o palco (as telas do site, simplificadas, com as passagens de verdade) e as propostas de som.
+   Preto e branco, como a tela do estande. Uma cor só: o laranja apagado do "agora tocando". */
+:root {
+  --fundo: #0B0B0A;
+  --tinta: #EDEDE8;
+  --apagado: #8A8A84;
+  --fraco: #4C4C48;
+  --fio: #262624;
+  --serif: 'Instrument Serif', 'Times New Roman', Georgia, serif;
+  --sans: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+html { background: var(--fundo); }
+body {
+  background: var(--fundo); color: var(--tinta);
+  font-family: var(--sans); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 1px solid var(--tinta); outline-offset: 3px; }
+.mono { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+.pagina { max-width: 1320px; margin: 0 auto; padding-block: 28px 64px; display: flex; flex-direction: column; gap: 48px; }
+
+header { display: flex; flex-direction: column; gap: 18px; }
+header .mono { color: var(--apagado); margin: 0; }
+h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(44px, 6.4vw, 92px); line-height: 0.92; letter-spacing: -0.015em; margin: 0; text-wrap: balance; }
+h1 em, h2 em { font-style: italic; }
+.intro { font-size: 18px; max-width: 62ch; margin: 0; }
+.intro span { color: var(--apagado); }
+
+/* ---- bancada: o palco e as propostas ---- */
+.bancada { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(260px, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+.lado-palco { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.palco { position: relative; aspect-ratio: 16 / 9; width: 100%; max-width: 100%; overflow: hidden; background: var(--fundo); border: 1px solid var(--fio); container-type: inline-size; user-select: none; }
+.tela { position: absolute; inset: 0; }
+.passagem { position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; pointer-events: none; z-index: 5; }
+.passagem.ativa { visibility: visible; }
+/* tipografia das telas: tudo em cqw (proporcional ao palco), com um mínimo para ler */
+.p-mono { position: absolute; font-family: var(--mono); font-size: max(7px, 0.72cqw); letter-spacing: 0.08em; text-transform: uppercase; color: var(--tinta); margin: 0; }
+.p-mono.ap { color: var(--apagado); }
+.p-serif { position: absolute; font-family: var(--serif); font-weight: 400; line-height: 0.9; margin: 0; letter-spacing: -0.01em; }
+.p-texto { position: absolute; font-size: max(8px, 1.05cqw); line-height: 1.4; margin: 0; }
+.p-link { position: absolute; font-family: var(--mono); font-size: max(7px, 0.72cqw); letter-spacing: 0.08em; text-transform: uppercase; background: none; border: 0; padding: 0; color: var(--tinta); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+canvas.p-cv { position: absolute; display: block; }
+.ponto { position: absolute; left: 92.5%; top: 50%; width: 2.2cqw; height: 2.2cqw; margin: -1.1cqw 0 0 -1.1cqw; border-radius: 50%; background: var(--tinta); opacity: 0.25; }
+.campo { position: absolute; left: 2%; top: 74%; width: 11%; height: 6%; border: 1px solid var(--tinta); font-family: var(--serif); font-style: italic; font-size: 1.8cqw; color: var(--apagado); display: flex; align-items: center; padding-left: 0.4%; box-sizing: border-box; }
+.marcas { position: absolute; left: 50%; top: 9%; width: 46%; height: 80%; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2%; }
+.marca { display: flex; flex-direction: column; align-items: center; gap: 4%; min-height: 0; }
+.marca canvas { width: 100%; flex: 1; min-height: 0; display: block; }
+.marca span { font-family: var(--mono); font-size: max(6px, 0.6cqw); letter-spacing: 0.06em; text-transform: uppercase; color: var(--apagado); }
+.passos-mural { position: absolute; left: 2%; top: 9%; width: 38%; display: flex; flex-direction: column; gap: 0.6cqw; margin: 0; padding: 0; list-style: none; font-size: max(7px, 0.82cqw); color: var(--apagado); line-height: 1.35; }
+.barra { position: absolute; left: 2%; right: 2%; bottom: 3.5%; height: 1px; background: var(--fio); }
+.barra i { position: absolute; left: 0; top: 0; height: 1px; background: var(--tinta); }
+.cena2 { transition: opacity 0.6s; }
+
+.legenda-palco { display: flex; justify-content: space-between; gap: 12px; color: var(--apagado); min-height: 1.6em; }
+.legenda-palco b { color: var(--tinta); font-weight: 400; }
+.abas { display: flex; flex-wrap: wrap; gap: 8px; }
+.aba { background: transparent; border: 1px solid var(--fraco); border-radius: 999px; padding: 7px 14px; font-size: 14px; cursor: pointer; white-space: nowrap; display: inline-flex; gap: 8px; align-items: baseline; }
+.aba:hover { border-color: var(--apagado); }
+.aba kbd { font-family: var(--mono); font-size: 10px; color: var(--apagado); }
+.aba[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: var(--fundo); }
+.aba[aria-pressed="true"] kbd { color: var(--fraco); }
+.controles { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; color: var(--apagado); }
+.controles .grupo { display: flex; align-items: center; gap: 8px; }
+.pilula { background: transparent; border: 1px solid var(--fraco); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--apagado); }
+.pilula[aria-pressed="true"] { border-color: var(--tinta); color: var(--tinta); }
+.volume { display: flex; align-items: center; gap: 10px; }
+.volume input { width: 120px; accent-color: var(--tinta); }
+.passeio { margin-left: auto; }
+
+/* ---- as propostas ---- */
+.propostas { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.propostas > .mono { color: var(--apagado); margin: 0 0 4px; }
+.familia { text-align: left; background: transparent; border: 1px solid var(--fio); border-radius: 4px; padding: 16px 18px 18px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; }
+.familia:hover { border-color: var(--fraco); }
+.familia[aria-checked="true"] { border-color: var(--tinta); }
+.familia .topo { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.familia h2 { font-family: var(--serif); font-weight: 400; font-size: 34px; line-height: 1; margin: 0; }
+.familia .selo { color: var(--apagado); }
+.familia[aria-checked="true"] .selo::before { content: "● "; }
+.familia p { margin: 0; color: var(--apagado); font-size: 14px; line-height: 1.5; }
+.familia.hoje h2 { font-size: 26px; color: var(--apagado); }
+
+/* ---- detalhes da proposta escolhida ---- */
+.detalhes { border-top: 1px solid var(--fio); padding-top: 36px; display: flex; flex-direction: column; gap: 22px; }
+.detalhes .cab { display: flex; flex-direction: column; gap: 10px; }
+.detalhes h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(40px, 4.6vw, 60px); line-height: 0.95; margin: 0; }
+.detalhes .resumo { color: var(--apagado); margin: 0; max-width: 72ch; }
+.rolo { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { text-align: left; vertical-align: top; padding: 14px 16px 14px 0; border-top: 1px solid var(--fio); font-size: 15px; line-height: 1.5; }
+th { font-weight: 400; width: 16%; }
+thead th { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado); border-top: 0; padding-bottom: 6px; }
+td { width: 42%; }
+td p { margin: 0 0 10px; }
+td p.nada { color: var(--fraco); }
+.ouvir { display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--fraco); border-radius: 999px; padding: 5px 13px 5px 10px; font-size: 13px; cursor: pointer; }
+.ouvir:hover { border-color: var(--tinta); }
+.ouvir svg { width: 12px; height: 12px; }
+.ouvir + .ouvir { margin-left: 6px; }
+.regra { color: var(--apagado); margin: 0; font-size: 14px; max-width: 80ch; }
+
+footer { border-top: 1px solid var(--fio); padding-top: 32px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+footer div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+footer p { margin: 0; font-size: 15px; color: var(--apagado); }
+footer .mono { color: var(--tinta); }
+footer table { min-width: 0; }
+footer td, footer th { font-size: 14px; padding: 6px 12px 6px 0; color: var(--apagado); }
+footer td { width: auto; }
+footer th { width: auto; color: var(--tinta); }
+
+/* palco pequeno: os links do rodapé da tela principal não cabem (as abas embaixo fazem o mesmo) */
+@container (max-width: 560px) { .p-link.rodape, .miuda { display: none; } }
+@media (max-width: 640px) {
+  table, thead, tbody, tr, th, td { display: block; min-width: 0; width: auto; }
+  table { min-width: 0; }
+  thead { display: none; }
+  tr { border-top: 1px solid var(--fio); padding-block: 14px; display: flex; flex-direction: column; gap: 12px; }
+  th, td { border-top: 0; padding: 0; }
+  th { font-family: var(--serif); font-size: 26px; line-height: 1; }
+  td::before { content: attr(data-rotulo); display: block; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado); margin-bottom: 4px; }
+  footer table tr { flex-direction: row; justify-content: space-between; padding-block: 6px; }
+  footer td::before { content: none; }
+  footer th { font-family: var(--sans); font-size: 14px; }
+}
+@media (max-width: 980px) {
+  .bancada { grid-template-columns: minmax(0, 1fr); }
+  .propostas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .propostas > .mono { grid-column: 1 / -1; }
+  footer { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .propostas { grid-template-columns: minmax(0, 1fr); }
+  .passeio { margin-left: 0; }
+  .familia h2 { font-size: 28px; }
+}
+</style>
+
+<div class="pagina">
+  <header>
+    <p class="mono">Wave Sense · som das trocas de tela</p>
+    <h1>Como soa <em>trocar de tela</em>?</h1>
+    <p class="intro">Três propostas. Em todas, o som acompanha o desenho da passagem: a saída de uma tela é a entrada dela tocada de trás para a frente, e toda troca passa pelo mesmo som no meio, quando as linhas cobrem a tela. <span>Escolha uma proposta e clique nas telas. Use fone ou a caixa de som da TV.</span></p>
+  </header>
+
+  <section class="bancada" aria-label="Teste">
+    <div class="lado-palco">
+      <div class="palco" id="palco">
+        <!-- tela principal -->
+        <div class="tela" id="t-tela" data-modo="tela">
+          <p class="p-mono" style="left:2%;top:2.6%">Wave Sense · JACITEC 2026</p>
+          <p class="p-mono" style="right:2%;top:2.6%;text-decoration:underline;text-underline-offset:3px">Operador</p>
+          <p class="p-serif" id="m-num" style="left:2%;top:7%;font-size:4.2cqw">1,0×</p>
+          <p class="p-texto ap miuda" style="left:2%;top:15.5%;width:20%;font-size:max(7px,0.78cqw);color:var(--apagado)">Tremor do Wi-Fi, comparado com a sala vazia.</p>
+          <canvas class="p-cv" id="m-grafico" style="left:54.6%;top:12%;width:40.6%;height:74%"></canvas>
+          <p class="p-serif" id="m-palavra" style="left:1.6%;top:76%;font-size:6.4cqw">Parado.</p>
+          <p class="p-texto miuda" style="left:2%;top:90%;width:20%;font-size:max(7px,0.8cqw)">Cada linha é uma leitura do Wi-Fi desta sala. A de baixo é agora.</p>
+          <button class="p-link rodape" data-ir="desafio" style="left:52%;top:95.4%">Travessia</button>
+          <button class="p-link rodape" data-ir="escuta" style="left:63.5%;top:95.4%">Escutar o Wi-Fi</button>
+          <button class="p-link rodape" data-ir="historia" style="left:78%;top:95.4%">Como funciona</button>
+          <button class="p-link rodape" data-ir="galeria" style="left:92%;top:95.4%">Quem passou</button>
+        </div>
+        <!-- escuta -->
+        <div class="tela" id="t-escuta" data-modo="escuta" hidden>
+          <p class="p-mono" style="left:4%;top:4.6%">Modo escuta</p>
+          <p class="p-serif" style="left:4%;top:9%;font-size:12.6cqw;line-height:0.86">Feche os<br>olhos.</p>
+          <p class="p-texto" style="left:4%;top:69%;width:26%">O som que você está ouvindo é o Wi-Fi desta sala. Quando alguém se mexe perto das placas, ele muda.</p>
+          <div class="ponto" id="m-ponto"></div>
+          <p class="p-mono" style="left:4%;top:93.5%">Use fone de ouvido, com volume baixo.</p>
+          <button class="p-link" data-ir="tela" style="right:2%;top:93.5%">Voltar (Esc)</button>
+        </div>
+        <!-- travessia -->
+        <div class="tela" id="t-desafio" data-modo="desafio" hidden>
+          <p class="p-mono" style="left:2%;top:4.6%">Travessia · passe pela faixa sem ser percebido</p>
+          <p class="p-serif" style="left:1.6%;top:22%;font-size:14.5cqw">Pronto?</p>
+          <p class="p-texto" style="left:2%;top:58%;width:18%;font-size:max(8px,1.3cqw)">Escreva seu apelido e fique na linha de partida.</p>
+          <div class="campo">seu apelido</div>
+          <p class="p-mono ap" style="left:2%;top:90%">Recordes</p>
+          <p class="p-mono" style="left:2%;top:93.5%;text-transform:none;letter-spacing:0.02em">Ninguém passou ainda.</p>
+          <p class="p-mono" style="right:12%;top:93.5%;text-decoration:underline;text-underline-offset:3px">Começar (Enter)</p>
+          <button class="p-link" data-ir="tela" style="right:2%;top:93.5%">Voltar (Esc)</button>
+        </div>
+        <!-- mural -->
+        <div class="tela" id="t-galeria" data-modo="galeria" hidden>
+          <p class="p-mono" style="left:2%;top:4.6%">Quem passou · as últimas 12 travessias</p>
+          <ol class="passos-mural" style="top:11%">
+            <li>1 · O Wi-Fi é lido 10 vezes por segundo durante a travessia.</li>
+            <li>2 · Cada leitura vira um contorno, de dentro para fora.</li>
+            <li>3 · O número de pontas e o giro saem das leituras de cada um.</li>
+          </ol>
+          <div class="marcas" id="marcas"></div>
+          <p class="p-mono" style="left:2%;top:93.5%">Sem câmera: só as leituras do Wi-Fi.</p>
+          <button class="p-link" data-ir="tela" style="right:2%;top:93.5%">Voltar (Esc)</button>
+        </div>
+        <!-- como funciona -->
+        <div class="tela" id="t-historia" data-modo="historia" hidden>
+          <p class="p-mono ap" id="h-etiqueta" style="right:2%;top:4.6%">Simulação</p>
+          <p class="p-mono ap" style="left:2%;top:4.6%">Como funciona</p>
+          <canvas class="p-cv" id="h-linhas" style="left:43%;top:17%;width:52%;height:56%"></canvas>
+          <div class="cena1" id="h-cena1">
+            <p class="p-serif" style="left:2%;top:73%;font-size:3.9cqw;line-height:0.98">Estas linhas imitam<br>o Wi-Fi de uma sala.</p>
+            <p class="p-texto" style="left:2%;top:88%;width:24%;color:var(--apagado)">Por enquanto é uma simulação. Na feira, as linhas vêm das placas.</p>
+          </div>
+          <div class="cena2" id="h-cena2" style="opacity:0">
+            <p class="p-serif" style="left:2%;top:73%;font-size:3.9cqw;line-height:0.98">O Wi-Fi é uma <em>onda</em>.</p>
+            <p class="p-texto" style="left:2%;top:84%;width:24%;color:var(--apagado)">Ela sai do roteador e se espalha pela sala, a 2,4 GHz: uns 12 cm de crista a crista.</p>
+          </div>
+          <div class="barra"><i id="h-barra"></i></div>
+        </div>
+        <canvas class="passagem" id="passagem" aria-hidden="true"></canvas>
+      </div>
+
+      <div class="legenda-palco mono" aria-live="polite"><span id="agora">Clique numa tela abaixo.</span><span id="sala-rot">Sala simulada</span></div>
+      <div class="abas" role="group" aria-label="Telas do site">
+        <button class="aba" data-ir="tela" aria-pressed="true">Principal <kbd>Esc</kbd></button>
+        <button class="aba" data-ir="escuta" aria-pressed="false">Escutar o Wi-Fi <kbd>E</kbd></button>
+        <button class="aba" data-ir="desafio" aria-pressed="false">Travessia <kbd>N</kbd></button>
+        <button class="aba" data-ir="galeria" aria-pressed="false">Quem passou <kbd>G</kbd></button>
+        <button class="aba" data-ir="historia" aria-pressed="false">Como funciona <kbd>H</kbd></button>
+      </div>
+      <div class="controles">
+        <div class="grupo" role="group" aria-label="Perto das placas">
+          <span class="mono">Sala</span>
+          <button class="pilula" data-cena="vazio" aria-pressed="true">Vazia</button>
+          <button class="pilula" data-cena="andando" aria-pressed="false">Alguém andando</button>
+        </div>
+        <label class="volume mono" for="volume">Volume <input type="range" id="volume" min="0" max="1" step="0.01" value="0.6"></label>
+        <button class="pilula passeio" id="passeio" aria-pressed="false">Passeio por todas as telas</button>
+      </div>
+    </div>
+
+    <div class="propostas" role="radiogroup" aria-label="Propostas de som" id="propostas">
+      <p class="mono">As propostas</p>
+    </div>
+  </section>
+
+  <section class="detalhes" aria-labelledby="d-nome">
+    <div class="cab">
+      <p class="mono" id="d-selo" style="color:var(--apagado);margin:0">Proposta</p>
+      <h2 id="d-nome">Sinal</h2>
+      <p class="resumo" id="d-resumo"></p>
+    </div>
+    <div class="rolo">
+      <table>
+        <thead><tr><th scope="col">Tela</th><th scope="col">Entrar</th><th scope="col">Sair</th></tr></thead>
+        <tbody id="d-linhas"></tbody>
+      </table>
+    </div>
+    <p class="regra">“Ouvir” toca só o som, sem a passagem. Para ouvir com o desenho, use as telas no palco.</p>
+  </section>
+
+  <footer>
+    <div>
+      <p class="mono">Como é feito</p>
+      <p>Os sons são feitos na hora pelo navegador (Web Audio): nenhum arquivo de som, nada baixado da internet. Funcionam sem rede, na feira. Tudo passa pelo mesmo limitador de volume do site.</p>
+      <p>No site: painel do Operador (tecla O), linha “Trocas de tela”.</p>
+    </div>
+    <div>
+      <p class="mono">Volume medido</p>
+      <p>Média do pico de volume das 20 trocas possíveis, em janelas de 50 ms, pela cadeia do site (limitador e volume 0,6). Quanto mais perto de 0, mais alto.</p>
+      <table><tbody id="medidas"></tbody></table>
+    </div>
+    <div>
+      <p class="mono">O que é de verdade</p>
+      <p>As passagens são as do site (passagem.js) e os sons, os do demo/sons.js. As telas são simplificadas e as linhas vêm de uma sala simulada (dados inventados).</p>
+    </div>
+  </footer>
+</div>
+
+<script src="../../demo/historia.js"></script>
+<script src="../../demo/passagem.js"></script>
+<script src="../../demo/escuta.js"></script>
+<script src="../../demo/marca.js"></script>
+<script src="../../demo/sons.js"></script>
+<script src="../laboratorio-escuta/escuta-sim.js"></script>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const COR = { fundo: '#0B0B0A', tinta: '#EDEDE8' };
+const reduzido = () => Boolean(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const guardado = (k, p) => { try { return localStorage.getItem(k) || p; } catch (e) { return p; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* sem armazenamento */ } };
+
+/* ---------- textos das propostas ---------- */
+const NOMES = { tela: 'Principal', escuta: 'Escutar o Wi-Fi', desafio: 'Travessia', galeria: 'Quem passou', historia: 'Como funciona' };
+const GESTOS = { pouso: 'pouso', pousoHistoria: 'pouso', historia: 'a história abre', tomar: 'as linhas por cima', fecharOlhos: 'fechar os olhos', travessia: 'a travessia', aneis: 'os anéis', fade: 'esmaecer' };
+// medido com ferramentas/laboratorio-passagens/medir.py (pico de volume em janelas de 50 ms, média das 20 trocas)
+const MEDIDAS = [['Sinal', '−26,8 dB'], ['Notas', '−26,5 dB'], ['Ar', '−26,3 dB'], ['Alerta do detector', '−25,4 dB'], ['Antigo (o de antes)', '−43,9 dB']];
+const PROPOSTAS = {
+  sinal: {
+    nome: 'Sinal', selo: 'Sugestão', curto: 'O som é feito do próprio Wi-Fi da sala.',
+    resumo: 'Doze notas igualmente espaçadas, como as subportadoras. Cada uma tem a força do seu pedaço do sinal, da última leitura. Se alguém se mexe perto das placas, elas tremem. Cada tela mexe nessas notas do jeito do seu desenho.',
+    telas: {
+      tela: ['As notas se apertam e abafam enquanto as linhas encolhem até o gráfico. Um grave curto quando ele pousa.', 'De trás para a frente: o grave, e as notas se abrem.'],
+      escuta: ['As doze notas escorregam para as três do acorde da escuta e abafam até ficar só o respiro. É onde o som da escuta começa.', 'O acorde se abre de novo nas doze notas.'],
+      desafio: ['O som treme quando a pessoa invisível passa no meio, entre as placas. Um sopro e os passos vão de uma caixa de som para a outra. Duas notas na chegada.', 'A pessoa volta, da direita para a esquerda.'],
+      galeria: ['As notas afinam na escala das marcas e giram entre as caixas de som. Seis sininhos, um por ponta da estrela.', 'Os sininhos descendo, e as notas voltam a ser o sinal.'],
+      historia: ['O som vai para a direita com as linhas e as notas apagam uma a uma. Duas notas abrem a história.', 'Cada linha desenhada por cima é uma nota pinçada, do grave para o agudo. (Saindo da primeira cena: o pouso.)'],
+    },
+  },
+  notas: {
+    nome: 'Notas', selo: '', curto: 'Uma frase curta de marimba para cada tela.',
+    resumo: 'Marimba nas notas da marca (dó, ré, mi, sol, lá). No meio da troca, o acorde da escuta, bem baixinho. A saída é a frase da entrada de trás para a frente.',
+    telas: {
+      tela: ['Ré, lá, ré, descendo, com um grave: a tela assenta.', 'Ré, lá, ré, subindo.'],
+      escuta: ['Mi, lá, ré, cada uma mais longa e mais baixa, até o acorde da escuta.', 'Ré, lá, mi, subindo de volta.'],
+      desafio: ['Cinco notas subindo no ritmo dos passos, da esquerda para a direita. Ré e lá juntos na chegada.', 'Descendo, da direita para a esquerda.'],
+      galeria: ['Seis notas em espiral, uma por ponta da estrela, e um brilho no fim.', 'O brilho e a espiral ao contrário.'],
+      historia: ['Ré, mi, lá, devagar, com um ré grave embaixo.', 'Oito notas subindo depressa, como as linhas sendo desenhadas.'],
+    },
+  },
+  ar: {
+    nome: 'Ar', selo: '', curto: 'Sopros, cada um com o gesto da tela.',
+    resumo: 'Ruído filtrado, como vento, com o desenho de cada tela. Quase sem notas: é a mais discreta.',
+    telas: {
+      tela: ['O sopro abafa até um grave, e a tela pousa.', 'O grave, e o sopro abre.'],
+      escuta: ['O sopro se estreita até virar um assobio em ré, que some onde o som da escuta começa.', 'O assobio se abre em sopro.'],
+      desafio: ['O sopro vai com a pessoa de uma caixa de som para a outra, tremendo no meio do caminho, com passos.', 'Volta, da direita para a esquerda.'],
+      galeria: ['Um redemoinho que gira entre as caixas de som, e um sininho.', 'O sininho, e o redemoinho ao contrário.'],
+      historia: ['O sopro clareia e vai para a direita, com um farfalhar de página.', 'Catorze riscos de lápis, um por linha desenhada.'],
+    },
+  },
+  antigo: {
+    nome: 'Antigo', selo: 'O de antes', curto: 'O sopro que o site tinha, para comparar.', hoje: true,
+    resumo: 'Um sopro baixinho, quase igual em todas as telas, e nada na escuta. Uns 17 dB abaixo das propostas: quase não se ouvia.',
+    telas: {
+      tela: ['Sopro descendo.', 'Sopro subindo.'],
+      escuta: [null, null],
+      desafio: ['Sopro da esquerda para a direita.', 'Sopro da direita para a esquerda.'],
+      galeria: ['Sopro descendo.', 'Sopro subindo.'],
+      historia: ['Sopro descendo.', 'Sopro subindo.'],
+    },
+  },
+};
+let familia = guardado('lab-passagens-familia', 'sinal');
+if (!PROPOSTAS[familia]) familia = 'sinal';
+
+/* ---------- a sala simulada e as marcas do mural ---------- */
+const sala = WaveSala.criar(7);
+function gerarMarcas() {
+  const caixa = $('marcas');
+  const cenas = ['andando', 'devagar', 'andando', 'mao', 'devagar', 'andando'];
+  cenas.forEach((cena, i) => {
+    const s = WaveSala.criar(11 + i * 13), rastro = [];
+    let pico = 0;
+    for (let k = 0; k < 90; k++) {
+      s.definirCena(k < 30 ? 'vazio' : cena); s.avancar(0.1);
+      const l = s.estado.leituras[s.estado.leituras.length - 1], x = s.razao();
+      if (l) rastro.push({ a: l.a, d: l.d, x: Number.isFinite(x) ? x : 1, fase: k < 30 ? 'contagem' : 'correndo' });
+      if (k >= 30 && Number.isFinite(x)) pico = Math.max(pico, x);
+    }
+    const r = WaveMarca.registro({ n: i + 1, nome: `P${i + 1}`, tempo: 6, ok: pico < 1.3, quando: Date.now(), fonte: 'sim', lim: 1.3, rastro });
+    const div = document.createElement('div'); div.className = 'marca';
+    const cv = document.createElement('canvas'), rot = document.createElement('span');
+    rot.textContent = WaveMarca.numero(r.n);
+    div.append(cv, rot); caixa.appendChild(div);
+    div._marca = { cv, r };
+  });
+}
+function desenharMarcas() {
+  for (const div of $('marcas').children) {
+    const { cv, r } = div._marca, b = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.max(1, Math.round(b.width * dpr)), H = Math.max(1, Math.round(b.height * dpr));
+    if (cv.width === W && cv.height === H) continue;
+    cv.width = W; cv.height = H;
+    WaveMarca.desenhar(cv.getContext('2d'), W, H, r, { ...COR, esp: dpr * 0.8 });
+  }
+}
+
+/* ---------- áudio: a mesma cadeia do site ---------- */
+let ctx = null, lim = null, leve = null, mestre = null, sons = null, escuta = null;
+function audio() {
+  if (!ctx) {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    lim = ctx.createDynamicsCompressor();
+    lim.threshold.value = -28; lim.knee.value = 20; lim.ratio.value = 8; lim.attack.value = 0.01; lim.release.value = 0.3;
+    mestre = ctx.createGain(); mestre.gain.value = Number($('volume').value);
+    lim.connect(mestre).connect(ctx.destination);
+    leve = ctx.createDynamicsCompressor();   // o limitador próprio da escuta, como no site
+    leve.threshold.value = -10; leve.knee.value = 6; leve.ratio.value = 12; leve.attack.value = 0.003; leve.release.value = 0.25;
+    leve.connect(mestre);
+    sons = WaveSons.criar(ctx, lim);
+  }
+  if (ctx.state === 'suspended') ctx.resume();
+  return ctx;
+}
+function ligarEscuta() { if (ctx && !escuta) escuta = WaveEscuta.criar(ctx, leve); }
+function desligarEscuta() { if (escuta) { escuta.parar(); escuta = null; } }
+sala.ouvir((tipo, S) => { if (tipo === 'passo' && escuta && S.cal) escuta.atualizar({ v: S.v, limiar: S.cal.limiar }, WaveSala.PASSO_S); });
+$('volume').addEventListener('input', (e) => { if (mestre) mestre.gain.value = Number(e.target.value); });
+
+/* ---------- as telas e a passagem ---------- */
+let modo = 'tela', cenaHist = 1, histDesde = 0;
+function mostrar(m) {
+  for (const el of document.querySelectorAll('.tela')) el.hidden = el.dataset.modo !== m;
+  modo = m;
+  if (m === 'historia') { cenaHist = 1; histDesde = performance.now() / 1000; $('h-cena1').style.opacity = 1; $('h-cena2').style.opacity = 0; $('h-etiqueta').textContent = 'Simulação'; }
+  if (m === 'escuta') ligarEscuta();
+  if (m === 'galeria') requestAnimationFrame(desenharMarcas);
+  for (const b of document.querySelectorAll('.aba')) b.setAttribute('aria-pressed', String(b.dataset.ir === m));
+}
+function caixa(el) { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; }
+function medir(m) {
+  const o = {};
+  if (m === 'tela') o.grafico = caixa($('m-grafico'));
+  if (m === 'escuta') { const p = $('m-ponto'), r = p.getBoundingClientRect(); o.ponto = { x: r.left + r.width / 2, y: r.top + r.height / 2, r: p.offsetWidth / 2 }; }
+  if (m === 'historia') { const b = caixa($('h-linhas')); o.historia = b; if (cenaHist === 1) o.historiaReal = b; }
+  return o;
+}
+function frac() { const S = sala.estado; return Math.max(0, Math.min(1, 1 - (S.proxLeitura - S.t) / WaveSala.LEITURA_S)); }
+function ultimaLeitura() { const l = sala.estado.leituras; return l[l.length - 1] || null; }
+function aoPassar(nome, info) {
+  if (nome === 'fim') return;
+  if (nome === 'saida') $('agora').innerHTML = `Saindo de <b>${NOMES[info.origem]}</b> · ${GESTOS[info.gesto] || info.gesto}`;
+  else $('agora').innerHTML = `Entrando em <b>${NOMES[info.modo]}</b> · ${GESTOS[info.gesto] || info.gesto}`;
+  if (sons) sons.tocar(familia, nome, info, { espectro: WaveSons.espectro(ultimaLeitura()) });
+}
+const passagem = WavePassagem.criar({
+  canvas: $('passagem'),
+  modoAtual: () => modo,
+  executar: (d) => mostrar(d),
+  aoSair: (m) => { if (m === 'escuta') desligarEscuta(); },
+  medir,
+  dados: () => ({ leituras: sala.estado.leituras, frac: frac() }),
+  paleta: () => COR,
+  eventos: aoPassar,
+  reduzido,
+});
+function ir(m) { audio(); passagem.passar(m); }
+for (const b of document.querySelectorAll('[data-ir]')) b.addEventListener('click', () => { pararPasseio(); ir(b.dataset.ir); });
+addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target.closest('input')) return;
+  const m = { Escape: 'tela', e: 'escuta', n: 'desafio', g: 'galeria', h: 'historia' }[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+  if (m) { e.preventDefault(); pararPasseio(); ir(modo === m && m !== 'tela' ? 'tela' : m); }
+});
+for (const b of document.querySelectorAll('[data-cena]')) b.addEventListener('click', () => {
+  sala.definirCena(b.dataset.cena);
+  for (const x of document.querySelectorAll('[data-cena]')) x.setAttribute('aria-pressed', String(x === b));
+});
+
+/* ---------- passeio: todas as trocas, uma depois da outra ---------- */
+let passeando = false;
+const PASSEIO = ['escuta', 'tela', 'desafio', 'galeria', 'historia', 'tela'];
+const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+async function livre() { while (passagem.ocupada()) await pausa(50); }
+async function passear() {
+  passeando = true; $('passeio').setAttribute('aria-pressed', 'true'); $('passeio').textContent = 'Parar o passeio';
+  if (modo !== 'tela') { ir('tela'); await livre(); await pausa(900); }
+  for (const m of PASSEIO) {
+    if (!passeando) return;
+    ir(m); await livre();
+    await pausa(m === 'historia' ? 3400 : 1600);
+  }
+  pararPasseio();
+}
+function pararPasseio() { passeando = false; $('passeio').setAttribute('aria-pressed', 'false'); $('passeio').textContent = 'Passeio por todas as telas'; }
+$('passeio').addEventListener('click', () => { audio(); if (passeando) pararPasseio(); else passear(); });
+
+/* ---------- as propostas ---------- */
+const TOCAR = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4l7-4.2z" fill="currentColor"/></svg>';
+function montarPropostas() {
+  const caixa = $('propostas');
+  for (const [id, P] of Object.entries(PROPOSTAS)) {
+    const b = document.createElement('button');
+    b.className = 'familia' + (P.hoje ? ' hoje' : ''); b.setAttribute('role', 'radio'); b.dataset.familia = id;
+    b.innerHTML = `<span class="topo"><h2>${P.nome}</h2><span class="mono selo">${P.selo}</span></span><p>${P.curto}</p>`;
+    b.addEventListener('click', () => escolher(id));
+    caixa.appendChild(b);
+  }
+  $('medidas').innerHTML = MEDIDAS.map(([n, v]) => `<tr><th scope="row">${n}</th><td>${v}</td></tr>`).join('');
+}
+function escolher(id) {
+  familia = id; guardar('lab-passagens-familia', id);
+  for (const b of document.querySelectorAll('.familia')) b.setAttribute('aria-checked', String(b.dataset.familia === id));
+  const P = PROPOSTAS[id];
+  $('d-nome').textContent = P.nome; $('d-resumo').textContent = P.resumo;
+  $('d-selo').textContent = P.selo ? `Proposta · ${P.selo}` : 'Proposta';
+  const linhas = $('d-linhas'); linhas.replaceChildren();
+  for (const t of ['tela', 'escuta', 'desafio', 'galeria', 'historia']) {
+    const [ent, sai] = P.telas[t], tr = document.createElement('tr');
+    const celula = (texto, evento) => {
+      const rot = evento === 'entrada' ? 'Entrar' : 'Sair';
+      if (!texto) return `<td data-rotulo="${rot}"><p class="nada">Sem som.</p></td>`;
+      return `<td data-rotulo="${rot}"><p>${texto}</p><button class="ouvir" data-tela="${t}" data-evento="${evento}" aria-label="Ouvir: ${rot.toLowerCase()} (${NOMES[t]})">${TOCAR}Ouvir</button></td>`;
+    };
+    tr.innerHTML = `<th scope="row">${NOMES[t]}</th>${celula(ent, 'entrada')}${celula(sai, 'saida')}`;
+    linhas.appendChild(tr);
+  }
+  for (const b of linhas.querySelectorAll('.ouvir')) b.addEventListener('click', () => ouvirSo(b.dataset.tela, b.dataset.evento));
+}
+// toca só o som de entrar ou sair de uma tela, com o tempo da passagem de verdade
+function ouvirSo(tela, evento) {
+  audio();
+  const T = WavePassagem.TEMPOS;
+  const gesto = evento === 'entrada' ? WavePassagem.ENTRADA[tela] : WavePassagem.gestoDeSaida(tela, {});
+  const dur = T[gesto][evento === 'entrada' ? 1 : 0];
+  sons.tocar(familia, evento, { gesto, dur }, { espectro: WaveSons.espectro(ultimaLeitura()) });
+  $('agora').innerHTML = `${evento === 'entrada' ? 'Só o som de entrar em' : 'Só o som de sair de'} <b>${NOMES[tela]}</b>`;
+}
+
+/* ---------- desenho ---------- */
+function ajustar(cv) {
+  const b = cv.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+  const W = Math.max(1, Math.round(b.width * dpr)), H = Math.max(1, Math.round(b.height * dpr));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, b.width, b.height);
+  return { c, w: b.width, h: b.height };
+}
+// as linhas do Wi-Fi numa caixa, com o mesmo desenho do site (WavePassagem.desenharPose)
+function linhas(cv, t, comFolga) {
+  const { c, w, h } = ajustar(cv), V = { x: 0, y: 0, w, h };
+  const P = WavePassagem.neutro({ V });
+  P.L = comFolga ? WavePassagem.caixaLinhas(V) : V; P.fora = P.dentro = 0;
+  WavePassagem.desenharPose(c, P, sala.estado.leituras, frac(), COR, t, V);
+}
+// a cena 2 da história: anéis saindo do roteador (ilustração)
+function aneisDaOnda(cv, t) {
+  const { c, w, h } = ajustar(cv), x0 = w * 0.12, y0 = h * 0.62;
+  c.strokeStyle = COR.tinta; c.lineWidth = 1;
+  for (let i = 0; i < 7; i++) {
+    const r = ((t * 0.18 + i / 7) % 1) * w * 0.95;
+    c.globalAlpha = Math.max(0, 1 - r / (w * 0.95)) * 0.9;
+    c.beginPath(); c.arc(x0, y0, r, -Math.PI / 2.2, Math.PI / 2.2); c.stroke();
+  }
+  c.globalAlpha = 1; c.fillStyle = COR.tinta; c.fillRect(x0 - 3, y0 - 9, 6, 18);
+}
+let ultimo = 0, pontoNivel = 0;
+function quadro(ms) {
+  const agora = ms / 1000, dt = ultimo ? Math.min(0.1, agora - ultimo) : 0;
+  ultimo = agora;
+  sala.avancar(dt);
+  const S = sala.estado, razao = sala.razao();
+  if (modo === 'tela' || passagem.ocupada()) {
+    linhas($('m-grafico'), agora, true);
+    $('m-num').textContent = `${(Number.isFinite(razao) ? razao : 1).toFixed(1).replace('.', ',')}×`;
+    $('m-palavra').textContent = S.detectado ? 'Movimento.' : 'Parado.';
+  }
+  if (modo === 'escuta') {
+    const n = escuta ? escuta.nivel() : 0;
+    pontoNivel += (n > pontoNivel ? 0.6 : 0.25) * (n - pontoNivel);
+    const x = Math.max(0, Math.min(1, (pontoNivel - 0.02) / 0.22));
+    $('m-ponto').style.transform = reduzido() ? '' : `scale(${(1 + 6 * x).toFixed(3)})`;
+    $('m-ponto').style.opacity = (0.25 + 0.55 * x).toFixed(3);
+  }
+  if (modo === 'historia') {
+    if (cenaHist === 1 && agora - histDesde > 2.6 && !passagem.ocupada()) {
+      cenaHist = 2; $('h-cena1').style.opacity = 0; $('h-cena2').style.opacity = 1; $('h-etiqueta').textContent = 'Ilustração';
+    }
+    if (cenaHist === 1) linhas($('h-linhas'), agora, false); else aneisDaOnda($('h-linhas'), agora);
+    $('h-barra').style.width = `${cenaHist === 1 ? 5 : 10}%`;
+  }
+  passagem.quadro(agora);
+  requestAnimationFrame(quadro);
+}
+
+/* ---------- começo ---------- */
+$('sala-rot').textContent = 'Sala simulada · dados inventados';
+montarPropostas();
+escolher(familia);
+gerarMarcas();
+mostrar('tela');
+requestAnimationFrame(quadro);
+</script>
+</html>

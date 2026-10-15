@@ -13,6 +13,8 @@
 | `conjunto.py` | Lista as coletas e separa as sessões de ajuste e de teste | nada além do Python |
 | `csi_formato.py` | Lê as linhas `CSI_DATA` do firmware | nada além do Python |
 | `testes/` | Testes que rodam sem placa | nada além do Python (o resto é opcional) |
+| `laboratorio-escuta/` | Página para comparar sons do modo escuta (escolhido: Batimento) | um navegador |
+| `laboratorio-passagens/` | Página para comparar o som das trocas de tela, com as passagens de verdade | um navegador |
 
 ## Capturar (no "ESP-IDF PowerShell", na pasta do repositório)
 

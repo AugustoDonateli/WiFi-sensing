@@ -42,6 +42,14 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - O pedido: a pessoa tem que sentir que está ouvindo uma onda, sem a mudança passar despercebida. Por isso, na versão 2: o pulso começa já no limiar do detector, o acorde sobe uns 11 dB (medido na simulação), abre, ganha uma nota grave pulsando e o pulso passa de um ouvido para o outro.
   - No modo escuta, os dois toques de alerta não tocam. Nos outros modos, continuam.
   - **Falta:** ouvir com as placas, no estande, e ajustar o volume com fone.
+- **Som das trocas de tela** (15/10, pedido do grupo: um som próprio para entrar e sair de cada tela, com a personalidade do site). Três propostas em `demo/sons.js`, para escolher no laboratório de passagens (`ferramentas/laboratorio-passagens/`):
+  - **Sinal:** o som é feito da última leitura do Wi-Fi (12 notas igualmente espaçadas, como as subportadoras; se alguém se mexe, elas tremem).
+  - **Notas:** uma frase curta de marimba por tela.
+  - **Ar:** sopros com o gesto de cada tela.
+  - A regra, a mesma do desenho: a saída de uma tela é a entrada tocada de trás para a frente, e toda troca passa pelo mesmo som no meio.
+  - O sopro de antes só tocava com o som ligado e ficava uns 17 dB abaixo do alerta (quase não se ouvia). Agora as trocas têm o próprio botão no painel ("Trocas de tela") e tocam mesmo com o detector no Mudo. As três propostas têm volume parecido, um pouco abaixo do alerta.
+  - Feitos na hora (Web Audio), sem arquivos de som: funcionam sem internet e não têm problema de licença.
+  - **Falta:** o grupo escolher (por enquanto o padrão é Sinal) e ouvir na caixa de som da TV, no estande.
 - A pergunta "dá para ouvir alguém atrás da parede?" fica ligada ao teste de parede do projeto. Não vamos afirmar que funciona antes de testar.
 - Na parte de ética da apresentação: a mesma ideia poderia ser usada para espionar. É justamente por isso que o projeto discute privacidade.
 
