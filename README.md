@@ -25,6 +25,7 @@ Só marcar um item depois de testado de verdade.
 
 ## Documentos
 
+- [Laboratório de pose 2D](ferramentas/pose/README.md): preparação de CSI, gabarito sincronizado, treinamento e avaliação experimental de braços; ainda sem modelo validado nas placas.
 - [Decoração do estande](docs/estande.md): conceito "A sala que percebe", planta, ideias com impressão 3D, custos e calendário
 - [Apresentação no estande](docs/apresentacao.md): montagem, roteiros de 30 s, 3 min e avaliador, jogos que explicam, perguntas difíceis
 - [Inscrição na JACITEC](docs/inscricao-jacitec.md): regras do edital e os textos do formulário

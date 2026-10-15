@@ -1,0 +1,2 @@
+# Preparação, sincronização e auditoria não precisam de PyTorch.
+numpy>=1.26,<3
