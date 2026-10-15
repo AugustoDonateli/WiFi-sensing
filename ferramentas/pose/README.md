@@ -1,6 +1,6 @@
 # Wave Sense Pose — laboratório experimental
 
-Esta parte já prepara as três coletas S0 e oferece um caminho executável de **CSI → gabarito sincronizado → treino → teste em outra sessão → coordenadas 2D em replay**.
+Esta parte já prepara as coletas S0 e oferece um caminho executável de **CSI → gabarito sincronizado → treino → teste em outra sessão → coordenadas 2D em replay**.
 
 **Ainda não existe um modelo treinado/validado com poses reais das nossas placas.** S0 tem somente os rótulos vazio/andando; isso não informa onde estavam os membros. O programa recusa treinar sem esse gabarito. O alvo inicial são seis pontos: ombros, cotovelos e punhos, com uma pessoa em posição controlada. Inferência ao vivo, corpo inteiro e generalização através de concreto continuam como etapas futuras.
 
@@ -15,15 +15,26 @@ python -m pip install -r ferramentas/pose/requirements.txt
 python -m ferramentas.pose preparar dados/brutos --saida dados/pose/preparados-S0
 ```
 
-São produzidos, para cada CSV, um `.npz` com janelas e máscaras e um `.qualidade.json`. `resumo.json` reúne a auditoria. Não sobrescreve saídas existentes; em outro experimento, escolha outra pasta.
+São produzidos, para cada CSV, um `.npz` com janelas e máscaras e um `.qualidade.json`. `resumo.json` reúne a auditoria. Ao ler uma pasta, coletas marcadas como `descartada` são excluídas e registradas em `excluidas.json`; informar diretamente uma dessas coletas gera erro. Não sobrescreve saídas existentes; em outro experimento, escolha outra pasta.
 
-Com os critérios iniciais (janela de 1 s, bins de 50 ms, cobertura mínima 80%, intervalo máximo 100 ms e pelo menos dez pacotes), S0 produziu:
+Com os critérios iniciais (janela de 1 s, bins de 50 ms, cobertura mínima 80%, intervalo máximo 100 ms e pelo menos dez pacotes), a primeira rodada S0 produziu:
 
 | Coleta | Janelas aceitas / candidatas | Janelas com gabarito |
 |---|---:|---:|
 | Vazio a 1,5 m | 580 / 580 | 0 |
 | Andando a 1,5 m | 436 / 580 | 0 |
 | Andando a 3,75 m com parede | 317 / 577 | 0 |
+
+Na segunda rodada, com o emissor configurado para 50/s, as quatro coletas mantidas produziram:
+
+| Arquivo / condição | Janelas aceitas / candidatas | Janelas com gabarito |
+|---|---:|---:|
+| 164853 — vazio, 1,5 m | 561 / 579 | 0 |
+| 165324 — andando, 1,5 m | 576 / 579 | 0 |
+| 165612 — vazio, 3,75 m com parede | 580 / 580 | 0 |
+| 165723 — andando, 3,75 m com parede | 523 / 579 | 0 |
+
+A coleta 165043 foi excluída por estar marcada como descartada no JSON original. A segunda rodada já inclui o controle vazio na montagem com parede; são diagnósticos S0, ainda sem gabarito de articulações.
 
 Isso mede **qualidade da entrada**, não acerto da pose. As janelas se sobrepõem; não são centenas de experimentos independentes. O fato de o vazio ter boa cobertura não significa presença de uma pessoa. S0 continua reservado para diagnóstico, conforme o protocolo do projeto.
 
@@ -38,7 +49,7 @@ Isso mede **qualidade da entrada**, não acerto da pose. As janelas se sobrepõe
 
 ## O que precisamos gravar a seguir
 
-1. Estabilizar o fluxo a 50 pacotes/s e completar vazio/parado/andando na montagem com concreto. Anotar material/espessura da parede, alturas, posição e orientação das placas e da pessoa, além do commit/configuração do firmware.
+1. Verificar a estabilidade da configuração a 50 pacotes/s e acrescentar a condição pessoa parada aos controles vazio/andando na montagem com concreto. Anotar material/espessura da parede, alturas, posição e orientação das placas e da pessoa, além do commit/configuração do firmware.
 2. Para pose, gravar CSI e vídeo ao mesmo tempo, com a câmera fixa vendo ombros, cotovelos e punhos. Manter uma pessoa e variar alturas, pausas e ordem dos movimentos dos braços; não repetir sempre a mesma coreografia no mesmo segundo.
 3. Registrar tempos dos quadros e eventos de sincronização em um relógio comum ou por marcadores instrumentados. `capturar.py` atual mede o tempo do PC antes da leitura serial; isso é insuficiente para simplesmente assumir igualdade com o tempo do vídeo. É necessário medir o alinhamento e sua incerteza. Uma gravação iniciada “mais ou menos junto” não recebe sincronização perfeita automaticamente.
 4. Fazer sessões independentes para treino, validação e teste. Manter os três grupos definidos antes de ajustar parâmetros. Para estudar a parede, coletar também gabarito nessa montagem e guardar sessões novas com parede para avaliação; não presumir transferência do modelo sem parede.
@@ -102,4 +113,4 @@ Saídas ficam em `dados/pose/`, `modelos/pose/` e `resultados/pose/`, ignorados 
 python -m unittest discover -s ferramentas/pose/testes -v
 ```
 
-Testes cobrem as três coletas reais, interpretação dos bytes, relógios, wraps, falhas, causalidade, sincronização, lateralidade, isolamento de sessões, atualização de pesos, persistência e avaliação completa. Fixtures inventadas exercitam o treinamento: seu sucesso comprova funcionamento do código, não reconstrução física através da parede. A captura conjunta com câmera/rádio e a qualidade do professor visual ainda precisam de validação no hardware.
+Testes cobrem as três coletas iniciais, interpretação dos bytes, relógios, wraps, falhas, causalidade, sincronização, lateralidade, isolamento de sessões, atualização de pesos, persistência, comandos e avaliação completa. As sete coletas mantidas das duas rodadas também foram processadas pelo comando `preparar`. Fixtures inventadas exercitam o treinamento: seu sucesso comprova funcionamento do código, não reconstrução física através da parede. A captura conjunta com câmera/rádio e a qualidade do professor visual ainda precisam de validação no hardware.

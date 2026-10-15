@@ -52,6 +52,8 @@ def read_recording(path):
     if not sidecar.exists():
         raise ValueError(f"Faltam metadados de sessão: {sidecar}")
     meta = json.loads(sidecar.read_text(encoding="utf-8-sig"))
+    if meta.get("descartada"):
+        raise ValueError(f"Coleta marcada como descartada: {path.name}. Motivo: {meta.get('obs', '')}")
     if not isinstance(meta.get("sessao"), str) or not meta["sessao"].strip():
         raise ValueError("Informe sessao no JSON da coleta.")
     records, pc = [], []
@@ -185,6 +187,8 @@ def validate_bundle(data):
         raise ValueError("Coordenadas devem estar entre 0 e 1.")
     if not meta.get("session") or meta.get("data_kind") not in ("medido", "sintetico"):
         raise ValueError("Sessão/proveniência ausente.")
+    if meta.get("source_metadata", {}).get("descartada"):
+        raise ValueError("Conjunto veio de uma coleta descartada; não usar em pose.")
     if not meta.get("has_labels") and data["label_mask"].any():
         raise ValueError("Rótulos sem metadados de alinhamento.")
 

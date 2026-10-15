@@ -51,6 +51,26 @@ class TestCLI(unittest.TestCase):
             clock_fit(spec)
         self.assertEqual(len((out/"gabarito.csv").read_text().splitlines()),1)
 
+    def test_directory_excludes_discarded_but_explicit_input_is_rejected(self):
+        raw = self.folder/"raw"
+        keep = recording(raw,"KEEP")
+        discard = recording(raw,"DISCARD")
+        meta_path = discard.with_suffix(".json")
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta.update(descartada=True,obs="Coleta de teste descartada.")
+        meta_path.write_text(json.dumps(meta),encoding="utf-8")
+        out = self.folder/"filtered"
+        with redirect_stdout(io.StringIO()):
+            main(["preparar",str(raw),"--saida",str(out)])
+        self.assertTrue((out/(keep.stem+".npz")).exists())
+        self.assertFalse((out/(discard.stem+".npz")).exists())
+        excluded = json.loads((out/"excluidas.json").read_text(encoding="utf-8"))
+        self.assertEqual(excluded[0]["arquivo"],discard.name)
+        with redirect_stderr(io.StringIO()) as errors, self.assertRaises(SystemExit) as error:
+            main(["preparar",str(discard),"--saida",str(self.folder/"explicit")])
+        self.assertEqual(error.exception.code,2)
+        self.assertIn("descartada",errors.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()

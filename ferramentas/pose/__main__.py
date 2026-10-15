@@ -2,6 +2,7 @@
 
 import argparse
 import csv
+import json
 from pathlib import Path
 import sys
 
@@ -56,16 +57,26 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         if args.command == "preparar":
-            files = []
+            files, excluded = [], []
             for name in args.entrada:
                 path = Path(name)
-                files.extend(sorted(path.glob("*.csv")) if path.is_dir() else [path])
+                if path.is_dir():
+                    for candidate in sorted(path.glob("*.csv")):
+                        metadata = json.loads(candidate.with_suffix(".json").read_text(encoding="utf-8-sig"))
+                        if metadata.get("descartada"):
+                            excluded.append({"arquivo":candidate.name,"motivo":metadata.get("obs","")})
+                            print(f"Excluída por metadados: {candidate.name}")
+                        else:
+                            files.append(candidate)
+                else:
+                    files.append(path)
             if not files or len({p.stem for p in files}) != len(files):
                 raise ValueError("Nenhum CSV encontrado, ou nomes de saída duplicados.")
             for p in files:
                 unused(args.saida/(p.stem+".npz"))
                 unused(args.saida/(p.stem+".qualidade.json"))
             unused(args.saida/"resumo.json")
+            unused(args.saida/"excluidas.json")
             config = Config(min_coverage=args.cobertura_minima,max_gap_s=args.intervalo_maximo)
             reports = []
             for p in files:
@@ -77,6 +88,7 @@ def main(argv=None):
                 q = report["window_quality"]
                 print(f"{p.name}: {q['accepted']}/{q['total']} janelas aceitas; {q['labeled_and_accepted']} com gabarito.")
             write_json(args.saida/"resumo.json",reports)
+            write_json(args.saida/"excluidas.json",excluded)
         elif args.command == "modelo-gabarito":
             unused(args.saida/"gabarito.csv")
             unused(args.saida/"sincronizacao.json")
