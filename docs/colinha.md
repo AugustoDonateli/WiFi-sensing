@@ -116,6 +116,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 **Fala.** O tema desta JACITEC é Ciência Delas, e essa parte do Wi-Fi tem uma inventora. Em 1942, a atriz Hedy Lamarr e o compositor George Antheil patentearam o salto de frequência: o rádio pula de uma frequência para outra, numa ordem que só quem manda e quem recebe conhecem. A ordem vinha de um rolo de pianola, com 88 frequências, uma para cada tecla do piano. A ideia era guiar torpedos sem que o inimigo bloqueasse o sinal. Espalhar o sinal por várias frequências virou base da comunicação sem fio: o Bluetooth pula de frequência até hoje, e o Wi-Fi de hoje usa as 64 de uma vez.
 
+- APONTE: o rosto dela, feito com as mesmas linhas do sinal (de uma foto de 1940).
 - APONTE: o rolo descendo; cada furo que passa pela barra de leitura acende uma frequência, uma de cada vez.
 - FALE: o tema da JACITEC, "Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação".
 - NÃO DIGA: que ela inventou o Wi-Fi. Ela inventou o salto de frequência, uma das ideias que abriram caminho.
@@ -127,6 +128,8 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 > **Funcionou na guerra?** A Marinha dos EUA não adotou na época, e a patente venceu sem que ela ganhasse dinheiro com ela. O reconhecimento veio depois: o prêmio Pioneer da Electronic Frontier Foundation, em 1997, e o Hall da Fama dos Inventores dos EUA, em 2014.
 >
 > **Por que um rolo de pianola?** O transmissor e o receptor precisavam pular juntos, na mesma ordem. Antheil era compositor e já sincronizava pianolas; os rolos perfurados guardavam a ordem, como uma partitura. A patente é a nº 2.292.387, de 11 de agosto de 1942.
+>
+> **De onde vem o retrato?** De uma foto de 1940, de Clarence Bull para o estúdio MGM, que está em domínio público. Nós desenhamos o rosto com as mesmas linhas que mostram o sinal do Wi-Fi: onde a foto é mais clara, a linha sobe e fica mais forte. Não é imagem gerada por IA.
 >
 > **O que é o tema "Ciência Delas"?** É o tema da JACITEC 2026: "Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação". É também o tema da Semana Nacional de Ciência e Tecnologia deste ano.
 

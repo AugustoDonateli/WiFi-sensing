@@ -88,7 +88,7 @@ A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha c
 | 6 ★ | Na placa B, os caminhos se somam. | Os caminhos entram na B e saem separados: direto, rebatido e a soma. Crista com crista: "reforça"; crista com vale: "cancela" | O centro da explicação (interferência) |
 | 7 ★ | Quando alguém se mexe, a soma muda. | A sala pequena em cima, com alguém andando; embaixo, a soma sobe e desce no ritmo dos passos | O "agora entendi" |
 | 8 ★ | O Wi-Fi usa 64 ondas juntas. | A força da soma vira uma barra; as outras 63 nascem da B | 64 subportadoras = CSI |
-| 9 ★ | Uma ideia de Hedy Lamarr. | As 64 barras apagam; um rolo de pianola desce sobre elas e cada furo acende uma frequência, uma de cada vez (o salto de frequência, 1942) | Ciência Delas (tema da JACITEC) |
+| 9 ★ | Uma ideia de Hedy Lamarr. | O rosto dela surge feito com as linhas do sinal; as 64 barras apagam, um rolo de pianola desce sobre elas e cada furo acende uma frequência, uma de cada vez (o salto de frequência, 1942) | Ciência Delas (tema da JACITEC) |
 | 10 | As 64 barras viram uma linha. | O topo das barras vira a primeira linha; as linhas se empilham | Ler as linhas |
 | 11 ★ | Quando alguém anda, as linhas tremem. | Sala pequena com alguém andando; as linhas tremem | Movimento → tremor |
 | 12 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |

@@ -120,6 +120,11 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - verdade: em 1942 (patente nº 2.292.387, de 11/08/1942), Hedy Lamarr e George Antheil patentearam o salto de frequência, com rolos perfurados como os de pianola (88 frequências); a Marinha dos EUA não adotou na época; prêmio Pioneer da EFF em 1997 e Hall da Fama dos Inventores dos EUA em 2014; o Bluetooth pula de frequência até hoje; a primeira versão do Wi-Fi (IEEE 802.11, 1997) tinha um modo com salto de frequência;
   - **não dizer** que ela inventou o Wi-Fi. A colinha tem a frase "NÃO DIGA" e a resposta para "Ela inventou o Wi-Fi?".
 - O rolo da tela tem 64 colunas (as subportadoras), não 88: é ilustração, com a etiqueta.
+- **Retrato dela (pedido do grupo):** feito com as mesmas linhas empilhadas do sinal, no estilo do site.
+  - **Fonte:** "Hedy lamarr - 1940.jpg", de Clarence Bull para a MGM, no Wikimedia Commons, marcada como **domínio público**. Na tela, a legenda dá o crédito ("foto de Clarence Bull").
+  - **Por que não imagem de IA:** é uma pessoa real; um rosto gerado poderia sair parecido, mas não seria ela. A foto de verdade, redesenhada com as linhas, é honesta e combina com o resto.
+  - **Como:** a foto foi recortada no rosto, com o contraste ajustado e o fundo apagado por uma elipse. Virou uma grade de 72 × 120 pontos de luz (8.640 caracteres no `historia.js`); a foto não vai no site. Cada linha sobe (até 1,15 espaço) e fica mais clara e mais grossa onde a foto é clara.
+  - **Animação:** as linhas chegam retas e apagadas, como o sinal; o rosto sobe de baixo para cima, linha por linha; parado, uma faixa de luz desce a cada 6 s, como uma leitura; saindo, o relevo baixa.
 
 ### Site no Vercel (aprovado)
 - A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.

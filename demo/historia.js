@@ -295,6 +295,26 @@
   })();
   const SALTOS_POR_S = 2.2;
 
+  // O retrato de Hedy Lamarr, feito com as mesmas linhas do sinal: 72 linhas de 120 pontos; cada caractere é a
+  // luz daquele ponto (0 a 61). Gerado de uma foto de domínio público (Clarence Bull, MGM, 1940; Wikimedia Commons,
+  // "Hedy lamarr - 1940.jpg"), recortada no rosto, com o fundo apagado por uma elipse. A foto não vai junto: só a grade.
+  const RETRATO = { n: 72, m: 120, d: '00000000027bglputlfcfwNZZZWCg891020000215gqvsrjqGqckNNg742fCpcfjACrkfjtnswwAxLGtOLCELNUZZZZZZZZZZZWSPLHCyuplgb72000000000000000038dhmrvvqjfgfoBONApfd530130300109hqFthegooglEXwd103lumgbfinqwHvuyNSRZNQMQVZZUPNPQPPSTVUUTTSSNKGCyuqmiea620000000000000038chlopnjhfefhjqurhh8366hf8bhs51ahkwIGwyvsEulzSSn5102bnoc769iekuwpsqldorjrsqxHKHPLVUMJMMJJJJJKHDCyusolhea6200000000000038chlpssqlhfggnrvxob8hqqrFCFAweerwAohhidhrqoljqxPCd51379jlhhcighie81143ee34100043irENJYYQXZZZZZZYUPLHCxtoje93000000000049ejotyDHMKzqlstph89oFMSMTZQFxwoffhnd8djd9d936gfeAIj20023acfih9420000020000000000000048doBTZZZZZZZZVRMHDytoje940000000039ejouyDINRSEtqmkjjqqKZZKrltrogkppibb6ajigpoe92125itp90000331000000000000000000000000000003pBOYZZZZZZWRNIDyuoje9300000038ejotzDINSPBxCCBSKOVTzri7220000000223206ab764000016hxc00000000000000000000000000000000000008xBIUWUWXWYVQLGBxrnid83000028djotyDINLJFyEPFnof9174000000000000000120000000000014kl40000000000000000000000000000000000000lBJSURLMLNNIEBwtpliea610016bglqvAEIKAzAEug2000000000000100000000000000000012645eeok31100000000101233100000000000000000001yHzzNMQTUVWVQLGCxsnhc7105bhmsxCHMOFwsxk540000000000000000000000003549bjpyDzzvjyBwtljmkhghlnpuwtrooooolje81000000000000303dnpuIPWZZZZWRMHCxsmhb54aflqwBGMMrgnwi5010000000000000000249finqtyACHNUZYXZUSSROSRSRRQOPQPPPNNNNMNMLKIGDyqi8100000000010006flvDtosxBKMMKGBwqlfa8ejpuAFDs9avzo940000000000000015afpwDJIKNPQRWYZZZZZZZZZZZZZZZXWVUUUUUTRQPONNMKIIHEzvri720000000000000b2f600002039krutojechntyAn66kAtg63000000000000159hrzJNPRSSTVWYYYZZZZZZZZZZZZZZZXWVWVUVVUTSRRQNMLLJIGFFEzyula00000000000000060030000006dmokeejotsf15kwue2000000000000039iqzFNRTUUVVVWXWXYZZZZZZZZZZZZZZZXVUVUUVUUTSRRPOMLKJHFFGGECzvm700000000000700000000000007prog47ih7200cla520000000000004coyGMPRTUUTUUVVWWXZZZZZZZZZZZZZZZYWWVVUUUTTTSRQPONMKJIGFHJIFCyse000000000005400085000000116gki58b0000034110000000000002esCHMPSTUUTTTUUVWXXZZZZZZZZZYYYZYXWWWVVUUUUTTSRQPNMLKJIIIJLNMHDxk50000000000002006g7ea36304313c7600000001100000000000006lxDHNPRSTTTTTTUVVVXYYYZZZYYXWWWWXWWWVUVUUUTTTSRPNNMLKJJKKKMLKHDztb0000000000000004hhmnjc91aqc5a600000000000000000000001esCGKMPRTUUUUTTUVUWXXYYXXXXWXWWVUVWVVVVUUUUUTTSSQPONMLLKKKJIGFFCyui100000000000000003bhilha8jve7400000000000000000000001ewHJKMNOQSTTUTUVVWWWXXXXXWWWWWWWWVVVUVVVVVVVUUTSRQQPONMMLKKIIJKKHAq700000000000000000002Ayqrqtv5100000000000000000000001iyGJJLNPRSSTVVVWXXXYZYZZYYYXXYWWWWWWWVVVWXWVWVUTRRRQQPONLMMNQTUTPEuk2000000000000000000deiFEzEDt000000000000000000000003pCGHJLNQRVXXYXXZZZZZZZZZZYYYZYXWWXXXXWWWVWWWVVUUVVVURNJFHJMVZZZZRDuqh000000000000000000060ckAFHD00000000000000000000000awEFGJKMRTMECAACDFLRVYZZZZYXXWWXWWWXWVVVVWWXWVWYXRKApe85129djBTZZNyusrf000000000000000000030egqtu00000000000000000000000qEEFHHJKweaceffigbbcdhrCMWYWUUVUTUUUTTTUUUVUVVPAh54105ahprwAywwDKAvwtuq1000000000002a00000103nrhg00000000000000000000008AFGHFGydbqFJMQQQRNIBujhgdmzKRSSSRSTTTTSSTTSQKve45elqwDJKLLJIGDAzyhhuwvub000000000000200000020bzyo0000000000000000000000eDEGIGDelFKJJKKLLNNKHGHFFzsnsFNPRSTTTTTSRQQNEqinqqrtqolmomjjmqrqpoplmuwwo0000000000000000000205vEB0000000000000000000000iEFHHGqrEDEEDDDBzyzwurlnnsvyyyCIORUUUUUSQNHvimuuqomhb5465000005cbekpsuyyv6000000000100200000039EFt0000000000000000000000eDFIIEAECCCBBzvrolkjec4228bjszzzELSVWWVTPIrbmAyqkiios417400000025cqvyADByg000000000000mv600000nDHw0000000000000000000000dDHJIIHGFCunoj720031001300989jzJHGMTVWWTPEotLOyqqvLTYLsgggosf101erAFHHJKDo0000000000400sZq7100ajok0000000000000000000000gEIJKLLKJGtha6102lGCdd9dbqRzsuDWTMJNTVVTPGyDLROQNJKFEIJAwyxronqqruyFKKLONw30000000000401tFo73000010000000000000000000000gAFHJMNOPPOGwpgeksDNMBwrCLFCHPWVROLNRVVTOHABIORRONMKHCEDyvCDAEIMMLLLKKHDKD5013700000053006e40002000000000000000000020000dyCGHLNPRSTUTQNEDvuvyAABFGFMQUVUSRNMPTVTOHDCGKNQSSRRRQOONLLMLMNNMMLLMONGys71006a0000006300770dda5800000000000000017820008wADGJMOPSSSTTUTSOMKLMKNLQTUVXWTRPNLNRUUQIEEEGKNOQRRSSRRQQPONNOONMLMORTTHg6001g800000007600034bni2000000000000001ca433aa6qxBEHMNOQRSUUUTUUTSTUTTUTUUVVTQPNLKLQUUQJDBDFHJKNPPPRRQQRQQQPPONMLMPRTTNi106ddf0000000000000ggnig0000000000000007778ajykiswAFLNNQQSTTUUUUVVWVVVVWVUUTQNMKJIKNRSPKDAADDFILNOPPPPQQQQPPPNNMLLNPPNGd49e7e500000000000105wztC00000000000000007jBJAxwkmqvCHLNOOPQSSTTUVWWWXWXXVUSQNKHGGGIOSTSNFywwwAGKNONOOOOPPPOONLKJJJHGCwm558bc1000000000017uk5bkrk0000000000000000btxSWIBsjlqwDHKMNOQRRRTTUUVVVWWVVUSQLFEEFFJQVWVRIAzAwtDLOPOOOPPOOONMLJIGFECytj87cda000000000000gGFKg013400000000000000000vGENNGzmjouyDGIKMOOPQRRTTUUVVVVVUSQJGHJKLNQSTQLDvpswuCLPQPOOONNNMMKIGFFDBxulb47a600000000000003hiqEj000000000000000000000oOSRQOAmmptxBEGHKMNNOQQSTTUUUUUUSPMHKv86gzLNLCg006wrnKPRQPOONMMLLIFEDBAxuqid300000000000000000000byw810000000000000000000eFSWVQwlnqtvAEFGIKLMOOPQSTSTTUUTSQCyzrhgmyBzm108mrfmLPPPPONMLLKJHFECAwurojj200000000000000000000006c30000000000000000000005df92flmqtxACEFHJLMNNPQRRRSSTTSSOHJMNMGCxuqmpwBDHMNNONNMMLKJJHGEDAxvtpnjg00000000000000000000000000000000000000000000000000001klortxABDFGIKLLNPPQQRRRRRRRSPMKKLKJJJJHIIKLLLMNLLLLJHHGFFCAxvusqmne000000000000000000000001000000000000000000000000000007nnqtvxzBDFHJJMNNOOPPPQQPONNNMNPSQPQSSPNLLLKKJJJKJJIGFEECAzxwusswE9000000000000000000000000120000000000000000000000000000doptuvxzADFHILMMMNNNNNMMMMMKGEGKMQPKExtrswAFGHIIIHFEDCBAAxxxwzFKp00000000000000000000000000100340000000000000000000000000hnquwwxzCDFHKLLLMNNNNPNHArkfccccdb741011126aenyDFECBAAzyxzBEIHs1000000000000000000000000000000000000000000000000000000001joswwwyBEFHJKMNNMJHCse7435889dgecbceikjg93006oCFEBABBAzADFDyo400000000000000000000000000000000000000000000000000000000003jortuwzCEGIJLLKIGDujdddgnxDILNKFGJJJJFxkejsAFGHFCCBBAABAxsj50000000000000000000000000000000000000000000000000000000000006emnruwzBEGHIJJJKKNMLFvpkgghhggeehggggffkvBCEFFEEDBAzyyuog10000000000000000000000000000000000330000000000000000000000000d39gnqtwzCEFFFGHJJJIKKHGEAvqmjjjijklmooquyCEFEEEDDCAxutn9000000000000000000000000000000000000000000000000000000000000000le037fmswzBDEFGHHJIIIJJJJMOOMLLMMLJLMLKHIJIHGFFECAAyvqe00000000000000000000000000000003000000000000000000000000000000000hyc2113ajswACFGGJIHJJKMLLNOPQRTSSSRQPONLLLKJJIGEBywtn70000000000000000000000000000000000000000000000000000000000000000009Bwe200017gpwAEFIHHHHJKLMNOPQRRRQQQOONNMLKJGGFDBzuoic100000000000000000000000b100000000005200000000000000000000000000000ayDCn7111136cjqxCFFGGGHJJLMNOOOOOONNNNNLKHFCAyvqnjgf7000000000000000000000000000000000000221000000000000000000000000013fowCFFxh62233459dkrxBDEEFFHJLMMMMLLLLLLJGFDAwqkgfeeec10000000000000000000000000000000000002338889a70000000000000000169fquswBDFGFvg63355667adimswACDEFFFFEDDDDCBzwsokheefffed60000000000000000000000000000gi400001216agkouBDvzBvpli9578999bisxyCBytxCDEFGHDsf7565687888acfjmopqqrqpopppolihhijlmkjjid0000000000000000000000000005gla0265553028chlrxBDMRWUPOyswwwyzACFKKFzwvyDEFFFHHHBqg97689aabbbabbcegijklllmljiiklllmmljih6000000000000000000000000000d9427a975310038dimrxyFNRVUTGDHHHFGGHHGFDAwvzEEFGGHKJIFAsjdaacefgikkllmnnnnnnmlkjjkkjkkklliie000000000000000000000000005b98bcb76431000049eimsxAINRVUHJMLLJIIHGFEEBxwzDEFGHJJIIHGFDyqkhghjkmllmmnmmmlkjjjjjlljjjklkji60000000000000000000000004ehhffd97653100000059fjntwAHLQRCKMMLKJJJHGFFCzxzBDEFHHIHHHGGGFFCwokiklkkkkmmlljiiiijjkkkjjkkjig000000000000000000000003ckjgdcb986532000000005afjorsCGLJwKMMLLKKJIIHFDAyzACDEEFFGGFEFFEEFECwolkjijjjkkkjhhhijjjkjjjjiihb000000000000000000000007gifecb98753200000000005aejlnxBHupJLLLLMLLLKIGDBzACDDDDEEEEEEDDDEDEEDAtoljihihhghhhiijiijiighhhe710000000000000003159a77beedcba8653200000000000059efltxAeoCFJJKKMMLLJGEDBCDDDEEDDDDEEDDCBCCCBBzwsnifegfeghhhhiiiigefgggc753000000000110036beikiggfdba9865320000000000000048binslarwADFIKLLLKJGFDCEFFEEDDDDDDDCBBAAzAzzyxwtniggffghhhiiihfddfgfdb98762000006DSPJIKLFzohdccb87755421000000000000000037dhl8grsvyBEHIJJKJHFEDEGGEDECCCCBABAAAzyxxxxxwwvrnkihggggggedcdeggedba875421356eDUXWMNYZRNKvtzvnkhc74200000000000000000027c96jnpsuxzCFHHHHHFFFFGFEEDCCCBAAzyyyxxxxxxxyxwxxvtqmkihedbdeeffedca98755bksolsEJDwrELBtDFyAyuqlhc73000000000000000000001518fimpqsvyACFGGGFFFGGFFEDCCBAAAAzyyxxxxxyyAzACDEECytmgdccdeeeddcba988ajuDGAyDFzruKPIACCxuuqlhda610000000000000000000000016aehkmprtvxzBDFFFFFHGFEDDCBBBAAzyxyzyyzzAADDEFFEEDAtkeddccccaabca99bdkquyxuwyxwGJHEzuusnkiea7300000000000000000000000000158behkmprtuxyBEGGHGGFEEEEDCCCBBAAABAAAACDEFEFEDDDCytolifeeddedeefgiknrtuvvuvuxGDBwlnpkfec85200000000000000000000000000000369cfhkmoqsuwyBDGGGGFGGFEEEDCCCCCDDDDDEFFFFFEDDCBywwusrpoopoooqqrtvwxyyzzwutwzysgjmkfca7300000000000000000000000000000000147adfikmoqsuwzBDEFFFGFEEEEDDEEEFFFFFEFFFEDDEDzyyyyyyyxyzyyzzzAAAACBBAxwvsrstpcglheb84100000000000000000000000000000000000257adfhjlnprtvxzBDEFEDDEEEEFFGFGFGFFFFECCDCAyzzAzzzAABBBBCCCDDCCAzywurooonjaeheb852000000000000000000000000000000000000000257acegikmopsuvxyzABCEDDEFGGGGFGGGFEDCEBzzzABAAAABBBBBBCDDBAzxvusqnkilkf9ceb85200000000000000000000' };
+  let retratoLuz = null;
+  function luzRetrato() {
+    if (retratoLuz) return retratoLuz;
+    const A = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', { n, m, d } = RETRATO;
+    const luz = new Float32Array(n * m), fundo = new Float32Array(n * m);
+    // uma elipse que cabe dentro da grade: dentro dela as linhas aparecem mesmo onde a foto é escura (o cabelo);
+    // perto da borda, a foto e as linhas somem aos poucos, sem desenhar um retângulo
+    for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) {
+      const k = i * m + j, e = ((j - m * 0.5) / (m * 0.47)) ** 2 + ((i - n * 0.46) / (n * 0.56)) ** 2;
+      luz[k] = (A.indexOf(d[k]) / 61) * curvas.suave(limitar((1.12 - e) / 0.5));
+      fundo[k] = curvas.suave(limitar((1 - e) / 0.6));
+    }
+    return (retratoLuz = { luz, fundo });
+  }
+  const NIVEIS_RETRATO = 7;
+
   // As 49 leituras de ilustração que terminam no `tempo`. `agito` (0 a 1) mistura a sala parada com
   // alguém andando, começando pelas linhas de baixo (as mais novas); `roteiro` usa a linha do tempo acima.
   function pilhaSint(tempo, agito, roteiro) {
@@ -660,6 +680,68 @@
     c.restore();
     c.globalAlpha = alfa * mostra;
     rotulo(c, G, cor, 'limite', gx + gw, y(d.lim) - G.bh * 0.012, { alinhar: 'right', base: 'bottom', tam: 0.03 });
+  }
+
+  // O retrato de Hedy Lamarr com as linhas do sinal. Na TV, fica no canto vazio à esquerda do palco, em cima do
+  // título; no celular, no espaço entre o palco e o título. Entrando: as linhas chegam retas e apagadas (como o sinal)
+  // e o rosto sobe de baixo para cima, linha por linha. Parado: uma faixa de luz desce devagar, como uma leitura.
+  // Saindo: o relevo baixa e as linhas somem.
+  function desenharRetratoHedy(c, G, cor, amb, t, presenca, sai) {
+    const W = c.canvas.width, H = c.canvas.height, { n, m } = RETRATO, { luz, fundo } = luzRetrato();
+    const prop = 660 / 840;   // a proporção do recorte da foto (largura / altura)
+    let x, y, w, h, legenda;
+    if (W / H > 1.1) {
+      h = Math.min(H * 0.47, (G.bx - W * 0.08) / prop); w = h * prop; x = W * 0.04; y = H * 0.09;
+      legenda = { x, y: y + h + H * 0.012, alinhar: 'left', base: 'top', linhas: ['Hedy Lamarr em 1940 · foto de Clarence Bull'] };
+    } else {
+      h = Math.min(H * 0.13, G.bh * 0.5); w = h * prop; x = G.bx; y = G.by + G.bh + H * 0.018;
+      legenda = { x: x + w + G.dpr * 10, y: y + h / 2, alinhar: 'left', base: 'middle', linhas: ['Hedy Lamarr, 1940', 'foto de Clarence Bull'] };
+    }
+    if (h < 30 * G.dpr) return;
+    const passo = h / (n + 1), alt = passo * 1.15, dx = w / (m - 1);
+    const traco = sai ? 1 : curvas.suave(janela(t, 0, 0.26));           // as linhas chegam da esquerda, retas e apagadas
+    const faixa = ((amb / 6) % 1) * 1.4 - 0.2;                            // a leitura que desce, a cada 6 s
+    const xs = new Float32Array(m), ys = new Float32Array(m), vs = new Float32Array(m);
+    c.lineCap = 'round'; c.lineJoin = 'round';
+    for (let i = 0; i < n; i++) {
+      const ini = 0.14 + 0.46 * (1 - i / (n - 1));                         // de baixo para cima, devagar
+      const sobe = sai ? presenca : curvas.suave(janela(t, ini, ini + 0.38));
+      const brilho = Math.exp(-(((i / n - faixa) / 0.07) ** 2)) * (sai ? 0 : curvas.suave(janela(t, 0.8, 1)));
+      const y0 = y + passo * (i + 1), fim = Math.max(1, Math.round((m - 1) * traco));
+      for (let j = 0; j <= fim; j++) {
+        const k = i * m + j, L = luz[k];
+        xs[j] = x + dx * j;
+        ys[j] = y0 - Math.pow(L, 1.4) * alt * sobe * (1 + 0.25 * brilho);
+        vs[j] = Math.max(0.09 * fundo[k], L * sobe) * (1 + 0.35 * brilho);
+      }
+      // cada linha tapa um pouco a de trás, como no gráfico da tela principal
+      c.globalAlpha = presenca; c.fillStyle = cor.fundo;
+      c.beginPath(); c.moveTo(xs[0], y0 + passo * 0.4);
+      for (let j = 0; j <= fim; j++) c.lineTo(xs[j], ys[j]);
+      c.lineTo(xs[fim], y0 + passo * 0.4); c.closePath(); c.fill();
+      // o traço: mais claro e mais grosso onde a foto é clara (em poucos níveis, para desenhar rápido)
+      c.strokeStyle = cor.tinta;
+      for (let nv = 0; nv < NIVEIS_RETRATO; nv++) {
+        const lo = nv / NIVEIS_RETRATO, hi = (nv + 1) / NIVEIS_RETRATO, meio = (lo + hi) / 2;
+        let aberto = false, algum = false;
+        c.beginPath();
+        for (let j = 0; j < fim; j++) {
+          const v = Math.min(1, (vs[j] + vs[j + 1]) / 2);
+          if (v < 0.02 || v < lo || (v >= hi && nv < NIVEIS_RETRATO - 1)) { aberto = false; continue; }
+          if (!aberto) { c.moveTo(xs[j], ys[j]); aberto = true; }
+          c.lineTo(xs[j + 1], ys[j + 1]); algum = true;
+        }
+        if (!algum) continue;
+        c.globalAlpha = presenca * (0.12 + 0.88 * Math.pow(meio, 0.9));
+        c.lineWidth = G.dpr * (0.4 + 1.65 * Math.pow(meio, 1.2));
+        c.stroke();
+      }
+    }
+    c.globalAlpha = presenca * (sai ? 1 : curvas.suave(janela(t, 0.6, 0.9)));
+    c.fillStyle = cor.apagado; c.font = `${Math.round(Math.max(11 * G.dpr, H * 0.016))}px ${G.sans}`;
+    c.textAlign = legenda.alinhar; c.textBaseline = legenda.base;
+    const fl = Math.max(11 * G.dpr, H * 0.016) * 1.35, n0 = legenda.base === 'middle' ? -(legenda.linhas.length - 1) / 2 : 0;
+    legenda.linhas.forEach((txt, i) => c.fillText(txt, legenda.x, legenda.y + (n0 + i) * fl));
   }
 
   // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "Ilustração".
@@ -1196,6 +1278,8 @@
         }
       }
 
+      // o retrato: as linhas do sinal viram o rosto de Hedy Lamarr
+      desenharRetratoHedy(c, G, cor, amb, t, sai ? q.p : 1, sai);
       // à esquerda: o ano e o que é o rolo
       const rot = (u) => (sai ? q.p : curvas.suave(janela(t, u, u + 0.25)));
       const xL = G.X(0), sobe = (u) => (1 - rot(u)) * G.bh * 0.02;
