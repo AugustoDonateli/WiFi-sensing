@@ -2,6 +2,8 @@
 
 Página para comparar o som das trocas de tela (`demo/sons.js`). Abra o `index.html` no navegador (com internet, para as fontes) e use fone ou a caixa de som da TV.
 
+**Escolha do grupo (15/10/2026): Sinal.** É a do site. Notas, Ar e o sopro de antes ficam na página para comparar.
+
 - O palco tem as cinco telas do site, simplificadas, com as **passagens de verdade** (`demo/passagem.js`). Clique nas telas (ou use as teclas do site: E, N, G, H, Esc).
 - À direita, as propostas: **Sinal**, **Notas**, **Ar** e o sopro de antes, para comparar. A escolha vale para o palco.
 - Embaixo, o que cada proposta faz em cada tela, com "Ouvir" para tocar só o som de entrar ou de sair.

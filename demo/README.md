@@ -191,9 +191,9 @@ Três notas (ré, lá, mi). Cada uma é tocada por dois osciladores: um fixo e u
 
 O som acompanha o desenho da passagem. A saída de uma tela é a entrada dela tocada de trás para a frente, como no desenho (menos a da história, que tem saída própria). Toda saída termina no mesmo som, o do instante em que as linhas cobrem a tela, e toda entrada começa nele: qualquer saída emenda em qualquer entrada.
 
-Três propostas, para o grupo escolher no laboratório (`ferramentas/laboratorio-passagens/`, com as passagens de verdade e as telas simplificadas):
+O grupo comparou três propostas no laboratório (`ferramentas/laboratorio-passagens/`, com as passagens de verdade e as telas simplificadas) e escolheu a **Sinal** (15/10):
 
-| | Sinal (padrão por enquanto) | Notas | Ar |
+| | **Sinal (escolhida, é a do site)** | Notas | Ar |
 |---|---|---|---|
 | A ideia | O som é feito da última leitura do Wi-Fi: 12 notas igualmente espaçadas, como as subportadoras, cada uma com a força do seu pedaço do sinal. Se alguém se mexe perto das placas, elas tremem. | Uma frase curta de marimba por tela, nas notas da marca e da escuta. | Sopros de ruído filtrado com o gesto de cada tela. A mais discreta. |
 | Principal | As notas se apertam e abafam; um grave quando o gráfico pousa. | Ré, lá, ré, descendo, com um grave. | O sopro abafa até um grave. |
@@ -202,7 +202,7 @@ Três propostas, para o grupo escolher no laboratório (`ferramentas/laboratorio
 | Quem passou | As notas afinam na escala da marca e giram; seis sininhos, um por ponta da estrela. | Seis notas em espiral. | Um redemoinho e um sininho. |
 | Como funciona | O som vai para a direita e as notas apagam uma a uma; duas notas abrem a história. Saindo: uma nota pinçada por linha desenhada. | Ré, mi, lá, devagar. Saindo: oito notas subindo. | Um farfalhar de página. Saindo: riscos de lápis. |
 
-- Toca mesmo com o detector no Mudo (o Mudo é o som do detector). Desliga em "Trocas de tela", no painel do Operador; a escolha fica guardada no navegador. `?trocas=notas` na URL escolhe pela URL; `?trocas=antigo` toca o sopro de antes, para comparar.
+- Toca mesmo com o detector no Mudo (o Mudo é o som do detector). Liga e desliga em "Trocas de tela", no painel do Operador; fica guardado no navegador. Para comparar, pela URL: `?trocas=notas`, `?trocas=ar` ou `?trocas=antigo` (o sopro de antes).
 - Sem fonte de dados, a proposta Sinal toca as 12 notas iguais, sem tremor (nada inventado).
 - Tudo feito na hora pelo navegador (Web Audio): nenhum arquivo de som, funciona sem internet. Passa pelo limitador do site.
 - Volume medido pela cadeia do site (`ferramentas/laboratorio-passagens/medir.py`, pico em janelas de 50 ms, média das 20 trocas): Sinal −26,8 dBFS, Notas −26,5, Ar −26,3; o alerta do detector dá −25,4. O sopro de antes dava −43,9 (quase não se ouvia).

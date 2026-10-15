@@ -8,7 +8,8 @@
  *   - toda saída termina no som do SINAL e toda entrada começa nele: qualquer saída emenda em qualquer
  *     entrada, e no meio da troca (a tela coberta) o som segura.
  *
- * Propostas (famílias), para o grupo escolher no laboratório (ferramentas/laboratorio-passagens/):
+ * Propostas (famílias), comparadas no laboratório (ferramentas/laboratorio-passagens/). O grupo escolheu
+ * a "sinal" (15/10): é a do site. As outras ficam para comparar.
  *   sinal   o som é feito da última leitura do Wi-Fi: 12 notas igualmente espaçadas, como as subportadoras,
  *           cada uma tão forte quanto o seu pedaço do sinal. Se alguém se mexe perto das placas, elas tremem.
  *   notas   uma frase curta de marimba para cada tela, nas notas da marca e da escuta.
@@ -365,7 +366,7 @@
     ar: { nome: 'Ar', gestos: AR, nivel: 0.168 },
     antigo: { nome: 'Antigo', direto: antigo, nivel: 1 },
   };
-  const PADRAO = 'sinal';
+  const PADRAO = 'sinal';   // a escolhida pelo grupo
 
   // A partitura de um evento da passagem ('saida' ou 'entrada') com o gesto da tela. contexto = { espectro }.
   // null: esse evento não tem som nessa família.

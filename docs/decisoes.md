@@ -49,7 +49,8 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - A regra, a mesma do desenho: a saída de uma tela é a entrada tocada de trás para a frente, e toda troca passa pelo mesmo som no meio.
   - O sopro de antes só tocava com o som ligado e ficava uns 17 dB abaixo do alerta (quase não se ouvia). Agora as trocas têm o próprio botão no painel ("Trocas de tela") e tocam mesmo com o detector no Mudo. As três propostas têm volume parecido, um pouco abaixo do alerta.
   - Feitos na hora (Web Audio), sem arquivos de som: funcionam sem internet e não têm problema de licença.
-  - **Falta:** o grupo escolher (por enquanto o padrão é Sinal) e ouvir na caixa de som da TV, no estande.
+  - **Escolha do grupo (15/10): Sinal.** O som das trocas vem do próprio Wi-Fi da sala, como as linhas. No painel, "Trocas de tela" só liga e desliga; Notas e Ar ficam no laboratório (e pela URL, `?trocas=notas`).
+  - **Falta:** ouvir na caixa de som da TV, no estande, e ajustar o volume.
 - A pergunta "dá para ouvir alguém atrás da parede?" fica ligada ao teste de parede do projeto. Não vamos afirmar que funciona antes de testar.
 - Na parte de ética da apresentação: a mesma ideia poderia ser usada para espionar. É justamente por isso que o projeto discute privacidade.
 

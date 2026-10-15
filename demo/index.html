@@ -321,12 +321,10 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
   <section>
     <span class="mono">Trocas de tela</span>
     <div class="opcoes" id="trocas">
-      <button data-trocas="sinal" aria-pressed="false">Sinal</button>
-      <button data-trocas="notas" aria-pressed="false">Notas</button>
-      <button data-trocas="ar" aria-pressed="false">Ar</button>
+      <button data-trocas="sinal" aria-pressed="false">Com som</button>
       <button data-trocas="desligado" aria-pressed="false">Sem som</button>
     </div>
-    <p>O som de entrar e sair de cada tela. Toca mesmo com o detector no Mudo. Sinal: feito da última leitura do Wi-Fi. Notas: uma frase de marimba por tela. Ar: sopros, o mais discreto. Para comparar: ferramentas/laboratorio-passagens.</p>
+    <p>O som de entrar e sair de cada tela ("Sinal", escolhido pelo grupo): feito da última leitura do Wi-Fi; se alguém se mexe perto das placas, ele treme. Toca mesmo com o detector no Mudo.</p>
   </section>
   <section>
     <span class="mono">Apresentação</span>
@@ -1324,11 +1322,13 @@ function subirPalavras(modo, atraso = 0) {
 }
 // Som das trocas de tela (sons.js): cada tela tem o seu som de entrar e de sair, que segue o gesto da
 // passagem. Não depende do Mudo (que é o som do detector); desliga em "Trocas de tela", no painel.
-// ?trocas=antigo toca o sopro de antes, para comparar.
+// O grupo escolheu a proposta "sinal" (15/10). As outras ficam no laboratório e pela URL, para comparar:
+// ?trocas=notas, ?trocas=ar ou ?trocas=antigo (o sopro de antes). No painel, só liga e desliga.
 const TROCAS = ['sinal', 'notas', 'ar', 'desligado', 'antigo'];
 let trocas = (() => {
-  const v = new URLSearchParams(location.search).get('trocas') || ler('wavesense-trocas', window.WaveSons ? WaveSons.PADRAO : 'desligado');
-  return TROCAS.includes(v) ? v : 'sinal';
+  const url = new URLSearchParams(location.search).get('trocas');
+  if (TROCAS.includes(url)) return url;
+  return ler('wavesense-trocas', 'sinal') === 'desligado' ? 'desligado' : 'sinal';
 })();
 let sonsTroca = null;
 function definirTrocas(f, guardar = true) {
