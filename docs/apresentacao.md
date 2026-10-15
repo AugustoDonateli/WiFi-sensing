@@ -92,8 +92,8 @@ A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha c
 | 10 ★ | Quando alguém anda, as linhas tremem. | Sala pequena com alguém andando; as linhas tremem | Movimento → tremor |
 | 11 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
 | 12 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | O visitante testa |
-| 13 | Como se mede de verdade. | 4 situações × 4 sessões, separadas em "ajustam o limite" e "só testam" (ilustração do método) | Método, e que ainda não foi feito |
-| 14 | O que vimos em casa. | As barras de acerto com "?" (ainda não medido); a frase diz os testes de montagem | Resultados dos testes em casa |
+| 13 | Como testamos. | Dados reais: o tremor da sala vazia (em cima) e de alguém cruzando a linha (embaixo), 30 s cada, e o limite tracejado saindo da sala vazia | Método |
+| 14 | O que os testes mostraram. | O mesmo gráfico: acendem as 7 travessias detectadas (numeradas) e os 2 alarmes da sala vazia | Resultados dos testes |
 | 15 ★ | Pessoa parada não aparece. | A sala pequena, pessoa parada e tracejada; linhas calmas | Limites (Estátua) |
 | 16 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
 | 17 | Onde isso pode ajudar. | Queda com alerta, luz que apaga sozinha, alarme | Impacto |
@@ -143,7 +143,7 @@ Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visu
 3. **Método** (1 min):
    - coletas gravadas com rótulo (vazio, andando), limite calibrado com a sala vazia;
    - como se mede o acerto de verdade: **sessões diferentes para ajustar e para testar**, para não "colar". **Ainda não fizemos essa parte**; digam isso.
-4. **Testes em casa e problemas resolvidos** (1 min30), com os números de `docs/decisoes.md` (15/10):
+4. **Testes e problemas resolvidos** (1 min30), com os números de `docs/decisoes.md` (15/10):
    - roteador e TV perto da placa B faziam metade dos pacotes se perder; afastando, chegaram ~90%;
    - o cabo USB só leva ~72 linhas por segundo: placa A baixada de 100 para 50 pacotes por segundo;
    - o ganho automático da placa fazia a sala vazia "tremer": cada pacote passou a ser ajustado para o mesmo volume;
@@ -172,7 +172,7 @@ Revezem a cada 30 minutos. **Todos** precisam saber o roteiro de 3 minutos e a v
 - **"Tem câmera escondida?"** Não. Pode olhar as placas. Não tem câmera nem microfone, só rádio.
 - **"Dá para ver através da parede?"**
   - Pesquisadores do MIT mostraram isso em 2013 (Wi-Vi), com equipamento especial.
-  - Com a nossa placa, num teste em casa, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi **um teste só**: funciona, mas ainda não sabemos o quanto acerta.
+  - Com a nossa placa, num teste, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi **um teste só**: funciona, mas ainda não sabemos o quanto acerta.
 - **"Ele sabe quem eu sou?"** Não. Ele só percebe que algo mudou no sinal.
 - **"E com duas pessoas?"** Ele diz que tem movimento, mas não quantas pessoas, nem onde.
 - **"Funciona com o Wi-Fi da minha casa?"** Os roteadores comuns não mostram essas medidas; a ESP32 mostra. O padrão 802.11bf é o começo disso virar produto.

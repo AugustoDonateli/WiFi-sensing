@@ -262,8 +262,10 @@
   const PILHA_MINI = { px: 0, pw: 1, py: 0.47, ph: 0.51, relevo: 0.8, teto: 0.39 };   // `teto`: as linhas somem antes da sala
   // Notebook da cena de viabilidade: a tela (onde as linhas encolhem) e a base, apoiada no chão.
   const NOTE = { x0: 0.675, x1: 0.945, y0: 0.485, y1: 0.74, borda: 0.012 };
-  // Barras dos resultados: o acerto do sistema (x) e o chute (x2); `alt` é a altura de 100%.
-  const RES = { x: 0.28, x2: 0.64, w: 0.2, alt: 0.58 };
+  // Os testes de 15/10 (dados reais, placas a 1,5 m, sem parede): o tremor a cada 0,2 s, em vezes a média da
+  // sala vazia, com o limite calibrado nela e o que o detector marcou. Gerado com ferramentas/detector.py a partir de
+  // dados/brutos/20261015-164853_vazio.csv e 20261015-165324_andando.csv.
+  const TESTE = {"vazio":[0.82,0.8,0.81,0.82,0.8,1.26,1.24,1.25,1.24,1.35,0.88,1.45,1.49,1.44,1.35,1.36,0.75,0.75,0.76,1.84,2.52,2.52,2.58,2.48,1.72,0.76,0.78,0.75,0.73,0.75,0.76,0.76,0.78,0.82,0.8,0.8,0.81,0.83,0.83,0.84,0.85,0.82,0.79,0.77,0.76,0.74,0.76,0.76,0.75,0.76,0.76,0.77,0.76,0.76,1.77,2.44,2.52,2.55,2.55,1.87,0.78,0.81,0.81,0.81,0.81,0.8,0.79,0.78,0.74,0.75,0.75,0.77,0.77,0.77,0.77,0.79,0.78,0.77,0.78,0.76,0.75,0.75,0.8,0.79,0.79,0.8,0.81,0.8,0.8,0.81,0.78,1.79,1.8,1.78,1.78,1.73,0.79,0.78,0.77,0.76,0.79,0.8,0.79,0.8,0.79,0.75,0.73,0.75,0.81,0.81,0.82,0.83,0.83,0.79,0.78,0.76,0.82,0.83,0.84,0.89,0.9,1.29,1.35,1.35,1.35,1.29,0.91,0.86,0.85,0.83,0.81,0.74,0.74,0.73,0.73,0.74,0.71,0.74,0.75,0.77,0.75,0.75,0.73,0.73,0.72],"andando":[1.04,1.07,1.17,1.08,1.33,1.36,1.62,2.3,2.19,2.1,2.18,2.1,1.2,1.09,1.05,1.03,1.02,1.02,0.98,1.03,1.03,1.03,0.94,0.98,2.25,4.01,3.85,3.99,4.18,3.59,1.54,1.16,1.14,1.1,1.08,1.03,0.99,1.09,1.12,1.14,1.14,1.27,2.58,3.07,3.88,3.8,3.67,3.17,2.64,0.94,0.93,0.95,1.1,1.23,1.09,1.02,1.42,3.1,4.4,4.53,4.61,4.71,4.25,2.13,2.17,2.08,2.09,0.92,0.98,1.1,1.19,1.25,1.46,1.65,3.22,3.54,3.53,3.44,3.32,1.86,0.98,0.94,0.93,0.91,0.91,0.94,1.0,1.08,1.16,1.55,3.41,3.99,4.06,4.06,4.1,2.87,1.37,1.22,1.53,1.52,1.46,1.35,1.27,1.06,1.08,1.89,1.93,2.01,2.01,2.11,4.2,4.16,4.1,4.2,4.14,1.17,1.07,0.96,0.95,0.91,0.89,0.86,0.91,0.91,1.08,1.96,4.21,4.28,4.11,4.21,3.89,1.04,1.01,1.02,0.97,0.9,0.93,0.92,0.94,0.93,0.98,1.02,1.04,1.37,3.21],"lim":2.39,"detVazio":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"detAndando":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0]};
   const PILHA_NOTE = { px: NOTE.x0 + NOTE.borda, pw: NOTE.x1 - NOTE.x0 - 2 * NOTE.borda, py: NOTE.y0 + NOTE.borda * 1.45, ph: NOTE.y1 - NOTE.y0 - 2 * NOTE.borda * 1.45 };
   const ALTURA_PESSOA = 0.34;
 
@@ -349,20 +351,6 @@
     for (let j = 99; j >= 0; j--) { const k = ciclico(i - j, n); serie.push(S.rel[k]); dets.push(S.dets[k]); }
     const ligado = S.dets[ciclico(i, n)];
     return { valor: misturar(S.rel[ciclico(i, n)], S.rel[ciclico(i + 1, n)], m - i), serie, dets, lim: S.lim, ligado, rotulo: ligado ? 'movimento' : 'parado', frac: m - i };
-  }
-
-  // As 16 "gravações" da cena do método (5 leituras cada): vazio, parado, andando e queda (forte e depois quieta).
-  let cacheGravacoes = null;
-  function gravacoes() {
-    if (cacheGravacoes) return cacheGravacoes;
-    const { parado, mexendo } = dadosSint();
-    const AGITO = [[0, 0, 0, 0, 0], [0.04, 0.04, 0.04, 0.04, 0.04], [0.8, 0.8, 0.8, 0.8, 0.8], [0, 0.15, 1, 0.05, 0]];
-    cacheGravacoes = AGITO.map((ags, r) => [0, 1, 2, 3].map((s) => ags.map((m, j) => {
-      const i = 20 + s * 41 + r * 13 + j, a = new Float64Array(64), d = new Float64Array(64);
-      for (let k = 0; k < 64; k++) { a[k] = misturar(parado[i].a[k], mexendo[i].a[k], m); d[k] = misturar(parado[i].d[k], mexendo[i].d[k], m); }
-      return { a, d };
-    })));
-    return cacheGravacoes;
   }
 
   const fmtX = (x) => `${x < 10 ? x.toFixed(1).replace('.', ',') : Math.round(x)}×`;
@@ -685,8 +673,7 @@
     soma: { padrao: { x0: 0.2, x1: 0.88, xb: 0.95, py: 0.1, ph: 0.68, pessoa: 0, fecha: 0 }, sintetica: true },
     medidor: { padrao: {}, sintetica: true, sobe: true },
     vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0, relevo: 1, juntar: 0 }, sobe: true },
-    grade: { padrao: { agrupar: 1, junta: 0 }, sintetica: true },
-    resultado: { padrao: {} },
+    teste: { padrao: { marcas: 0 } },   // dados reais: sem a etiqueta "Ilustração"
   };
   const PADROES = Object.fromEntries(Object.entries(CAMADAS).map(([k, v]) => [k, v.padrao]));
 
@@ -1242,72 +1229,61 @@
       } else d = medidaSint(amb);
       desenharMedidor(c, G, cor, { x: G.X(0), y: G.Y(MEDIDOR.y), w: G.bw, h: MEDIDOR.h * G.bh }, d, alfa * q.med * (q.dir === 1 && !varrendo ? limitar(q.p * 2 - 1) : 1));
     },
-    grade(c, G, q, cor, amb, prm, ex) {
-      // As gravações: 4 situações × 4 sessões. Cheias ajustam o limite, tracejadas só testam.
-      // `junta` (indo para os resultados): as de teste deslizam e se empilham dentro da barra do resultado,
-      // as de ajuste somem. O resultado vem só das gravações de teste.
-      const t = linear(q), alfa = q.dir === -1 ? q.p : 1, jt = limitar(q.junta || 0);
-      const ag = curvas.suave(janela(t, 0.62, 1)) * q.agrupar;
-      const ANTES = [0.2, 0.4, 0.6, 0.8], DEPOIS = [0.2, 0.63, 0.39, 0.82], w = 0.17, h = 0.13;
-      const R = ex.resultados, tem = R && typeof R.acerto === 'number' && typeof R.chute === 'number';
-      const barH = (tem ? R.acerto : 0.55) * RES.alt * G.bh, slot = barH / 8, bx = G.X(RES.x), bw = RES.w * G.bw;
-      const somem = 1 - limitar(jt * 2.4);
-      ['vazio', 'parado', 'andando', 'queda'].forEach((nome, r) => {
-        const y = 0.2 + r * 0.17;
-        c.globalAlpha = alfa * limitar(t * 3 - r * 0.3) * somem;
-        if (somem > 0.01) rotulo(c, G, cor, nome, G.X(0), G.Y(y + h / 2), { alinhar: 'left', base: 'middle' });
-        for (let s = 0; s < 4; s++) {
-          const pk = curvas.entra(limitar(t * 2.4 - (s * 0.2 + r * 0.08)));
-          if (pk <= 0) continue;
-          const teste = s % 2 === 1;
-          if (!teste && somem <= 0.01) continue;
-          // as sessões 2 e 3 trocam de lugar como cartas: uma passa por cima, a outra por baixo, meio apagadas
-          const troca = s === 1 || s === 2 ? Math.sin(Math.PI * ag) * (1 - jt) : 0;
-          let rx = G.X(misturar(ANTES[s], DEPOIS[s], ag)), rw = w * G.bw, rh = h * G.bh;
-          let ry = G.Y(y) + (1 - pk) * G.bh * 0.03 + (s === 1 ? 1 : -1) * troca * G.bh * 0.022;
-          let a = alfa * pk * (1 - 0.55 * troca);
-          if (teste && jt > 0) {
-            const j = r * 2 + (s === 3 ? 1 : 0), kj = curvas.suave(limitar(jt * 1.5 - j * 0.06));
-            const tx = bx + bw * 0.06, ty = G.Y(CHAO) - (j + 1) * slot + slot * 0.12, tw = bw * 0.88, th = slot * 0.76;
-            rx = misturar(rx, tx, kj); ry = misturar(ry, ty, kj); rw = misturar(rw, tw, kj); rh = misturar(rh, th, kj);
-          } else if (!teste) {
-            a *= somem;
-            const cx = rx + rw / 2, cy = ry + rh / 2, e = misturar(1, 0.85, 1 - somem);
-            rw *= e; rh *= e; rx = cx - rw / 2; ry = cy - rh / 2;
-          }
-          c.globalAlpha = a; c.strokeStyle = cor.tinta; c.lineWidth = 1.2 * G.dpr;
-          tracejado(c, G, teste); c.strokeRect(rx, ry, rw, rh); tracejado(c, G, false);
-          if (rh > G.dpr * 6) desenharLinhas(c, { x: rx + rw * 0.04, y: ry + rh * 0.2, w: rw * 0.92, h: rh * 0.72 }, gravacoes()[r][s], 0, cor, G.dpr, { linhas: 5, alturaRelevo: 2.4 });
+    teste(c, G, q, cor, amb, prm, ex) {
+      // O tremor medido nos testes: sala vazia em cima, alguém cruzando a linha embaixo, na mesma escala.
+      // Entrando: a sala vazia é gravada (o traço corre), o limite sai dela e vale para as duas, e o andando é
+      // gravado. `marcas` acende, um por um, os trechos que o detector marcou como movimento.
+      const t = linear(q), alfa = q.dir === -1 ? q.p : 1, mk = limitar(q.marcas);
+      const x0 = G.X(0.2), x1 = G.X(0.97), w = x1 - x0;
+      const teto = Math.max(...TESTE.vazio, ...TESTE.andando) * 1.06;   // escala linear a partir de zero: o tamanho de verdade
+      const LINHAS = [
+        { nome: 'sala vazia', s: TESTE.vazio, d: TESTE.detVazio, y0: 0.08, h: 0.26, entra: [0.06, 0.4], marca: 'alarme' },
+        { nome: 'andando', s: TESTE.andando, d: TESTE.detAndando, y0: 0.47, h: 0.26, entra: [0.56, 0.92], marca: null },
+      ];
+      const yDe = (L, v) => G.Y(L.y0 + L.h) - (Math.max(0, v) / teto) * L.h * G.bh;
+      const xDe = (L, i) => x0 + (w * i) / (L.s.length - 1);
+      const kl = q.dir === 1 ? curvas.suave(janela(t, 0.4, 0.56)) : 1;
+      c.lineJoin = 'round'; c.lineCap = 'round';
+      LINHAS.forEach((L, r) => {
+        const aL = alfa * limitar(t * 4 - r * 1.6);
+        if (aL <= 0.001) return;
+        const base = G.Y(L.y0 + L.h), topo = G.Y(L.y0);
+        c.globalAlpha = aL;
+        rotulo(c, G, cor, L.nome, G.X(0), base - L.h * G.bh * 0.35, { alinhar: 'left', base: 'middle', cor: cor.tinta, tam: 0.04 });
+        c.globalAlpha = aL * 0.35; c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
+        linha(c, x0, base, x1, base);
+        // o que o detector marcou: faixas claras, uma por vez
+        const eps = [];
+        L.d.forEach((v, i) => { if (v && !L.d[i - 1]) eps.push([i, i]); if (v) eps[eps.length - 1][1] = i; });
+        eps.forEach(([i, f], j) => {
+          const e = curvas.entra(limitar(mk * (eps.length + 1) - j * (eps.length / Math.max(eps.length, 1))));
+          if (e <= 0) return;
+          const xa = xDe(L, i), xb = xDe(L, f);
+          c.globalAlpha = aL * 0.16 * e; c.fillStyle = cor.tinta; c.fillRect(xa, topo, xb - xa, base - topo);
+          c.globalAlpha = aL * e;
+          rotulo(c, G, cor, L.marca || String(j + 1), (xa + xb) / 2, topo - G.bh * 0.008, { base: 'bottom', cor: cor.tinta, tam: L.marca ? 0.028 : 0.036 });
+        });
+        // o limite: sai da sala vazia e vale para as duas
+        if (kl > 0) {
+          c.globalAlpha = aL * 0.85; c.strokeStyle = cor.tinta; c.lineWidth = G.dpr; tracejado(c, G, true);
+          linha(c, x0, yDe(L, TESTE.lim), x0 + w * kl, yDe(L, TESTE.lim)); tracejado(c, G, false);
+          if (r === 0 && kl > 0.95) { c.globalAlpha = aL * (kl - 0.95) * 20; rotulo(c, G, cor, 'limite', x1, yDe(L, TESTE.lim) - G.bh * 0.01, { alinhar: 'right', base: 'bottom', tam: 0.028 }); }
         }
+        // o traço: corre da esquerda para a direita, como uma gravação
+        const k = q.dir === 1 ? curvas.suave(janela(t, L.entra[0], L.entra[1])) : 1;
+        if (k <= 0) return;
+        const n = Math.max(2, Math.round(L.s.length * k));
+        c.globalAlpha = aL; c.strokeStyle = cor.tinta; c.lineWidth = 1.7 * G.dpr;
+        c.beginPath();
+        for (let i = 0; i < n; i++) { const px = xDe(L, i), py = yDe(L, L.s[i]); i ? c.lineTo(px, py) : c.moveTo(px, py); }
+        c.stroke();
+        if (k < 0.999) { c.fillStyle = cor.tinta; c.beginPath(); c.arc(xDe(L, n - 1), yDe(L, L.s[n - 1]), 3 * G.dpr, 0, 2 * Math.PI); c.fill(); }
       });
-      c.globalAlpha = alfa * ag * somem;
-      rotulo(c, G, cor, 'ajustam o limite', G.X(0.2 + (0.39 + w - 0.2) / 2), G.Y(0.12), { cor: cor.tinta, base: 'alphabetic' });
-      rotulo(c, G, cor, 'só testam', G.X(0.63 + (0.82 + w - 0.63) / 2), G.Y(0.12), { cor: cor.tinta, base: 'alphabetic' });
-    },
-    resultado(c, G, q, cor, amb, prm, ex) {
-      // acerto do sistema ao lado do chute; sem números ainda, só os contornos com "?". As barras crescem
-      // da base na entrada e voltam para a base na saída.
-      const R = ex.resultados, tem = R && typeof R.acerto === 'number' && typeof R.chute === 'number';
-      const t = construcao(q), alfa = q.dir === -1 ? limitar(q.p * 2) : limitar(t * 2.5);
-      const base = G.Y(CHAO), alt = G.bh * RES.alt, w = G.bw * RES.w;
-      c.globalAlpha = alfa * 0.55; c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
-      linha(c, G.X(0.18), base, G.X(0.94), base);
-      [{ u: RES.x, v: tem ? R.acerto : null, nome: 'Wave Sense' }, { u: RES.x2, v: tem ? R.chute : null, nome: 'chute' }].forEach((b, i) => {
-        const pk = curvas.entra(limitar(t * 1.8 - i * 0.3));
-        const x = G.X(b.u), h = (b.v === null ? 0.55 : b.v) * alt * pk;
-        c.globalAlpha = alfa;
-        rotulo(c, G, cor, b.nome, x + w / 2, base + G.bh * 0.03);
-        c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineWidth = 1.4 * G.dpr;
-        if (b.v === null) {
-          c.globalAlpha = alfa * 0.7; tracejado(c, G, true); c.strokeRect(x, base - h, w, h); tracejado(c, G, false);
-          c.globalAlpha = alfa * pk * 0.7; c.font = `${Math.round(G.bh * 0.13)}px ${G.serif}`; c.textAlign = 'center'; c.textBaseline = 'middle';
-          c.fillText('?', x + w / 2, base - h / 2);
-        } else {
-          if (i === 0) c.fillRect(x, base - h, w, h); else c.strokeRect(x, base - h, w, h);
-          c.globalAlpha = alfa * limitar(pk * 2 - 1); c.font = `${Math.round(G.bh * 0.1)}px ${G.serif}`; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
-          c.fillText(`${Math.round(b.v * 100)}%`, x + w / 2, base - h - G.bh * 0.02);
-        }
-      });
+      c.globalAlpha = alfa * limitar(t * 4);
+      const yb = G.Y(LINHAS[1].y0 + LINHAS[1].h) + G.bh * 0.015;
+      rotulo(c, G, cor, '0 s', x0, yb, { alinhar: 'left', tam: 0.026 });
+      rotulo(c, G, cor, '30 s', x1, yb, { alinhar: 'right', tam: 0.026 });
+      rotulo(c, G, cor, 'dados reais · placas a 1,5 m', (x0 + x1) / 2, yb, { tam: 0.026 });
     },
   };
 
@@ -1431,19 +1407,19 @@
       vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] },
       ...SAI_MINI,
     },
+    // os testes de verdade: a sala vazia é gravada, o limite sai dela, depois o andando
     metodo: {
       vivo: { p: 0, saida: [0.02, 0.32] },
-      grade: { entrada: [0.3, 0.88] },
+      teste: { marcas: 0, entrada: [0.26, 0.88] },
     },
-    // as gravações de teste se empilham dentro da barra do resultado; as de ajuste somem
+    // o mesmo gráfico: acendem as travessias que o detector pegou (e os alarmes da sala vazia)
     resultados: {
-      grade: { p: 0, junta: 1, mover: [0.04, 0.52], saida: [0.44, 0.66] },
-      resultado: { entrada: [0.4, 0.88] },
+      teste: { marcas: 1, mover: [0.12, 0.86] },
     },
     // o mesmo arranjo do tremor, com a pessoa parada (some para o sistema) e as linhas calmas
     parado: {
-      // o que estava antes (resultado na completa, sinal de verdade na curta) sai antes de as linhas chegarem
-      resultado: { p: 0, saida: [0.02, 0.34] },
+      // o que estava antes (os testes na completa, sinal de verdade na curta) sai antes de as linhas chegarem
+      teste: { p: 0, saida: [0.02, 0.34] },
       vivo: { p: 0, saida: [0.02, 0.34] },
       chao: { ...ZOOM_MINI, entrada: [0.3, 0.6] },
       placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.32, 0.66] },
@@ -1606,16 +1582,12 @@
       const f = fonteAtual();
       return (f === 'sim' && c.tituloSimulacao) || (f === 'replay' && c.tituloGravacao) || (!f && c.tituloSemFonte) || c.titulo;
     }
-    // Resultados: só com os números do avaliar.py (acerto por coleta e o chute ao lado); senão, a frase de espera.
     // Viabilidade: o preço só aparece se o grupo preencher CUSTO no roteiro.
     function fraseDe(c) {
       const f = fonteAtual(), porFonte = (f === 'sim' && c.fraseSimulacao) || (f === 'replay' && c.fraseGravacao) || (!f && c.fraseSemFonte);
       if (porFonte) return porFonte;
       if (c.fraseComCusto && typeof roteiro.CUSTO === 'string' && roteiro.CUSTO.trim()) return c.fraseComCusto.replace('{custo}', roteiro.CUSTO.trim());
-      const R = roteiro.RESULTADOS;
-      if (c.id !== 'resultados' || !c.fraseComResultados || !R || typeof R.acerto !== 'number' || typeof R.chute !== 'number') return c.frase;
-      const pct = (x) => `${Math.round(x * 100)}%`;
-      return c.fraseComResultados.replace('{coletas}', String(R.coletas ?? '')).replace('{acerto}', pct(R.acerto)).replace('{chute}', pct(R.chute));
+      return c.frase;
     }
     function montarTextos() {
       st.ordem = ordemDa(roteiro.cenas, st.versao, temPose);
@@ -1699,7 +1671,7 @@
       const prm = poseEm(st.T, st.ordem, POSES, PADROES);
       // o sinal de verdade (placas, simulação ou gravação), quando a página principal passa um
       const dv = dadosVivos();
-      const ex = { vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), resultados: roteiro.RESULTADOS, suave: st.suave };
+      const ex = { vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), suave: st.suave };
       // Do número de exemplo para o sinal de verdade: uma linha varre da esquerda para a direita; à esquerda
       // dela já é o sinal das placas, à direita ainda é a ilustração (só quando o layout é o mesmo).
       const varre = prm.vivo && prm.vivo.dir === 1 && prm.medidor && prm.medidor.dir === -1 && prm.pilha ? curvas.suave(prm.vivo.lin) : null;
@@ -1919,7 +1891,7 @@
 
     montarTextos();
     // prepara os dados de ilustração com calma, para a primeira passagem por cada cena não engasgar
-    setTimeout(() => { perfil(); serieNumero(); gravacoes(); }, 400);
+    setTimeout(() => { perfil(); serieNumero(); }, 400);
     const api = {
       get aberta() { return st.aberta; },
       abrir(opc = {}) {

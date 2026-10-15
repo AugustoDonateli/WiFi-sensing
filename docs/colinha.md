@@ -143,7 +143,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 > **Como o número é calculado?** Primeiro, cada pacote é ajustado para o mesmo volume, porque a placa muda o volume sozinha (ganho automático). Depois, para cada subportadora, o desvio padrão da amplitude em 1 segundo, e a média entre elas, a cada 0,2 s. Divide pelo valor da sala vazia, medido na calibração.
 >
-> **Por que ajustar o volume?** Nos testes em casa, com a sala vazia, o número pulava sozinho de 0,8 a 4,8: era a placa subindo e descendo o volume. Ajustando cada pacote, a sala vazia ficou estável e a pessoa andando passou a se destacar.
+> **Por que ajustar o volume?** Nos testes, com a sala vazia, o número pulava sozinho de 0,8 a 4,8: era a placa subindo e descendo o volume. Ajustando cada pacote, a sala vazia ficou estável e a pessoa andando passou a se destacar.
 >
 > **E a linha tracejada?** Média da sala vazia + 3 desvios, no mínimo 1,3×. Três medidas seguidas acima viram "movimento"; cinco abaixo voltam a "parado".
 
@@ -162,26 +162,27 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 ## III · O experimento
 
-### 13. Como se mede de verdade.
+### 13. Como testamos.
 *25 s*
 
-**Fala.** Para medir quanto o sistema acerta, umas gravações servem para escolher o limite e outras, novas, só para conferir. Como uma prova com questões que você não viu. Até agora fizemos os testes de montagem, em casa: eles mostram que funciona, mas ainda não dão uma porcentagem.
+**Fala.** Gravamos 30 segundos com a sala vazia e 30 com alguém andando, cruzando a linha entre as placas. Cada traço é o tremor medido de verdade. O limite, a linha tracejada, sai da sala vazia: o normal dela, mais uma folga.
 
-- APONTE: a coluna "ajustam o limite" e a coluna "só testam".
-- NÃO DIGA: que essa separação já foi feita. Os testes até agora são de montagem (S0).
+- APONTE: a linha de cima (sala vazia), quase reta; o limite tracejado; a de baixo subindo a cada travessia.
+- SE PERGUNTAREM: foi 1 teste de cada (teste de montagem). Ainda não separamos gravações para ajustar e para conferir.
 
-→ *E o que os testes em casa mostraram?*
+→ *E o que o sistema percebeu?*
 
 > **Por que separar as gravações?** Se o limite é escolhido e conferido nas mesmas gravações, o resultado sai bom demais, como fazer a prova com as questões da lista de exercícios. Gravações vizinhas da mesma sessão também são quase iguais; por isso a separação é por sessão.
 >
 > **Por que não têm a porcentagem de acerto?** Porque ainda não fizemos as sessões separadas (uma para ajustar, outra para testar). Preferimos não dar um número que não foi medido do jeito certo.
 
-### 14. O que vimos em casa.
+### 14. O que os testes mostraram.
 *25 s*
 
-**Fala.** Nos testes de montagem em casa, com as placas a 1,5 metro, a pessoa cruzou a linha 7 vezes e o sistema percebeu as 7. Com a sala vazia, deu 2 alarmes curtos em 30 segundos. Num outro teste, a 3,75 metros e com uma parede no meio, ele também percebeu a pessoa andando. É um teste de cada: mostra que funciona, ainda não é a taxa de acerto.
+**Fala.** Cada faixa clara é um momento em que o sistema disse "movimento". A pessoa cruzou a linha 7 vezes, e ele percebeu as 7. Com a sala vazia, deu 2 alarmes curtos em 30 segundos. Num outro teste, a 3,75 metros e com uma parede no meio, ele também percebeu a pessoa andando. É um teste de cada: mostra que funciona, ainda não é a taxa de acerto.
 
-- FALE: "é um teste de cada, em casa". Nunca transforme em porcentagem.
+- APONTE: os números 1 a 7 em cima de cada travessia, e os 2 "alarme" na sala vazia.
+- FALE: "é um teste de cada". Nunca transforme em porcentagem.
 - SE PERGUNTAREM DE PROBLEMAS: o roteador e a TV perto da placa faziam metade dos pacotes se perder; afastando, passaram a chegar ~90%.
 
 → *E o que o sistema não consegue ver?*
@@ -203,7 +204,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 → *Mesmo com esses limites, dá para montar com pouco.*
 
-> **Vocês mediram isso?** Mostramos ao vivo, no Jogo da Estátua. Nos testes em casa, entre uma travessia e outra, quando a pessoa sai da linha, o número volta ao nível da sala vazia. Gravações com a pessoa parada ainda não fizemos.
+> **Vocês mediram isso?** Mostramos ao vivo, no Jogo da Estátua. Nos testes, entre uma travessia e outra, quando a pessoa sai da linha, o número volta ao nível da sala vazia. Gravações com a pessoa parada ainda não fizemos.
 >
 > **Quais são os outros limites?** Distância entre as placas, paredes, várias pessoas ao mesmo tempo, interferência de outras redes e objetos que se mexem (ventilador, cortina, bicho). Cada lugar precisa calibrar de novo.
 
@@ -234,7 +235,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 → *Agora volte para as linhas do começo.*
 
-> **Dá mesmo para ver através da parede?** Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, num teste em casa, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi um teste só: funciona, mas ainda não sabemos o quanto acerta.
+> **Dá mesmo para ver através da parede?** Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, num teste, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi um teste só: funciona, mas ainda não sabemos o quanto acerta.
 
 ### 19. Agora você sabe ler estas linhas. ●
 *15 s (curta: 12 s)*
