@@ -36,8 +36,12 @@ def _numero(sessao):
 
 
 def dividir(coletas, ajuste=None, teste=None):
-    """Separa por sessão. Padrão do protocolo: sessões ímpares ajustam, pares testam."""
-    sessoes = sorted({c["sessao"] for c in coletas})
+    """Separa por sessão. Padrão do protocolo: sessões ímpares ajustam, pares testam.
+
+    S0 é só teste de montagem (por exemplo em casa) e nunca entra no padrão: nem no ajuste,
+    nem no teste. Para usar, é preciso pedir pelo nome (--ajuste S0).
+    """
+    sessoes = sorted({c["sessao"] for c in coletas if _numero(c["sessao"]) != 0 or c["sessao"] in (ajuste or []) + (teste or [])})
     if ajuste is None and teste is None:
         ajuste = [s for s in sessoes if (_numero(s) or 0) % 2 == 1]
         teste = [s for s in sessoes if (_numero(s) or 1) % 2 == 0]

@@ -34,6 +34,17 @@ class TestConjunto(unittest.TestCase):
         self.assertEqual((s_aj, s_te), (["S1", "S3"], ["S2", "S4"]))
         self.assertEqual(len(aj) + len(te), 4)
 
+    def test_s0_fica_de_fora(self):
+        # S0 = teste de montagem em casa: par, mas nunca pode virar sessão de teste sozinha
+        coletas = [{"sessao": s, "rotulo": "vazio"} for s in ("S0", "S1", "S2")]
+        aj, te, s_aj, s_te = conjunto.dividir(coletas)
+        self.assertEqual((s_aj, s_te), (["S1"], ["S2"]))
+        self.assertEqual(len(aj) + len(te), 2)
+        _, _, s_aj, s_te = conjunto.dividir(coletas, teste=["S2"])
+        self.assertEqual((s_aj, s_te), (["S1"], ["S2"]))
+        _, _, s_aj, _ = conjunto.dividir(coletas, ajuste=["S0"], teste=["S2"])   # pedindo pelo nome, pode
+        self.assertEqual(s_aj, ["S0"])
+
     def test_mesma_sessao_nos_dois_lados_e_erro(self):
         with self.assertRaises(ValueError):
             conjunto.dividir([{"sessao": "S1"}], ajuste=["S1"], teste=["S1"])

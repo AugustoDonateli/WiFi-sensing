@@ -37,6 +37,8 @@ python ferramentas/capturar.py --porta COM3 --sessao S1 --rotulo andando --durac
 
 ## Separar ajuste e teste
 
+**S0** é só teste de montagem (por exemplo, em casa). O `avaliar.py` e o `classificar.py` deixam a S0 de fora, a não ser que ela seja pedida pelo nome.
+
 Decidir **antes** de olhar os resultados: as sessões ímpares (S1, S3...) servem para escolher o limiar e treinar o classificador, e as sessões pares (S2, S4...) só para medir os acertos no fim. É isso que `ferramentas/avaliar.py` e `ferramentas/classificar.py` fazem por padrão. Gravações vizinhas da mesma sessão são muito parecidas; misturá-las entre ajuste e teste faz o resultado parecer melhor do que é.
 
 ## Participantes
