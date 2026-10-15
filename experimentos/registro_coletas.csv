@@ -3,7 +3,7 @@ arquivo,inicio,sessao,rotulo,participante,distancia_m,parede,duracao_s,pacotes_v
 20261015-150643_andando.csv,2026-10-15T15:06:43,S0,andando,P1,1.5,nao,30.05,1331,0,1395,44.3,completa,"casa, perto sem parede, antenas viradas uma para a outra"
 20261015-150929_andando.csv,2026-10-15T15:09:29,S0,andando,P1,3.75,sim,30.0,816,0,1896,27.2,completa,"casa, longe com parede, antenas viradas uma para a outra"
 20261015-164853_vazio.csv,2026-10-15T16:48:53,S0,vazio,-,1.5,nao,30.02,1252,0,174,41.7,completa,"casa, perto sem parede, antenas viradas, A em 50/s, longe do roteador"
-20261015-165043_andando.csv,2026-10-15T16:50:43,S0,andando,P1,1.5,nao,30.03,389,0,1021,13.0,completa,"casa, perto sem parede, antenas viradas, A em 50/s, longe do roteador"
+20261015-165043_andando.csv,2026-10-15T16:50:43,S0,andando,P1,1.5,nao,30.03,389,0,1021,13.0,completa,"casa, perto sem parede, antenas viradas, A em 50/s, longe do roteador | DESCARTADA: 72% dos pacotes perdidos, provavelmente a TV perto; refeita em 20261015-165324_andando"
 20261015-165324_andando.csv,2026-10-15T16:53:24,S0,andando,P1,1.5,nao,30.0,1307,0,119,43.6,completa,"casa, perto sem parede, antenas viradas, A em 50/s, longe do roteador"
 20261015-165612_vazio.csv,2026-10-15T16:56:12,S0,vazio,-,3.75,sim,30.02,1227,0,201,40.9,completa,"casa, longe com parede, antenas viradas, A em 50/s, longe do roteador"
 20261015-165723_andando.csv,2026-10-15T16:57:23,S0,andando,P1,3.75,sim,30.0,1087,0,340,36.2,completa,"casa, longe com parede, antenas viradas, A em 50/s, longe do roteador"

@@ -13,13 +13,18 @@ SEM_MOVIMENTO = {"vazio", "parado"}
 
 
 def listar(pasta=PASTA_PADRAO):
-    """Devolve as coletas (.csv com .json ao lado), cada uma com caminho, rótulo e sessão."""
+    """Devolve as coletas (.csv com .json ao lado), cada uma com caminho, rótulo e sessão.
+
+    Coletas com "descartada": true no .json ficam de fora (o motivo fica escrito no "obs").
+    """
     coletas = []
     for csv in sorted(Path(pasta).glob("*.csv")):
         js = csv.with_suffix(".json")
         if not js.exists():
             continue
         meta = json.loads(js.read_text(encoding="utf-8"))
+        if meta.get("descartada"):
+            continue
         sessao = meta.get("sessao") or _sessao_em(meta.get("obs", ""))
         coletas.append({"caminho": csv, "rotulo": meta.get("rotulo", "?"), "sessao": sessao or "?", "meta": meta})
     return coletas

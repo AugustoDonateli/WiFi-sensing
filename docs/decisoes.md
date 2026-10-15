@@ -100,6 +100,18 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 
   - **Não é resultado:** é 1 coleta de cada, com a placa perdendo metade dos pacotes, e o limiar foi calibrado e conferido nas mesmas coletas. Serve para escolher o método; o número de acertos vem da S2.
   - A simulação do site continua separando as cenas do mesmo jeito (conferido).
+- **Segunda rodada em casa (15/10, notebook, placa A em 50/s, longe do roteador, antenas viradas):**
+  - **Pacotes:** a placa A manda ~47,6/s e chegaram **86% a 92%** (antes, 30% a 49%). Buracos quase só de 1 pacote.
+  - **Uma coleta descartada:** a 1ª "andando" perto (`20261015-165043`) perdeu 72% dos pacotes, provavelmente pela TV ao lado. Mudaram a posição e refizeram (`20261015-165324`). Ela continua no repositório, marcada `"descartada": true` no `.json`; as ferramentas deixam de fora.
+  - **Detector (limiar calibrado na coleta vazio da mesma montagem):**
+
+    | Montagem | Oscilação típica vazio / andando | Vazio marcado como movimento | Andando |
+    |---|---|---|---|
+    | Perto (1,5 m), sem parede | 0,41 / 0,64 | 2 alarmes curtos (~1 s) em 30 s | as **7 travessias** da linha detectadas, uma a uma |
+    | Longe (3,75 m), com parede | 0,66 / 1,16 | nenhum | marcado quase o tempo todo (94%) |
+
+  - **O que isso mostra:** perto, só treme quando a pessoa **cruza a linha** entre as placas (picos a cada ~3,3 s, entre eles volta ao nível do vazio). É o que a Travessia precisa. Longe e com parede, a zona sensível é maior. Os 2 alarmes no vazio perto ainda não têm causa conhecida (alguém andando na casa? a TV?).
+  - **Ainda não é resultado:** 1 coleta de cada, em casa. O resultado vem das sessões S1 (ajuste) e S2 (teste), na escola.
 
 ### Site no Vercel (aprovado)
 - A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.

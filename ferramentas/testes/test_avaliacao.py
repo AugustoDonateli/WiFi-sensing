@@ -6,6 +6,7 @@ quando a diferença entre as classes é óbvia.
 
 import subprocess
 import sys
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -55,6 +56,16 @@ class TestConjunto(unittest.TestCase):
             (Path(pasta) / "sem_json.csv").write_text("x\n")
             coletas = conjunto.listar(pasta)
         self.assertEqual([(c["rotulo"], c["sessao"]) for c in coletas], [("vazio", "S3")])
+
+    def test_listar_pula_descartadas(self):
+        with tempfile.TemporaryDirectory() as pasta:
+            sintetico.gravar_coleta(pasta, "boa", "andando", "S1", 2, sintetico.parado)
+            sintetico.gravar_coleta(pasta, "ruim", "andando", "S1", 2, sintetico.parado)
+            js = Path(pasta) / "ruim.json"
+            meta = json.loads(js.read_text(encoding="utf-8")); meta["descartada"] = True
+            js.write_text(json.dumps(meta), encoding="utf-8")
+            coletas = conjunto.listar(pasta)
+        self.assertEqual([c["caminho"].stem for c in coletas], ["boa"])
 
 
 def montar_sessoes(pasta, por_rotulo=1):

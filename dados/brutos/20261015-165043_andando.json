@@ -6,7 +6,7 @@
   "participante": "P1",
   "distancia_m": "1.5",
   "parede": "nao",
-  "obs": "casa, perto sem parede, antenas viradas, A em 50/s, longe do roteador",
+  "obs": "casa, perto sem parede, antenas viradas, A em 50/s, longe do roteador | DESCARTADA: 72% dos pacotes perdidos, provavelmente a TV perto; refeita em 20261015-165324_andando",
   "porta": "COM9",
   "baud": 921600,
   "pacotes_validos": 389,
@@ -14,5 +14,6 @@
   "pacotes_perdidos": 1021,
   "status": "completa",
   "duracao_s": 30.03,
-  "taxa_media_por_s": 13.0
+  "taxa_media_por_s": 13.0,
+  "descartada": true
 }
