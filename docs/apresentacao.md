@@ -92,8 +92,8 @@ A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha c
 | 10 ★ | Quando alguém anda, as linhas tremem. | Sala pequena com alguém andando; as linhas tremem | Movimento → tremor |
 | 11 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
 | 12 ★ | Agora com o sinal das placas. | A tela de verdade (o título diz se é simulação ou gravação) | O visitante testa |
-| 13 | Como testamos. | 4 situações × 4 sessões, separadas em "ajustam o limite" e "só testam" | Método |
-| 14 | Resultados. | Acerto por coleta ao lado do chute (ou "ainda estamos gravando") | Resultados |
+| 13 | Como se mede de verdade. | 4 situações × 4 sessões, separadas em "ajustam o limite" e "só testam" (ilustração do método) | Método, e que ainda não foi feito |
+| 14 | O que vimos em casa. | As barras de acerto com "?" (ainda não medido); a frase diz os testes de montagem | Resultados dos testes em casa |
 | 15 ★ | Pessoa parada não aparece. | A sala pequena, pessoa parada e tracejada; linhas calmas | Limites (Estátua) |
 | 16 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço) |
 | 17 | Onde isso pode ajudar. | Queda com alerta, luz que apaga sozinha, alarme | Impacto |
@@ -136,18 +136,20 @@ Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visu
    - o Wi-Fi é uma onda de ~12 cm e chega à placa B por vários caminhos;
    - os caminhos se somam (interferência), e meia onda (~6 cm) de diferença troca reforço por cancelamento;
    - movimento muda o tamanho dos caminhos e, portanto, a soma;
-   - as 64 subportadoras (CSI), 100 pacotes por segundo, ESP32 com o firmware oficial da Espressif;
-   - o tremor (desvio padrão em 1 s) e o limite calibrado.
+   - as 64 subportadoras (CSI), 50 pacotes por segundo, ESP32 com o firmware oficial da Espressif;
+   - cada pacote ajustado para o mesmo volume (a placa muda o volume sozinha), depois o tremor (desvio padrão em 1 s) e o limite calibrado.
 
    Mostre na tela, com alguém se mexendo.
-3. **Método** (1 min30):
-   - coletas rotuladas em sessões (vazio, parado, andando, queda simulada no colchonete);
-   - limite calibrado com a sala vazia;
-   - **sessões diferentes para ajustar e para testar**, para não "colar".
-4. **Resultados** (1 min30):
-   - o pôster antes/depois;
-   - os números do `avaliar.py` **por coleta**, sempre ao lado do "chute" (responder sempre a classe mais comum);
-   - se ainda não houver números, diga isso.
+3. **Método** (1 min):
+   - coletas gravadas com rótulo (vazio, andando), limite calibrado com a sala vazia;
+   - como se mede o acerto de verdade: **sessões diferentes para ajustar e para testar**, para não "colar". **Ainda não fizemos essa parte**; digam isso.
+4. **Testes em casa e problemas resolvidos** (1 min30), com os números de `docs/decisoes.md` (15/10):
+   - roteador e TV perto da placa B faziam metade dos pacotes se perder; afastando, chegaram ~90%;
+   - o cabo USB só leva ~72 linhas por segundo: placa A baixada de 100 para 50 pacotes por segundo;
+   - o ganho automático da placa fazia a sala vazia "tremer": cada pacote passou a ser ajustado para o mesmo volume;
+   - perto (1,5 m): a pessoa cruzou a linha 7 vezes e o sistema percebeu as 7; com a sala vazia, 2 alarmes curtos em 30 s;
+   - longe (3,75 m) e com parede: percebeu a pessoa andando, e nenhum alarme com a sala vazia;
+   - **sempre** dizer que é 1 teste de cada e que a taxa de acerto ainda não foi medida.
 5. **Limites** (45 s): pessoa parada, distância, parede, várias pessoas, interferência, calibrar em cada lugar.
 6. **Viabilidade** (30 s): duas placas baratas, firmware aberto, programas em Python. Anotem o preço que pagaram e falem o número. Em setembro de 2025 o IEEE publicou um padrão só para sensoriamento por Wi-Fi, o 802.11bf, o que mostra que a ideia está indo para produtos. É a cena 14 da apresentação.
 7. **Impacto e ética** (30 s): cuidado de idosos e economia de energia de um lado, privacidade do outro.
@@ -170,11 +172,11 @@ Revezem a cada 30 minutos. **Todos** precisam saber o roteiro de 3 minutos e a v
 - **"Tem câmera escondida?"** Não. Pode olhar as placas. Não tem câmera nem microfone, só rádio.
 - **"Dá para ver através da parede?"**
   - Pesquisadores do MIT mostraram isso em 2013 (Wi-Vi), com equipamento especial.
-  - Com a nossa placa barata, é o que estamos testando. Só fale "funciona" se o teste der certo.
+  - Com a nossa placa, num teste em casa, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi **um teste só**: funciona, mas ainda não sabemos o quanto acerta.
 - **"Ele sabe quem eu sou?"** Não. Ele só percebe que algo mudou no sinal.
 - **"E com duas pessoas?"** Ele diz que tem movimento, mas não quantas pessoas, nem onde.
 - **"Funciona com o Wi-Fi da minha casa?"** Os roteadores comuns não mostram essas medidas; a ESP32 mostra. O padrão 802.11bf é o começo disso virar produto.
-- **"Qual a precisão?"** Só o número medido, por coleta e com o chute ao lado. Se ainda não tiver: "estamos medindo, e é isso que a gente vai mostrar".
+- **"Qual a precisão?"** "Ainda não medimos a taxa de acerto com um teste separado. Nos testes de montagem, a pessoa cruzou a linha 7 vezes e ele detectou as 7; com a sala vazia, deu 2 alarmes curtos em 30 segundos. O próximo passo é gravar sessões separadas, uma para ajustar e outra para testar." **Nunca** transformem isso em porcentagem.
 - **"Detecta queda?"**
   - Testamos só quedas simuladas no colchonete. Falem o resultado que tiverem.
   - A queda é um movimento forte e depois silêncio. O difícil é que a pessoa caída fica parada, e parada ela some (é a Estátua).

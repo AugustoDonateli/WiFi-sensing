@@ -141,7 +141,9 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 → *Agora com o sinal de verdade.*
 
-> **Como o número é calculado?** Para cada subportadora, o desvio padrão da amplitude em 1 segundo; depois, a média entre elas, a cada 0,2 s. Divide pelo valor da sala vazia, medido na calibração.
+> **Como o número é calculado?** Primeiro, cada pacote é ajustado para o mesmo volume, porque a placa muda o volume sozinha (ganho automático). Depois, para cada subportadora, o desvio padrão da amplitude em 1 segundo, e a média entre elas, a cada 0,2 s. Divide pelo valor da sala vazia, medido na calibração.
+>
+> **Por que ajustar o volume?** Nos testes em casa, com a sala vazia, o número pulava sozinho de 0,8 a 4,8: era a placa subindo e descendo o volume. Ajustando cada pacote, a sala vazia ficou estável e a pessoa andando passou a se destacar.
 >
 > **E a linha tracejada?** Média da sala vazia + 3 desvios, no mínimo 1,3×. Três medidas seguidas acima viram "movimento"; cinco abaixo voltam a "parado".
 
@@ -160,29 +162,35 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 ## III · O experimento
 
-### 13. Como testamos.
+### 13. Como se mede de verdade.
 *25 s*
 
-**Fala.** Gravamos com voluntários: sala vazia, pessoa parada, andando e queda simulada no colchonete. As sessões ímpares ajustam o limite; as pares só servem de prova. Assim o sistema não "decora" o teste.
+**Fala.** Para medir quanto o sistema acerta, umas gravações servem para escolher o limite e outras, novas, só para conferir. Como uma prova com questões que você não viu. Até agora fizemos os testes de montagem, em casa: eles mostram que funciona, mas ainda não dão uma porcentagem.
 
 - APONTE: a coluna "ajustam o limite" e a coluna "só testam".
+- NÃO DIGA: que essa separação já foi feita. Os testes até agora são de montagem (S0).
 
-→ *E o resultado?*
+→ *E o que os testes em casa mostraram?*
 
-> **Por que separar por sessão, e não por janela?** Janelas vizinhas da mesma gravação são quase iguais. Separando por sessão, o teste usa gravações que o sistema nunca viu.
+> **Por que separar as gravações?** Se o limite é escolhido e conferido nas mesmas gravações, o resultado sai bom demais, como fazer a prova com as questões da lista de exercícios. Gravações vizinhas da mesma sessão também são quase iguais; por isso a separação é por sessão.
 >
-> **E a segurança da queda?** Queda só simulada, no colchonete, com voluntários que assinaram o termo de consentimento. Ninguém cai de verdade.
+> **Por que não têm a porcentagem de acerto?** Porque ainda não fizemos as sessões separadas (uma para ajustar, outra para testar). Preferimos não dar um número que não foi medido do jeito certo.
 
-### 14. Resultados.
+### 14. O que vimos em casa.
 *25 s*
 
-**Fala.** O resultado é por gravação, sempre ao lado do chute: o quanto acertaria quem respondesse sempre a mesma coisa. Se o sistema não ganha do chute, não serve.
+**Fala.** Nos testes de montagem em casa, com as placas a 1,5 metro, a pessoa cruzou a linha 7 vezes e o sistema percebeu as 7. Com a sala vazia, deu 2 alarmes curtos em 30 segundos. Num outro teste, a 3,75 metros e com uma parede no meio, ele também percebeu a pessoa andando. É um teste de cada: mostra que funciona, ainda não é a taxa de acerto.
 
-- SEM NÚMEROS: diga que estão medindo. Nunca arredonde para cima.
+- FALE: "é um teste de cada, em casa". Nunca transforme em porcentagem.
+- SE PERGUNTAREM DE PROBLEMAS: o roteador e a TV perto da placa faziam metade dos pacotes se perder; afastando, passaram a chegar ~90%.
 
 → *E o que o sistema não consegue ver?*
 
-> **Por que comparar com o chute?** Se 80% das gravações são "parado", responder sempre "parado" já acerta 80%. O resultado só vale alguma coisa acima disso.
+> **Quanto ele acerta?** Ainda não medimos a taxa de acerto com um teste separado. O que temos são testes de montagem: num deles, a pessoa cruzou a linha 7 vezes e ele detectou as 7; com a sala vazia, 2 alarmes curtos em 30 segundos. O próximo passo é gravar sessões separadas, uma para ajustar e outra para testar.
+>
+> **Que problemas vocês tiveram?** Três. 1) O roteador ao lado da placa B fazia metade dos pacotes se perder (a placa escuta todo o tráfego do canal). 2) O cabo USB só leva umas 72 linhas por segundo, então baixamos a placa A de 100 para 50 pacotes por segundo. 3) O ganho automático da placa fazia a sala vazia "tremer"; ajustamos o volume de cada pacote. Depois disso, chegaram cerca de 90% dos pacotes e a sala vazia ficou estável.
+>
+> **Por que comparar com o chute?** Quando houver porcentagem: se 80% das gravações são "parado", responder sempre "parado" já acerta 80%. O resultado só vale alguma coisa acima disso.
 
 ## IV · Limites e usos
 
@@ -195,6 +203,8 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 → *Mesmo com esses limites, dá para montar com pouco.*
 
+> **Vocês mediram isso?** Mostramos ao vivo, no Jogo da Estátua. Nos testes em casa, entre uma travessia e outra, quando a pessoa sai da linha, o número volta ao nível da sala vazia. Gravações com a pessoa parada ainda não fizemos.
+>
 > **Quais são os outros limites?** Distância entre as placas, paredes, várias pessoas ao mesmo tempo, interferência de outras redes e objetos que se mexem (ventilador, cortina, bicho). Cada lugar precisa calibrar de novo.
 
 ### 16. Dá para montar com pouco.
@@ -224,7 +234,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 → *Agora volte para as linhas do começo.*
 
-> **Dá mesmo para ver através da parede?** Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, é o que estamos testando. Não afirmamos antes de medir.
+> **Dá mesmo para ver através da parede?** Pesquisadores do MIT mostraram movimento atrás de parede em 2013 (Wi-Vi), com equipamento especial. Com a nossa placa, num teste em casa, a 3,75 m e com uma parede no meio, percebemos a pessoa andando. Foi um teste só: funciona, mas ainda não sabemos o quanto acerta.
 
 ### 19. Agora você sabe ler estas linhas. ●
 *15 s (curta: 12 s)*
@@ -241,4 +251,5 @@ Na simulação, a TV mostra: "Agora na simulação."
 - **Ventilador ou cortina disparam?** Podem disparar, porque também mudam os caminhos do sinal. Por isso calibramos com a sala como ela fica normalmente e testamos com as gravações.
 - **Por que não usar inteligência artificial (aprendizado de máquina)?** Primeiro, uma regra simples que dá para explicar e conferir. Um classificador (Random Forest) só entra se a regra funcionar com dados reais e sobrar tempo, e sempre testado por sessão.
 - **Usaram IA no projeto?** Sim, um assistente de IA como apoio para consultar documentação, escrever partes do código e revisar textos. Tudo foi revisado e testado pela equipe, e os dados são medidos por nós.
+- **Por que 50 pacotes por segundo, e não 100?** Cada medida vira uma linha de ~1.280 letras no cabo USB, e o cabo leva umas 72 por segundo. Com 100, sempre se perdiam pelo menos 20%. Com 50 sobra folga, e o detector precisa de só 10 por segundo.
 - **O que ainda é simulação?** As ilustrações da história usam um modelo do canal com 4 caminhos. Na feira, as linhas e o número vêm das placas. Resultados, só os medidos.
