@@ -3,6 +3,7 @@
 | Arquivo | Para quê | Precisa de |
 |---|---|---|
 | `capturar.py` | Grava uma coleta da Placa B com sessão, rótulo e anotações | pyserial (já vem no ESP-IDF) |
+| `sessao.py` | Guia uma sessão inteira na ordem do protocolo (18 coletas), com refazer e descarte | pyserial |
 | `plotar.py` | Gráficos de uma ou mais coletas, lado a lado | numpy, matplotlib |
 | `detector.py` | A regra do detector de movimento (a mesma da tela, em `demo/nucleo.js`) | numpy |
 | `avaliar.py` | Mede os acertos do detector: limiar com as sessões de ajuste, teste nas outras | numpy |

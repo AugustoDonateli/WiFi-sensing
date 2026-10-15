@@ -29,7 +29,13 @@ Depois, se a primeira etapa funcionar: `sentar_levantar` e `queda_simulada` (sem
 2. Cinco coletas de 30 s de cada classe, em ordem alternada: vazio, andando, parado, andando, vazio, parado...
 3. Uma coleta `vazio` de 60 s no fim (mostra se algo mudou durante a sessão).
 
-Comando, no "ESP-IDF PowerShell":
+**Mais fácil:** o `ferramentas/sessao.py` guia a sessão inteira nessa ordem (diz o que fazer antes de cada coleta, pergunta se ficou boa e, se não ficou, marca como descartada com o motivo e grava de novo):
+
+```
+python ferramentas/sessao.py --porta COM9 --sessao S1 --distancia 1.5 --obs "casa, sala, A em 50/s"
+```
+
+Ou uma coleta por vez:
 
 ```
 python ferramentas/capturar.py --porta COM3 --sessao S1 --rotulo andando --duracao 30 --espera 10 --participante P1 --distancia 2 --parede nao --obs "A em 50/s"
