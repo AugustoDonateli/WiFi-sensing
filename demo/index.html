@@ -910,6 +910,7 @@ function esconderMsg() { $('msg').hidden = true; }
 function operador(aberto) { $('operador').hidden = !aberto; document.body.classList.toggle('com-operador', aberto); }
 
 /* ---------- Travessia (o desafio) e retratos ---------- */
+const CONTAGEM_S = 5;   // segundos para se preparar na partida (5, 4, 3, 2, 1)
 const ninja = { estado: 'fechado', inicio: 0, fimContagem: 0, numero: 0, apelido: '', fecharEm: 0, rastro: [], retrato: null, forma: null };
 let recordes = ler('wavesense-recordes', ler('wavesense-ninja', {}).ranking || []);
 // Só as marcas no formato novo (as antigas eram ajustadas pelo próprio máximo e não dá para refazer).
@@ -933,7 +934,7 @@ function comecar() {
   if (ninja.estado !== 'pronto') return;
   ninja.apelido = $('apelido').value.trim() || 'Anônimo';
   ninja.estado = 'contagem'; ninja.rastro = [];
-  ninja.fimContagem = performance.now() / 1000 + 3; ninja.numero = 4;
+  ninja.fimContagem = performance.now() / 1000 + CONTAGEM_S; ninja.numero = CONTAGEM_S + 1;
   $('apelido').hidden = true; $('d-comecar').hidden = true;
   $('apelido').blur();
   $('d-sub').textContent = `${ninja.apelido}, prepare-se.`;

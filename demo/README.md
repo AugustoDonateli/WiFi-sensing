@@ -26,7 +26,7 @@ Minimalista, como os sites premiados (Awwwards): muito espaço vazio, a tipograf
 - **O sinal como linhas empilhadas.** A referência é o gráfico do pulsar CP1919, feito por Harold Craft a partir de sinais de rádio de Arecibo. Peter Saville usou esse gráfico na capa de *Unknown Pleasures*, do Joy Division (1979). Aqui cada linha é uma leitura do Wi-Fi: a média dos pacotes de 0,1 s, com a amplitude de cada subportadora. A mais nova aparece embaixo. Com a sala parada, as linhas repetem o mesmo desenho; quando alguém se mexe, elas tremem e se cruzam.
 - **Uma palavra só para o estado:** *Parado.* ou *Movimento.*, em letra enorme.
 - **A tela inteira inverte** (preto vira branco) quando há movimento. Dá para ver de longe.
-- **Travessia (o desafio) em tela cheia:** *Pronto?* → 3, 2, 1 → *Vai.* → o resultado como um registro de leitura: *Não detectado.* (com o pico de tremor e o limite) ou *Detectado aos 0,6 s.* (com o tremor que chegou).
+- **Travessia (o desafio) em tela cheia:** *Pronto?* → 5, 4, 3, 2, 1 → *Vai.* → o resultado como um registro de leitura: *Não detectado.* (com o pico de tremor e o limite) ou *Detectado aos 0,6 s.* (com o tremor que chegou).
 - **Sem aviso de fonte na tela** (pedido do grupo, 14/10): a TV não diz se os dados são da simulação, de uma gravação ou das placas. A fonte aparece no painel do Operador (botão apertado) e no título da cena ao vivo do "Como funciona". **Na feira, use as placas;** se precisar da simulação ou de uma gravação, diga isso ao visitante.
 - **Fontes:** Instrument Serif (títulos), Geist e Geist Mono (texto pequeno). Todas gratuitas (licença OFL), embutidas no `fontes.css`, então funcionam sem internet.
 

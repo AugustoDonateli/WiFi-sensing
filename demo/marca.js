@@ -17,7 +17,7 @@
 
   const VERSAO = 2;
   const MAX_ANEIS = 90;        // até 9 s de travessia, um anel por leitura; mais que isso, amostra
-  const MAX_MIOLO = 30;        // a contagem inteira (3 s)
+  const MAX_MIOLO = 30;        // a contagem (5 s, 50 leituras), amostrada
   const TAU = Math.PI * 2;
   const limitar = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
   const r1 = (x) => Math.round(x * 10) / 10;
