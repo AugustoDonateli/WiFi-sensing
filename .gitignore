@@ -5,3 +5,7 @@ __pycache__/
 dados/pose/
 modelos/pose/
 resultados/pose/
+firmware/**/build/
+firmware/**/sdkconfig
+firmware/**/sdkconfig.old
+firmware/backups/

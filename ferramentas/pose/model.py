@@ -32,7 +32,7 @@ class PoseNet(nn.Module):
 
 
 def contract(meta):
-    return {k:meta[k] for k in ("schema","config","profile","feature_layout","joint_names","data_kind")}
+    return {k:meta[k] for k in ("schema","config","profile","feature_layout","joint_names","data_kind","clock")}
 
 
 def disjoint(left, right):

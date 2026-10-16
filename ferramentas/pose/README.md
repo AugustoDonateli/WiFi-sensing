@@ -6,9 +6,11 @@ Esta parte já prepara as coletas S0 e oferece um caminho executável de **CSI �
 
 É uma implementação própria de referência, orientada pela pesquisa, e não uma reprodução do artigo CSIPose. [Decisões e referências](REFERENCIAS.md).
 
+**Próximo experimento, sem comprar LED:** [piloto com o botão BOOT](../../firmware/PILOTO-BOOT.md). Há uma variante de firmware compilada e um gravador separado para registrar botão e CSI no relógio de entrada dos callbacks. Esse piloto ainda depende de validação nas placas e no vídeo; não gera sincronização física certificada automaticamente.
+
 ## Usar agora, com S0
 
-Python 3.12 recomendado. Rodar na raiz do repositório, em um ambiente Python separado do usado para gravar as placas. Nenhum comando abaixo grava firmware ou abre câmera/porta serial.
+Python 3.12 recomendado para análise e modelo. Rodar na raiz do repositório, em um ambiente Python separado do usado para gravar as placas. Os comandos desta seção apenas processam arquivos. O gravador BOOT usa biblioteca padrão e pyserial, compatível também com o Python 3.11 do ESP-IDF.
 
 ```powershell
 python -m pip install -r ferramentas/pose/requirements.txt

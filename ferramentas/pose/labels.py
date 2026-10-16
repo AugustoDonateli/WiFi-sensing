@@ -67,6 +67,10 @@ def attach_labels(data, csv_path, sync_path, min_confidence=.5, max_delta_s=.03)
     if not 0 < min_confidence <= 1 or not 0 < max_delta_s <= .05:
         raise ValueError("Limiares de confiança/tempo inválidos.")
     spec = json.loads(Path(sync_path).read_text(encoding="utf-8-sig"))
+    if spec.get("source_sha256") and spec["source_sha256"] != data["meta"]["source_sha256"]:
+        raise ValueError("Sincronização pertence a outro arquivo CSI.")
+    if spec.get("clock") and spec["clock"] != data["meta"]["clock"]:
+        raise ValueError("Sincronização usa outro relógio de aquisição.")
     mapping = clock_fit(spec)
     times, people, coords, confidence = read_labels(csv_path)
     wanted = mapping["slope"]*data["times"]+mapping["intercept"]
@@ -80,6 +84,16 @@ def attach_labels(data, csv_path, sync_path, min_confidence=.5, max_delta_s=.03)
                & (wanted >= times[0]) & (wanted <= times[-1]) & (delta <= max_delta_s)
                & (delta+mapping["uncertainty_s"]+mapping["max_residual_s"] <= .05)
                & (people[index] == 1))
+    if "trechos_video_s" in spec:
+        intervals = np.array(spec["trechos_video_s"],dtype=float)
+        if intervals.ndim != 2 or intervals.shape[1] != 2 or not len(intervals) or not np.isfinite(intervals).all() or np.any(intervals[:,1]<=intervals[:,0]):
+            raise ValueError("Trechos úteis do vídeo inválidos.")
+        useful = np.zeros(len(wanted),bool)
+        context_s = data["meta"]["config"]["bins"]*data["meta"]["config"]["bin_s"]
+        window_start = wanted-mapping["slope"]*context_s
+        for lo,hi in intervals:
+            useful |= (window_start>=lo)&(wanted<=hi)
+        matched &= useful
     mask = (confidence[index] >= min_confidence) & matched[:,None]
     # Sentinela zero nunca vira alvo válido: label_mask é obrigatória no loss/métricas.
     y = np.where(mask[:,:,None], coords[index], 0).astype(np.float32)

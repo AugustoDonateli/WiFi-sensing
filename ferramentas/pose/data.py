@@ -54,6 +54,8 @@ def read_recording(path):
     meta = json.loads(sidecar.read_text(encoding="utf-8-sig"))
     if meta.get("descartada"):
         raise ValueError(f"Coleta marcada como descartada: {path.name}. Motivo: {meta.get('obs', '')}")
+    if meta.get("pose_capture") and meta.get("status") != "completa":
+        raise ValueError("Captura BOOT incompleta/inválida; confira o diagnóstico e refaça o piloto.")
     if not isinstance(meta.get("sessao"), str) or not meta["sessao"].strip():
         raise ValueError("Informe sessao no JSON da coleta.")
     records, pc = [], []
@@ -102,6 +104,26 @@ def read_recording(path):
     if np.any(delta > 30_000_000):
         raise ValueError("Intervalo acima de 30 s: divida a coleta por segmento de aquisição.")
     t = np.r_[0, np.cumsum(delta)] / 1e6
+    clock_description = "ESP32 local_timestamp, segundos desde o primeiro pacote salvo"
+    pose_capture = meta.get("pose_capture")
+    if pose_capture:
+        if meta.get("status") != "completa" or pose_capture.get("schema") != 1 or pose_capture.get("clock_basis") != "esp_timer_callback_entry":
+            raise ValueError("Captura BOOT incompleta ou relógio não suportado.")
+        clock_path = (path.parent/pose_capture["clock_file"]).resolve()
+        if clock_path.parent != path.parent.resolve() or sha256(clock_path) != pose_capture["clock_file_sha256"]:
+            raise ValueError("Arquivo de relógio BOOT fora da pasta ou hash divergente.")
+        from .capturar_boot import CLOCK_COLUMNS
+        with clock_path.open(newline="",encoding="utf-8") as f:
+            reader = csv.reader(f)
+            if next(reader,None) != CLOCK_COLUMNS:
+                raise ValueError("Cabeçalho do relógio BOOT incompatível.")
+            rows = np.array([[int(v) for v in row] for row in reader],dtype=np.int64)
+        if rows.shape != (len(records),5) or np.any(rows < 0):
+            raise ValueError("Relógio BOOT não corresponde aos pacotes salvos.")
+        if not np.array_equal(rows[:,0],ids) or not np.array_equal(rows[:,1],stamps) or np.any(np.diff(rows[:,2]) <= 0):
+            raise ValueError("IDs/horários BOOT incompatíveis com CSI; não interpolar correspondências.")
+        t = (rows[:,2]-rows[0,2])/1e6
+        clock_description = "ESP32 esp_timer no início do callback CSI, segundos desde o primeiro pacote salvo"
     iq = np.array([r.valores for r in records], dtype=np.float32)
     # 384 bytes = 192 pares em LLTF/HT-LTF. Não são 192 frequências independentes.
     # Descarta sempre os dois primeiros pares para manter representação consistente.
@@ -121,7 +143,7 @@ def read_recording(path):
                  "data_kind": "sintetico" if meta.get("sintetico") is True else "medido",
                  "profile": expected_profile, "joint_names": list(JOINTS),
                  "feature_layout": "log1p(amplitude[2:192]/mean), log1p(mean), RSSI/100",
-                 "clock": "ESP32 local_timestamp, segundos desde o primeiro pacote salvo",
+                 "clock": clock_description,
                  "recording_quality": {"packets": len(records), "missing_ids": missing,
                     "missing_fraction": missing/(missing+len(records)),
                     "duration_rx_s": float(t[-1]), "max_gap_s": float(delta.max()/1e6),
