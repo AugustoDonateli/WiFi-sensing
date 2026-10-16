@@ -233,7 +233,7 @@ def imagem(slide, caminho, x, y, w=None, h=None, nome="", descricao=""):
 # ----------------------------------------------------------------------------- textos
 TITULO = "WAVE SENSE: DETECÇÃO DE MOVIMENTO HUMANO SEM CÂMERAS USANDO SINAIS WI-FI E ESP32"
 AUTORES = "Augusto Donateli Simões e Daniel Elias Cardoso · Orientação: Diego Barcelos Rodrigues"
-INSTITUICAO = "[Nome da escola] – [Cidade], ES"
+INSTITUICAO = "Instituto Federal do Espírito Santo (Ifes) – Campus Cachoeiro de Itapemirim, ES"
 
 FRASE = "Duas placas Wi-Fi de baixo custo perceberam cada vez que uma pessoa cruzou entre elas. Até através de uma parede."
 FRASE_APOIO = "A placa A envia mensagens Wi-Fi; a placa B mede como cada uma chegou. Quem se mexe muda os caminhos do sinal, e a medida treme. Sem câmera, sem nada preso ao corpo."
