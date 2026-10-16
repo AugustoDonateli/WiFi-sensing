@@ -91,7 +91,7 @@ def trechos(estados, t):
 
 def figura2():
     fig, axs = plt.subplots(3, 1, figsize=(40.7 / 2.54, 21.0 / 2.54), facecolor="white", sharex=True,
-                            gridspec_kw={"hspace": 0.78, "left": 0.085, "right": 0.985, "top": 0.86, "bottom": 0.13})
+                            gridspec_kw={"hspace": 0.78, "left": 0.1, "right": 0.985, "top": 0.86, "bottom": 0.13})
     resumo = {}
     topo = 0
     for par in (PERTO, PAREDE):
@@ -210,8 +210,8 @@ def figuras_csi():
 def figura_resultado():
     """A oscilação nos 30 s, em vezes a sala vazia: a sala vazia (cinza) e a pessoa (preto) no mesmo gráfico,
     o limite tracejado e, em magenta, onde o detector disse "movimento". Mesma regra da tela."""
-    fig, axs = plt.subplots(2, 1, figsize=(40.2 / 2.54, 12.8 / 2.54), facecolor="white",
-                            gridspec_kw={"hspace": 0.68, "left": 0.085, "right": 0.83, "top": 0.9, "bottom": 0.15})
+    fig, axs = plt.subplots(2, 1, figsize=(40.2 / 2.54, 12.2 / 2.54), facecolor="white",
+                            gridspec_kw={"hspace": 0.72, "left": 0.075, "right": 0.79, "top": 0.9, "bottom": 0.2})
     resumo = {}
     for ax, (par, titulo, legenda_p) in zip(axs, [
             (PERTO, "1,5 m entre as placas", "pessoa cruzando"),
@@ -227,26 +227,26 @@ def figura_resultado():
         ax.plot(ta, va / base, color="black", lw=3.0, zorder=3)
         ax.axhline(lim / base, color=DESTAQUE, lw=2.6, ls=(0, (6, 4)), zorder=2.5)
         ax.set_xlim(0, 30); ax.set_ylim(0, 6.6)
-        ax.set_yticks([0, 1, 2, 3, 4, 5, 6]); ax.set_yticklabels(["0", "1×", "", "3×", "", "5×", ""])
+        ax.set_yticks([1, 3, 5]); ax.set_yticklabels(["1×", "3×", "5×"])
         ax.set_title(titulo, loc="left", fontsize=26, fontweight="bold", pad=12)
         # rótulos direto no fim das linhas, em vez de legenda
-        yp, yl, yv = (4.6, 3.0, 0.95) if par is PERTO else (2.95, 1.6, 0.3)   # posições escolhidas para não encostar
-        ax.text(30.4, yp, legenda_p, fontsize=22, va="center", ha="left", fontweight="bold", clip_on=False)
-        ax.text(30.4, yv, "sala vazia", fontsize=22, va="center", ha="left", color="#77776F", clip_on=False)
-        ax.text(30.4, yl, "limite", fontsize=22, va="center", ha="left", color=DESTAQUE, clip_on=False)
+        yp, yl, yv = (4.6, 3.0, 0.95) if par is PERTO else (3.9, 2.05, 0.25)   # posições escolhidas para não encostar
+        ax.text(30.4, yp, legenda_p, fontsize=24, va="center", ha="left", fontweight="bold", clip_on=False)
+        ax.text(30.4, yv, "sala vazia", fontsize=24, va="center", ha="left", color="#77776F", clip_on=False)
+        ax.text(30.4, yl, "limite", fontsize=24, va="center", ha="left", color=DESTAQUE, clip_on=False)
         if par is PERTO:
             for n, (a, b) in enumerate(tr, 1):
-                ax.text((a + b) / 2, 6.5, str(n), ha="center", va="top", fontsize=24, color=DESTAQUE, fontweight="bold")
+                ax.text((a + b) / 2, 6.5, str(n), ha="center", va="top", fontsize=26, color=DESTAQUE, fontweight="bold")
         pico = float(va.max() / base)
         resumo[titulo] = {"pico_x": round(pico, 1), "limite_x": round(lim / base, 2), "trechos": len(tr),
                           "frac_movimento": round(sum(b - a for a, b in tr) / (ta[-1] - ta[0]), 2)}
         for sp in ("top", "right"): ax.spines[sp].set_visible(False)
         for sp in ("left", "bottom"): ax.spines[sp].set_linewidth(1.6)
-        ax.tick_params(labelsize=21, width=1.6, length=6)
+        ax.tick_params(labelsize=24, width=1.6, length=6)
         ax.grid(axis="y", color="#E4E4E0", lw=1.2, zorder=-1)
-    axs[0].set_ylabel("oscilação\n(× sala vazia)", fontsize=21)
-    axs[1].set_ylabel("oscilação\n(× sala vazia)", fontsize=21)
-    axs[1].set_xlabel("tempo (s)", fontsize=22)
+    axs[0].set_ylabel("oscilação", fontsize=24)
+    axs[1].set_ylabel("oscilação", fontsize=24)
+    axs[1].set_xlabel("tempo (s)", fontsize=24)
     fig.savefig(SAIDA / "figura-resultado.png", dpi=DPI, facecolor="white")
     plt.close(fig)
     return resumo
