@@ -1,4 +1,13 @@
-"""Monta o banner da XV JACITEC no modelo oficial (90 x 120 cm), com os textos e as figuras do Wave Sense."""
+"""Monta o banner da XV JACITEC no modelo oficial (90 x 120 cm), versão 2 (16/10/2026).
+
+    python ferramentas/figuras_banner.py        # gráficos com os dados reais
+    python docs/banner/capturar_desenhos.py     # desenhos do site
+    python docs/banner/montar_banner.py docs/banner/banner-wave-sense-jacitec.pptx
+
+A ideia: o banner mostra o que o projeto fez. Uma faixa escura no topo (como a TV do estande) diz o
+resultado principal em uma frase, com o desenho de como funciona e o sinal real; embaixo, as seções do
+modelo, curtas, com figuras grandes. Todo número vem das gravações reais (sessão S0, 15/10/2026).
+"""
 import copy
 import sys
 from pathlib import Path
@@ -6,73 +15,32 @@ from pathlib import Path
 from lxml import etree
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.oxml.ns import qn
 from pptx.util import Emu, Pt
 
 AQUI = Path(__file__).resolve().parent
-FIG = Path("/home/user/WiFi-sensing/dados/graficos/banner")
+FIG = AQUI.parents[1] / "dados" / "graficos" / "banner"
 SAIDA = Path(sys.argv[1]) if len(sys.argv) > 1 else AQUI / "banner-wave-sense.pptx"
 CM = 360000
 cm = lambda x: Emu(int(round(x * CM)))
 
-AZUL = RGBColor(0x20, 0x28, 0x4D)      # títulos das seções no modelo
-PRETO = RGBColor(0, 0, 0)
-DESTAQUE = RGBColor(0xC8, 0x21, 0x5A)  # o magenta do cabeçalho, mais escuro para imprimir
+AZUL = RGBColor(0x20, 0x28, 0x4D)       # títulos das seções no modelo
+PRETO = RGBColor(0x14, 0x14, 0x14)
+DESTAQUE = RGBColor(0xC8, 0x21, 0x5A)   # o magenta do cabeçalho, mais escuro para imprimir
 CINZA = RGBColor(0x55, 0x55, 0x55)
+TELA = RGBColor(0x10, 0x10, 0x0F)       # o fundo da TV do estande (o tom médio dos desenhos tirados do site)
+TINTA = RGBColor(0xED, 0xED, 0xE8)
+APAGADO = RGBColor(0xA9, 0xA9, 0xA2)
+ROSA_TELA = RGBColor(0xFF, 0x5C, 0x8F)  # o magenta, mais claro, para ler no fundo escuro
+ROSA_FUNDO = RGBColor(0xFB, 0xEA, 0xF0)
 FONTE = "Arial"
 
-CORPO = 26       # pt (o modelo pede 32, podendo reduzir até 24)
+CORPO = 26        # pt (o modelo pede 32, podendo reduzir até 24)
 LEGENDA = 24
 TITULO_SECAO = 60
 
-# ----------------------------------------------------------------------------- textos
-TITULO = "WAVE SENSE: DETECÇÃO DE MOVIMENTO HUMANO SEM CÂMERAS USANDO SINAIS WI-FI E ESP32"
-AUTORES = "[Autor(a) 1], [Autor(a) 2] e [Autor(a) 3] · Orientação: [Professor(a)]"
-INSTITUICAO = "[Nome da escola] – [Cidade], ES"
-
-# Cada parágrafo é uma lista de trechos: texto, ou (texto, negrito, cor, itálico).
-INTRODUCAO = [
-    ["Para perceber uma queda em casa, hoje se usa câmera, que expõe a intimidade, ou pulseira, que a pessoa precisa lembrar de usar. Quedas são a segunda maior causa de morte por lesão acidental no mundo (OMS, 2021)."],
-    ["O Wi-Fi é uma onda que chega ao receptor por vários caminhos, direto e rebatido em paredes e pessoas, e esses caminhos se somam. Quando alguém se mexe, a soma muda. O ",
-     ("CSI", True), " (", ("Channel State Information", False, None, True),
-     ") mostra essa soma em 64 frequências, as subportadoras, a cada pacote (Figura 1). Ele já foi usado para perceber movimento e quedas (MA; ZHOU; WANG, 2019; WANG; WU; NI, 2017)."],
-    [("Objetivo: ", True), "investigar se o CSI medido por duas placas ESP32 de baixo custo permite detectar movimento humano sem câmeras, e mostrar ao público os limites da técnica e os riscos à privacidade."],
-    [("Ciência Delas: ", True, DESTAQUE), "em 1942, a atriz e inventora Hedy Lamarr patenteou, com George Antheil, o salto de frequência (MARKEY; ANTHEIL, 1942), usado até hoje no Bluetooth e presente na primeira versão do Wi-Fi, de 1997."],
-]
-METODOS = [
-    [("Placas: ", True), "duas ESP32 com os programas oficiais e abertos da Espressif, ESP-CSI e ESP-IDF 5.5.5 (ESPRESSIF SYSTEMS, 2026). A placa A envia cerca de 50 pacotes por segundo; a placa B mede o CSI de cada um e o envia ao notebook pela USB (Figura 2)."],
-    [("Coleta: ", True), "um programa em Python grava 30 s de cada situação, com as condições anotadas."],
-    [("Detector: ", True), "a cada 0,2 s, mede a oscilação do sinal no último segundo (o desvio padrão de cada subportadora, em média). Antes, cada pacote é levado ao mesmo volume, para tirar o efeito do ganho automático da placa B. O limite vem da sala vazia (média + 3 desvios), e \u201cmovimento\u201d exige 3 medidas seguidas acima dele. A mesma regra roda no Python e na tela da demonstração, conferida por testes."],
-    [("Testes, em casa: ", True), "sala vazia e uma pessoa cruzando a linha entre as placas, a 1,5 m sem parede e a 3,75 m com uma parede no meio."],
-]
-RESULTADOS = [
-    [("Pacotes: ", True), "a cerca de 91 pacotes/s, com o roteador da casa ao lado, só chegavam de 30% a 49%: a USB a 921.600 baud transmite umas 72 linhas de CSI por segundo. A 50 por segundo e longe do roteador, chegaram de 76% a 92%."],
-    [("Ganho automático: ", True), "sem a correção do volume, a oscilação da sala vazia pulava sozinha de 0,8 a 4,8. Com ela, ficou estável."],
-    [("Detecção (Tabela 1 e Figura 3): ", True), "a 1,5 m, as 7 travessias da linha foram marcadas, uma a uma, e a sala vazia deu 2 alarmes curtos em 30 s. Através da parede, não houve alarme com a sala vazia, e o andar foi percebido quase o tempo todo."],
-    [("Limites: ", True), "uma gravação de 30 s por situação, em casa: mostra que funciona, mas ainda não é uma taxa de acerto."],
-]
-TABELA = [
-    ["Montagem", "Oscilação típica\n(vazio / andando)", "Sala vazia\n(30 s)", "Pessoa andando\n(30 s)"],
-    ["1,5 m, sem parede", "0,41 / 0,64", "2 alarmes curtos", "7 de 7 travessias"],
-    ["3,75 m, com parede", "0,66 / 1,16", "nenhum alarme", "quase o tempo todo"],
-]
-CONCLUSAO = [
-    ["Duas placas ESP32 e programas abertos bastaram para detectar movimento humano sem câmera, inclusive através de uma parede. Foi essencial limitar a taxa de pacotes ao que a USB transmite e corrigir o ganho automático."],
-    ["O sistema percebe movimento, não presença: uma pessoa parada não faz o sinal oscilar. E, como o sinal atravessa paredes, a técnica poderia revelar se há gente num cômodo, o que pede regras de uso e consentimento. Desde 2025 existe um padrão só para sensoriamento por Wi-Fi (IEEE, 2025)."],
-    [("Próximos passos: ", True), "mais gravações, em outros dias e lugares, para medir a taxa de acerto, e testar a detecção de quedas."],
-]
-REFERENCIAS = [
-    ["ESPRESSIF SYSTEMS. ", ("ESP-CSI", True), ". GitHub, 2026. Disponível em: https://github.com/espressif/esp-csi. Acesso em: 15 out. 2026."],
-    ["IEEE. ", ("IEEE 802.11bf-2025", True), ": WLAN sensing. Nova York: IEEE, 2025."],
-    ["MA, Y.; ZHOU, G.; WANG, S. WiFi sensing with channel state information: a survey. ", ("ACM Computing Surveys", True), ", v. 52, n. 3, 2019."],
-    ["MARKEY, H. K. (Hedy Lamarr); ANTHEIL, G. ", ("Secret communication system", True), ". Patente US 2.292.387, 11 ago. 1942."],
-    ["OMS \u2013 ORGANIZAÇÃO MUNDIAL DA SAÚDE. ", ("Falls", True), ". Genebra: OMS, 26 abr. 2021. Disponível em: https://www.who.int/news-room/fact-sheets/detail/falls. Acesso em: 15 out. 2026."],
-    ["WANG, Y.; WU, K.; NI, L. M. WiFall: device-free fall detection by wireless networks. ", ("IEEE Transactions on Mobile Computing", True), ", v. 16, n. 2, 2017."],
-]
-USO_IA = "Uso de inteligência artificial: o assistente Claude (Anthropic) apoiou a escrita de código e de textos. Tudo foi revisado e testado pela equipe, e os dados foram medidos por nós."
-
-# ----------------------------------------------------------------------------- ajudantes
 from PIL import ImageFont
 _FONTES = {}
 def _fonte(neg, tam):
@@ -234,12 +202,86 @@ def trocar_texto(shape, paragrafos):
     return shape
 
 
+def painel(slide, x, y, w, h, cor, nome, raio=0.6):
+    s = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, cm(x), cm(y), cm(w), cm(h))
+    s.name = nome
+    s.adjustments[0] = raio / min(w, h)
+    s.fill.solid(); s.fill.fore_color.rgb = cor
+    s.line.fill.background(); s.shadow.inherit = False
+    return s
+
+
+def texto(slide, x, y, w, paragrafos, tamanho, nome, alinhar=PP_ALIGN.LEFT, cor=PRETO, linha=1.15, entre=0.3, h=None):
+    if h is None:
+        h = altura_de(paragrafos, tamanho, w, linha, entre)
+    c = caixa(slide, x, y, w, h, nome)
+    escrever(c.text_frame, paragrafos, tamanho, alinhar=alinhar, cor=cor, linha=linha, entre=entre)
+    return y + h
+
+
+def imagem(slide, caminho, x, y, w=None, h=None, nome="", descricao=""):
+    from PIL import Image
+    im = Image.open(caminho)
+    if w is None: w = h * im.width / im.height
+    if h is None: h = w * im.height / im.width
+    pic = slide.shapes.add_picture(str(caminho), cm(x), cm(y), cm(w), cm(h))
+    pic.name = nome
+    pic._element.nvPicPr.cNvPr.set("descr", descricao)
+    return w, h
+
+
+# ----------------------------------------------------------------------------- textos
+TITULO = "WAVE SENSE: DETECÇÃO DE MOVIMENTO HUMANO SEM CÂMERAS USANDO SINAIS WI-FI E ESP32"
+AUTORES = "[Autor(a) 1], [Autor(a) 2] e [Autor(a) 3] · Orientação: [Professor(a)]"
+INSTITUICAO = "[Nome da escola] – [Cidade], ES"
+
+FRASE = "Duas placas Wi-Fi de baixo custo perceberam cada vez que uma pessoa cruzou entre elas. Até através de uma parede."
+FRASE_APOIO = "A placa A envia mensagens Wi-Fi; a placa B mede como cada uma chegou. Quem se mexe muda os caminhos do sinal, e a medida treme. Sem câmera, sem nada preso ao corpo."
+NUMEROS = [("7 de 7", "travessias percebidas, a 1,5 m"), ("5,9×", "o sinal com a pessoa, comparado à sala vazia"), ("3,75 m", "através de uma parede, sem alarme com a sala vazia")]
+
+INTRODUCAO = [
+    ["No Brasil, 5,7 milhões de idosos moram sozinhos (IBGE, 2024), e as quedas são a 2ª maior causa de morte por lesão acidental no mundo (OMS, 2021). Câmera expõe a intimidade; pulseira depende de a pessoa lembrar de usar."],
+    ["Mas quase toda casa já tem Wi-Fi. O sinal chega ao receptor por vários caminhos, que se somam, e quem se mexe muda essa soma. O ",
+     ("CSI", True), " (", ("Channel State Information", False, None, True), ") mede isso em 64 frequências a cada pacote (MA; ZHOU; WANG, 2019)."],
+    [("Objetivo: ", True), "construir um detector de movimento humano com duas placas ESP32, sem câmera, testá-lo com gravações reais e mostrá-lo ao vivo."],
+]
+HEDY = [[("Ciência Delas. ", True, DESTAQUE), "Em 1942, a atriz e inventora Hedy Lamarr patenteou, com George Antheil, o salto de frequência (MARKEY; ANTHEIL, 1942). Espalhar o sinal por várias frequências virou base da comunicação sem fio: o Wi-Fi de hoje usa 64 ao mesmo tempo, e são elas que o Wave Sense lê."]]
+PASSOS = [("1  Placa A", "envia 50 mensagens Wi-Fi por segundo"), ("2  Placa B", "mede o CSI: 64 subportadoras"), ("3  Notebook", "decide a cada 0,2 s, ao vivo")]
+METODOS = [
+    [("Detector: ", True), "mede a oscilação de cada subportadora no último segundo, com cada pacote ajustado ao mesmo volume (a placa muda o ganho sozinha). O limite é calibrado na sala vazia (média + 3 desvios), e “movimento” exige 3 medidas seguidas acima dele. A mesma regra roda em Python e na demonstração."],
+    [("Ajustes que fizeram funcionar: ", True), "a USB não dava conta de 100 pacotes/s (com 50, chegam de 76% a 92%), e o ganho automático da placa fazia a sala vazia oscilar de 0,8 a 4,8; ajustar o volume de cada pacote deixou a sala vazia estável."],
+    [("Testes: ", True), "30 s de sala vazia e 30 s de uma pessoa cruzando a linha entre as placas, a 1,5 m e a 3,75 m com uma parede no meio."],
+]
+RESULTADOS = [
+    ["A cada travessia, o sinal subiu até 5,9 vezes o nível da sala vazia, e o detector marcou as 7, uma a uma; a sala vazia deu só 2 alarmes curtos em 30 s. Através da parede, a pessoa andando foi percebida quase o tempo todo, sem nenhum alarme com a sala vazia."],
+]
+USOS = [
+    ("Quem mora sozinho", "desenho-sozinho.png", "Se até as 10h ninguém se mexeu, a casa avisa a família. Usa só o que o detector já faz.",
+     "Ilustração de dois dias numa linha do tempo: ontem, movimentos desde as 6h40; hoje, nenhum movimento até as 10h e um aviso para o celular da família."),
+    ("Escombros", "desenho-escombros.png", "Um radar da NASA achou 4 pessoas vivas sob os escombros no Nepal, em 2015, pelos sinais vitais (NASA JPL, 2015). Queremos tentar com placas baratas.",
+     "Ilustração de uma pessoa deitada num vão entre lajes caídas, entre as placas A e B, com ondinhas de respiração saindo do peito."),
+]
+CONCLUSAO = [
+    ["Duas placas ESP32 e programas abertos perceberam movimento humano sem câmera, até através de uma parede, e o sistema funciona ao vivo no estande. A técnica está virando produto: em 2025 saiu o IEEE 802.11bf, padrão só para sensoriamento por Wi-Fi."],
+    [("Próximos passos: ", True), "medir a respiração, que a mesma placa já captou em outro estudo (BURIMAS et al., 2024), e a taxa de acerto, em novas sessões. Como o sinal atravessa paredes, defendemos consentimento e dados que não saem de casa, como no Wave Sense."],
+]
+REFERENCIAS = [
+    ["BURIMAS, D. et al. Monitoring the sleep respiratory rate with low-cost microcontroller Wi-Fi in a controlled environment. ", ("Applied Sciences", True), ", v. 14, n. 15, 6458, 2024."],
+    ["ESPRESSIF SYSTEMS. ", ("ESP-CSI", True), ". GitHub, 2026. Disponível em: https://github.com/espressif/esp-csi."],
+    ["IBGE. ", ("Censo Demográfico 2022", True), ": composição domiciliar e óbitos informados. Rio de Janeiro: IBGE, 2024."],
+    ["IEEE. ", ("IEEE 802.11bf-2025", True), ": WLAN sensing. Nova York: IEEE, 2025."],
+    ["MA, Y.; ZHOU, G.; WANG, S. WiFi sensing with channel state information: a survey. ", ("ACM Computing Surveys", True), ", v. 52, n. 3, 2019."],
+    ["MARKEY, H. K. (Hedy Lamarr); ANTHEIL, G. ", ("Secret communication system", True), ". Patente US 2.292.387, 1942."],
+    ["NASA JPL. ", ("FINDER", True), ": Finding Individuals for Disaster and Emergency Response. Pasadena: JPL, 2015."],
+    ["OMS. ", ("Falls", True), ". Genebra: OMS, 2021. Disponível em: https://www.who.int/news-room/fact-sheets/detail/falls."],
+]
+USO_IA = "Uso de inteligência artificial: o assistente Claude (Anthropic) apoiou a escrita de código e de textos. Tudo foi revisado e testado pela equipe, e os dados foram medidos por nós."
+
 # ----------------------------------------------------------------------------- montagem
 pres = Presentation(str(AQUI / "modelo.pptx"))
 slide = pres.slides[0]
 por_nome = {sh.name: sh for sh in slide.shapes}
 
-# título, autores e instituição: as caixas do próprio modelo
 tit = trocar_texto(por_nome["TextBox 17"], [(TITULO, 60, True)])
 lnSpc = tit.text_frame._txBody.find(qn("a:p")).find(qn("a:pPr")).find(qn("a:lnSpc"))
 lnSpc.find(qn("a:spcPts")).set("val", str(int(60 * 1.06 * 100)))
@@ -248,41 +290,111 @@ aut = trocar_texto(por_nome["TextBox 8"], [(AUTORES, 40, True), (INSTITUICAO, 30
 aut.top = cm(29.0)
 p2 = aut.text_frame._txBody.findall(qn("a:p"))[1].find(qn("a:pPr")).find(qn("a:lnSpc"))
 p2.find(qn("a:spcPts")).set("val", str(30 * 120))
-
-# o que era só exemplo no modelo sai: as seções de texto, a moldura "SUA IMAGEM AQUI" e a legenda
 for nome in ["Group 11", "TextBox 16", "Group 18", "Group 21", "Group 24", "Group 27", "Group 30", "TextBox 33"]:
     el = por_nome[nome]._element
     el.getparent().remove(el)
 
-XE, XD, W = 2.85, 45.05, 40.7   # centrado na linha do modelo (2,7 a 85,8 cm)
-TOPO, GAP, FUNDO = 35.0, 0.85, 112.4
+X0, X1 = 2.85, 85.75                    # a linha do modelo
+W = 40.2; XE, XD = X0, X1 - W           # duas colunas
+GAP, FUNDO = 1.0, 112.4
 
-def colunas():
-    # coluna da esquerda: introdução, métodos (com o esquema), resultados e a tabela
+# --- a faixa escura: a frase, os números, o desenho e o sinal real
+HY, HH = 35.0, 16.0
+painel(slide, X0, HY, X1 - X0, HH, TELA, "Faixa: o resultado", raio=0.8)
+# da direita para a esquerda: o sinal real, o desenho e, no espaço que sobra, a frase e os números
+IH = HH - 3.4                                   # altura das duas imagens (a legenda vai embaixo)
+cw = IH * 19.0 / 15.0
+cx = X1 - 1.4 - cw
+from PIL import Image as _I
+_c = _I.open(FIG / "desenho-caminhos.png"); iw = IH * _c.width / _c.height
+ix = cx - 1.6 - iw
+tx = X0 + 1.6; tw = ix - 1.8 - tx
+y = texto(slide, tx, HY + 1.4, tw, [[(FRASE, True, TINTA)]], 44, "Frase principal", cor=TINTA, linha=1.08)
+texto(slide, tx, y + 0.45, tw, [[(FRASE_APOIO, False, APAGADO)]], 24, "Como funciona, em uma frase", cor=APAGADO, linha=1.15)
+nw = tw / 3
+for k, (num, rot) in enumerate(NUMEROS):
+    texto(slide, tx + k * nw, HY + HH - 5.4, nw - 0.5, [[(num, True, ROSA_TELA)]], 64, f"Número {k + 1}", linha=1.0, h=2.4)
+    texto(slide, tx + k * nw, HY + HH - 2.9, nw - 0.6, [[(rot, False, TINTA)]], 22, f"Rótulo {k + 1}", linha=1.08, h=2.2)
+imagem(slide, FIG / "desenho-caminhos.png", ix, HY + 1.2, h=IH, nome="Desenho: caminhos",
+       descricao="Desenho: placas A e B numa sala; o sinal vai direto e rebatendo no teto e no chão; uma pessoa no meio do caminho.")
+texto(slide, ix, HY + 1.2 + IH + 0.35, iw, [[("Como funciona (desenho): ", True, TINTA), ("o sinal chega à placa B por vários caminhos.", False, APAGADO)]], 20, "Legenda do desenho", linha=1.1)
+imagem(slide, FIG / "csi-cruzando.png", cx, HY + 1.2, h=IH, nome="Sinal real",
+       descricao="Linhas brancas empilhadas sobre fundo preto, medidas pela placa B enquanto uma pessoa cruzava entre as placas: as linhas do meio sobem num relevo alto.")
+texto(slide, cx, HY + 1.2 + IH + 0.35, cw, [[("Sinal real: ", True, TINTA), ("pessoa cruzando, 4,8 s.", False, APAGADO)]], 20, "Legenda do sinal real", linha=1.1)
+
+TOPO = HY + HH + 1.3
+
+def coluna_esquerda():
     y = secao(slide, XE, TOPO, W, "INTRODUÇÃO", INTRODUCAO)
-    y = secao(slide, XE, y + GAP, W, "MATERIAIS E MÉTODOS", METODOS)
-    y = figura(slide, FIG / "figura-montagem.png", XE, y + 0.3, W, "Figura 2",
-               "Esquema da montagem: a placa A envia pacotes Wi-Fi, que chegam à placa B por um caminho direto e por caminhos rebatidos; uma pessoa cruza a linha entre as placas; a placa B manda o CSI ao notebook pela USB.")
-    y = legenda(slide, XE, y + 0.1, W, "Figura 2:", "esquema da montagem (desenho). O sinal chega à placa B por vários caminhos, que se somam.")
-    y = secao(slide, XE, y + GAP, W, "RESULTADOS E DISCUSSÃO", RESULTADOS)
-    y = legenda(slide, XE, y + 0.45, W, "Tabela 1:", "detector nas gravações reais de 30 s, com o limite calibrado na sala vazia de cada montagem.")
-    y = tabela(slide, XE, y + 0.2, W, TABELA, [10.3, 10.6, 9.0, 10.8], [2.4, 1.5, 1.5])
-    y_esq = y
-    # coluna da direita: as duas figuras de dados, conclusão e referências
-    y = figura(slide, FIG / "figura1-csi-real.png", XD, TOPO + 0.3, W, "Figura 1",
-               "Duas pilhas de linhas brancas sobre fundo preto. À esquerda, sala vazia: linhas quase iguais. À direita, pessoa cruzando a linha entre as placas: as linhas do meio sobem num relevo alto.")
-    y = legenda(slide, XD, y + 0.25, W, "Figura 1:", "CSI real medido pela placa B, 4,8 s de cada gravação. Cada linha é uma leitura (média de 0,1 s) das 64 subportadoras; a de baixo é a mais nova. Sala vazia × pessoa cruzando a linha, a 1,5 m.")
-    y = figura(slide, FIG / "figura2-tremor-30s.png", XD, y + 0.6, W, "Figura 3",
-               "Três gráficos da oscilação do sinal ao longo de 30 segundos, com a linha tracejada do limite e faixas onde o detector disse movimento: sala vazia com dois alarmes curtos; pessoa cruzando a linha com sete picos marcados de 1 a 7; pessoa andando atrás da parede, marcada quase o tempo todo.")
-    y = legenda(slide, XD, y + 0.1, W, "Figura 3:", "oscilação do sinal nos 30 s de cada gravação, pela mesma regra da tela. Os números marcam as 7 travessias.")
-    y = secao(slide, XD, y + GAP, W, "CONCLUSÃO", CONCLUSAO)
-    y = secao(slide, XD, y + GAP, W, "REFERÊNCIAS", REFERENCIAS, tamanho=LEGENDA, alinhar=PP_ALIGN.LEFT, entre=0.25, linha=1.12)
-    c = caixa(slide, XD, y + 0.6, W, altura_de([[USO_IA]], LEGENDA, W, 1.12, 0), "Uso de IA")
-    escrever(c.text_frame, [[(USO_IA, False, CINZA, True)]], LEGENDA, alinhar=PP_ALIGN.LEFT, linha=1.12)
-    y_dir = y + 0.6 + altura_de([[USO_IA]], LEGENDA, W, 1.12, 0)
-    return y_esq, y_dir
+    # Ciência Delas: o retrato da Hedy Lamarr feito com as linhas do sinal
+    hy = y + 0.7
+    alt_txt = altura_de(HEDY, LEGENDA, W - 8.6, 1.12, 0)
+    hh = max(7.8, alt_txt + 1.4)
+    painel(slide, XE, hy, W, hh, ROSA_FUNDO, "Ciência Delas", raio=0.5)
+    rw, _ = imagem(slide, FIG / "desenho-salto.png", XE + 0.7, hy + 0.7, h=hh - 1.4, nome="Retrato de Hedy Lamarr",
+                   descricao="Retrato de Hedy Lamarr desenhado com linhas horizontais, como as do sinal (de uma foto de 1940, domínio público).")
+    tx = XE + 0.7 + rw + 0.9
+    alt_txt = altura_de(HEDY, LEGENDA, XE + W - 0.8 - tx, 1.12, 0)
+    texto(slide, tx, hy + (hh - alt_txt) / 2, XE + W - 0.8 - tx, HEDY, LEGENDA, "Texto: Ciência Delas", linha=1.12, entre=0)
+    y = hy + hh
+    # métodos: o desenho das três peças e os três passos embaixo
+    y = secao(slide, XE, y + GAP, W, "MATERIAIS E MÉTODOS", [])
+    PW = W * 0.8; px0 = XE + (W - PW) / 2
+    pw, ph = imagem(slide, FIG / "desenho-viabilidade.png", px0, y + 0.2, w=PW, nome="Desenho: montagem",
+                    descricao="Desenho: placa A envia pacotes para a placa B, que está ligada por cabo a um notebook mostrando as linhas do sinal.")
+    y = y + 0.2 + ph + 0.35
+    larg = 11.0
+    alt = max(altura_de([[(a + " ", True), b]], LEGENDA, larg, 1.1, 0) for a, b in PASSOS)
+    for k, ((a, b), f) in enumerate(zip(PASSOS, (0.16, 0.54, 0.84))):   # onde ficam a placa A, a placa B e o notebook no desenho
+        x = min(max(px0 + f * PW - larg / 2, XE), XE + W - larg)
+        texto(slide, x, y, larg, [[(a, True, DESTAQUE)], [b]], LEGENDA, f"Passo {k + 1}", alinhar=PP_ALIGN.CENTER, linha=1.1, entre=0.05,
+              h=alt + 0.6)
+    y += alt + 0.9
+    y = texto(slide, XE, y, W, METODOS, CORPO, "Texto: métodos", alinhar=PP_ALIGN.JUSTIFY, linha=1.18, entre=0.35)
+    return y
 
-y_esq, y_dir = colunas()
-print(f"esquerda termina em {y_esq:.1f} cm, direita em {y_dir:.1f} cm (limite {FUNDO} cm)")
+
+def coluna_direita():
+    y = secao(slide, XD, TOPO, W, "RESULTADOS E DISCUSSÃO", [])
+    fw, fh = imagem(slide, FIG / "figura-resultado.png", XD, y - 0.3, w=W, nome="Figura: resultado",
+                    descricao="Dois gráficos de 30 segundos. A 1,5 m, a linha da pessoa sobe acima do limite 7 vezes, numeradas de 1 a 7, até 5,9 vezes a sala vazia. A 3,75 m com parede, a linha da pessoa fica acima do limite quase o tempo todo; a da sala vazia fica abaixo.")
+    y = y - 0.3 + fh + 0.1
+    y = texto(slide, XD, y, W, [[("Figura: ", True), "oscilação do sinal medida nos testes, pela mesma regra da tela. Em rosa, onde o detector disse “movimento”."]], LEGENDA - 2, "Legenda: resultado", cor=CINZA, linha=1.1)
+    y = texto(slide, XD, y + 0.6, W, RESULTADOS, CORPO, "Texto: resultados", alinhar=PP_ALIGN.JUSTIFY, linha=1.18, entre=0.35)
+    # para que serve: dois cartões
+    y = texto(slide, XD, y + 0.8, W, [[("Para que serve", True, AZUL)]], 40, "Título: para que serve", linha=1.0)
+    larg = (W - 1.0) / 2
+    alt_img = 0
+    for k, (nome, arq, txt, descr) in enumerate(USOS):
+        x = XD + k * (larg + 1.0)
+        CARTAO = 9.6
+        painel(slide, x, y + 0.3, larg, CARTAO, TELA, f"Fundo: {nome}", raio=0.4)
+        from PIL import Image
+        im = Image.open(FIG / arq); r = im.width / im.height
+        iw = min(larg - 0.6, (CARTAO - 0.6) * r); ih = iw / r
+        imagem(slide, FIG / arq, x + (larg - iw) / 2, y + 0.3 + (CARTAO - ih) / 2, w=iw, nome=f"Desenho: {nome}", descricao=descr)
+        alt_img = CARTAO
+    y += 0.3 + alt_img + 0.35
+    alt = max(altura_de([[(n + ". ", True), t]], LEGENDA, larg, 1.1, 0) for n, _, t, _ in USOS)
+    for k, (nome, arq, txt, descr) in enumerate(USOS):
+        texto(slide, XD + k * (larg + 1.0), y, larg, [[(nome + ". ", True, DESTAQUE), txt]], LEGENDA, f"Texto: {nome}", linha=1.1, h=alt)
+    y += alt
+    y = secao(slide, XD, y + GAP, W, "CONCLUSÃO", CONCLUSAO)
+    return y
+
+
+y_esq = coluna_esquerda()
+y_dir = coluna_direita()
+# referências: faixa inteira embaixo, em duas colunas
+ry = max(y_esq, y_dir) + GAP
+t = caixa(slide, X0, ry, X1 - X0, 2.4, "Título: REFERÊNCIAS")
+escrever(t.text_frame, [[("REFERÊNCIAS", True, AZUL)]], 40, alinhar=PP_ALIGN.LEFT, linha=1.0)
+ry += 1.8
+metade = (len(REFERENCIAS) + 1) // 2
+fim = ry
+for k, refs in enumerate([REFERENCIAS[:metade], REFERENCIAS[metade:]]):
+    fim = max(fim, texto(slide, XE if k == 0 else XD, ry, W, refs, 20, f"Referências {k + 1}", linha=1.08, entre=0.18))
+fim = texto(slide, X0, fim + 0.25, X1 - X0, [[(USO_IA, False, CINZA, True)]], 20, "Uso de IA", cor=CINZA, linha=1.08)
+print(f"esquerda {y_esq:.1f} cm, direita {y_dir:.1f} cm, fim {fim:.1f} cm (limite {FUNDO} cm)")
 pres.save(str(SAIDA))
 print("salvo:", SAIDA)

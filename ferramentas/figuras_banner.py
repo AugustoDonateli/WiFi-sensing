@@ -36,9 +36,9 @@ PAREDE = ("20261015-165612_vazio.csv", "20261015-165723_andando.csv")
 plt.rcParams.update({"font.family": FONTE, "svg.fonttype": "none"})
 
 
-def linhas(ax, ls, escala=0.04, lw=1.4):
+def linhas(ax, ls, escala=0.04, lw=1.4, fundo=FUNDO):
     """O mesmo desenho do poster.py (e da tela): a mais antiga em cima, a mais nova embaixo."""
-    ax.set_facecolor(FUNDO)
+    ax.set_facecolor(fundo)
     uteis = ls.mean(axis=0) >= 0.5
     forma = ls[:, uteis]
     media = forma.mean()
@@ -50,7 +50,7 @@ def linhas(ax, ls, escala=0.04, lw=1.4):
         base = (n - 1 - i) / n
         relevo = np.maximum(0, forma[i] / media - 0.3 + 3 * (forma[i] - lenta) / media) * borda
         y = np.concatenate([[base, base], base + relevo * escala, [base, base]])
-        ax.fill_between(x, y, -1, color=FUNDO, zorder=2 * i)
+        ax.fill_between(x, y, -1, color=fundo, zorder=2 * i)
         ax.plot(x, y, color=TINTA, linewidth=lw * (1.8 if i == n - 1 else 1), zorder=2 * i + 1, solid_joinstyle="round")
     ax.set_xlim(-0.02, 1.02); ax.set_ylim(-0.05, 1.21); ax.axis("off")
 
@@ -186,9 +186,74 @@ def figura_montagem():
     plt.close(fig)
 
 
+# ----------------------------------------------------------------------------- versão 2 do banner (16/10)
+
+def csi_escuro(nome, ls, largura_cm, altura_cm, escala=0.05, lw=1.7):
+    """As linhas do CSI real, sem texto, no fundo escuro da tela (os rótulos vão no próprio banner)."""
+    fundo = "#10100F"     # o mesmo tom dos desenhos tirados do site, para a faixa escura do banner ser uma só
+    fig = plt.figure(figsize=(largura_cm / 2.54, altura_cm / 2.54), facecolor=fundo)
+    ax = fig.add_axes([0.0, 0.0, 1.0, 1.0])
+    linhas(ax, ls, escala=escala, lw=lw, fundo=fundo)
+    ax.set_xlim(0.04, 0.96)
+    fig.savefig(SAIDA / nome, dpi=DPI, facecolor=fundo)
+    plt.close(fig)
+
+
+def figuras_csi():
+    vazio, andando = (carregar(BRUTOS / a, remover_nulas=False) for a in PERTO)
+    lv, _ = leituras(vazio, None)
+    la, _ = leituras(andando, andando["t"][0] + 9.4)
+    csi_escuro("csi-vazio.png", lv, 19.0, 15.0)
+    csi_escuro("csi-cruzando.png", la, 19.0, 15.0)
+
+
+def figura_resultado():
+    """A oscilação nos 30 s, em vezes a sala vazia: a sala vazia (cinza) e a pessoa (preto) no mesmo gráfico,
+    o limite tracejado e, em magenta, onde o detector disse "movimento". Mesma regra da tela."""
+    fig, axs = plt.subplots(2, 1, figsize=(40.2 / 2.54, 13.4 / 2.54), facecolor="white",
+                            gridspec_kw={"hspace": 0.68, "left": 0.085, "right": 0.83, "top": 0.9, "bottom": 0.15})
+    resumo = {}
+    for ax, (par, titulo, legenda_p) in zip(axs, [
+            (PERTO, "1,5 m entre as placas", "pessoa cruzando"),
+            (PAREDE, "3,75 m, com uma parede no meio", "pessoa andando")]):
+        tv, vv = serie(par[0]); ta, va = serie(par[1])
+        base = float(np.median(vv))
+        lim = detector.limiar_de_calibracao(vv)
+        est = detector.detectar(va, lim)
+        tr = trechos(est, ta)
+        for a, b in tr:
+            ax.axvspan(a, b, color=DESTAQUE_FUNDO, lw=0, zorder=0)
+        ax.plot(tv, vv / base, color="#9A9A94", lw=2.2, zorder=2)
+        ax.plot(ta, va / base, color="black", lw=3.0, zorder=3)
+        ax.axhline(lim / base, color=DESTAQUE, lw=2.6, ls=(0, (6, 4)), zorder=2.5)
+        ax.set_xlim(0, 30); ax.set_ylim(0, 6.6)
+        ax.set_yticks([0, 1, 2, 3, 4, 5, 6]); ax.set_yticklabels(["0", "1×", "", "3×", "", "5×", ""])
+        ax.set_title(titulo, loc="left", fontsize=26, fontweight="bold", pad=12)
+        # rótulos direto no fim das linhas, em vez de legenda
+        yp, yl, yv = (4.6, 3.0, 0.95) if par is PERTO else (2.95, 1.6, 0.3)   # posições escolhidas para não encostar
+        ax.text(30.4, yp, legenda_p, fontsize=22, va="center", ha="left", fontweight="bold", clip_on=False)
+        ax.text(30.4, yv, "sala vazia", fontsize=22, va="center", ha="left", color="#77776F", clip_on=False)
+        ax.text(30.4, yl, "limite", fontsize=22, va="center", ha="left", color=DESTAQUE, clip_on=False)
+        if par is PERTO:
+            for n, (a, b) in enumerate(tr, 1):
+                ax.text((a + b) / 2, 6.5, str(n), ha="center", va="top", fontsize=24, color=DESTAQUE, fontweight="bold")
+        pico = float(va.max() / base)
+        resumo[titulo] = {"pico_x": round(pico, 1), "limite_x": round(lim / base, 2), "trechos": len(tr),
+                          "frac_movimento": round(sum(b - a for a, b in tr) / (ta[-1] - ta[0]), 2)}
+        for sp in ("top", "right"): ax.spines[sp].set_visible(False)
+        for sp in ("left", "bottom"): ax.spines[sp].set_linewidth(1.6)
+        ax.tick_params(labelsize=21, width=1.6, length=6)
+        ax.grid(axis="y", color="#E4E4E0", lw=1.2, zorder=-1)
+    axs[0].set_ylabel("oscilação\n(× sala vazia)", fontsize=21)
+    axs[1].set_ylabel("oscilação\n(× sala vazia)", fontsize=21)
+    axs[1].set_xlabel("tempo (s)", fontsize=22)
+    fig.savefig(SAIDA / "figura-resultado.png", dpi=DPI, facecolor="white")
+    plt.close(fig)
+    return resumo
+
+
 if __name__ == "__main__":
-    figura_montagem()
-    print("figura 1, trechos (s):", figura1())
-    for k, v in figura2().items():
+    figuras_csi()
+    for k, v in figura_resultado().items():
         print(k, v)
     print("salvo em", SAIDA)

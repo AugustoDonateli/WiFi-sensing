@@ -248,3 +248,15 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Saiu:** a luz que apaga sozinha e o alarme. Funcionam, mas não convencem ninguém de que o projeto importa.
 - **Desenho:** a pessoa parada da cena anterior cai, o entulho cai por cima deixando um vão e, do peito, sobem ondinhas no ritmo da respiração (15 por minuto). Na rotina, um cursor percorre ontem desenhando os movimentos e hoje até as 10h, sem nenhum, e sai o aviso. As duas cenas têm a etiqueta "Ilustração".
 
+
+## 16/10/2026: banner refeito
+
+- **Por que:** o grupo achou o banner defensivo ("foram só testes"), com texto demais e figuras fracas. A primeira coisa que aparecia nos resultados eram os problemas.
+- **Agora:**
+  - uma faixa escura no topo, como a TV do estande, com o resultado principal em uma frase ("Duas placas Wi-Fi de baixo custo perceberam cada vez que uma pessoa cruzou entre elas. Até através de uma parede."), três números (7 de 7 travessias; 5,9× o sinal da sala vazia; 3,75 m através de uma parede), o desenho de como funciona e o sinal real;
+  - figuras tiradas do próprio site, em alta resolução (`docs/banner/capturar_desenhos.py`): caminhos do sinal, a montagem, o retrato da Hedy Lamarr feito com as linhas, a rotina de quem mora sozinho e os escombros;
+  - o gráfico dos testes refeito em "vezes a sala vazia", com a sala vazia e a pessoa no mesmo gráfico;
+  - "Para que serve" (quem mora sozinho e escombros) dentro de Resultados e Discussão;
+  - os problemas resolvidos viraram "Ajustes que fizeram funcionar", em Métodos.
+- **Continua honesto:** os números são das gravações reais; não há porcentagem de acerto; escombros aparece como o que queremos tentar; a conclusão diz que a taxa de acerto é um próximo passo.
+- O título continua o da inscrição.
