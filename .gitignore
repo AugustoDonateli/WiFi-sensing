@@ -1,2 +1,11 @@
 __pycache__/
 *.pyc
+
+# Experimentos locais de pose: gabaritos/vídeos/pesos não entram no repositório.
+dados/pose/
+modelos/pose/
+resultados/pose/
+firmware/**/build/
+firmware/**/sdkconfig
+firmware/**/sdkconfig.old
+firmware/backups/

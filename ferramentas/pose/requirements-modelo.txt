@@ -1,0 +1,4 @@
+-r requirements.txt
+# CPU: instalar torch pelo índice oficial (comando no README).
+# Versão exercitada em Python 3.12 / Windows nesta implementação.
+torch==2.14.1

@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "inspected_date": "2026-10-15",
+  "source": "https://github.com/espressif/esp-csi",
+  "commit": "8633d67152db2808f141cc1595970aa9cf406045",
+  "idf_version_from_build": "v5.5.5",
+  "target": "esp32",
+  "receiver_tracked_changes": false,
+  "sender_tracked_changes": "CONFIG_SEND_FREQUENCY 100 -> 50",
+  "on_device_binary_verified": false,
+  "files": {
+    "examples/get-started/csi_recv/main/app_main.c": "54a855c8dc2c7e7199f67f430daffaee369517a0d12bc3d03d60bbc6fc7e80b0",
+    "examples/get-started/csi_recv/sdkconfig": "fcb9813e16663bab5ba4141479c0b295c6385fbbe715413e20264954dc0ff354",
+    "examples/get-started/csi_recv/dependencies.lock": "afa8c28be125eea057408c62b4ffe0304a1d7bedfc64d2f950d6993ee6a7a27c",
+    "examples/get-started/csi_recv/build/csi_recv.bin": "0f5939da54829e83c5cb60fe1420af9b83ffd2efdc02ae7e8fd6d5b2987682e7",
+    "examples/get-started/csi_send/main/app_main.c": "2d7f3ee44d652e81acf26398b53a83e6fbbbb60d73ba94d51810a0e2c7360854",
+    "examples/get-started/csi_send/sdkconfig": "bae994b756d19efdf9e223a965dceb62ad75babc9f56ad3eb887c49454791381",
+    "examples/get-started/csi_send/dependencies.lock": "78e1a13bf710fa27f38adc58f08418dc5676f42e5fa6ec4f60f5dcccdea73087",
+    "examples/get-started/csi_send/build/csi_send.bin": "e30331757cce539c0ec59c6c6fe4f103fa2fd29ecf823e5467abcde0f754142c"
+  }
+}
