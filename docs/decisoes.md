@@ -84,6 +84,15 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - ver, com dados reais, se as marcas de pessoas diferentes ficam diferentes de verdade;
   - descobrir se haverá impressora na feira.
 
+### Banner da JACITEC (16/10/2026)
+- Feito no **modelo oficial** (`modelo_de_banner_XV_JACITEC.pptx`, 90 × 120 cm): cabeçalho, rodapé, título, linha e as seis seções do modelo, em Arial (título 60 pt, autores 40 pt, instituição 30 pt, texto 26 pt, legendas e referências 24 pt).
+- Arquivo: `docs/banner/banner-wave-sense-jacitec.pptx`. A `previa-banner.pdf` saiu do LibreOffice, que troca algumas fontes do cabeçalho: **para imprimir, exportem o PDF pelo PowerPoint**.
+- **Falta preencher:** nomes dos autores, orientação e escola (estão entre colchetes).
+- **Só dados reais:** as figuras 1 e 3 e a Tabela 1 saem das coletas S0 (`ferramentas/figuras_banner.py`, a mesma regra da tela). A figura 2 é um desenho da montagem, e a legenda diz isso.
+- Números conferidos de novo com o `detector.py`: 7 de 7 travessias a 1,5 m, 2 alarmes curtos (1,2 s cada) em 30 s de sala vazia; com parede, nenhum alarme e a pessoa marcada quase o tempo todo. Pacotes: de 76% a 92% (a coleta andando com parede chegou a 76%; antes estava anotado 86% a 92%).
+- Sem porcentagem de acerto: é uma gravação de 30 s por situação, e o banner diz isso em "Limites".
+- Cita a OMS (quedas), a pesquisa (Ma et al., 2019; WiFall, 2017), a patente de Hedy Lamarr (tema Ciência Delas) e o IEEE 802.11bf, e declara o uso de IA, como pede o edital.
+
 ### Detector e avaliação
 - A tela (`demo/nucleo.js`) e o Python (`ferramentas/detector.py`) usam **a mesma regra**, conferida por teste. O que aparece na feira é o que foi medido.
 - Coletas separadas por **sessão** (`--sessao S1`, `S2`...): sessões ímpares ajustam o limiar, sessões pares testam. Nada da sessão de teste é usado para escolher nada.
