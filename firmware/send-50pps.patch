@@ -2,12 +2,8 @@ diff --git a/examples/get-started/csi_send/main/app_main.c b/examples/get-starte
 index e26ee5b..a8cec83 100644
 --- a/examples/get-started/csi_send/main/app_main.c
 +++ b/examples/get-started/csi_send/main/app_main.c
-@@ -38,7 +38,7 @@
- 
+@@ -39,3 +39,3 @@
  #define CONFIG_ESP_NOW_PHYMODE           WIFI_PHY_MODE_HT40
  #define CONFIG_ESP_NOW_RATE             WIFI_PHY_RATE_MCS0_LGI
 -#define CONFIG_SEND_FREQUENCY               100
 +#define CONFIG_SEND_FREQUENCY               50
- 
- #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(6, 0, 0)
- #define ESP_IF_WIFI_STA ESP_MAC_WIFI_STA
