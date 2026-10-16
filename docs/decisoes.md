@@ -212,3 +212,12 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Medir o espaço do estande.
 - Ver se haverá impressora e TV ou monitor no local.
 - Tirar fotos em preto e branco das placas montadas e da faixa.
+
+## 16/10/2026 — preservar a configuração pronta para apresentação
+
+- **Situação confirmada pelo usuário:** a placa A transmite, a placa B recebe, e a montagem atual funciona corretamente no site. Essa é a referência estável da apresentação. A confirmação é do uso real relatado pelo grupo; não é uma nova medição feita pelo agente.
+- **Decisão explícita do usuário:** os testes de pose 2D/BOOT são temporários. Ao terminar cada rodada, funcionando ou não, restaurar o aplicativo original da receptora e conferir o site na configuração habitual.
+- A placa A permanece com a configuração atual de 50 pacotes/s. Preservar a montagem, as posições e as configurações que já funcionam; anotar qualquer alteração temporária para desfazê-la.
+- Guardar o backup da **primeira instalação**, feito quando a receptora ainda executa `csi_recv`. Um backup posterior que identifique `wave_boot` é experimental e não substitui a referência estável. O instalador cria o backup antes de escrever; isso ainda depende de ser executado na placa física.
+- O piloto só está encerrado depois da restauração e da conferência das leituras reais, resposta ao movimento e funções usadas na apresentação. Se algo diferir do funcionamento habitual, resolver a recuperação antes de continuar a pesquisa 2D.
+- Qualquer adoção da versão experimental para a apresentação depende de uma decisão futura e explícita do usuário após validação. O experimento não substitui automaticamente a versão estável.

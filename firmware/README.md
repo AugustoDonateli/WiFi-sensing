@@ -19,6 +19,8 @@ A variante própria `csi_recv_boot` usa o botão BOOT/GPIO0 como marcador. Foi c
 
 [Roteiro curto para o operador](PILOTO-BOOT.md). O pacote pré-compilado pode ser gerado na raiz do Wave Sense com `python -m firmware.empacotar_boot --build CAMINHO_DO_BUILD --saida CAMINHO_NOVO_DO_PACOTE`. O gerador não acessa portas seriais.
 
+**Decisão do usuário, 16/10/2026:** a configuração atual das duas placas e do site é a referência estável da apresentação. Ao terminar os testes, restaurar o backup original da receptora e conferir o funcionamento habitual, mesmo se o piloto BOOT for bem-sucedido. Preservar o primeiro backup de `csi_recv`; um backup de `wave_boot` não o substitui. [Registro da decisão](../docs/decisoes.md).
+
 - Firmware: ISR registra bordas do BOOT; callback CSI copia dados para uma fila. Uma única tarefa imprime as linhas e os contadores de descarte. Não se imprime nem se espera na interrupção ou no callback Wi-Fi.
 - Aquisição: `python -m ferramentas.pose.capturar_boot --help`. Preserva CSI_DATA, relógio de rádio, horário de entrada do callback e eventos do BOOT. O computador registra também o horário após ler cada linha, para diagnóstico.
 - Preparação: nas novas coletas, `read_recording` usa o relógio compartilhado `esp_timer` no início do callback CSI. O horário de rádio fica intacto no CSV e no arquivo auxiliar. Modelos distinguem as bases de tempo e não misturam automaticamente S0 com a captura BOOT.
