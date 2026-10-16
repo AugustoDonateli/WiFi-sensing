@@ -177,33 +177,37 @@
     return a;
   }
 
-  // Duas sequências com o mesmo ruído: sala parada e alguém andando (am 0,6, como na simulação).
+  // Três sequências com o mesmo ruído: sala parada, alguém andando (am 0,6, como na simulação) e alguém
+  // deitado, parado, só respirando: o peito sobe e desce uns milímetros, 15 vezes por minuto (fase ±0,3 rad).
   // Cada leitura é a média de 4 instantes dentro do 0,1 s. Sempre iguais para a mesma semente.
+  const RESPIRACAO_HZ = 0.25;
   function sinteticas(semente = 7, n = 480) {
     const rnd = mulberry32(semente);
-    const parado = [], mexendo = [];
-    let fp = null, fm = null;
+    const parado = [], mexendo = [], respira = [];
+    let fp = null, fm = null, fr = null;
     for (let r = 0; r < n; r++) {
-      const ap = new Float64Array(64), am = new Float64Array(64);
+      const ap = new Float64Array(64), am = new Float64Array(64), ar = new Float64Array(64);
       for (let k = 0; k < 64; k++) {
         const nre = 0.0065 * gaussiana(rnd), nim = 0.0065 * gaussiana(rnd);
         ap[k] = canal(k, 0, 30e-9, 0, nre, nim);
-        let soma = 0;
+        let soma = 0, somaR = 0;
         for (let s = 0; s < 4; s++) {
           const t = r * 0.1 + s * 0.025;
           soma += canal(k, 0.6, 40e-9 + 25e-9 * Math.sin((2 * Math.PI * t) / 6), 54 * Math.sin((2 * Math.PI * t) / 6), nre, nim);
+          somaR += canal(k, 0.45, 36e-9, 0.3 * Math.sin(2 * Math.PI * RESPIRACAO_HZ * t), nre, nim);
         }
-        am[k] = soma / 4;
+        am[k] = soma / 4; ar[k] = somaR / 4;
       }
-      if (!fp) { fp = Float64Array.from(ap); fm = Float64Array.from(am); }
-      const dp = new Float64Array(64), dm = new Float64Array(64);
+      if (!fp) { fp = Float64Array.from(ap); fm = Float64Array.from(am); fr = Float64Array.from(ar); }
+      const dp = new Float64Array(64), dm = new Float64Array(64), dr = new Float64Array(64);
       for (let k = 0; k < 64; k++) {
         dp[k] = ap[k] - fp[k]; fp[k] += 0.05 * (ap[k] - fp[k]);
         dm[k] = am[k] - fm[k]; fm[k] += 0.05 * (am[k] - fm[k]);
+        dr[k] = ar[k] - fr[k]; fr[k] += 0.05 * (ar[k] - fr[k]);
       }
-      parado.push({ a: ap, d: dp }); mexendo.push({ a: am, d: dm });
+      parado.push({ a: ap, d: dp }); mexendo.push({ a: am, d: dm }); respira.push({ a: ar, d: dr });
     }
-    return { parado, mexendo };
+    return { parado, mexendo, respira };
   }
 
   /* ================= Desenho ================= */
@@ -269,6 +273,31 @@
   const PILHA_NOTE = { px: NOTE.x0 + NOTE.borda, pw: NOTE.x1 - NOTE.x0 - 2 * NOTE.borda, py: NOTE.y0 + NOTE.borda * 1.45, ph: NOTE.y1 - NOTE.y0 - 2 * NOTE.borda * 1.45 };
   const ALTURA_PESSOA = 0.34;
 
+  // Os escombros, em alturas de pessoa (H), a partir dos pés de quem está deitado (x para a direita, y para cima).
+  // Duas lajes apoiadas uma na outra formam um vão por cima da pessoa; pedras por cima e tijolos dos lados.
+  const ENTULHO = {
+    pecas: [
+      { laje: true, pts: [[-1.52, 0], [-1.38, 0], [-0.42, 0.53], [-0.5, 0.62]], meio: [[-1.45, 0.02], [-0.46, 0.575]] },   // laje da esquerda
+      { laje: true, pts: [[0.62, 0], [0.48, 0], [-0.46, 0.5], [-0.38, 0.58]], meio: [[0.55, 0.02], [-0.42, 0.54]] },      // laje da direita
+      { pts: [[-1.22, 0.18], [-0.98, 0.33], [-0.97, 0.41], [-1.09, 0.43], [-1.2, 0.3]] },                    // pedras nas lajes
+      { pts: [[0.32, 0.17], [0.1, 0.3], [0.12, 0.38], [0.25, 0.37], [0.34, 0.26]] },
+      { pts: [[-0.78, 0.5], [-0.6, 0.7], [-0.38, 0.74], [-0.28, 0.6], [-0.44, 0.52], [-0.62, 0.46]] },       // monte em cima
+      { pts: [[-0.36, 0.56], [-0.14, 0.64], [-0.02, 0.52], [-0.1, 0.4], [-0.28, 0.43]] },
+      { pts: [[-0.62, 0.74], [-0.46, 0.86], [-0.28, 0.82], [-0.32, 0.71], [-0.5, 0.67]] },
+      { pts: [[-1.8, 0], [-1.6, 0], [-1.58, 0.1], [-1.78, 0.11]] },                                         // tijolos dos lados
+      { pts: [[0.68, 0], [0.88, 0], [0.87, 0.09], [0.69, 0.1]] },
+      { pts: [[-1.74, 0.11], [-1.58, 0.11], [-1.6, 0.19], [-1.75, 0.18]] },
+      { pts: [[0.76, 0.1], [0.92, 0.1], [0.9, 0.18], [0.74, 0.17]] },
+    ],
+    vao: [[-1.38, 0], [-0.44, 0.52], [0.48, 0]],              // o espaço livre embaixo das lajes
+    ferro: [[-0.2, 0.66], [-0.08, 0.92], [0.06, 0.96], [0.12, 0.9]],
+    peito: [-0.72, 0.1],
+  };
+  // A rotina de ontem (ilustração): [hora, altura] de cada movimento. Dorme até 6h40 e depois das 22h30.
+  const ROTINA = [[6.67, 0.7], [6.9, 1], [7.1, 0.8], [7.4, 0.9], [7.7, 0.6], [8.0, 0.8], [8.3, 0.5], [9.2, 0.4], [10.1, 0.6], [10.8, 0.3],
+    [11.6, 0.7], [12.0, 0.9], [12.3, 0.8], [12.7, 0.6], [13.2, 0.5], [14.5, 0.3], [15.6, 0.5], [16.4, 0.4], [17.3, 0.6], [18.2, 0.8],
+    [18.6, 0.9], [19.1, 0.7], [19.5, 0.8], [20.2, 0.6], [20.8, 0.5], [21.5, 0.7], [22.1, 0.4], [22.5, 0.6]];
+
   // Ilustração do número: um ciclo de 24 s que se repete. Sala calma, alguém anda, calma de novo,
   // um tremidinho curto (que fica abaixo do limite) e calma. É só para explicar: os dados são sintéticos.
   const CICLO = 24;
@@ -317,17 +346,26 @@
 
   // As 49 leituras de ilustração que terminam no `tempo`. `agito` (0 a 1) mistura a sala parada com
   // alguém andando, começando pelas linhas de baixo (as mais novas); `roteiro` usa a linha do tempo acima.
-  function pilhaSint(tempo, agito, roteiro) {
-    const { parado, mexendo } = dadosSint(), N = parado.length;
+  // `respira` (0 a 1) troca a sala parada por alguém deitado respirando, também de baixo para cima.
+  function pilhaSint(tempo, agito, roteiro, respira = 0) {
+    const { parado, mexendo, respira: resp } = dadosSint(), N = parado.length;
     const pos = tempo / 0.1, fim = Math.floor(pos);
     const ls = [];
     for (let idade = 48; idade >= 0; idade--) {
       const r = fim - idade, i = ciclico(r, N);
+      const rs = limitar(respira * 1.6 - (idade / 47) * 0.6);
+      let base = parado[i];
+      if (rs >= 1) base = resp[i];
+      else if (rs > 0) {
+        const a = new Float64Array(64), d = new Float64Array(64);
+        for (let k = 0; k < 64; k++) { a[k] = misturar(parado[i].a[k], resp[i].a[k], rs); d[k] = misturar(parado[i].d[k], resp[i].d[k], rs); }
+        base = { a, d };
+      }
       const ag = misturar(limitar(agito * 1.6 - (idade / 47) * 0.6), agitoNoTempo(r * 0.1), roteiro);
-      if (ag <= 0) { ls.push(parado[i]); continue; }
+      if (ag <= 0) { ls.push(base); continue; }
       if (ag >= 1) { ls.push(mexendo[i]); continue; }
       const a = new Float64Array(64), d = new Float64Array(64);
-      for (let k = 0; k < 64; k++) { a[k] = misturar(parado[i].a[k], mexendo[i].a[k], ag); d[k] = misturar(parado[i].d[k], mexendo[i].d[k], ag); }
+      for (let k = 0; k < 64; k++) { a[k] = misturar(base.a[k], mexendo[i].a[k], ag); d[k] = misturar(base.d[k], mexendo[i].d[k], ag); }
       ls.push({ a, d });
     }
     return { ls, frac: pos - fim };
@@ -547,8 +585,10 @@
   // Pessoa de palitinho com os pés no chão, em x. `deitada` (0 a 1) gira até ficar caída no chão,
   // `fantasma` (0 a 1) vira tracejada, `amp` balança pernas e braços (andando), `halo` abre um vão
   // em volta do traço para o que passa atrás parecer passar atrás. `ergue` levanta um braço com um aparelho.
+  // `preso` (0 a 1) troca a caída pela pessoa presa: reta, os braços junto do corpo, e o peito
+  // sobe e desce devagar (respiração, no tempo `t`).
   function desenharPessoa(c, G, cor, o) {
-    const H = G.bh * ALTURA_PESSOA * (o.esc ?? 1), dei = o.deitada || 0, fan = o.fantasma || 0;
+    const H = G.bh * ALTURA_PESSOA * (o.esc ?? 1), dei = o.deitada || 0, fan = o.fantasma || 0, pre = o.preso || 0;
     const amp = o.amp || 0, f = o.fase || 0, r = H * 0.07, erg = o.ergue || 0, dx = o.dirx || -1;
     // Em pé ou andando (coordenadas locais: pés em y = 0, para cima é negativo). Cada perna tem coxa e
     // canela: o joelho dobra quando a perna vai à frente; os braços balançam ao contrário das pernas.
@@ -585,6 +625,15 @@
       j1: [0.15 * H, -0.26 * H], p1: [0.02 * H, -0.08 * H], j2: [0, -0.24 * H], p2: [0, 0],
       c1: [0.19 * H, -0.7 * H], m1: [0.28 * H, -0.83 * H], c2: [0.03 * H, -0.6 * H], m2: [0.01 * H, -0.46 * H],
     };
+    if (pre > 0) {
+      const ar = 0.022 * H * (0.5 - 0.5 * Math.cos(2 * Math.PI * RESPIRACAO_HZ * (o.t || 0)));
+      const presa = {
+        cab: [0, -0.885 * H], pesc: [ar * 0.6, -0.815 * H], ombro: [ar, -OMBRO], quadril: [0, -QUADRIL],
+        j1: [0.02 * H, -0.25 * H], p1: [0.02 * H, -0.02 * H], j2: [0, -0.24 * H], p2: [0, 0],
+        c1: [0.05 * H + ar * 0.6, -0.6 * H], m1: [0.05 * H, -0.47 * H], c2: [0.02 * H, -0.6 * H], m2: [0.01 * H, -0.46 * H],
+      };
+      for (const k of Object.keys(caida)) caida[k] = [misturar(caida[k][0], presa[k][0], pre), misturar(caida[k][1], presa[k][1], pre)];
+    }
     const P = {};
     for (const k of Object.keys(empe)) P[k] = [misturar(empe[k][0], caida[k][0], dei), misturar(empe[k][1], caida[k][1], dei)];
     const cab = P.cab;
@@ -750,7 +799,7 @@
     ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
     onda12: { padrao: { x0: 0.27, x1: 0.95, y: 0.42 } },
     casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0, fachada: 0 } },
-    pilha: { padrao: { agito: 0, roteiro: 0, px: PILHA.x, pw: PILHA.w, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0, teto: -1 }, sintetica: true },
+    pilha: { padrao: { agito: 0, roteiro: 0, respira: 0, px: PILHA.x, pw: PILHA.w, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0, teto: -1 }, sintetica: true },
     chao: { padrao: { x0: 0, x1: 1, cresce: 1, ...ZOOM_NORMAL } },
     raios: { padrao: { so: 0, ...ZOOM_NORMAL } },
     pacotes: { padrao: { ...ZOOM_NORMAL } },
@@ -759,9 +808,8 @@
     placaA: { padrao: { x: 0.14, esc: 1, nasce: 0, ...ZOOM_NORMAL } },
     placaB: { padrao: { x: 0.86, esc: 1, nasce: 0, ...ZOOM_NORMAL } },
     notebook: { padrao: {} },
-    icones: { padrao: {} },
     vulto: { padrao: { x: 0.86 } },
-    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, fantasma: 0, andar: 0, ...ZOOM_NORMAL } },
+    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, preso: 0, fantasma: 0, andar: 0, ...ZOOM_NORMAL } },
     barras: { padrao: { destaque: -1, luz: 1 }, sintetica: true },
     curva: { padrao: { forma: 0, luz: 1 }, sintetica: true },
     salto: { padrao: {}, sintetica: true },
@@ -769,6 +817,8 @@
     medidor: { padrao: {}, sintetica: true, sobe: true },
     vivo: { padrao: { py: PILHA.y, ph: PILHA.h, med: 0, relevo: 1, juntar: 0 }, sobe: true },
     teste: { padrao: { marcas: 0 } },   // dados reais: sem a etiqueta "Ilustração"
+    entulho: { padrao: { ...ZOOM_NORMAL }, sintetica: true },
+    rotina: { padrao: {}, sintetica: true },
   };
   const PADROES = Object.fromEntries(Object.entries(CAMADAS).map(([k, v]) => [k, v.padrao]));
 
@@ -912,7 +962,7 @@
         { pts: [[xa, ya], [xm, G.Y(CHAO)], [xb, ya]] },
         { pts: [[xa, ya], [px, py], [xb, ya]], forte: true },
       ];
-      const lista = q.so > 0.5 ? todos.slice(3) : todos;
+      const lista = todos, fora = 1 - limitar(q.so);     // `so` = 1: só o caminho que passa pela pessoa
       // os pulsos saem juntos de A e andam na mesma velocidade: os caminhos longos chegam depois
       const trs = lista.map((cm) => trajeto(cm.pts)), Lmax = Math.max(...trs.map((tr) => tr.L)) * 1.12;
       // Entrando, cada caminho é desenhado de A até B, um depois do outro. Saindo, eles não somem:
@@ -925,7 +975,8 @@
         if (pk <= 0 || ini >= 1) return;
         const tr = trs[i];
         c.lineWidth = (cm.forte ? 1.5 : 1.1) * G.dpr;
-        c.globalAlpha = cm.forte ? 0.9 : 0.42;
+        if (!cm.forte && fora < 0.01) return;
+        c.globalAlpha = cm.forte ? 0.9 : 0.42 * fora;
         tr.tracar(c, pk, ini);
         if (cm.forte && pk > 0.5 && ini < 0.45) {      // onde o sinal bate na pessoa
           c.globalAlpha = limitar(pk * 4 - 2) * (1 - ini * 2.2);
@@ -935,7 +986,7 @@
           const s = ((((amb * 0.3 + j * 0.5) % 1) * Lmax) / tr.L);
           if (s > 1 || s > pk || s < ini) continue;
           const [x, y] = tr.em(s);
-          c.globalAlpha = Math.pow(Math.sin(Math.PI * s), 0.7) * (cm.forte ? 1 : 0.75);
+          c.globalAlpha = Math.pow(Math.sin(Math.PI * s), 0.7) * (cm.forte ? 1 : 0.75 * fora);
           c.beginPath(); c.arc(x, y, (cm.forte ? 2.8 : 2.1) * G.dpr, 0, 2 * Math.PI); c.fill();
         }
       });
@@ -1056,52 +1107,6 @@
     },
     placaA(c, G, q, cor, amb, prm) { desenharPlaca(c, G, q, cor, 'A', ledPacotes(amb, prm)); },
     placaB(c, G, q, cor, amb, prm) { desenharPlaca(c, G, q, cor, 'B', ledPacotes(amb, prm)); },
-    icones(c, G, q, cor, amb) {
-      // Os três usos: o aviso de queda (um sinal de alerta saindo da pessoa caída), a luminária que apaga
-      // sozinha quando a sala fica vazia (e volta) e os nomes embaixo. O alarme é o sino da casa.
-      const b = construcao(q), alfa = q.dir === -1 ? q.p : limitar(b * 2);
-      const x = G.X(0.5), yc = G.Y(CHAO), s = G.bh * 0.05, ytopo = G.Y(0.47), ybase = ytopo + s * 0.95;
-      c.globalAlpha = alfa; c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineJoin = 'round'; c.lineCap = 'round';
-      // luminária de chão: base, haste, cúpula e lâmpada
-      const kh = curvas.entra(janela(b, 0, 0.5)), kc = curvas.pop(janela(b, 0.35, 0.8));
-      c.lineWidth = PESO.principal * G.dpr;
-      c.beginPath(); c.ellipse(x, yc, s * 0.75 * kh + 0.01, s * 0.17 * kh + 0.01, 0, Math.PI, 2 * Math.PI); c.stroke();
-      linha(c, x, yc - s * 0.17 * kh, x, misturar(yc, ybase, kh));
-      if (kc > 0) {
-        c.save(); c.translate(x, ybase); c.scale(kc, kc);
-        c.beginPath(); c.moveTo(-s * 0.48, -s * 0.95); c.lineTo(s * 0.48, -s * 0.95); c.lineTo(s * 1.05, 0);
-        c.quadraticCurveTo(0, s * 0.16, -s * 1.05, 0); c.closePath(); c.stroke();
-        c.restore();
-        // a luz: acesa 4 s, apaga devagar, fica apagada um pouco e volta
-        const ciclo = ((amb % 7) + 7) % 7;
-        const luz = ciclo < 4 ? 1 : ciclo < 4.8 ? 1 - curvas.suave((ciclo - 4) / 0.8) : ciclo < 6.2 ? 0 : curvas.suave((ciclo - 6.2) / 0.8);
-        const acesa = luz * curvas.entra(janela(b, 0.6, 1));
-        c.lineWidth = PESO.secundario * G.dpr;
-        c.beginPath(); c.arc(x, ybase + s * 0.12, s * 0.2 * kc, 0, Math.PI); c.stroke();
-        if (acesa > 0.01) {
-          c.globalAlpha = alfa * acesa; c.beginPath(); c.arc(x, ybase + s * 0.12, s * 0.2 * kc, 0, Math.PI); c.fill();
-          const g = c.createLinearGradient(0, ybase, 0, yc);
-          g.addColorStop(0, 'rgba(237, 237, 232, 0.2)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
-          c.fillStyle = g; c.globalAlpha = alfa * acesa;
-          c.beginPath(); c.moveTo(x - s * 1.0, ybase + s * 0.05); c.lineTo(x + s * 1.0, ybase + s * 0.05); c.lineTo(x + s * 2.9, yc); c.lineTo(x - s * 2.9, yc); c.closePath(); c.fill();
-          c.fillStyle = cor.tinta;
-        }
-      }
-      // alerta de queda: arcos subindo da pessoa caída, um depois do outro
-      const ka = curvas.entra(janela(b, 0.85, 1));       // só depois que a pessoa terminou de cair
-      if (ka > 0.01) {
-        const ax = G.X(0.2), ay = G.Y(CHAO - 0.075), fa = (amb * 0.8) % 1;
-        c.lineWidth = PESO.secundario * G.dpr;
-        for (let i = 0; i < 3; i++) {
-          const ff = (fa + i / 3) % 1;
-          c.globalAlpha = alfa * ka * Math.sin(Math.PI * ff) * 0.85;
-          c.beginPath(); c.arc(ax, ay, s * (0.35 + ff * 1.0), -Math.PI * 0.78, -Math.PI * 0.22); c.stroke();
-        }
-      }
-      c.lineCap = 'butt';
-      c.globalAlpha = alfa * limitar(b * 2 - 0.8);
-      for (const [u, txt] of [[0.2, 'queda'], [0.5, 'luz'], [0.8, 'alarme']]) rotulo(c, G, cor, txt, G.X(u), G.Y(CHAO + 0.045));
-    },
     vulto(c, G, q, cor, amb) {
       // alguém do lado de fora, com um aparelho na mão
       const t = linear(q);
@@ -1129,7 +1134,7 @@
         amp = Math.max(amp, q.andar * limitar(Math.abs(Math.cos(f)) * 1.6));
         dirx = Math.cos(f) >= 0 ? 1 : -1;
       }
-      desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, fantasma: fan, alfa, amp, fase: amb * 7, halo: true, dirx });
+      desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, preso: q.preso, t: amb, fantasma: fan, alfa, amp, fase: amb * 7, halo: true, dirx });
     },
     notebook(c, G, q, cor, amb, prm) {
       // A tela (cantos arredondados, câmera em cima) se desenha em volta das linhas, depois a base com o
@@ -1303,7 +1308,7 @@
       });
     },
     pilha(c, G, q, cor, amb, prm, ex) {
-      const { ls, frac } = pilhaSint(amb, q.agito, q.roteiro);
+      const { ls, frac } = pilhaSint(amb, q.agito, q.roteiro, q.respira);
       c.globalAlpha = q.dir === -1 ? q.p : 1;
       if (ex && ex.varredura !== null && q.dir === -1) {      // na varredura, fica inteira à direita da linha
         c.globalAlpha = 1; c.beginPath(); c.rect(ex.varredura, G.Y(-0.1), G.bw * 1.2, G.bh * 1.2); c.clip();
@@ -1346,7 +1351,7 @@
     },
     soma(c, G, q, cor, amb) {
       // O que chega na placa B, separado: o caminho direto, um caminho rebatido e a soma dos dois. A diferença
-      // entre eles (defasagem) vai e volta sozinha na cena "soma"; na cena "mexe", segue a pessoa andando.
+      // entre eles (defasagem) segue a pessoa andando (cena "mexe"); com auto, vai e volta sozinha.
       // À direita, a força do que chegou; na cena das 64 ondas, ela vira uma das barras (`fecha`).
       const b = construcao(q), fecha = curvas.suave(limitar(q.fecha || 0)), trilhas = 1 - limitar(fecha * 1.8);
       const x0 = G.X(q.x0), x1 = G.X(q.x1), xb = G.X(q.xb);
@@ -1435,11 +1440,142 @@
       } else d = medidaSint(amb);
       desenharMedidor(c, G, cor, { x: G.X(0), y: G.Y(MEDIDOR.y), w: G.bw, h: MEDIDOR.h * G.bh }, d, alfa * q.med * (q.dir === 1 && !varrendo ? limitar(q.p * 2 - 1) : 1));
     },
+    entulho(c, G, q, cor, amb, prm) {
+      // Escombros sobre alguém deitado (ilustração): duas lajes apoiadas uma na outra deixam um vão, e a pessoa
+      // está nele; pedras e tijolos por cima e dos lados, um ferro torto. Entrando, os pedaços caem um por um e
+      // levantam poeira; parado, saem do vão ondinhas no ritmo de uma respiração (15 por minuto).
+      const b = construcao(q), alfa = q.dir === -1 ? limitar(q.p * 1.6) : 1;
+      const H = G.bh * ALTURA_PESSOA, P = prm.pessoa, xp = G.X(P ? P.x : 0.5), yc = G.Y(CHAO);
+      const pt = ([u, v]) => [xp + u * H, yc - v * H];
+      c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = cor.tinta;
+      const queda = (i, n) => {
+        const k = janela(b, 0.04 + (i / n) * 0.62, 0.2 + (i / n) * 0.62 + 0.14);
+        return { k, dy: -(1 - curvas.entra(k)) * H * 0.9, a: limitar(k * 3) };
+      };
+      const pecas = ENTULHO.pecas, n = pecas.length;
+      pecas.forEach((pc, i) => {
+        const { k, dy, a } = queda(i, n);
+        if (a <= 0) return;
+        c.save(); c.translate(0, dy);
+        c.globalAlpha = alfa * a;
+        c.fillStyle = cor.fundo;
+        c.beginPath();
+        pc.pts.forEach((v, j) => { const [x, y] = pt(v); j ? c.lineTo(x, y) : c.moveTo(x, y); });
+        c.closePath(); c.fill();
+        c.lineWidth = (pc.laje ? PESO.principal : PESO.secundario) * G.dpr; c.stroke();
+        if (pc.laje) {      // a laje tem espessura: uma linha fina por dentro, e a ponta quebrada com o ferro aparecendo
+          c.lineWidth = PESO.detalhe * G.dpr; c.globalAlpha = alfa * a * 0.6;
+          const [x0, y0] = pt(pc.meio[0]), [x1, y1] = pt(pc.meio[1]); linha(c, x0, y0, x1, y1);
+        }
+        c.restore();
+        // poeira no instante em que o pedaço chega
+        const kp = janela(k, 0.82, 1);
+        if (kp > 0 && kp < 1 && q.dir === 1) {
+          const [cx, cy] = pt(pc.pts[0]);
+          c.fillStyle = cor.tinta;
+          for (let j = 0; j < 5; j++) {
+            const ang = Math.PI * (1 + j / 4), rr = H * 0.06 * curvas.entra(kp) * (1 + (j % 2) * 0.6);
+            c.globalAlpha = alfa * (1 - kp) * 0.6;
+            c.beginPath(); c.arc(cx + Math.cos(ang) * rr, cy + Math.sin(ang) * rr * 0.6, G.dpr * 1.2, 0, 2 * Math.PI); c.fill();
+          }
+        }
+      });
+      // o ferro torto saindo de cima
+      const kf = curvas.suave(janela(b, 0.72, 0.95));
+      if (kf > 0) {
+        c.globalAlpha = alfa; c.lineWidth = PESO.secundario * G.dpr;
+        trajeto(ENTULHO.ferro.map(pt)).tracar(c, kf);
+      }
+      // a respiração: do peito, sobem ondinhas devagar, no ritmo de 15 por minuto (só depois de tudo cair),
+      // presas no vão embaixo das lajes
+      const kr = q.dir === -1 ? q.p : curvas.entra(janela(b, 0.85, 1));
+      if (kr > 0.01) {
+        const [cx, cy] = pt(ENTULHO.peito), fase = (((amb * RESPIRACAO_HZ) % 1) + 1) % 1;
+        c.save();
+        c.beginPath(); ENTULHO.vao.forEach((v, j) => { const [x, y] = pt(v); j ? c.lineTo(x, y) : c.moveTo(x, y); }); c.closePath(); c.clip();
+        c.lineWidth = PESO.secundario * G.dpr;
+        for (let j = 0; j < 3; j++) {
+          const f = (fase + j / 3) % 1;
+          c.globalAlpha = alfa * kr * Math.sin(Math.PI * f) * 0.85;
+          c.beginPath(); c.arc(cx, cy, H * (0.06 + f * 0.16), -Math.PI * 0.72, -Math.PI * 0.28); c.stroke();
+        }
+        c.restore();
+      }
+      c.lineCap = 'butt';
+    },
+    rotina(c, G, q, cor, amb) {
+      // Quem mora sozinho (ilustração): o dia de ontem, cheio de movimentos, e o de hoje, que para na noite.
+      // Entrando, um cursor percorre ontem desenhando os movimentos; depois percorre hoje até as 10h, sem
+      // nenhum, e às 10h sai o aviso para a família. Parado, o aviso pulsa e o celular vibra de vez em quando.
+      // Saindo, o aviso some primeiro e depois os dois dias se recolhem.
+      const t = linear(q), te = q.dir === -1 ? construcao(q) : t, alfa = q.dir === -1 ? limitar(q.p * 3) : 1;
+      const x0 = G.X(0.1), x1 = G.X(0.96), xh = (h) => misturar(x0, x1, h / 24);
+      const linhas = [{ nome: 'ontem', y: G.Y(0.3), ate: 24, de: [0.12, 0.5] }, { nome: 'hoje', y: G.Y(0.64), ate: 10, de: [0.55, 0.86] }];
+      const alto = G.bh * 0.11;
+      c.lineJoin = 'round'; c.lineCap = 'round'; c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta;
+      linhas.forEach((L, r) => {
+        const ke = curvas.suave(q.dir === -1 ? janela(te, 0.25 + r * 0.25, 0.6 + r * 0.25)       // saindo: hoje se recolhe antes de ontem
+          : janela(te, 0.02 + r * 0.08, 0.3 + r * 0.08));
+        if (ke <= 0) return;
+        c.globalAlpha = alfa * 0.55; c.lineWidth = G.dpr;
+        trajeto([[x0, L.y], [x1, L.y]]).tracar(c, ke);
+        c.globalAlpha = alfa * ke;
+        rotulo(c, G, cor, L.nome, x0, L.y - alto - G.bh * 0.02, { alinhar: 'left', base: 'bottom', cor: cor.tinta, tam: 0.042 });
+        for (const h of [0, 6, 12, 18, 24]) {
+          c.globalAlpha = alfa * ke * 0.55; linha(c, xh(h), L.y, xh(h), L.y + G.bh * 0.012);
+          c.globalAlpha = alfa * ke; rotulo(c, G, cor, `${h}h`, xh(h), L.y + G.bh * 0.02, { tam: 0.028 });
+        }
+        // o cursor: anda pelo dia; os movimentos aparecem atrás dele
+        const kc = q.dir === 1 ? curvas.suave(janela(t, L.de[0], L.de[1])) : 1;
+        const hora = L.ate * kc;
+        if (r === 0) {
+          c.lineWidth = 1.5 * G.dpr;
+          for (const [hm, alt] of ROTINA) {
+            if (hm > hora) break;
+            const surge = limitar((hora - hm) / 0.6);
+            c.globalAlpha = alfa * ke * (0.35 + 0.65 * surge);
+            linha(c, xh(hm), L.y, xh(hm), L.y - alt * alto * curvas.entra(surge));
+          }
+          const primeiro = ROTINA[0][0];
+          if (hora > primeiro + 0.5) {
+            c.globalAlpha = alfa * ke * limitar((hora - primeiro - 0.5) / 1.5);
+            rotulo(c, G, cor, 'acordou 6h40', xh(primeiro), L.y - alto - G.bh * 0.02, { alinhar: 'left', base: 'bottom', tam: 0.028 });
+          }
+        }
+        if (kc < 1 || r === 1) {
+          const xa = xh(hora);
+          c.globalAlpha = alfa * ke * (r === 1 ? 0.9 : 0.6); c.lineWidth = G.dpr; tracejado(c, G, true);
+          linha(c, xa, L.y - alto, xa, L.y); tracejado(c, G, false);
+        }
+        if (r === 1) {
+          // hoje: nada desde a noite; às 10h, o aviso
+          const ka = curvas.pop(janela(te, 0.86, 0.98)), xa = xh(10);
+          if (ka > 0.01) {
+            const pul = q.dir === 0 ? (((amb / 2.4) % 1) + 1) % 1 : 0;
+            c.globalAlpha = alfa * ka; c.lineWidth = PESO.secundario * G.dpr;
+            c.beginPath(); c.arc(xa, L.y - alto * 0.5, G.bh * 0.018 * ka, 0, 2 * Math.PI); c.fill();
+            if (pul > 0) { c.globalAlpha = alfa * (1 - pul) * 0.8; c.beginPath(); c.arc(xa, L.y - alto * 0.5, G.bh * (0.02 + pul * 0.05), 0, 2 * Math.PI); c.stroke(); }
+            c.globalAlpha = alfa * ka;
+            rotulo(c, G, cor, '10h · nenhum movimento', xa + G.bh * 0.045, L.y - alto * 0.72, { alinhar: 'left', base: 'bottom', cor: cor.tinta, tam: 0.034 });
+            rotulo(c, G, cor, 'mensagem para a família', xa + G.bh * 0.045, L.y - alto * 0.62, { alinhar: 'left', base: 'top', tam: 0.03 });
+            // o celular da família, um pouco abaixo, vibrando a cada 3 s
+            const vib = q.dir === 0 && (((amb % 3) + 3) % 3) < 0.45 ? Math.sin(amb * 70) * G.dpr * 1.6 : 0;
+            const cw = G.bh * 0.06, ch = G.bh * 0.11, cx = xa + G.bh * 0.045 + vib, cy = L.y + G.bh * 0.075;
+            c.globalAlpha = alfa * ka; c.lineWidth = PESO.principal * G.dpr;
+            c.beginPath(); retArred(c, cx, cy, cw, ch, cw * 0.18); c.stroke();
+            c.lineWidth = PESO.detalhe * G.dpr; linha(c, cx + cw * 0.38, cy + ch * 0.9, cx + cw * 0.62, cy + ch * 0.9);
+            c.beginPath(); retArred(c, cx + cw * 0.14, cy + ch * 0.18, cw * 0.72, ch * 0.24, cw * 0.06); c.stroke();
+            c.beginPath(); c.arc(cx + cw, cy, G.bh * 0.009, 0, 2 * Math.PI); c.fill();
+          }
+        }
+      });
+      c.lineCap = 'butt';
+    },
     teste(c, G, q, cor, amb, prm, ex) {
       // O tremor medido nos testes: sala vazia em cima, alguém cruzando a linha embaixo, na mesma escala.
       // Entrando: a sala vazia é gravada (o traço corre), o limite sai dela e vale para as duas, e o andando é
       // gravado. `marcas` acende, um por um, os trechos que o detector marcou como movimento.
-      const t = linear(q), alfa = q.dir === -1 ? q.p : 1, mk = limitar(q.marcas);
+      const t = linear(q), alfa = q.dir === -1 ? q.p : 1, mk = limitar(q.marcas) * (q.dir === 1 ? janela(t, 0.8, 1) : 1);
       const x0 = G.X(0.2), x1 = G.X(0.97), w = x1 - x0;
       const teto = Math.max(...TESTE.vazio, ...TESTE.andando) * 1.06;   // escala linear a partir de zero: o tamanho de verdade
       const LINHAS = [
@@ -1514,59 +1650,38 @@
       pessoa: { x: 0.62, deitada: 1, entrada: [0.4, 0.88] },
       camera: { risco: 1, entrada: [0.4, 0.88] },
     },
-    // a onda sai do roteador e anda pela sala, com a régua de 12 cm
-    onda: {
-      vivo: { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, med: 0, mover: [0.04, 0.42], saida: [0.36, 0.5] },
-      chao: { cresce: 0, entrada: [0.38, 0.5] },
-      sala: { entrada: [0.46, 0.86] },
-      pessoa: { x: 0.62, deitada: 0, entrada: [0.5, 0.88], mover: { deitada: [0.2, 0.6] } },
-      camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
-      roteador: { x: 0.2, y: 0.42, prat: SALA.x0, entrada: [0.3, 0.7] },
-      ondas: { ox: 0.2, oy: 0.42, entrada: [0.45, 0.88] },
-      onda12: { x0: 0.27, x1: 0.95, y: 0.42, entrada: [0.5, 0.88] },
-    },
+    // as duas placas; entre elas, a onda do Wi-Fi (com a régua de 12 cm) e as mensagens indo de A para B
     placas: {
       chao: {},
       vivo: { p: 0, saida: [0.04, 0.36] },
       sala: { p: 0, saida: [0.1, 0.5] },
       pessoa: { p: 0, x: 0.62, saida: [0.04, 0.36] },
-      onda12: { p: 0, saida: [0.02, 0.3] },
-      // o roteador vai até o lugar da placa A e muda de forma até ficar igual à caixa dela; a placa nasce ali
-      roteador: { p: 0, x: 0.14, y: Y_ANTENA, prat: SALA.x0, forma: 1, mover: [0.06, 0.42], saida: [0.5, 0.66] },
-      ondas: { p: 0, ox: 0.14, oy: Y_ANTENA, mover: [0.06, 0.42], saida: [0.2, 0.5] },
-      placaA: { x: 0.14, nasce: 1, entrada: [0.42, 0.86] },
-      placaB: { x: 0.86, entrada: [0.5, 0.88] },
-      pacotes: { entrada: [0.6, 0.88] },
+      camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
+      placaA: { x: 0.14, entrada: [0.36, 0.78] },
+      placaB: { x: 0.86, entrada: [0.44, 0.84] },
+      onda12: { x0: 0.2, x1: 0.8, y: Y_ANTENA, entrada: [0.55, 0.92] },
+      pacotes: { entrada: [0.62, 0.9] },
     },
     caminhos: {
       chao: {},
-      placaA: { x: 0.14, nasce: 0 },
+      placaA: { x: 0.14 },
       placaB: { x: 0.86 },
+      onda12: { p: 0, saida: [0.02, 0.3] },
       pacotes: { p: 0, saida: [0.04, 0.3] },
       sala: { entrada: [0.3, 0.7] },
       pessoa: { x: 0.66, entrada: [0.34, 0.8] },
       raios: { entrada: [0.4, 0.88] },
     },
-    // os caminhos entram na placa B e, dela, saem separados: o direto, o que rebateu e a soma
-    soma: {
-      chao: {},
-      sala: { p: 0, saida: [0.04, 0.3] },
-      raios: { p: 0, saida: [0.04, 0.42] },              // os caminhos são puxados para dentro da placa B
-      pessoa: { p: 0, x: 0.66, saida: [0.02, 0.26] },
-      placaA: { p: 0, x: 0.02, saida: [0.06, 0.32], mover: [0.06, 0.32] },
-      placaB: { x: 0.07, esc: 1.1, mover: [0.1, 0.5] },
-      pacotes: { p: 0, saida: [0.04, 0.28] },
-      soma: { entrada: [0.42, 0.88] },
-    },
-    // a sala em miniatura volta, com alguém andando; a soma desce e passa a seguir a pessoa
+    // a sala vira miniatura com alguém andando; os caminhos que não passam pela pessoa apagam, e embaixo
+    // aparece o que chega na placa B: o caminho direto, o que passa pela pessoa e a soma, que segue os passos
     mexe: {
-      chao: { ...ZOOM_MINI, mover: [0.12, 0.55] },
-      placaA: { x: 0.14, esc: 1, ...ZOOM_MINI, entrada: [0.32, 0.66] },
-      // a soma desce primeiro; depois a placa B sobe para a sala (sem passar por cima das trilhas)
-      placaB: { x: 0.86, esc: 1, ...ZOOM_MINI, mover: { _: [0.3, 0.62], x: [0.42, 0.85] } },
-      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, entrada: [0.5, 0.88] },
-      raios: { so: 1, ...ZOOM_MINI, entrada: [0.6, 0.88] },
-      soma: { x0: 0.2, x1: 0.88, xb: 0.95, py: 0.46, ph: 0.52, pessoa: 1, mover: { _: [0.04, 0.4], pessoa: [0.55, 0.88] } },
+      sala: { p: 0, saida: [0.04, 0.32] },
+      chao: { ...ZOOM_MINI, mover: [0.06, 0.5] },
+      placaA: { x: 0.14, esc: 1, ...ZOOM_MINI, mover: [0.06, 0.5] },
+      placaB: { x: 0.86, esc: 1, ...ZOOM_MINI, mover: [0.06, 0.5] },
+      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, mover: { _: [0.06, 0.5], andar: [0.4, 0.7] } },
+      raios: { so: 1, ...ZOOM_MINI, mover: { _: [0.06, 0.5], so: [0.2, 0.55] } },
+      soma: { x0: 0.2, x1: 0.88, xb: 0.95, py: 0.46, ph: 0.52, pessoa: 1, entrada: [0.48, 0.92] },
     },
     // a soma vira uma barra; as outras 63 nascem da placa B (cada onda soma de um jeito)
     frequencias: {
@@ -1601,39 +1716,19 @@
       pilha: { agito: 0, entrada: [0.5, 0.9] },
       salto: { p: 0, saida: [0.02, 0.3] },
     },
-    // a sala pequena em cima (alguém andando) e as linhas embaixo: primeiro a pessoa entra, depois as linhas tremem
-    tremor: {
-      pilha: { agito: 1, ...PILHA_MINI, mover: { _: [0.06, 0.42], agito: [0.5, 0.88] } },
-      salto: { p: 0, saida: [0.02, 0.3] },   // na versão curta, vem direto do salto de frequência
-      chao: { ...ZOOM_MINI, entrada: [0.26, 0.56] },
-      placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.3, 0.66] },
-      placaB: { x: 0.86, ...ZOOM_MINI, entrada: [0.34, 0.7] },
-      pacotes: { ...ZOOM_MINI, entrada: [0.5, 0.86] },
-      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, entrada: [0.4, 0.84] },
-    },
     numero: {
       pilha: { agito: 1, roteiro: 1, py: 0.02, ph: 0.52, mover: [0.2, 0.66] },
       medidor: { entrada: [0.58, 0.88] },
       ...SAI_MINI,
     },
-    // vindo do número: uma linha varre e troca o exemplo pelo sinal de verdade (a janela do vivo guia a linha).
-    // Vindo de outra cena (versão curta), não há varredura: as linhas de antes saem cedo, antes das novas.
-    aovivo: {
-      pilha: { p: 0, agito: 1, roteiro: 1, py: 0.02, ph: 0.52, saida: [0.04, 0.4] },
-      medidor: { p: 0, saida: [0.35, 0.86] },
-      vivo: { py: 0.02, ph: 0.52, med: 1, entrada: [0.35, 0.86] },
-      ...SAI_MINI,
-    },
-    // os testes de verdade: a sala vazia é gravada, o limite sai dela, depois o andando
-    metodo: {
-      vivo: { p: 0, saida: [0.02, 0.32] },
-      teste: { marcas: 0, entrada: [0.26, 0.88] },
-    },
-    // o mesmo gráfico: acendem as travessias que o detector pegou (e os alarmes da sala vazia)
+    // os testes de verdade: a sala vazia é gravada, o limite sai dela, depois o andando; no fim acendem as
+    // travessias que o detector pegou (e os alarmes da sala vazia)
     resultados: {
-      teste: { marcas: 1, mover: [0.12, 0.86] },
+      pilha: { p: 0, saida: [0.02, 0.32] },
+      medidor: { p: 0, saida: [0.02, 0.3] },
+      teste: { marcas: 1, entrada: [0.24, 0.96] },
     },
-    // o mesmo arranjo do tremor, com a pessoa parada (some para o sistema) e as linhas calmas
+    // a sala em miniatura com a pessoa parada (some para o sistema) e as linhas calmas embaixo
     parado: {
       // o que estava antes (os testes na completa, sinal de verdade na curta) sai antes de as linhas chegarem
       teste: { p: 0, saida: [0.02, 0.34] },
@@ -1645,6 +1740,17 @@
       pessoa: { x: 0.5, fantasma: 1, ...ZOOM_MINI, entrada: [0.4, 0.88] },
       pilha: { agito: 0, ...PILHA_MINI, entrada: [0.4, 0.86] },
     },
+    // o mesmo arranjo: a pessoa deita, os escombros caem por cima, e as linhas passam a subir e descer devagar,
+    // no ritmo de uma respiração (ilustração: é o próximo passo, não o que o nosso sistema faz hoje)
+    escombros: {
+      chao: { ...ZOOM_MINI },
+      placaA: { x: 0.14, ...ZOOM_MINI },
+      placaB: { x: 0.86, ...ZOOM_MINI },
+      pacotes: { ...ZOOM_MINI },
+      pessoa: { x: 0.6, deitada: 1, preso: 1, fantasma: 0, ...ZOOM_MINI, mover: { _: [0.06, 0.4], fantasma: [0.04, 0.2], x: [0.06, 0.3], deitada: [0.26, 0.48], preso: [0.26, 0.48] } },
+      entulho: { ...ZOOM_MINI, entrada: [0.46, 0.96] },
+      pilha: { agito: 0, respira: 1, ...PILHA_MINI, mover: { _: [0.15, 0.85], respira: [0.5, 0.95] } },
+    },
     // a sala volta ao tamanho normal e as linhas encolhem até virar a tela do notebook
     // ordem: as linhas encolhem até o lugar da tela, depois a sala cresce (sem passar por cima delas)
     viabilidade: {
@@ -1654,26 +1760,18 @@
       placaB: { x: 0.52, ...ZOOM_NORMAL, mover: { _: [0.36, 0.8], x: [0.06, 0.4] } },
       pacotes: { ...ZOOM_NORMAL, mover: [0.36, 0.8] },
       pessoa: { p: 0, saida: [0.04, 0.3] },
-      pilha: { agito: 0, relevo: 0.55, ...PILHA_NOTE, teto: -1, mover: [0.06, 0.44] },
+      entulho: { p: 0, saida: [0.02, 0.3] },
+      pilha: { agito: 0, respira: 0, relevo: 0.55, ...PILHA_NOTE, teto: -1, mover: [0.06, 0.44] },
       notebook: { entrada: [0.4, 0.88] },
     },
-    // (vindo da pessoa parada, na versão curta, a sala em miniatura volta ao tamanho normal)
-    usos: {
-      chao: { ...ZOOM_NORMAL, mover: [0.24, 0.56] },
-      pilha: { p: 0, saida: [0.02, 0.26] },
-      notebook: { p: 0, saida: [0.04, 0.34] },
-      placaA: { p: 0, x: 0.14, saida: [0.06, 0.36] },
-      placaB: { p: 0, x: 0.86, saida: [0.06, 0.36] },
-      pacotes: { p: 0, saida: [0.04, 0.3] },
-      pessoa: { x: 0.33, fantasma: 0, deitada: 1, esc: 0.8, ...ZOOM_NORMAL, mover: { _: [0.24, 0.56], x: [0.24, 0.56], fantasma: [0.2, 0.45], esc: [0.3, 0.6], deitada: [0.54, 0.82] } },
-      icones: { entrada: [0.5, 0.88] },
-      casa: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 1, fachada: 1, entrada: [0.45, 0.88] },
+    // quem mora sozinho: o dia de ontem e o de hoje, e o aviso às 10h
+    sozinho: {
+      rotina: { entrada: [0.3, 0.96] },
     },
     privacidade: {
-      chao: {},
-      icones: { p: 0, saida: [0.04, 0.3] },
-      casa: { cx: 0.38, larg: 0.56, alt: 0.4, tel: 0.16, sino: 0, fachada: 0, mover: { _: [0.12, 0.6], sino: [0.04, 0.24], fachada: [0.04, 0.28] } },
-      pessoa: { x: 0.28, deitada: 0, esc: 1, fantasma: 0, mover: { _: [0.2, 0.6], deitada: [0.1, 0.42] } },
+      chao: { entrada: [0.3, 0.6] },
+      casa: { cx: 0.38, larg: 0.56, alt: 0.4, tel: 0.16, sino: 0, fachada: 0, entrada: [0.32, 0.84] },
+      pessoa: { x: 0.28, deitada: 0, esc: 1, fantasma: 0, entrada: [0.45, 0.88] },
       roteador: { x: 0.52, y: 0.5, prat: 0.66, entrada: [0.5, 0.8] },
       ondas: { ox: 0.52, oy: 0.5, cx0: 0.1, cx1: 0.66, ctopo: 0.4, cap: 0.16, vaza: 1, entrada: [0.55, 0.88] },
       vulto: { x: 0.86, entrada: [0.5, 0.88] },

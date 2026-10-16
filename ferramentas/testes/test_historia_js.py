@@ -134,7 +134,7 @@ class TestHistoria(unittest.TestCase):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
         self.assertEqual(len(self.r["curta"]), 12)
         self.assertEqual(self.r["curta"][0], "abertura")
-        self.assertEqual(self.r["remap"], ["frequencias", "placas", "parado", "privacidade"])
+        self.assertEqual(self.r["remap"], ["frequencias", "placas", "parado", "sozinho"])
 
     def test_dados_de_ilustracao_deterministicos(self):
         self.assertTrue(self.r["semente"]["iguais"])

@@ -230,3 +230,21 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - Medir o espaço do estande.
 - Ver se haverá impressora e TV ou monitor no local.
 - Tirar fotos em preto e branco das placas montadas e da faixa.
+
+## 16/10/2026: menos repetição na parte das ondas e um "para que serve" mais forte
+
+- **O problema, nas palavras do grupo:** a história ficava presa explicando, cena após cena, que as ondas mudam com o movimento. E "Onde isso pode ajudar" (luz que apaga sozinha, alarme) era a parte mais fraca do projeto.
+- **Juntamos cenas** (de 20 para 16; a curta continua com 12):
+  - "O Wi-Fi é uma onda" entrou em "Duas placas": a onda de 12 cm corre entre as placas;
+  - "Na placa B, os caminhos se somam" entrou em "Quem se mexe muda a soma": é **o único lugar** que explica que o movimento muda o sinal;
+  - "As linhas tremem" entrou em "Cada instante vira uma linha";
+  - "Como testamos" entrou em "O que os testes mostraram";
+  - "Agora com o sinal das placas" virou o fim: o sinal de verdade já abre e fecha a história.
+- **Para que serve**, só com o que dá para defender com fonte:
+  - **Pessoa parada não aparece. Ainda.** Um estudo de 2024 (Burimas e outros, Applied Sciences) mediu a respiração de 8 pessoas com a mesma ESP32, com erro médio de 2,6 respirações por minuto. É a ponte para o resto.
+  - **Alguém vivo debaixo dos escombros?** O FINDER (radar da NASA e do Departamento de Segurança Interna dos EUA) achou 4 pessoas vivas no Nepal, em 2015, pela respiração e pelos batimentos. Petrópolis (2022) como exemplo brasileiro. É uma ideia para testar: a cena e a colinha dizem que o nosso sistema ainda não faz isso, e que o entulho enfraquece muito o Wi-Fi.
+  - **Quem mora sozinho:** IBGE (Censo 2022): 5,66 milhões de idosos moram sozinhos; o Espírito Santo é o 3º estado em casas de uma pessoa só (20,6%). OMS: quedas são a 2ª causa de morte por lesão acidental. A ideia usa só o que o detector já faz.
+  - **Viabilidade e privacidade:** a Comcast já oferece detecção de movimento por Wi-Fi nos roteadores dos clientes nos EUA (opcional), e os termos dizem que os dados podem ir para a polícia com ordem judicial. Isso mostra as duas coisas: a ideia está virando produto, e o risco é real.
+- **Saiu:** a luz que apaga sozinha e o alarme. Funcionam, mas não convencem ninguém de que o projeto importa.
+- **Desenho:** a pessoa parada da cena anterior cai, o entulho cai por cima deixando um vão e, do peito, sobem ondinhas no ritmo da respiração (15 por minuto). Na rotina, um cursor percorre ontem desenhando os movimentos e hoje até as 10h, sem nenhum, e sai o aviso. As duas cenas têm a etiqueta "Ilustração".
+

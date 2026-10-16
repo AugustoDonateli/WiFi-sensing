@@ -104,29 +104,33 @@ Toda troca de tela passa pelo sinal. A tela que sai se desfaz nas linhas do Wi-F
 
 Uma história em motion design que explica o projeto, para passar na TV do estande. Não são slides: cada desenho se transforma no próximo (o roteador vira a placa A, as barras viram a primeira linha, a pessoa caída se levanta dentro da casa...).
 
-O arco: abre com **as linhas da sala, de verdade**, sem explicar nada ("mexa o braço"), e fecha com "Agora você sabe ler estas linhas". O miolo explica o que acontece entre a placa A e as linhas:
-1. o Wi-Fi é uma onda de ~12 cm;
+O arco: abre com **as linhas da sala, de verdade**, sem explicar nada ("mexa o braço"), e fecha com "Agora você sabe ler estas linhas". O miolo explica o que acontece entre a placa A e as linhas, cada ideia uma vez só:
+1. o Wi-Fi é uma onda de ~12 cm, e a placa A manda 50 mensagens por segundo para a B;
 2. ela chega à placa B por vários caminhos (os longos chegam depois);
-3. **na B, os caminhos se somam**: crista com crista reforça, crista com vale cancela;
-4. **quando alguém se mexe, a soma muda**, porque meia onda (~6 cm) já troca crista por vale;
-5. são 64 ondas, e cada uma soma de um jeito (CSI);
-6. as 64 barras viram uma linha, e as linhas tremem.
+3. **quem se mexe muda a soma**: na B, crista com crista reforça, crista com vale cancela, e meia onda (~6 cm) troca uma pela outra;
+4. são 64 ondas, e cada uma soma de um jeito (CSI);
+5. as 64 barras viram uma linha, e as linhas tremem.
+
+Depois vêm o número, o que os testes mostraram, o limite (pessoa parada) e para que serve: **alguém vivo debaixo de escombros** (a respiração, próximo passo), **quem mora sozinho** (aviso para a família se ninguém se mexeu até as 10h) e a privacidade.
 
 - **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
-- **Duas versões** (tecla `V`): **completa**, com 20 cenas, para o avaliador (cerca de 7 min), e **curta**, com 12 cenas, para visitantes (cerca de 3 min 45 s).
+- **Duas versões** (tecla `V`): **completa**, com 16 cenas, para o avaliador (cerca de 6 min 30 s), e **curta**, com 12 cenas, para visitantes (cerca de 4 min).
 - **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a colinha de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
   - A colinha: a fala em letra grande, as ações (APONTE, PERGUNTE, PAUSA, FAÇA) e a ponte para a próxima cena. A tecla `Q` (ou o botão) mostra as perguntas que um avaliador pode fazer, com a resposta.
   - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
   - Se o navegador bloquear a janela, a fala aparece numa faixa na própria tela.
 - `B` ou `.` deixa a tela preta (o botão de "tela preta" do passador). `Esc` fecha. `Home`/`End` vão para a primeira e a última cena.
-- **Modo vitrine:** depois de 45 s sem movimento, a versão curta passa sozinha (6 s por cena) e some no primeiro movimento. Ela pula as cenas "ao vivo" e "resultados" e fica desligada enquanto a janela do apresentador estiver aberta.
+- **Modo vitrine:** depois de 45 s sem movimento, a versão curta passa sozinha (6 s por cena) e some no primeiro movimento. Ela pula a cena "resultados" e fica desligada enquanto a janela do apresentador estiver aberta.
 
 **Honestidade dos dados:**
 - As cenas que explicam (linhas, barras, número de exemplo, gravações) usam **dados sintéticos** do mesmo modelo da simulação, com semente fixa. Sempre que eles aparecem, o canto de cima mostra "Ilustração".
-- A abertura, a cena "ao vivo" e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem; por exemplo, na abertura: "Estas linhas são o Wi-Fi desta sala." (Placa USB), "Estas linhas imitam o Wi-Fi de uma sala." (simulação) ou "... de uma gravação.".
-- As cenas da onda, da soma e das 64 ondas são física desenhada (com a etiqueta "Ilustração"): 12 cm é o comprimento de onda de 2,4 GHz; na soma, o caminho rebatido tem 90% da força do direto.
+- A abertura e a última usam o sinal de verdade. O título e a etiqueta dizem de onde ele vem; por exemplo, na abertura: "Estas linhas são o Wi-Fi desta sala." (Placa USB), "Estas linhas imitam o Wi-Fi de uma sala." (simulação) ou "... de uma gravação.".
+- A onda das placas, a soma e as 64 ondas são física desenhada (a soma e as 64 com a etiqueta "Ilustração"): 12 cm é o comprimento de onda de 2,4 GHz; na soma, o caminho rebatido tem 90% da força do direto.
+- **Escombros e quem mora sozinho** são ideias de uso, desenhadas (com a etiqueta "Ilustração"):
+  - nos escombros, a pessoa da cena anterior cai, o entulho cai por cima e deixa um vão; do peito sobem ondinhas a 15 respirações por minuto e as linhas embaixo sobem e descem no mesmo ritmo (o modelo da simulação com um caminho que muda ±0,3 rad a 0,25 Hz). A fala deixa claro que é o próximo passo, não o que o sistema faz hoje;
+  - em quem mora sozinho, a rotina de ontem (movimentos desde as 6h40) é inventada para o desenho; hoje, nada até as 10h, e sai o aviso. Usa só o que o detector já faz (movimento sim ou não).
 - **Cena "Uma ideia de Hedy Lamarr"** (tema da JACITEC, "Ciência Delas"): depois das 64 ondas, as barras apagam e um rolo de pianola desce sobre elas; cada furo que passa pela barra de leitura acende uma frequência, uma de cada vez, com um rastro que apaga. É o salto de frequência patenteado em 1942 por Hedy Lamarr e George Antheil. Na cena seguinte, as 64 acendem juntas e viram a linha. A sequência de saltos é fixa (semente 1942). À esquerda (na TV) ou embaixo do palco (no celular), o **retrato dela feito com as linhas do sinal**: 72 linhas, cada uma sobe e fica mais forte onde a foto é clara. Vem de uma foto de domínio público (Clarence Bull, MGM, 1940); no código vai só a grade de luz (`RETRATO` no `historia.js`), não a foto. As linhas chegam retas e apagadas, o rosto sobe de baixo para cima e, parado, uma faixa de luz desce devagar.
-- A cena de resultados só mostra números quando alguém preencher `RESULTADOS` no `roteiro.js` com o resultado do `ferramentas/avaliar.py` (por coleta, com o chute ao lado). Até lá ela diz que as gravações ainda estão sendo feitas.
+- A cena de resultados mostra o tremor medido nos testes S0 (sala vazia e alguém cruzando, a 1,5 m), sem etiqueta "Ilustração": as 7 travessias e os 2 alarmes acendem no fim da entrada. Não há porcentagem de acerto.
 
 **Para mudar um texto:** edite `roteiro.js` (título, frase e fala de cada cena). Não mude o `id`: o desenho de cada cena é ligado a ele.
 
