@@ -9,7 +9,7 @@ Inspeção da cópia local em `C:\esp\esp-csi`, em 15/10/2026:
 - ESP-IDF: v5.5.5; alvo `esp32`, conforme os artefatos locais de compilação.
 - Dependências resolvidas da receptora: `esp_csi_gain_ctrl` 0.1.5 e `cmake_utilities` 0.5.3, conforme `dependencies.lock`.
 
-O patch `send-50pps.patch` registra a mudança da emissora. Aplicar sobre uma cópia no commit acima, a partir da raiz do ESP-CSI, com `git apply CAMINHO_DO_PATCH`. A instalação original foi apenas lida nesta inspeção.
+O patch `send-50pps.patch` registra a mudança da emissora. Aplicar sobre uma cópia no commit acima, a partir da raiz do ESP-CSI, com `git apply --unidiff-zero CAMINHO_DO_PATCH` (o hunk tem contexto anterior e nenhum posterior). A validação reversa foi conferida com esse mesmo parâmetro na cópia que já tem 50/s. A instalação original foi apenas lida nesta inspeção.
 
 `inspecao-local.json` identifica fontes, configurações e binários locais por SHA-256. Esses hashes ajudam a comparar cópias. O estado observado no computador **não comprova qual binário está atualmente gravado em cada placa**. Para futuras coletas, registrar também o hash do binário efetivamente gravado e o commit/configuração junto aos dados.
 
