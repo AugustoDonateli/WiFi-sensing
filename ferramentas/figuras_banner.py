@@ -210,7 +210,7 @@ def figuras_csi():
 def figura_resultado():
     """A oscilação nos 30 s, em vezes a sala vazia: a sala vazia (cinza) e a pessoa (preto) no mesmo gráfico,
     o limite tracejado e, em magenta, onde o detector disse "movimento". Mesma regra da tela."""
-    fig, axs = plt.subplots(2, 1, figsize=(40.2 / 2.54, 13.4 / 2.54), facecolor="white",
+    fig, axs = plt.subplots(2, 1, figsize=(40.2 / 2.54, 12.8 / 2.54), facecolor="white",
                             gridspec_kw={"hspace": 0.68, "left": 0.085, "right": 0.83, "top": 0.9, "bottom": 0.15})
     resumo = {}
     for ax, (par, titulo, legenda_p) in zip(axs, [

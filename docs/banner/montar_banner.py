@@ -237,43 +237,45 @@ INSTITUICAO = "[Nome da escola] – [Cidade], ES"
 
 FRASE = "Duas placas Wi-Fi de baixo custo perceberam cada vez que uma pessoa cruzou entre elas. Até através de uma parede."
 FRASE_APOIO = "A placa A envia mensagens Wi-Fi; a placa B mede como cada uma chegou. Quem se mexe muda os caminhos do sinal, e a medida treme. Sem câmera, sem nada preso ao corpo."
-NUMEROS = [("7 de 7", "travessias percebidas, a 1,5 m"), ("5,9×", "o sinal com a pessoa, comparado à sala vazia"), ("3,75 m", "através de uma parede, sem alarme com a sala vazia")]
+NUMEROS = [("7 de 7", "travessias percebidas, a 1,5 m"), ("5,9×", "a oscilação do sinal com a pessoa, comparada à sala vazia"), ("3,75 m", "através de uma parede, sem alarme com a sala vazia")]
 
 INTRODUCAO = [
-    ["No Brasil, 5,7 milhões de idosos moram sozinhos (IBGE, 2024), e as quedas são a 2ª maior causa de morte por lesão acidental no mundo (OMS, 2021). Câmera expõe a intimidade; pulseira depende de a pessoa lembrar de usar."],
-    ["Mas quase toda casa já tem Wi-Fi. O sinal chega ao receptor por vários caminhos, que se somam, e quem se mexe muda essa soma. O ",
-     ("CSI", True), " (", ("Channel State Information", False, None, True), ") mede isso em 64 frequências a cada pacote (MA; ZHOU; WANG, 2019)."],
-    [("Objetivo: ", True), "construir um detector de movimento humano com duas placas ESP32, sem câmera, testá-lo com gravações reais e mostrá-lo ao vivo."],
+    ["O Wi-Fi está em quase todo lugar e faz mais do que levar internet: o sinal chega por vários caminhos, que se somam, e quem se mexe muda essa soma. O ",
+     ("CSI", True), " (", ("Channel State Information", False, None, True),
+     ") mede isso em 64 frequências a cada pacote (MA; ZHOU; WANG, 2019). É o sensoriamento por Wi-Fi, que ganhou padrão próprio em 2025 (IEEE, 2025)."],
+    ["Dá para perceber pessoas sem câmera e sem nada preso ao corpo. Mas até onde isso funciona, para que serve e quem mais poderia usar?"],
+    [("Objetivo: ", True), "explorar essa tecnologia com duas placas ESP32 de baixo custo: medir o CSI, construir e testar um detector de movimento, inclusive através de parede, e mostrar ao público, ao vivo, o que ela faz, seus usos e seus riscos."],
 ]
 HEDY = [[("Ciência Delas. ", True, DESTAQUE), "Em 1942, a atriz e inventora Hedy Lamarr patenteou, com George Antheil, o salto de frequência (MARKEY; ANTHEIL, 1942). Espalhar o sinal por várias frequências virou base da comunicação sem fio: o Wi-Fi de hoje usa 64 ao mesmo tempo, e são elas que o Wave Sense lê."]]
 PASSOS = [("1  Placa A", "envia 50 mensagens Wi-Fi por segundo"), ("2  Placa B", "mede o CSI: 64 subportadoras"), ("3  Notebook", "decide a cada 0,2 s, ao vivo")]
 METODOS = [
-    [("Detector: ", True), "mede a oscilação de cada subportadora no último segundo, com cada pacote ajustado ao mesmo volume (a placa muda o ganho sozinha). O limite é calibrado na sala vazia (média + 3 desvios), e “movimento” exige 3 medidas seguidas acima dele. A mesma regra roda em Python e na demonstração."],
-    [("Ajustes que fizeram funcionar: ", True), "a USB não dava conta de 100 pacotes/s (com 50, chegam de 76% a 92%), e o ganho automático da placa fazia a sala vazia oscilar de 0,8 a 4,8; ajustar o volume de cada pacote deixou a sala vazia estável."],
-    [("Testes: ", True), "30 s de sala vazia e 30 s de uma pessoa cruzando a linha entre as placas, a 1,5 m e a 3,75 m com uma parede no meio."],
+    [("Detector: ", True), "mede a oscilação de cada subportadora no último segundo, com cada pacote no mesmo volume. O limite vem da sala vazia (média + 3 desvios), e “movimento” exige 3 medidas seguidas acima dele. A mesma regra roda em Python e na demonstração."],
+    [("Ajustes que fizeram funcionar: ", True), "a USB não dava conta de 100 pacotes/s (com 50, chegam de 76% a 92%), e o ganho automático fazia a sala vazia oscilar de 0,8 a 4,8; ajustar o volume de cada pacote resolveu."],
+    [("Testes: ", True), "30 s de sala vazia e 30 s com uma pessoa: a 1,5 m, cruzando a linha entre as placas; a 3,75 m, andando atrás de uma parede."],
 ]
 RESULTADOS = [
-    ["A cada travessia, o sinal subiu até 5,9 vezes o nível da sala vazia, e o detector marcou as 7, uma a uma; a sala vazia deu só 2 alarmes curtos em 30 s. Através da parede, a pessoa andando foi percebida quase o tempo todo, sem nenhum alarme com a sala vazia."],
+    ["A cada travessia, o sinal subiu até 5,9 vezes o nível da sala vazia, e o detector marcou as 7; a sala vazia deu 2 alarmes curtos em 30 s. Através da parede, a pessoa andando foi percebida quase o tempo todo, sem alarme com a sala vazia."],
+    [("O que aprendemos sobre a tecnologia: ", True), "ela percebe movimento, não presença (quem fica parado não muda a soma), e atravessa paredes: útil e também um risco à privacidade."],
 ]
 USOS = [
-    ("Quem mora sozinho", "desenho-sozinho.png", "Se até as 10h ninguém se mexeu, a casa avisa a família. Usa só o que o detector já faz.",
+    ("Quem mora sozinho", "desenho-sozinho.png", "No Brasil, 5,7 milhões de idosos moram sozinhos (IBGE, 2024). Se até as 10h ninguém se mexeu, a casa avisa a família.",
      "Ilustração de dois dias numa linha do tempo: ontem, movimentos desde as 6h40; hoje, nenhum movimento até as 10h e um aviso para o celular da família."),
     ("Escombros", "desenho-escombros.png", "Um radar da NASA achou 4 pessoas vivas sob os escombros no Nepal, em 2015, pelos sinais vitais (NASA JPL, 2015). Queremos tentar com placas baratas.",
      "Ilustração de uma pessoa deitada num vão entre lajes caídas, entre as placas A e B, com ondinhas de respiração saindo do peito."),
 ]
 CONCLUSAO = [
-    ["Duas placas ESP32 e programas abertos perceberam movimento humano sem câmera, até através de uma parede, e o sistema funciona ao vivo no estande. A técnica está virando produto: em 2025 saiu o IEEE 802.11bf, padrão só para sensoriamento por Wi-Fi."],
-    [("Próximos passos: ", True), "medir a respiração, que a mesma placa já captou em outro estudo (BURIMAS et al., 2024), e a taxa de acerto, em novas sessões. Como o sinal atravessa paredes, defendemos consentimento e dados que não saem de casa, como no Wave Sense."],
+    ["Duas placas ESP32 e programas abertos perceberam movimento humano sem câmera, até através de parede, ao vivo no estande. E a tecnologia já chega às casas: nos EUA, uma operadora oferece isso no roteador, e os dados podem ir para a polícia com ordem judicial (BLEEPINGCOMPUTER, 2026)."],
+    [("Próximos passos: ", True), "medir a respiração, que a mesma placa já captou (BURIMAS et al., 2024), e a taxa de acerto, em novas sessões. Defendemos consentimento e dados que não saem de casa, como no Wave Sense."],
 ]
 REFERENCIAS = [
+    ["BLEEPINGCOMPUTER. ", ("Comcast turns your Xfinity WiFi into a home motion detector", True), ". BleepingComputer, 2026."],
     ["BURIMAS, D. et al. Monitoring the sleep respiratory rate with low-cost microcontroller Wi-Fi in a controlled environment. ", ("Applied Sciences", True), ", v. 14, n. 15, 6458, 2024."],
-    ["ESPRESSIF SYSTEMS. ", ("ESP-CSI", True), ". GitHub, 2026. Disponível em: https://github.com/espressif/esp-csi."],
+    ["ESPRESSIF SYSTEMS. ", ("ESP-CSI", True), ". GitHub, 2026. https://github.com/espressif/esp-csi."],
     ["IBGE. ", ("Censo Demográfico 2022", True), ": composição domiciliar e óbitos informados. Rio de Janeiro: IBGE, 2024."],
     ["IEEE. ", ("IEEE 802.11bf-2025", True), ": WLAN sensing. Nova York: IEEE, 2025."],
     ["MA, Y.; ZHOU, G.; WANG, S. WiFi sensing with channel state information: a survey. ", ("ACM Computing Surveys", True), ", v. 52, n. 3, 2019."],
     ["MARKEY, H. K. (Hedy Lamarr); ANTHEIL, G. ", ("Secret communication system", True), ". Patente US 2.292.387, 1942."],
     ["NASA JPL. ", ("FINDER", True), ": Finding Individuals for Disaster and Emergency Response. Pasadena: JPL, 2015."],
-    ["OMS. ", ("Falls", True), ". Genebra: OMS, 2021. Disponível em: https://www.who.int/news-room/fact-sheets/detail/falls."],
 ]
 USO_IA = "Uso de inteligência artificial: o assistente Claude (Anthropic) apoiou a escrita de código e de textos. Tudo foi revisado e testado pela equipe, e os dados foram medidos por nós."
 
@@ -359,7 +361,7 @@ def coluna_direita():
     fw, fh = imagem(slide, FIG / "figura-resultado.png", XD, y - 0.3, w=W, nome="Figura: resultado",
                     descricao="Dois gráficos de 30 segundos. A 1,5 m, a linha da pessoa sobe acima do limite 7 vezes, numeradas de 1 a 7, até 5,9 vezes a sala vazia. A 3,75 m com parede, a linha da pessoa fica acima do limite quase o tempo todo; a da sala vazia fica abaixo.")
     y = y - 0.3 + fh + 0.1
-    y = texto(slide, XD, y, W, [[("Figura: ", True), "oscilação do sinal medida nos testes, pela mesma regra da tela. Em rosa, onde o detector disse “movimento”."]], LEGENDA - 2, "Legenda: resultado", cor=CINZA, linha=1.1)
+    y = texto(slide, XD, y, W, [[("Figura: ", True), "oscilação medida nos testes; em rosa, onde o detector disse “movimento”."]], LEGENDA - 2, "Legenda: resultado", cor=CINZA, linha=1.1)
     y = texto(slide, XD, y + 0.6, W, RESULTADOS, CORPO, "Texto: resultados", alinhar=PP_ALIGN.JUSTIFY, linha=1.18, entre=0.35)
     # para que serve: dois cartões
     y = texto(slide, XD, y + 0.8, W, [[("Para que serve", True, AZUL)]], 40, "Título: para que serve", linha=1.0)
@@ -367,7 +369,7 @@ def coluna_direita():
     alt_img = 0
     for k, (nome, arq, txt, descr) in enumerate(USOS):
         x = XD + k * (larg + 1.0)
-        CARTAO = 9.6
+        CARTAO = 8.8
         painel(slide, x, y + 0.3, larg, CARTAO, TELA, f"Fundo: {nome}", raio=0.4)
         from PIL import Image
         im = Image.open(FIG / arq); r = im.width / im.height
