@@ -39,7 +39,7 @@ Se o visitante sair sabendo essas três coisas, a apresentação funcionou.
 - **A faixa cruza a linha A–B.** O visitante sai da PARTIDA (perto do público), atravessa a "linha invisível" e chega na CHEGADA, andando de frente para a TV. Assim ele se vê na tela enquanto anda.
 - **Corredor fora da linha:** quem passa no corredor não pode cruzar a linha entre A e B, senão a tela dispara sozinha.
 - **Placas à vista e com plaquinha:**
-  - "PLACA A · fala: 100 mensagens de Wi-Fi por segundo";
+  - "PLACA A · fala: 50 mensagens de Wi-Fi por segundo";
   - "PLACA B · escuta e mede".
   - Ver as placas pequenas e baratas é parte do "uau".
 - **Calibre no lugar**, com a faixa vazia, sempre que a TV ficar disparando sozinha (tecla `C`, ou o botão no painel do Operador).

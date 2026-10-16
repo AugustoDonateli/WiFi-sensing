@@ -51,7 +51,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 ### 4. Duas placas: uma fala, a outra escuta. ●
 *18 s (curta: 15 s)*
 
-**Fala.** Estas são as placas. A placa A manda cem mensagens por segundo. A placa B não liga para o conteúdo: ela mede como cada mensagem chegou.
+**Fala.** Estas são as placas. A placa A manda cinquenta mensagens por segundo. A placa B não liga para o conteúdo: ela mede como cada mensagem chegou.
 
 - APONTE: as placas A e B no estande.
 
@@ -211,7 +211,7 @@ Na simulação, a TV mostra: "Agora na simulação."
 
 > **Quanto ele acerta?** Ainda não medimos a taxa de acerto com um teste separado. O que temos são testes de montagem: num deles, a pessoa cruzou a linha 7 vezes e ele detectou as 7; com a sala vazia, 2 alarmes curtos em 30 segundos. O próximo passo é gravar sessões separadas, uma para ajustar e outra para testar.
 >
-> **Que problemas vocês tiveram?** Três. 1) O roteador ao lado da placa B fazia metade dos pacotes se perder (a placa escuta todo o tráfego do canal). 2) O cabo USB só leva umas 72 linhas por segundo, então baixamos a placa A de 100 para 50 pacotes por segundo. 3) O ganho automático da placa fazia a sala vazia "tremer"; ajustamos o volume de cada pacote. Depois disso, chegaram cerca de 90% dos pacotes e a sala vazia ficou estável.
+> **Que problemas vocês tiveram?** Três. 1) O roteador ao lado da placa B fazia metade dos pacotes se perder (a placa escuta todo o tráfego do canal). 2) O cabo USB só leva umas 72 linhas por segundo, então baixamos a placa A de 100 para 50 pacotes por segundo. 3) O ganho automático da placa fazia a sala vazia "tremer"; ajustamos o volume de cada pacote. Depois disso, chegaram de 76% a 92% dos pacotes e a sala vazia ficou estável.
 >
 > **Por que comparar com o chute?** Quando houver porcentagem: se 80% das gravações são "parado", responder sempre "parado" já acerta 80%. O resultado só vale alguma coisa acima disso.
 

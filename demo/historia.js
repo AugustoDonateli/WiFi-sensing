@@ -953,7 +953,7 @@
       const xa = G.X(A.x) + s * 0.4, xb = G.X(B.x) - s * 0.4;
       const b = construcao(q), vis = curvas.entra(b), forca = q.dir === -1 ? q.p : limitar(b * 1.5);
       // pacotes: pontinhos com um brilho e um rastro curto, indo de A para B
-      // (é um símbolo: 100 por segundo não daria para ver)
+      // (é um símbolo: 50 por segundo não daria para ver)
       const N = 11, fase = (amb * 0.14) % 1, R = 2.2 * G.dpr;
       for (let i = 0; i < N; i++) {
         const t = (i / N + fase) % 1;

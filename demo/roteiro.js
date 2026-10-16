@@ -76,9 +76,9 @@
     {
       id: 'placas', cap: 'II',
       titulo: 'Duas placas: *uma fala*, a outra escuta.',
-      frase: 'A placa A envia 100 mensagens de Wi-Fi por segundo. A placa B mede como cada uma chegou.',
+      frase: 'A placa A envia 50 mensagens de Wi-Fi por segundo. A placa B mede como cada uma chegou.',
       seg: { completa: 18, curta: 15 },
-      fala: 'Estas são as placas. A placa A manda cem mensagens por segundo. A placa B não liga para o conteúdo: ela mede como cada mensagem chegou.',
+      fala: 'Estas são as placas. A placa A manda cinquenta mensagens por segundo. A placa B não liga para o conteúdo: ela mede como cada mensagem chegou.',
       acao: ['APONTE: as placas A e B no estande.'],
       ponte: 'E a mensagem não vai só em linha reta.',
       perguntas: [
@@ -247,7 +247,7 @@
       ponte: 'E o que o sistema não consegue ver?',
       perguntas: [
         { p: 'Quanto ele acerta?', r: 'Ainda não medimos a taxa de acerto com um teste separado. O que temos são testes de montagem: num deles, a pessoa cruzou a linha 7 vezes e ele detectou as 7; com a sala vazia, 2 alarmes curtos em 30 segundos. O próximo passo é gravar sessões separadas, uma para ajustar e outra para testar.' },
-        { p: 'Que problemas vocês tiveram?', r: 'Três. 1) O roteador ao lado da placa B fazia metade dos pacotes se perder (a placa escuta todo o tráfego do canal). 2) O cabo USB só leva umas 72 linhas por segundo, então baixamos a placa A de 100 para 50 pacotes por segundo. 3) O ganho automático da placa fazia a sala vazia "tremer"; ajustamos o volume de cada pacote. Depois disso, chegaram cerca de 90% dos pacotes e a sala vazia ficou estável.' },
+        { p: 'Que problemas vocês tiveram?', r: 'Três. 1) O roteador ao lado da placa B fazia metade dos pacotes se perder (a placa escuta todo o tráfego do canal). 2) O cabo USB só leva umas 72 linhas por segundo, então baixamos a placa A de 100 para 50 pacotes por segundo. 3) O ganho automático da placa fazia a sala vazia "tremer"; ajustamos o volume de cada pacote. Depois disso, chegaram de 76% a 92% dos pacotes e a sala vazia ficou estável.' },
         { p: 'Por que comparar com o chute?', r: 'Quando houver porcentagem: se 80% das gravações são "parado", responder sempre "parado" já acerta 80%. O resultado só vale alguma coisa acima disso.' },
       ],
     },
