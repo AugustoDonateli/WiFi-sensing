@@ -47,19 +47,38 @@ def gerar(R):
         "",
         "Gerada por `ferramentas/colinha.py` a partir do `demo/roteiro.js`. Não edite aqui: edite o roteiro e gere de novo.",
         "",
-        f"- **Completa:** {len(cenas)} cenas, cerca de {minutos(tot)} (para avaliador).",
+        "## Antes de tudo (leia isto e já dá para apresentar)",
+        "",
+        "**O projeto em 30 segundos.** \"Quase todo lugar tem Wi-Fi, e o sinal passa pela gente o tempo todo. A nossa "
+        "pesquisa é descobrir o que dá para perceber de uma pessoa só com esse sinal, sem câmera. Com duas plaquinhas "
+        "baratas, a gente percebeu cada vez que alguém cruzou entre elas, até através de uma parede. Quer testar? "
+        "Mexe o braço aqui.\"",
+        "",
+        "**As 3 ideias que a pessoa tem que levar para casa:**",
+        "",
+        "1. O Wi-Fi chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.",
+        "2. Funcionou: 7 travessias, 7 detecções; e através de uma parede.",
+        "3. Serve para coisas boas (resgate, quem mora sozinho), mas pede cuidado com a privacidade.",
+        "",
+        "**Como falar.** É conversa, não prova oral. Não precisa decorar: leia a fala uma vez e conte do seu jeito. "
+        "Comece pelo que a pessoa vê na tela, use \"você\" e faça perguntas. Se não souber algo, diga \"boa pergunta, "
+        "isso a gente ainda vai testar\": é pesquisa, e pesquisa tem próximo passo.",
+        "",
+        f"- **Completa:** {len(cenas)} cenas, cerca de {minutos(tot)} (para avaliador ou quem quer ver tudo).",
         f"- **Curta:** {n_curta} cenas, cerca de {minutos(tot_curta)} (para visitante). As cenas da curta estão marcadas com ●.",
         "- Na janela do apresentador (tecla P na TV), a mesma colinha aparece cena a cena. A tecla Q mostra as perguntas.",
         "",
-        "Como ler: a **fala** é o que dizer, em frases curtas (não precisa decorar). As **ações** dizem o que fazer:",
-        "APONTE, PERGUNTE (e espere a resposta), PAUSA (deixe a animação falar), FAÇA. A **ponte** leva para a próxima cena.",
+        "Como ler cada cena: a **fala** é o que dizer. As **ações** dizem o que fazer: APONTE, PERGUNTE (e espere a resposta), "
+        "FAÇA, DEIXE A ANIMAÇÃO (fique quieto um segundo). A **ponte** leva para a próxima cena. Embaixo, as perguntas que podem aparecer.",
         "",
     ]
-    cap_atual = None
+    cap_atual, caps_vistos = None, set()
     for i, c in enumerate(cenas, 1):
         if c.get("cap") and c["cap"] != cap_atual:
             cap_atual = c["cap"]
-            L += [f"## {R['capitulos'][cap_atual]}", ""]
+            nome = R["capitulos"][cap_atual]
+            L += [f"## {nome}{' (continua)' if cap_atual in caps_vistos else ''}", ""]
+            caps_vistos.add(cap_atual)
         seg = c.get("seg", {})
         marca = " ●" if seg.get("curta") else ""
         tempo = f"{seg.get('completa', 0)} s" + (f" (curta: {seg['curta']} s)" if seg.get("curta") else "")
@@ -71,12 +90,15 @@ def gerar(R):
             L.append("")
         L.append(f"**Fala.** {c.get('fala') or c.get('notas') or ''}")
         L.append("")
+        if c.get("falaCurta"):
+            L.append(f"**Na curta.** {c['falaCurta']}")
+            L.append("")
         for a in c.get("acao") or []:
             L.append(f"- {a}")
         if c.get("acao"):
             L.append("")
         if c.get("ponte"):
-            L.append(f"→ *{c['ponte']}*")
+            L.append(f"→ *{c['ponte']}*" + (f" (na curta: *{c['ponteCurta']}*)" if c.get("ponteCurta") else ""))
             L.append("")
         for q in c.get("perguntas") or []:
             L.append(f"> **{q['p']}** {q['r']}")
@@ -84,7 +106,10 @@ def gerar(R):
         if c.get("perguntas"):
             L.pop()
             L.append("")
-    L += ["## Perguntas que podem aparecer em qualquer momento", ""]
+    L += ["## Perguntas de quem passa pelo estande", "", "Respostas curtas: uma frase e um sorriso.", ""]
+    for q in R.get("perguntasVisitante") or []:
+        L.append(f"- **{q['p']}** {q['r']}")
+    L += ["", "## Perguntas que podem aparecer em qualquer momento (mais de avaliador)", ""]
     for q in R.get("perguntasGerais") or []:
         L.append(f"- **{q['p']}** {q['r']}")
     L.append("")

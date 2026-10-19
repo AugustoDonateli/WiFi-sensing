@@ -261,3 +261,14 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Continua honesto:** os números são das gravações reais; não há porcentagem de acerto; escombros aparece como o que queremos tentar; a conclusão diz que a taxa de acerto é um próximo passo.
 - O título continua o da inscrição.
 - **Revisão final (16/10):** o foco do projeto passou a ser explorar o sensoriamento por Wi-Fi (o que ele percebe, para que serve e que riscos traz), não só queda de idosos. A introdução agora começa pelo Wi-Fi e pela pergunta "até onde funciona, para que serve e quem mais poderia usar?"; o objetivo segue o da inscrição; idosos aparecem só como um dos usos (o número do IBGE foi para o cartão "Quem mora sozinho"); quedas e a referência da OMS saíram. Entraram "O que aprendemos sobre a tecnologia" (percebe movimento, não presença; atravessa paredes) e o caso Comcast na conclusão (BleepingComputer, 2026). Corrigido: o teste da parede era a pessoa andando atrás dela, não cruzando a linha.
+
+## 19/10/2026: revisão crítica da apresentação
+
+- Critérios, notas antes e depois (6,9 → 9,0) e a discussão de cada cena estão em [revisao-apresentacao.md](revisao-apresentacao.md).
+- **Foco de pesquisa:** a cena 2 deixou de ser a pessoa caída; agora é "E se o Wi-Fi percebesse a gente?", com o roteador que vira a placa A.
+- **Confiança:** "Testamos de verdade, e funcionou", com 7 de 7, 5,9× e 3,75 m através de parede na tela; limites ditos como próximo passo.
+- **Curta com 14 cenas** (pergunta e resultados entraram), cerca de 3 min 50 s.
+- **Ciência Delas:** "A inventora Hedy Lamarr", legenda "atriz e inventora", rótulo "Ciência Delas" no canto, o reconhecimento tardio (1997) e Dina Katabi (MIT) ligando a história à nossa área.
+- **Ordem do fim:** escombros → quem mora sozinho → dá para montar com pouco → privacidade.
+- **Colinha:** kit rápido no começo, tom de conversa, fala curta na cena da Hedy e perguntas de visitante.
+

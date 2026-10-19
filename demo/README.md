@@ -111,16 +111,16 @@ O arco: abre com **as linhas da sala, de verdade**, sem explicar nada ("mexa o b
 4. são 64 ondas, e cada uma soma de um jeito (CSI);
 5. as 64 barras viram uma linha, e as linhas tremem.
 
-Depois vêm o número, o que os testes mostraram, o limite (pessoa parada) e para que serve: **alguém vivo debaixo de escombros** (a respiração, próximo passo), **quem mora sozinho** (aviso para a família se ninguém se mexeu até as 10h) e a privacidade.
+Antes do miolo, a pergunta da pesquisa ("E se o Wi-Fi percebesse a gente?"), com o roteador que depois vira a placa A. Depois vêm o número, o resultado ("Testamos de verdade, e funcionou": 7 de 7, 5,9× e 3,75 m através de parede), o limite (pessoa parada) e para que serve: **alguém vivo debaixo de escombros** (a respiração, próximo passo), **quem mora sozinho** (aviso para a família se ninguém se mexeu até as 10h), quanto custa e a privacidade. A cena da Hedy Lamarr mostra "Ciência Delas" no canto.
 
 - **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
-- **Duas versões** (tecla `V`): **completa**, com 16 cenas, para o avaliador (cerca de 6 min 30 s), e **curta**, com 12 cenas, para visitantes (cerca de 4 min).
+- **Duas versões** (tecla `V`): **completa**, com 16 cenas, para o avaliador (cerca de 6 min), e **curta**, com 14 cenas, para visitantes (cerca de 3 min 50 s). A janela do apresentador mostra a fala e a ponte da versão curta quando ela existe (`falaCurta`, `ponteCurta` no roteiro).
 - **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a colinha de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
   - A colinha: a fala em letra grande, as ações (APONTE, PERGUNTE, PAUSA, FAÇA) e a ponte para a próxima cena. A tecla `Q` (ou o botão) mostra as perguntas que um avaliador pode fazer, com a resposta.
   - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
   - Se o navegador bloquear a janela, a fala aparece numa faixa na própria tela.
 - `B` ou `.` deixa a tela preta (o botão de "tela preta" do passador). `Esc` fecha. `Home`/`End` vão para a primeira e a última cena.
-- **Modo vitrine:** depois de 45 s sem movimento, a versão curta passa sozinha (6 s por cena) e some no primeiro movimento. Ela pula a cena "resultados" e fica desligada enquanto a janela do apresentador estiver aberta.
+- **Modo vitrine:** depois de 45 s sem movimento, a versão curta passa sozinha (6 s por cena) e some no primeiro movimento. Ela fica desligada enquanto a janela do apresentador estiver aberta.
 
 **Honestidade dos dados:**
 - As cenas que explicam (linhas, barras, número de exemplo, gravações) usam **dados sintéticos** do mesmo modelo da simulação, com semente fixa. Sempre que eles aparecem, o canto de cima mostra "Ilustração".

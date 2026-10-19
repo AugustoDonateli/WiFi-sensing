@@ -741,10 +741,10 @@
     let x, y, w, h, legenda;
     if (W / H > 1.1) {
       h = Math.min(H * 0.47, (G.bx - W * 0.08) / prop); w = h * prop; x = W * 0.04; y = H * 0.09;
-      legenda = { x, y: y + h + H * 0.012, alinhar: 'left', base: 'top', linhas: ['Hedy Lamarr em 1940 · foto de Clarence Bull'] };
+      legenda = { x, y: y + h + H * 0.012, alinhar: 'left', base: 'top', linhas: ['Hedy Lamarr · atriz e inventora', 'foto de 1940 · Clarence Bull'] };
     } else {
       h = Math.min(H * 0.13, G.bh * 0.5); w = h * prop; x = G.bx; y = G.by + G.bh + H * 0.018;
-      legenda = { x: x + w + G.dpr * 10, y: y + h / 2, alinhar: 'left', base: 'middle', linhas: ['Hedy Lamarr, 1940', 'foto de Clarence Bull'] };
+      legenda = { x: x + w + G.dpr * 10, y: y + h / 2, alinhar: 'left', base: 'middle', linhas: ['Hedy Lamarr', 'atriz e inventora', 'foto de 1940 · Clarence Bull'] };
     }
     if (h < 30 * G.dpr) return;
     const passo = h / (n + 1), alt = passo * 1.15, dx = w / (m - 1);
@@ -790,7 +790,13 @@
     c.fillStyle = cor.apagado; c.font = `${Math.round(Math.max(11 * G.dpr, H * 0.016))}px ${G.sans}`;
     c.textAlign = legenda.alinhar; c.textBaseline = legenda.base;
     const fl = Math.max(11 * G.dpr, H * 0.016) * 1.35, n0 = legenda.base === 'middle' ? -(legenda.linhas.length - 1) / 2 : 0;
-    legenda.linhas.forEach((txt, i) => c.fillText(txt, legenda.x, legenda.y + (n0 + i) * fl));
+    // a primeira linha (quem ela foi) vem mais clara e um pouco maior; o crédito da foto, apagado
+    legenda.linhas.forEach((txt, i) => {
+      const prim = i === 0 || (legenda.base === 'middle' && i === 1);
+      c.fillStyle = prim ? cor.tinta : cor.apagado;
+      c.font = `${Math.round(Math.max(11 * G.dpr, H * 0.016) * (i === 0 ? 1.18 : 1))}px ${G.sans}`;
+      c.fillText(txt, legenda.x, legenda.y + (n0 + i) * fl);
+    });
   }
 
   // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "Ilustração".
@@ -809,7 +815,7 @@
     placaB: { padrao: { x: 0.86, esc: 1, nasce: 0, ...ZOOM_NORMAL } },
     notebook: { padrao: {} },
     vulto: { padrao: { x: 0.86 } },
-    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, preso: 0, fantasma: 0, andar: 0, ...ZOOM_NORMAL } },
+    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, preso: 0, fantasma: 0, andar: 0, ergue: 0, ...ZOOM_NORMAL } },
     barras: { padrao: { destaque: -1, luz: 1 }, sintetica: true },
     curva: { padrao: { forma: 0, luz: 1 }, sintetica: true },
     salto: { padrao: {}, sintetica: true },
@@ -1134,7 +1140,8 @@
         amp = Math.max(amp, q.andar * limitar(Math.abs(Math.cos(f)) * 1.6));
         dirx = Math.cos(f) >= 0 ? 1 : -1;
       }
-      desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, preso: q.preso, t: amb, fantasma: fan, alfa, amp, fase: amb * 7, halo: true, dirx });
+      desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, preso: q.preso, t: amb, fantasma: fan, alfa, amp, fase: amb * 7, halo: true, dirx,
+        ergue: (q.ergue || 0) * (1 - dei), aparelho: (q.ergue || 0) > 0.5 });
     },
     notebook(c, G, q, cor, amb, prm) {
       // A tela (cantos arredondados, câmera em cima) se desenha em volta das linhas, depois a base com o
@@ -1626,6 +1633,30 @@
       rotulo(c, G, cor, '0 s', x0, yb, { alinhar: 'left', tam: 0.026 });
       rotulo(c, G, cor, '30 s', x1, yb, { alinhar: 'right', tam: 0.026 });
       rotulo(c, G, cor, 'dados reais · placas a 1,5 m', (x0 + x1) / 2, yb, { tam: 0.026 });
+      // Embaixo, o resultado em três números. As travessias contam junto com as marcas que acendem; o tamanho
+      // do sinal sai dos mesmos dados (pico com a pessoa ÷ mediana da sala vazia); o terceiro é o teste com parede.
+      if (mk > 0.001) {
+        const eps = []; TESTE.detAndando.forEach((v, i, d) => { if (v && !d[i - 1]) eps.push(i); });
+        const n = eps.length, acesas = eps.filter((_, j) => limitar(mk * (n + 1) - j) >= 0.5).length;
+        const ord = [...TESTE.vazio].sort((a, b) => a - b), vezes = Math.max(...TESTE.andando) / ord[Math.floor(ord.length / 2)];
+        const NUM = [
+          { v: `${acesas} de ${n}`, r: ['travessias', 'percebidas'], k: curvas.pop(limitar(mk * 4)) },
+          { v: `${vezes.toFixed(1).replace('.', ',')}×`, r: ['o sinal, comparado', 'à sala vazia'], k: curvas.pop(janela(mk, 0.55, 0.85)) },
+          { v: '3,75 m', r: ['outro teste:', 'através de parede'], k: curvas.pop(janela(mk, 0.75, 1)) },
+        ];
+        const yn = G.Y(0.93), tamN = Math.round(G.bh * 0.11);
+        NUM.forEach((d, i) => {
+          if (d.k <= 0.001) return;
+          const x = G.X(0) + w * 0.02 + i * (x1 - G.X(0)) / 3;
+          c.save(); c.globalAlpha = alfa * limitar(d.k * 1.5);
+          c.translate(x, yn); c.scale(0.9 + 0.1 * d.k, 0.9 + 0.1 * d.k);
+          c.fillStyle = cor.tinta; c.font = `${tamN}px ${G.serif}`; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+          c.fillText(d.v, 0, 0);
+          c.restore();
+          c.globalAlpha = alfa * limitar(d.k * 1.5);
+          d.r.forEach((txt, l) => rotulo(c, G, cor, txt, x, yn + G.bh * (0.022 + l * 0.04), { alinhar: 'left', base: 'top', tam: 0.03 }));
+        });
+      }
     },
   };
 
@@ -1643,11 +1674,15 @@
       vivo: { py: PILHA.y, ph: PILHA.h, med: 0 },
     },
     // as linhas da abertura viram o chão da sala
+    // a pergunta da pesquisa: o Wi-Fi que já existe enche a sala (roteador e anéis) e passa por quem está nela,
+    // alguém olhando o celular; a câmera aparece e é riscada (a ideia é perceber sem câmera)
     pergunta: {
       vivo: { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, med: 0, mover: [0.04, 0.42], saida: [0.36, 0.5] },
       chao: { cresce: 0, entrada: [0.38, 0.5] },
       sala: { entrada: [0.46, 0.86] },
-      pessoa: { x: 0.62, deitada: 1, entrada: [0.4, 0.88] },
+      roteador: { x: 0.2, y: 0.42, prat: SALA.x0, entrada: [0.4, 0.72] },
+      ondas: { ox: 0.2, oy: 0.42, entrada: [0.5, 0.9] },
+      pessoa: { x: 0.6, ergue: 1, entrada: [0.44, 0.88] },
       camera: { risco: 1, entrada: [0.4, 0.88] },
     },
     // as duas placas; entre elas, a onda do Wi-Fi (com a régua de 12 cm) e as mensagens indo de A para B
@@ -1655,9 +1690,12 @@
       chao: {},
       vivo: { p: 0, saida: [0.04, 0.36] },
       sala: { p: 0, saida: [0.1, 0.5] },
-      pessoa: { p: 0, x: 0.62, saida: [0.04, 0.36] },
+      pessoa: { p: 0, x: 0.6, ergue: 1, saida: [0.04, 0.36] },
       camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
-      placaA: { x: 0.14, entrada: [0.36, 0.78] },
+      // o roteador vai até o lugar da placa A e muda de forma até ficar igual à caixa dela; a placa nasce ali
+      roteador: { p: 0, x: 0.14, y: Y_ANTENA, prat: SALA.x0, forma: 1, mover: [0.06, 0.42], saida: [0.5, 0.66] },
+      ondas: { p: 0, ox: 0.14, oy: Y_ANTENA, mover: [0.06, 0.42], saida: [0.2, 0.5] },
+      placaA: { x: 0.14, nasce: 1, entrada: [0.42, 0.86] },
       placaB: { x: 0.86, entrada: [0.44, 0.84] },
       onda12: { x0: 0.2, x1: 0.8, y: Y_ANTENA, entrada: [0.55, 0.92] },
       pacotes: { entrada: [0.62, 0.9] },
@@ -1769,6 +1807,9 @@
       rotina: { entrada: [0.3, 0.96] },
     },
     privacidade: {
+      // vindo da montagem: as placas, o notebook e as linhas saem antes de a casa se desenhar
+      placaA: { p: 0, saida: [0.02, 0.3] }, placaB: { p: 0, saida: [0.02, 0.3] }, pacotes: { p: 0, saida: [0.02, 0.24] },
+      notebook: { p: 0, saida: [0.02, 0.34] }, pilha: { p: 0, saida: [0.02, 0.3] },
       chao: { entrada: [0.3, 0.6] },
       casa: { cx: 0.38, larg: 0.56, alt: 0.4, tel: 0.16, sino: 0, fachada: 0, entrada: [0.32, 0.84] },
       pessoa: { x: 0.28, deitada: 0, esc: 1, fantasma: 0, entrada: [0.45, 0.88] },
@@ -2085,7 +2126,8 @@
     function mostrarNotas() {
       const i = Math.round(destino()), c = cena(i);
       const acoes = (c.acao || []).map((a) => `<br>· ${escapar(a)}`).join('');
-      const texto = c.fala ? `${escapar(c.fala)}${acoes}${c.ponte ? `<br>→ ${escapar(c.ponte)}` : ''}` : escapar(c.notas || '');
+      const curta = st.versao === 'curta', fala = (curta && c.falaCurta) || c.fala, ponte = (curta && c.ponteCurta) || c.ponte;
+      const texto = fala ? `${escapar(fala)}${acoes}${ponte ? `<br>→ ${escapar(ponte)}` : ''}` : escapar(c.notas || '');
       elNotas.innerHTML = `<b>Cena ${i + 1} de ${st.ordem.length} · ${escapar(semMarcas(tituloDe(c)))}</b>${texto}`;
     }
 

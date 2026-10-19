@@ -79,8 +79,10 @@ out.colinha = {
   semFala: R.cenas.filter((c) => !(typeof c.fala === 'string' && c.fala.length > 20)).map((c) => c.id),
   semPonte: R.cenas.slice(0, -1).filter((c) => !(typeof c.ponte === 'string' && c.ponte.length > 5)).map((c) => c.id),
   acoesRuins: R.cenas.filter((c) => c.acao !== undefined && !(Array.isArray(c.acao) && c.acao.every((a) => typeof a === 'string' && a.length > 3))).map((c) => c.id),
-  perguntasRuins: [...R.cenas.flatMap((c) => c.perguntas || []), ...(R.perguntasGerais || [])].filter((q) => !(q.p && q.r)).length,
+  perguntasRuins: [...R.cenas.flatMap((c) => c.perguntas || []), ...(R.perguntasGerais || []), ...(R.perguntasVisitante || [])].filter((q) => !(q.p && q.r)).length,
   gerais: (R.perguntasGerais || []).length,
+  visitante: (R.perguntasVisitante || []).length,
+  falaCurtaLonga: R.cenas.filter((c) => c.falaCurta && c.falaCurta.split(/[.!?]\s/).length > 6).map((c) => c.id),
   falaLonga: R.cenas.filter((c) => c.fala && c.fala.split(/[.!?]\s/).length > 6).map((c) => c.id),
 };
 console.log(JSON.stringify(out));
@@ -132,9 +134,9 @@ class TestHistoria(unittest.TestCase):
 
     def test_versoes(self):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
-        self.assertEqual(len(self.r["curta"]), 12)
+        self.assertEqual(len(self.r["curta"]), 14)
         self.assertEqual(self.r["curta"][0], "abertura")
-        self.assertEqual(self.r["remap"], ["frequencias", "placas", "parado", "sozinho"])
+        self.assertEqual(self.r["remap"], ["frequencias", "placas", "resultados", "privacidade"])
 
     def test_dados_de_ilustracao_deterministicos(self):
         self.assertTrue(self.r["semente"]["iguais"])
@@ -158,6 +160,8 @@ class TestHistoria(unittest.TestCase):
         self.assertEqual(c["acoesRuins"], [])
         self.assertEqual(c["perguntasRuins"], 0)
         self.assertGreaterEqual(c["gerais"], 4)
+        self.assertGreaterEqual(c["visitante"], 5)       # perguntas de quem passa pelo estande, não só de avaliador
+        self.assertEqual(c["falaCurtaLonga"], [])
         self.assertEqual(c["falaLonga"], [])        # fala curta: no máximo 6 frases por cena
 
     def test_ids_unicos(self):
