@@ -49,16 +49,17 @@ def gerar(R):
         "",
         "## Antes de tudo (leia isto e já dá para apresentar)",
         "",
-        "**O projeto em 30 segundos.** \"Quase todo lugar tem Wi-Fi, e o sinal passa pela gente o tempo todo. A nossa "
-        "pesquisa é descobrir o que dá para perceber de uma pessoa só com esse sinal, sem câmera. Com duas plaquinhas "
-        "baratas, a gente percebeu cada vez que alguém cruzou entre elas, até através de uma parede. Quer testar? "
-        "Mexe o braço aqui.\"",
+        "**O projeto em 30 segundos.** \"Você sabia que o Wi-Fi consegue perceber a gente? Quase ninguém sabe. O sinal "
+        "passa pela gente o tempo todo, e isso virou padrão oficial do Wi-Fi só em 2025. A nossa pesquisa é descobrir "
+        "o que dá para perceber de uma pessoa só com esse sinal, sem câmera. Com duas plaquinhas baratas, a gente "
+        "percebeu cada vez que alguém cruzou entre elas, até através de uma parede. Quer testar? Mexe o braço aqui.\"",
         "",
         "**As 3 ideias que a pessoa tem que levar para casa:**",
         "",
-        "1. O Wi-Fi chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.",
-        "2. Funcionou: 7 travessias, 7 detecções; e através de uma parede.",
-        "3. Serve para coisas boas (resgate, quem mora sozinho), mas pede cuidado com a privacidade.",
+        "1. O Wi-Fi consegue perceber gente, sem câmera, e isso é novo: virou padrão oficial do Wi-Fi em 2025.",
+        "2. Como: o sinal chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.",
+        "3. Funcionou (7 travessias, 7 detecções; e através de uma parede). Serve para coisas boas, mas pede cuidado "
+        "com a privacidade.",
         "",
         "**Como falar.** É conversa, não prova oral. Não precisa decorar: leia a fala uma vez e conte do seu jeito. "
         "Comece pelo que a pessoa vê na tela, use \"você\" e faça perguntas. Se não souber algo, diga \"boa pergunta, "

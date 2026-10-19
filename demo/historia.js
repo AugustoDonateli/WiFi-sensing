@@ -275,22 +275,26 @@
 
   // Os escombros, em alturas de pessoa (H), a partir dos pés de quem está deitado (x para a direita, y para cima).
   // Duas lajes apoiadas uma na outra formam um vão por cima da pessoa; pedras por cima e tijolos dos lados.
+  // Escombros (ilustração), em unidades da altura da pessoa, a partir dos pés dela (x para a direita, y para
+  // cima). Cada peça é um bloco: `pts` é a face da frente; a de trás fica deslocada por ENTULHO.fundo.
+  // `prof` = de trás (menor) para a frente (maior), a ordem de desenho; `ordem` = a ordem em que caem.
   const ENTULHO = {
+    fundo: [0.045, 0.04],
     pecas: [
-      { laje: true, pts: [[-1.52, 0], [-1.38, 0], [-0.42, 0.53], [-0.5, 0.62]], meio: [[-1.45, 0.02], [-0.46, 0.575]] },   // laje da esquerda
-      { laje: true, pts: [[0.62, 0], [0.48, 0], [-0.46, 0.5], [-0.38, 0.58]], meio: [[0.55, 0.02], [-0.42, 0.54]] },      // laje da direita
-      { pts: [[-1.22, 0.18], [-0.98, 0.33], [-0.97, 0.41], [-1.09, 0.43], [-1.2, 0.3]] },                    // pedras nas lajes
-      { pts: [[0.32, 0.17], [0.1, 0.3], [0.12, 0.38], [0.25, 0.37], [0.34, 0.26]] },
-      { pts: [[-0.78, 0.5], [-0.6, 0.7], [-0.38, 0.74], [-0.28, 0.6], [-0.44, 0.52], [-0.62, 0.46]] },       // monte em cima
-      { pts: [[-0.36, 0.56], [-0.14, 0.64], [-0.02, 0.52], [-0.1, 0.4], [-0.28, 0.43]] },
-      { pts: [[-0.62, 0.74], [-0.46, 0.86], [-0.28, 0.82], [-0.32, 0.71], [-0.5, 0.67]] },
-      { pts: [[-1.8, 0], [-1.6, 0], [-1.58, 0.1], [-1.78, 0.11]] },                                         // tijolos dos lados
-      { pts: [[0.68, 0], [0.88, 0], [0.87, 0.09], [0.69, 0.1]] },
-      { pts: [[-1.74, 0.11], [-1.58, 0.11], [-1.6, 0.19], [-1.75, 0.18]] },
-      { pts: [[0.76, 0.1], [0.92, 0.1], [0.9, 0.18], [0.74, 0.17]] },
+      { prof: 1, ordem: 0, laje: true, pts: [[-1.52, 0], [-1.38, 0], [-0.42, 0.53], [-0.5, 0.62]], meio: [[-1.45, 0.02], [-0.46, 0.575]] },   // laje da esquerda
+      { prof: 1.1, ordem: 1, laje: true, pts: [[0.62, 0], [0.48, 0], [-0.46, 0.5], [-0.38, 0.58]], meio: [[0.55, 0.02], [-0.42, 0.54]] },  // laje da direita
+      { prof: 2, ordem: 2, pts: [[-1.22, 0.18], [-0.98, 0.33], [-0.97, 0.41], [-1.09, 0.43], [-1.2, 0.3]] },                    // pedras nas lajes
+      { prof: 2, ordem: 3, pts: [[0.32, 0.17], [0.1, 0.3], [0.12, 0.38], [0.25, 0.37], [0.34, 0.26]] },
+      { prof: 1.5, ordem: 4, pts: [[-0.88, 0.48], [-0.76, 0.64], [-0.56, 0.68], [-0.48, 0.56], [-0.64, 0.48]] },                // monte em cima
+      { prof: 2.5, ordem: 5, pts: [[-0.32, 0.56], [-0.12, 0.62], [-0.03, 0.52], [-0.1, 0.43], [-0.27, 0.46]] },
+      { prof: 2.6, ordem: 6, pts: [[-0.66, 0.68], [-0.52, 0.83], [-0.33, 0.8], [-0.37, 0.69], [-0.52, 0.64]] },
+      { prof: 3, ordem: 7, pts: [[-1.8, 0], [-1.6, 0], [-1.58, 0.1], [-1.78, 0.11]] },                                         // tijolos dos lados
+      { prof: 3, ordem: 8, pts: [[0.68, 0], [0.88, 0], [0.87, 0.09], [0.69, 0.1]] },
+      { prof: 3.1, ordem: 9, pts: [[-1.74, 0.11], [-1.58, 0.11], [-1.6, 0.19], [-1.75, 0.18]] },
+      { prof: 3.1, ordem: 10, pts: [[0.76, 0.1], [0.92, 0.1], [0.9, 0.18], [0.74, 0.17]] },
     ],
     vao: [[-1.38, 0], [-0.44, 0.52], [0.48, 0]],              // o espaço livre embaixo das lajes
-    ferro: [[-0.2, 0.66], [-0.08, 0.92], [0.06, 0.96], [0.12, 0.9]],
+    ferro: [[-0.2, 0.7], [-0.08, 0.94], [0.06, 0.98], [0.12, 0.92]],
     peito: [-0.72, 0.1],
   };
   // A rotina de ontem (ilustração): [hora, altura] de cada movimento. Dorme até 6h40 e depois das 22h30.
@@ -431,6 +435,13 @@
   // Quanto do desenho está "construído": sobe de 0 a 1 na entrada e desce de 1 a 0 na saída, para o que
   // entra desenhando sair desdesenhando (o mesmo caminho ao contrário).
   const construcao = (q) => (q.dir === 1 ? q.lin : q.dir === -1 ? 1 - q.lin : 1);
+  // Cena da câmera: parada, a luz da sala fica acesa uns 3 s, apaga, fica 3 s no escuro e acende de novo
+  // (ciclo de 8 s contado de quando a cena parou). Na transição, fica acesa. 1 = acesa, 0 = apagada.
+  function luzDaSala(q, ex) {
+    if (!(q.apaga > 0.5) || construcao(q) < 1 || !ex) return 1;
+    const f = (ex.repouso || 0) % 8;
+    return 1 - curvas.suave(janela(f, 3.2, 4)) + curvas.suave(janela(f, 7.2, 8));
+  }
   // LED das placas: acende quando um pacote sai de A (e, ao mesmo tempo, outro chega em B) e apaga devagar.
   function ledPacotes(amb, prm) {
     const pc = prm.pacotes;
@@ -548,6 +559,16 @@
     trajeto(contornoRet(x - w / 2, topo, w, h, w * 0.09)).tracar(c, kCont);
     if (kDet <= 0) { c.lineCap = 'butt'; return; }
     c.globalAlpha = alfa * kDet;
+    // a espessura da placa: uma borda deslocada para trás, em cima e à direita (aparece com os detalhes, para
+    // a caixa chegar lisa quando nasce de outra coisa)
+    {
+      const d = w * 0.075, r = w * 0.09;
+      c.globalAlpha = alfa * kDet * 0.55; c.lineWidth = PESO.detalhe * G.dpr;
+      c.beginPath(); c.moveTo(x - w / 2 + r, topo); c.lineTo(x - w / 2 + r + d, topo - d); c.lineTo(x + w / 2 + d, topo - d);
+      c.lineTo(x + w / 2 + d, base - r - d); c.lineTo(x + w / 2, base - r); c.stroke();
+      linha(c, x + w / 2 - r * 0.3, topo + r * 0.3, x + w / 2 + d, topo - d);
+      c.globalAlpha = alfa * kDet;
+    }
     // o módulo (a blindagem de metal) e, em cima dele, a antena desenhada na placa, em zigue-zague
     const mx = x - w * 0.36, mw = w * 0.72, my = topo + h * 0.06, mh = h * 0.5;
     c.lineWidth = PESO.secundario * G.dpr;
@@ -658,7 +679,13 @@
       tracar(6 * G.dpr, cor.fundo);
       c.fillStyle = cor.fundo; c.beginPath(); c.arc(cab[0], cab[1], r, 0, 2 * Math.PI); c.fill();
     }
-    if (fan < 1) { c.globalAlpha = alfa * (1 - fan); tracar(1.7 * G.dpr, tinta); }
+    // grande o bastante, os membros são vazados (traço largo e, por dentro, um mais estreito na cor do fundo),
+    // como um pictograma; pequena (celular, sala em miniatura), traço cheio
+    const vazado = H > 150 * G.dpr && !o.cor;
+    if (fan < 1 && vazado) {
+      c.globalAlpha = alfa * (1 - fan); tracar(4.6 * G.dpr, tinta);
+      c.globalAlpha = Math.min(1, 2 * alfa * (1 - fan)); tracar(2 * G.dpr, cor.fundo);
+    } else if (fan < 1) { c.globalAlpha = alfa * (1 - fan); tracar(1.7 * G.dpr, tinta); }
     if (fan > 0) { c.globalAlpha = alfa * fan * 0.75; c.setLineDash([3 * G.dpr, 4 * G.dpr]); tracar(1.4 * G.dpr, tinta); c.setLineDash([]); }
     c.restore();
   }
@@ -801,7 +828,8 @@
 
   // Camadas: ordem de desenho e parâmetros padrão. `sintetica` liga a etiqueta "Ilustração".
   const CAMADAS = {
-    sala: { padrao: {} },
+    sala: { padrao: { apaga: 0 } },
+    parede: { padrao: { x: 0.48 } },
     ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
     onda12: { padrao: { x0: 0.27, x1: 0.95, y: 0.42 } },
     casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0, fachada: 0 } },
@@ -810,12 +838,13 @@
     raios: { padrao: { so: 0, ...ZOOM_NORMAL } },
     pacotes: { padrao: { ...ZOOM_NORMAL } },
     roteador: { padrao: { x: 0.2, y: 0.42, prat: -1, forma: 0 } },
-    camera: { padrao: { risco: 0 } },
+    cronologia: { padrao: { foco: 0 } },
+    camera: { padrao: { risco: 0, cx: 0.85, cy: SALA.teto + 0.1, mx: 0.46, my: 0.72, corta: -1, apaga: 0 } },
     placaA: { padrao: { x: 0.14, esc: 1, nasce: 0, ...ZOOM_NORMAL } },
     placaB: { padrao: { x: 0.86, esc: 1, nasce: 0, ...ZOOM_NORMAL } },
     notebook: { padrao: {} },
     vulto: { padrao: { x: 0.86 } },
-    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, preso: 0, fantasma: 0, andar: 0, ergue: 0, ...ZOOM_NORMAL } },
+    pessoa: { padrao: { x: 0.6, esc: 1, deitada: 0, preso: 0, fantasma: 0, andar: 0, ergue: 0, percebe: 0, ...ZOOM_NORMAL } },
     barras: { padrao: { destaque: -1, luz: 1 }, sintetica: true },
     curva: { padrao: { forma: 0, luz: 1 }, sintetica: true },
     salto: { padrao: {}, sintetica: true },
@@ -831,9 +860,23 @@
   // Cada desenho recebe (contexto, geometria, parâmetros da camada, cores, tempo, todas as camadas, extras).
   // q.p é a presença (0 a 1) e q.dir diz se a camada está entrando (1), saindo (−1) ou parada (0).
   const DESENHOS = {
-    sala(c, G, q, cor) {
+    sala(c, G, q, cor, amb, prm, ex) {
       // paredes e teto: entram subindo dos cantos do chão e se encontram no meio do teto
       const x0 = G.X(SALA.x0), x1 = G.X(SALA.x1), yc = G.Y(CHAO), yt = G.Y(SALA.teto);
+      if (q.apaga > 0.5) {
+        // a luz acesa: um véu claro bem fraco e uma lâmpada no teto, que apagam juntos (cena da câmera)
+        const luz = luzDaSala(q, ex), a = curvas.suave(janela(construcao(q), 0.55, 1)), lx = G.X(0.3), ly = yt + G.bh * 0.07, r = G.bh * 0.022;
+        c.globalAlpha = 0.07 * luz * a; c.fillStyle = cor.tinta; c.fillRect(x0, yt, x1 - x0, yc - yt);
+        c.strokeStyle = cor.tinta; c.lineWidth = PESO.detalhe * G.dpr; c.globalAlpha = 0.7 * a;
+        linha(c, lx, yt, lx, ly - r);
+        c.beginPath(); c.arc(lx, ly, r, Math.PI, 0); c.lineTo(lx + r, ly); c.lineTo(lx - r, ly); c.closePath(); c.stroke();
+        if (luz > 0.01) {
+          c.globalAlpha = a * luz; c.beginPath(); c.arc(lx, ly + r * 0.2, r * 0.45, 0, 2 * Math.PI); c.fill();
+          const g = c.createRadialGradient(lx, ly, 0, lx, ly, G.bh * 0.3);
+          g.addColorStop(0, 'rgba(237, 237, 232, 0.16)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
+          c.globalAlpha = a * luz; c.fillStyle = g; c.fillRect(lx - G.bh * 0.3, yt, G.bh * 0.6, ly + G.bh * 0.3 - yt);   // só dentro da sala
+        }
+      }
       const parede = yc - yt, meio = (x1 - x0) / 2, d = curvas.suave(construcao(q)) * (parede + meio);
       c.globalAlpha = 0.55 * limitar(q.p * 2); c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
       for (const [xb, lado] of [[x0, 1], [x1, -1]]) {
@@ -841,6 +884,19 @@
         if (d <= parede) c.lineTo(xb, yc - d); else { c.lineTo(xb, yt); c.lineTo(xb + lado * (d - parede), yt); }
         c.stroke();
       }
+    },
+    parede(c, G, q, cor) {
+      // parede entre os dois cômodos, em corte (duas linhas e hachura), subindo do chão até o teto
+      const b = curvas.suave(construcao(q)), x = G.X(q.x), yc = G.Y(CHAO), yt = G.Y(SALA.teto);
+      const e = Math.max(G.dpr * 4, G.bw * 0.014), y = yc - (yc - yt) * b;
+      const alfa = q.dir === -1 ? limitar(q.p * 2) : 1;
+      if (b <= 0.001) return;
+      c.globalAlpha = alfa; c.strokeStyle = cor.tinta; c.lineCap = 'butt'; c.lineWidth = PESO.secundario * G.dpr;
+      linha(c, x - e / 2, yc, x - e / 2, y); linha(c, x + e / 2, yc, x + e / 2, y);
+      c.save(); c.beginPath(); c.rect(x - e / 2, y, e, yc - y); c.clip();
+      c.globalAlpha = alfa * 0.5; c.lineWidth = PESO.detalhe * G.dpr;
+      for (let yy = yc + e; yy > y - e; yy -= e * 0.8) linha(c, x - e / 2, yy, x + e / 2, yy - e);
+      c.restore();
     },
     ondas(c, G, q, cor, amb) {
       // anéis saindo do roteador; dentro da área (sala ou casa) são cheios, fora (vaza) tracejados
@@ -1067,27 +1123,112 @@
         const lx = x - w * 0.3 + i * w * 0.11, brilho = Math.max(0, 1 - Math.min(Math.abs(seq - i), 3 - Math.abs(seq - i)));
         c.globalAlpha = alfa * resto * (0.35 + 0.65 * brilho);
         c.beginPath(); c.arc(lx, y + h * 0.12, rl, 0, 2 * Math.PI); c.fill();
+        c.globalAlpha = alfa * resto * brilho * 0.3;
+        c.beginPath(); c.arc(lx, y + h * 0.12, rl * 2.6, 0, 2 * Math.PI); c.fill();
       }
       c.lineCap = 'butt';
     },
-    camera(c, G, q, cor) {
-      // câmera no canto do teto, olhando a pessoa; no fim da entrada ela é riscada
-      // câmera de segurança: placa na parede, braço com junta, corpo com para-sol e lente
-      const t = linear(q), sai = saindo(q);
-      const alfa = q.dir === -1 ? 1 - curvas.sai(janela(sai, 0.4, 1)) : limitar(t * 2.5);
-      const s = G.bh * 0.07, x = G.X(0.85), y = G.Y(SALA.teto + 0.1);
-      const ang = Math.atan2(G.Y(0.72) - y, G.X(0.46) - x);
+    cronologia(c, G, q, cor, amb, prm, ex) {
+      // Linha do tempo do sensoriamento por Wi-Fi: o eixo se desenha e os marcos acendem um a um; o último, o
+      // Wave Sense, é o maior e brilha. Indo para as placas (`foco`), o resto some e o ponto do Wave Sense voa até
+      // o lugar da placa A, virando uma caixa do mesmo tamanho da dela: a placa nasce ali (match cut).
+      const b = construcao(q), foco = limitar(q.foco || 0);     // `foco` já vem com a curva da pose
+      const resto = 1 - curvas.suave(janela(foco, 0, 0.4)), alfaT = q.dir === -1 && foco < 0.01 ? limitar(q.p * 1.6) : 1;
+      const compacto = G.bw < 560 * G.dpr;          // celular e miniatura do apresentador: ano e uma palavra
+      const y0 = G.Y(0.44), xa = G.X(0.03), xb = G.X(0.97);
+      const M = [
+        { x: 0.13, ano: '2013', txt: ['MIT: o Wi-Fi percebe', 'gente atrás da parede'], cur: 'MIT' },
+        { x: 0.4, ano: '2025', txt: ['vira padrão oficial', 'do Wi-Fi (802.11bf)'], cur: 'padrão' },
+        { x: 0.64, ano: 'hoje', txt: ['roteadores nos EUA', 'já fazem isso'], cur: 'nos EUA' },
+        { x: 0.86, ano: '2026', txt: ['Wave Sense', 'nós, com duas placas'], cur: 'Wave Sense', nos: true },
+      ];
+      const kM = (i) => curvas.pop(janela(b, 0.3 + i * 0.15, 0.5 + i * 0.15));
+      const kT = (i) => curvas.suave(janela(b, 0.36 + i * 0.15, 0.62 + i * 0.15));
+      c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineCap = 'round';
+      if (resto > 0.001) {
+        // o eixo, com uma seta no fim
+        const kE = curvas.suave(janela(b, 0, 0.42));
+        c.globalAlpha = 0.6 * resto * alfaT; c.lineWidth = G.dpr;
+        trajeto([[xa, y0], [xb, y0]]).tracar(c, kE);
+        if (kE > 0.98) { const d = G.bh * 0.014; linha(c, xb, y0, xb - d, y0 - d * 0.7); linha(c, xb, y0, xb - d, y0 + d * 0.7); }
+        // de vez em quando, um brilho corre pelo eixo do passado até o Wave Sense
+        if (q.dir === 0 && foco < 0.01) {
+          const f = (amb % 4) / 4, xc = misturar(xa, G.X(0.86), limitar(f / 0.75));
+          if (f < 0.78) {
+            const g = c.createRadialGradient(xc, y0, 0, xc, y0, G.bh * 0.03);
+            g.addColorStop(0, 'rgba(237, 237, 232, 0.9)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
+            c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = Math.sin(Math.PI * limitar(f / 0.78)) * 0.8;
+            c.fillStyle = g; c.fillRect(xc - G.bh * 0.03, y0 - G.bh * 0.03, G.bh * 0.06, G.bh * 0.06); c.restore();
+          }
+        }
+        M.forEach((m, i) => {
+          const k = kM(i), kt = kT(i), x = G.X(m.x);
+          if (k <= 0.001) return;
+          const a = resto * alfaT;
+          if (!m.nos) {
+            c.globalAlpha = a; c.beginPath(); c.arc(x, y0, G.bh * 0.011 * k, 0, 2 * Math.PI); c.fill();
+          }
+          if (kt <= 0.001) return;
+          // o ano em cima (serifada) e o que aconteceu embaixo
+          const sobe = (1 - kt) * G.bh * 0.02;
+          c.globalAlpha = a * kt; c.fillStyle = cor.tinta;
+          c.font = `${Math.round(Math.max(14 * G.dpr, G.bh * (m.nos ? 0.095 : 0.07)))}px ${G.serif}`;
+          c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+          c.fillText(m.ano, x, y0 - G.bh * 0.05 + sobe);
+          const linhas = compacto ? [m.cur] : m.txt;
+          linhas.forEach((txt, l) => rotulo(c, G, cor, txt, x, y0 + G.bh * (0.05 + l * 0.05) + sobe,
+            { tam: l === 0 && m.nos ? 0.044 : 0.034, cor: m.nos || l === 0 ? cor.tinta : cor.apagado }));
+          c.fillStyle = cor.tinta;
+        });
+      }
+      // o ponto do Wave Sense: maior, com anel e brilho; no foco, voa e vira a caixa da placa A
+      const kN = foco > 0.001 ? 1 : kM(3);
+      if (kN > 0.001) {
+        const r = G.bh * 0.026 * kN, w = G.bh * TAM_PLACA * 0.58, h = G.bh * TAM_PLACA;
+        const xN = misturar(G.X(0.86), G.X(0.14), foco), yN = misturar(y0, G.Y(Y_ANTENA), foco);
+        const ww = misturar(2 * r, w, foco), hh = misturar(2 * r, h, foco), rr = misturar(r, w * 0.09, foco);
+        const a = q.dir === -1 && foco > 0.01 ? limitar(q.p * 1.6) : alfaT;
+        const brilho = (1 - foco) * (q.dir === 0 ? 0.75 + 0.25 * Math.sin(amb * 2.4) : 1);
+        if (brilho > 0.01) {
+          const g = c.createRadialGradient(xN, yN, 0, xN, yN, G.bh * 0.09);
+          g.addColorStop(0, 'rgba(237, 237, 232, 0.5)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
+          c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = a * brilho * kN; c.fillStyle = g;
+          c.fillRect(xN - G.bh * 0.09, yN - G.bh * 0.09, G.bh * 0.18, G.bh * 0.18); c.restore();
+        }
+        c.globalAlpha = a; c.fillStyle = cor.fundo; c.strokeStyle = cor.tinta; c.lineWidth = PESO.principal * G.dpr;
+        c.beginPath(); retArred(c, xN - ww / 2, yN - hh / 2, ww, hh, rr); c.fill(); c.stroke();
+        c.globalAlpha = a * (1 - foco); c.fillStyle = cor.tinta;
+        c.beginPath(); c.arc(xN, yN, r * 0.5, 0, 2 * Math.PI); c.fill();
+        if (q.dir === 0 && foco < 0.01) {      // um anel que se abre a cada 2 s
+          const f = (amb / 2) % 1;
+          c.globalAlpha = a * (1 - f) * 0.7; c.lineWidth = G.dpr;
+          c.beginPath(); c.arc(xN, yN, r * (1.2 + f * 1.8), 0, 2 * Math.PI); c.stroke();
+        }
+      }
+      c.lineCap = 'butt';
+    },
+    camera(c, G, q, cor, amb, prm, ex) {
+      // Câmera de segurança: placa na parede, braço com junta, corpo com para-sol e lente. Fica no canto
+      // (cx, cy), mira (mx, my) e, presa na parede da esquerda, é desenhada espelhada. `corta` = x da parede do
+      // meio: o campo de visão para nela. Com `apaga`, no escuro a câmera esmaece e o campo de visão some.
+      const t = linear(q), sai = saindo(q), luz = luzDaSala(q, ex);
+      const alfa0 = q.dir === -1 ? 1 - curvas.sai(janela(sai, 0.4, 1)) : limitar(t * 2.5);
+      const alfa = alfa0 * (0.35 + 0.65 * luz);
+      const s = G.bh * 0.07, x = G.X(q.cx), y = G.Y(q.cy), esq = q.cx < 0.5;
+      const ang = Math.atan2(G.Y(q.my) - y, G.X(q.mx) - x), angD = esq ? Math.PI - ang : ang;
       // riscada no fim da entrada; na saída, o risco se desfaz antes da câmera sumir
       const risco = q.risco * (q.dir === 1 ? curvas.suave(janela(t, 0.5, 0.95)) : q.dir === -1 ? 1 - curvas.suave(janela(sai, 0, 0.45)) : 1);
       const k = q.dir === 1 ? curvas.pop(janela(t, 0, 0.55)) : 1;
-      const xw = G.X(SALA.x1), yb = y - s * 0.78, xj = x + s * 0.5;
+      c.save();
+      if (esq) { c.translate(2 * x, 0); c.scale(-1, 1); }
+      const xw = esq ? 2 * x - G.X(SALA.x0) : G.X(SALA.x1), yb = y - s * 0.78, xj = x + s * 0.5;
       c.globalAlpha = alfa; c.strokeStyle = cor.tinta; c.fillStyle = cor.tinta; c.lineJoin = 'round'; c.lineCap = 'round';
       c.lineWidth = PESO.secundario * G.dpr;
       c.beginPath(); retArred(c, xw - s * 0.13, yb - s * 0.26, s * 0.13, s * 0.52, s * 0.03); c.stroke();
       linha(c, xw - s * 0.13, yb, xj + s * 0.08, yb);
       c.beginPath(); c.arc(xj, yb, s * 0.08, 0, 2 * Math.PI); c.stroke();
       linha(c, xj - s * 0.03, yb + s * 0.08, x + s * 0.12, y - s * 0.3 * k);
-      c.save(); c.translate(x, y); c.rotate(ang); c.scale(k, k);
+      c.translate(x, y); c.rotate(angD); c.scale(k, k);
       c.lineWidth = PESO.principal * G.dpr;
       c.beginPath(); retArred(c, -s * 0.85, -s * 0.3, s * 1.32, s * 0.6, s * 0.13); c.stroke();
       c.lineWidth = PESO.secundario * G.dpr;
@@ -1097,11 +1238,38 @@
       c.beginPath(); c.arc(s * 0.47, 0, s * 0.08, 0, 2 * Math.PI); c.stroke();
       c.beginPath(); c.arc(-s * 0.58, -s * 0.1, s * 0.045, 0, 2 * Math.PI); c.fill();                                        // luz de "gravando"
       c.restore();
-      // o campo de visão (tracejado) some quando a câmera é riscada
+      // o campo de visão: do lado de fora da lente até onde der (o chão, ou a parede do meio)
       const xl = x + Math.cos(ang) * s * 0.85, yl = y + Math.sin(ang) * s * 0.85;
-      c.globalAlpha = alfa * 0.4 * (1 - risco); c.lineWidth = G.dpr; tracejado(c, G, true);
-      linha(c, xl, yl, G.X(0.2), G.Y(CHAO)); linha(c, xl, yl, G.X(0.68), G.Y(CHAO));
-      tracejado(c, G, false);
+      if (q.corta >= 0) {
+        const ab = 0.3, L = G.bw * 2, e = Math.max(G.dpr * 4, G.bw * 0.014) / 2;
+        const xc = G.X(q.corta) + (esq ? -e : e), ytopo = G.Y(SALA.teto), ychao = G.Y(CHAO);
+        const kc = (q.dir === 1 ? curvas.suave(janela(t, 0.35, 0.8)) : 1) * luz;
+        if (kc > 0.001) {
+          const r1 = [xl + Math.cos(ang - ab) * L, yl + Math.sin(ang - ab) * L], r2 = [xl + Math.cos(ang + ab) * L, yl + Math.sin(ang + ab) * L];
+          c.save(); c.beginPath();
+          if (esq) c.rect(G.X(SALA.x0), ytopo, xc - G.X(SALA.x0), ychao - ytopo); else c.rect(xc, ytopo, G.X(SALA.x1) - xc, ychao - ytopo);
+          c.clip();
+          c.globalAlpha = alfa0 * 0.08 * kc; c.fillStyle = cor.tinta;
+          c.beginPath(); c.moveTo(xl, yl); c.lineTo(r1[0], r1[1]); c.lineTo(r2[0], r2[1]); c.closePath(); c.fill();
+          c.globalAlpha = alfa0 * 0.45 * kc; c.lineWidth = G.dpr; tracejado(c, G, true);
+          linha(c, xl, yl, r1[0], r1[1]); linha(c, xl, yl, r2[0], r2[1]); tracejado(c, G, false);
+          c.restore();
+          // onde o campo de visão bate na parede: um traço forte ("bloqueado")
+          const naParede = (a) => yl + Math.tan(a) * (xc - xl);
+          const ya = limitar((naParede(ang - ab) - ytopo) / (ychao - ytopo)), yb2 = limitar((naParede(ang + ab) - ytopo) / (ychao - ytopo));
+          c.globalAlpha = alfa0 * 0.9 * kc; c.strokeStyle = cor.tinta; c.lineWidth = 2.4 * G.dpr;
+          linha(c, xc, ytopo + ya * (ychao - ytopo), xc, ytopo + yb2 * (ychao - ytopo));
+        }
+        // o que a câmera consegue: bloqueada pela parede, e nada no escuro
+        const kr = q.dir === 1 ? curvas.suave(janela(t, 0.7, 1)) : alfa0;
+        const lxr = esq ? G.X(SALA.x0) + G.bw * 0.02 : xc + G.bw * 0.02, lyr = ychao - G.bh * 0.04;
+        c.globalAlpha = kr * luz; rotulo(c, G, cor, 'câmera: a parede bloqueia', lxr, lyr, { alinhar: 'left', base: 'bottom', tam: 0.028 });
+        c.globalAlpha = kr * (1 - luz); rotulo(c, G, cor, 'câmera: no escuro, nada', lxr, lyr, { alinhar: 'left', base: 'bottom', tam: 0.028 });
+      } else {
+        c.globalAlpha = alfa * 0.4 * (1 - risco); c.lineWidth = G.dpr; tracejado(c, G, true);
+        linha(c, xl, yl, G.X(0.2), G.Y(CHAO)); linha(c, xl, yl, G.X(0.68), G.Y(CHAO));
+        tracejado(c, G, false);
+      }
       if (risco > 0) {
         const R = s * 1.35, a0 = -Math.PI * 0.75;
         c.globalAlpha = alfa; c.lineWidth = 1.8 * G.dpr;
@@ -1139,6 +1307,22 @@
         x += q.andar * 0.2 * Math.sin(f);
         amp = Math.max(amp, q.andar * limitar(Math.abs(Math.cos(f)) * 1.6));
         dirx = Math.cos(f) >= 0 ? 1 : -1;
+      }
+      if (q.percebe > 0.01) {
+        // percebida pelo Wi-Fi: um brilho em volta do corpo e anéis curtos saindo dele, no ritmo dos anéis
+        const H = G.bh * ALTURA_PESSOA * (q.esc || 1), cx = G.X(x), cy = G.Y(CHAO) - H * 0.5;
+        const k = q.percebe * alfa * (q.dir === 1 ? curvas.suave(janela(t, 0.55, 1)) : 1);
+        const g = c.createRadialGradient(cx, cy, H * 0.05, cx, cy, H * 0.75);
+        g.addColorStop(0, 'rgba(237, 237, 232, 0.2)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
+        c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = k; c.fillStyle = g;
+        c.fillRect(cx - H * 0.75, cy - H * 0.75, H * 1.5, H * 1.5); c.restore();
+        c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
+        for (let i = 0; i < 2; i++) {
+          const f = (amb * 0.9 + i * 0.5) % 1;
+          c.globalAlpha = k * (1 - f) * 0.7;
+          c.beginPath(); c.ellipse(cx, cy, H * (0.26 + f * 0.24), H * (0.52 + f * 0.18), 0, 0, 2 * Math.PI); c.stroke();
+        }
+        c.globalAlpha = k; rotulo(c, G, cor, 'o Wi-Fi percebe', cx, G.Y(CHAO) - H * 1.18, { base: 'bottom', tam: 0.03, cor: cor.tinta });
       }
       desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, preso: q.preso, t: amb, fantasma: fan, alfa, amp, fase: amb * 7, halo: true, dirx,
         ergue: (q.ergue || 0) * (1 - dei), aparelho: (q.ergue || 0) > 0.5 });
@@ -1459,20 +1643,41 @@
         const k = janela(b, 0.04 + (i / n) * 0.62, 0.2 + (i / n) * 0.62 + 0.14);
         return { k, dy: -(1 - curvas.entra(k)) * H * 0.9, a: limitar(k * 3) };
       };
-      const pecas = ENTULHO.pecas, n = pecas.length;
-      pecas.forEach((pc, i) => {
-        const { k, dy, a } = queda(i, n);
+      const n = ENTULHO.pecas.length, [fx, fy] = ENTULHO.fundo;
+      const caminho = (pts, dx = 0, dy = 0) => {
+        c.beginPath(); pts.forEach((v, j) => { const [x, y] = pt([v[0] + dx, v[1] + dy]); j ? c.lineTo(x, y) : c.moveTo(x, y); }); c.closePath();
+      };
+      // de trás para a frente; cada uma cai na sua vez (`ordem`)
+      [...ENTULHO.pecas].sort((a, b2) => a.prof - b2.prof).forEach((pc) => {
+        const { k, dy, a } = queda(pc.ordem, n);
         if (a <= 0) return;
         c.save(); c.translate(0, dy);
-        c.globalAlpha = alfa * a;
-        c.fillStyle = cor.fundo;
+        const aa = alfa * limitar(a * 2.5);            // opaca logo que aparece (não deixa ver o que está atrás)
+        // 1) um contorno largo na cor do fundo: o que está atrás termina limpo, sem parecer cortado
+        c.globalAlpha = aa; c.strokeStyle = cor.fundo; c.lineWidth = 5 * G.dpr;
+        caminho(pc.pts, fx, fy); c.stroke(); caminho(pc.pts); c.stroke();
+        // 2) a face de trás (um pouco mais clara: dá volume) e as arestas que ligam as duas faces
+        c.fillStyle = cor.fundo; caminho(pc.pts, fx, fy); c.fill();
+        c.globalAlpha = aa * 0.07; c.fillStyle = cor.tinta; c.fill();
+        c.globalAlpha = aa * 0.6; c.strokeStyle = cor.tinta; c.lineWidth = PESO.detalhe * G.dpr; c.stroke();
         c.beginPath();
-        pc.pts.forEach((v, j) => { const [x, y] = pt(v); j ? c.lineTo(x, y) : c.moveTo(x, y); });
-        c.closePath(); c.fill();
+        pc.pts.forEach((v) => { const [x0, y0] = pt(v), [x1, y1] = pt([v[0] + fx, v[1] + fy]); c.moveTo(x0, y0); c.lineTo(x1, y1); });
+        c.stroke();
+        // 3) a face da frente, cheia, por cima de tudo
+        c.globalAlpha = aa; c.fillStyle = cor.fundo; caminho(pc.pts); c.fill();
         c.lineWidth = (pc.laje ? PESO.principal : PESO.secundario) * G.dpr; c.stroke();
-        if (pc.laje) {      // a laje tem espessura: uma linha fina por dentro, e a ponta quebrada com o ferro aparecendo
-          c.lineWidth = PESO.detalhe * G.dpr; c.globalAlpha = alfa * a * 0.6;
-          const [x0, y0] = pt(pc.meio[0]), [x1, y1] = pt(pc.meio[1]); linha(c, x0, y0, x1, y1);
+        if (pc.laje) {
+          // a espessura da laje (uma linha fina por dentro) e, na ponta de cima, quebrada, o ferro aparecendo
+          c.lineWidth = PESO.detalhe * G.dpr; c.globalAlpha = aa * 0.6;
+          const [m0x, m0y] = pt(pc.meio[0]), [m1x, m1y] = pt(pc.meio[1]); linha(c, m0x, m0y, m1x, m1y);
+          const [p2, p3] = [pc.pts[2], pc.pts[3]], du = pc.meio[1][0] - pc.meio[0][0], dv = pc.meio[1][1] - pc.meio[0][1];
+          const dl = Math.hypot(du, dv), ux = du / dl, uy = dv / dl;
+          c.globalAlpha = aa * 0.9; c.lineWidth = PESO.secundario * G.dpr;
+          for (const f of [0.3, 0.7]) {
+            const bx = misturar(p2[0], p3[0], f), by = misturar(p2[1], p3[1], f);
+            const [x0, y0] = pt([bx, by]), [x1, y1] = pt([bx + ux * 0.07, by + uy * 0.07]), [x2, y2] = pt([bx + ux * 0.1 + 0.02, by + uy * 0.1 + 0.03 * (f - 0.5)]);
+            c.beginPath(); c.moveTo(x0, y0); c.lineTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+          }
         }
         c.restore();
         // poeira no instante em que o pedaço chega
@@ -1490,7 +1695,9 @@
       // o ferro torto saindo de cima
       const kf = curvas.suave(janela(b, 0.72, 0.95));
       if (kf > 0) {
-        c.globalAlpha = alfa; c.lineWidth = PESO.secundario * G.dpr;
+        c.globalAlpha = alfa; c.strokeStyle = cor.fundo; c.lineWidth = 4 * G.dpr;
+        trajeto(ENTULHO.ferro.map(pt)).tracar(c, kf);
+        c.strokeStyle = cor.tinta; c.lineWidth = PESO.secundario * G.dpr;
         trajeto(ENTULHO.ferro.map(pt)).tracar(c, kf);
       }
       // a respiração: do peito, sobem ondinhas devagar, no ritmo de 15 por minuto (só depois de tudo cair),
@@ -1674,28 +1881,34 @@
       vivo: { py: PILHA.y, ph: PILHA.h, med: 0 },
     },
     // as linhas da abertura viram o chão da sala
-    // a pergunta da pesquisa: o Wi-Fi que já existe enche a sala (roteador e anéis) e passa por quem está nela,
-    // alguém olhando o celular; a câmera aparece e é riscada (a ideia é perceber sem câmera)
-    pergunta: {
+    // a câmera precisa ver; o Wi-Fi, não: uma parede divide a sala. À esquerda, a câmera (o campo de visão para
+    // na parede) e o roteador; à direita, alguém andando, que os anéis alcançam através da parede. Parada, a luz
+    // apaga e acende: no escuro a câmera não vê nada, e o Wi-Fi continua percebendo.
+    camera: {
       vivo: { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, med: 0, mover: [0.04, 0.42], saida: [0.36, 0.5] },
       chao: { cresce: 0, entrada: [0.38, 0.5] },
-      sala: { entrada: [0.46, 0.86] },
-      roteador: { x: 0.2, y: 0.42, prat: SALA.x0, entrada: [0.4, 0.72] },
-      ondas: { ox: 0.2, oy: 0.42, entrada: [0.5, 0.9] },
-      pessoa: { x: 0.6, ergue: 1, entrada: [0.44, 0.88] },
-      camera: { risco: 1, entrada: [0.4, 0.88] },
+      sala: { apaga: 1, entrada: [0.46, 0.86] },
+      parede: { x: 0.48, entrada: [0.5, 0.9] },
+      roteador: { x: 0.12, y: 0.6, prat: SALA.x0, entrada: [0.45, 0.75] },
+      ondas: { ox: 0.12, oy: 0.6, entrada: [0.55, 0.92] },
+      camera: { cx: 0.2, cy: 0.2, mx: 0.48, my: 0.6, corta: 0.48, apaga: 1, entrada: [0.42, 0.9] },
+      pessoa: { x: 0.74, andar: 0.6, percebe: 1, entrada: [0.5, 0.9] },
+    },
+    // isso é ciência de agora: a linha do tempo, de 2013 ao Wave Sense
+    novo: {
+      chao: {},
+      sala: { p: 0, apaga: 1, saida: [0.04, 0.4] }, parede: { p: 0, x: 0.48, saida: [0.04, 0.36] },
+      roteador: { p: 0, x: 0.12, y: 0.6, prat: SALA.x0, saida: [0.04, 0.34] }, ondas: { p: 0, ox: 0.12, oy: 0.6, saida: [0.02, 0.3] },
+      camera: { p: 0, cx: 0.2, cy: 0.2, mx: 0.48, my: 0.6, corta: 0.48, apaga: 1, saida: [0.04, 0.34] },
+      pessoa: { p: 0, x: 0.74, percebe: 1, saida: [0.04, 0.34] },
+      cronologia: { entrada: [0.3, 0.96] },
     },
     // as duas placas; entre elas, a onda do Wi-Fi (com a régua de 12 cm) e as mensagens indo de A para B
     placas: {
       chao: {},
-      vivo: { p: 0, saida: [0.04, 0.36] },
-      sala: { p: 0, saida: [0.1, 0.5] },
-      pessoa: { p: 0, x: 0.6, ergue: 1, saida: [0.04, 0.36] },
-      camera: { p: 0, risco: 1, saida: [0.06, 0.36] },
-      // o roteador vai até o lugar da placa A e muda de forma até ficar igual à caixa dela; a placa nasce ali
-      roteador: { p: 0, x: 0.14, y: Y_ANTENA, prat: SALA.x0, forma: 1, mover: [0.06, 0.42], saida: [0.5, 0.66] },
-      ondas: { p: 0, ox: 0.14, oy: Y_ANTENA, mover: [0.06, 0.42], saida: [0.2, 0.5] },
-      placaA: { x: 0.14, nasce: 1, entrada: [0.42, 0.86] },
+      // o ponto do Wave Sense vai até o lugar da placa A e vira uma caixa igual à dela; a placa nasce ali
+      cronologia: { p: 0, foco: 1, mover: [0.04, 0.6], saida: [0.6, 0.72] },
+      placaA: { x: 0.14, nasce: 1, entrada: [0.5, 0.9] },
       placaB: { x: 0.86, entrada: [0.44, 0.84] },
       onda12: { x0: 0.2, x1: 0.8, y: Y_ANTENA, entrada: [0.55, 0.92] },
       pacotes: { entrada: [0.62, 0.9] },
@@ -1925,6 +2138,7 @@
       rolando: null, direcao: 0, toque: null, corte: null, preto: false, anunciado: -1,
       cache: { tam: [0, 0] }, escala: 1, auto: null, notas: false, fonte: null, suave: { v: NaN },
       anim: null,   // transição em andamento (setas, passador, apresentador, encaixe): { t0, de, para, D, m0 }
+      repouso0: null, repousoEm: -1,   // desde quando a história está parada numa cena (relógio da página)
     };
     // Setas e passador: cada transição dura TRANSICAO_S segundos (ajustável no roteiro.js).
     // Rolagem e toque: uma mola segue o dedo (OMEGA_ROLAGEM) e, ao soltar, a transição encaixa na cena.
@@ -1982,6 +2196,50 @@
       return { bx, by, bw, bh, dpr, X: (u) => bx + u * bw, Y: (v) => by + v * bh, serif: st.cache.serif || 'Georgia, serif', sans: st.cache.sans || 'system-ui, sans-serif' };
     }
 
+    // Profundidade. Brilho (bloom): copia o palco em 1/4 da resolução, eleva ao quadrado (multiply: o fundo some e
+    // só o traço claro fica), desfoca e soma de volta (lighter), bem fraco. Mede o próprio custo: acima de 3 ms,
+    // cai para 1/8 e depois desliga. Na miniatura do apresentador fica desligado. Vinheta: escurece as bordas.
+    const temFiltro = typeof CanvasRenderingContext2D !== 'undefined' && 'filter' in CanvasRenderingContext2D.prototype;
+    const brilho = { nivel: miniatura ? 0 : 1, custo: 0, quadros: 0, fixo: false, a: null, b: null };
+    const telaFora = () => document.createElement('canvas');
+    function aplicarBrilho(G, W, H) {
+      const t0 = performance.now();
+      const m = 0.08, x = Math.max(0, G.bx - G.bw * m), y = Math.max(0, G.by - G.bh * m);
+      const w = Math.min(W - x, G.bw * (1 + 2 * m)), h = Math.min(H - y, G.bh * (1 + 2 * m));
+      const f = brilho.nivel === 1 ? 4 : 8, bw = Math.max(2, Math.round(w / f)), bh = Math.max(2, Math.round(h / f));
+      if (!brilho.a) { brilho.a = telaFora(); brilho.b = telaFora(); }
+      for (const t of [brilho.a, brilho.b]) if (t.width !== bw || t.height !== bh) { t.width = bw; t.height = bh; }
+      const A = brilho.a.getContext('2d'), B = brilho.b.getContext('2d');
+      A.globalAlpha = 1; B.globalAlpha = 1;
+      A.globalCompositeOperation = 'copy'; A.drawImage(cv, x, y, w, h, 0, 0, bw, bh);
+      B.globalCompositeOperation = 'copy'; B.drawImage(brilho.a, 0, 0);
+      B.globalCompositeOperation = 'multiply'; B.drawImage(brilho.a, 0, 0);
+      let res = brilho.a;
+      if (temFiltro) {
+        A.filter = `blur(${Math.max(1.5, bw / 160)}px)`; A.globalCompositeOperation = 'copy'; A.drawImage(brilho.b, 0, 0); A.filter = 'none';
+      } else {
+        A.globalCompositeOperation = 'copy'; A.drawImage(brilho.b, 0, 0, bw, bh, 0, 0, bw / 3, bh / 3);
+        B.globalCompositeOperation = 'copy'; B.drawImage(brilho.a, 0, 0, bw / 3, bh / 3, 0, 0, bw, bh);
+        res = brilho.b;
+      }
+      ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.3; ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(res, 0, 0, bw, bh, x, y, w, h); ctx.restore();
+      const dt = performance.now() - t0;
+      brilho.custo = brilho.quadros ? brilho.custo * 0.9 + dt * 0.1 : dt; brilho.quadros++;
+      if (!brilho.fixo && brilho.quadros > 30 && brilho.custo > 3) { brilho.nivel = brilho.nivel === 1 ? 2 : 0; brilho.quadros = 0; }
+    }
+    const vin = { chave: '', g: null };
+    function vinheta(G, W, H) {
+      const chave = `${W}x${H}x${Math.round(G.bx)}`;
+      if (vin.chave !== chave) {
+        const cx = G.bx + G.bw / 2, cy = G.by + G.bh / 2;
+        vin.g = ctx.createRadialGradient(cx, cy, G.bw * 0.45, cx, cy, Math.hypot(W, H) * 0.62);
+        vin.g.addColorStop(0, 'rgba(0, 0, 0, 0)'); vin.g.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        vin.chave = chave;
+      }
+      ctx.save(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1; ctx.fillStyle = vin.g; ctx.fillRect(0, 0, W, H); ctx.restore();
+    }
+
     /* ---------- Um quadro ---------- */
     function desenhar() {
       const agora = relogio();
@@ -2016,6 +2274,10 @@
         } else st.auto.desde = null;
       }
 
+      // há quanto tempo a história está parada nesta cena (o ciclo da luz da cena da câmera conta daqui)
+      if (st.T === st.alvo && Number.isInteger(st.T) && !st.anim && !st.corte) {
+        if (st.repousoEm !== st.T || st.repouso0 === null) { st.repouso0 = agora; st.repousoEm = st.T; }
+      } else st.repouso0 = null;
       if (!st.cache.tam[0]) medir();
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5) * st.escala;
       const W = Math.max(1, Math.round(st.cache.tam[0] * dpr)), H = Math.max(1, Math.round(st.cache.tam[1] * dpr));
@@ -2027,7 +2289,8 @@
       const prm = poseEm(st.T, st.ordem, POSES, PADROES);
       // o sinal de verdade (placas, simulação ou gravação), quando a página principal passa um
       const dv = dadosVivos();
-      const ex = { vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), suave: st.suave };
+      const ex = { vivo: dv, vivoReal: Boolean(dv && dv.fonte && dv.leituras && dv.leituras.length > 1), suave: st.suave,
+        repouso: st.repouso0 === null || st.repouso0 === undefined ? 0 : agora - st.repouso0 };
       // Do número de exemplo para o sinal de verdade: uma linha varre da esquerda para a direita; à esquerda
       // dela já é o sinal das placas, à direita ainda é a ilustração (só quando o layout é o mesmo).
       const varre = prm.vivo && prm.vivo.dir === 1 && prm.medidor && prm.medidor.dir === -1 && prm.pilha ? curvas.suave(prm.vivo.lin) : null;
@@ -2063,6 +2326,8 @@
         ctx.fillStyle = cor.tinta; ctx.fillRect(xv - G.dpr * 0.75, G.Y(0), G.dpr * 1.5, G.bh);
         ctx.globalAlpha = 1;
       }
+      if (brilho.nivel > 0) aplicarBrilho(G, W, H);
+      vinheta(G, W, H);
       // etiqueta no canto: de onde vem o que está na tela. Ilustração (dado sintético) ou a fonte real.
       const vivo = prm.vivo && ex.vivoReal ? (varre !== null ? (varre > 0.5 ? 1 : 0) : prm.vivo.p) : 0;
       if (varre !== null && ex.vivoReal) sintetica = varre > 0.5 ? 0 : 1;
@@ -2290,6 +2555,8 @@
         congelar(t) { st.congelado = t; st.ultimo = 0; },
         avancar(t) { st.congelado = t; },          // relógio parado andando quadro a quadro (a mola usa a diferença)
         quadro() { desenhar(); },
+        // sem argumento, diz o nível do brilho (0 desligado, 1 em 1/4, 2 em 1/8); com, liga/desliga sem a medida de custo
+        brilho(v) { if (v === undefined) return brilho.nivel; brilho.nivel = v ? 1 : 0; brilho.fixo = true; },
       },
     };
     if (miniatura) iniciarLaco();
@@ -2328,7 +2595,7 @@
 
   const WaveHistoria = {
     limitar, misturar, janela, curvas, bezier, mola, transicao, inclinacaoTransicao, alvoDirecional, ordemDa, remapear, revelacao, poseEm,
-    mulberry32, canal, perfilParado, sinteticas, desenharLinhas, criarPalco, criarCanal, POSES, CAMADAS,
+    mulberry32, canal, perfilParado, sinteticas, desenharLinhas, criarPalco, criarCanal, POSES, CAMADAS, DESENHOS,
     agitoNoTempo, serieNumero, medidaSint,
   };
   raiz.WaveHistoria = WaveHistoria;

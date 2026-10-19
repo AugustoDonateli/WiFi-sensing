@@ -8,14 +8,15 @@ Todo mundo do grupo deve saber dizer essa frase do seu jeito, em 10 segundos.
 
 ## O que o visitante precisa levar para casa
 
-1. **O Wi-Fi chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.**
-2. **Funcionou:** 7 travessias, 7 detecções, e através de uma parede.
-3. **Serve para coisas boas, e pede cuidado.**
+1. **O Wi-Fi consegue perceber gente, sem câmera, e isso é novo.** Quase ninguém sabe; virou padrão oficial do Wi-Fi (IEEE 802.11bf) em 2025.
+2. **Como:** o sinal chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.
+3. **Funcionou:** 7 travessias, 7 detecções, e através de uma parede.
+4. **Serve para coisas boas, e pede cuidado.**
    - Coisas boas: achar gente viva debaixo de escombros pela respiração (o próximo passo; a NASA já fez isso com um radar, no Nepal, em 2015) e avisar a família quando quem mora sozinho não se mexeu até a hora de sempre.
    - Limite: uma pessoa parada não aparece. Ainda: com a mesma placa, um grupo de pesquisa já mediu a respiração.
    - Cuidado: se atravessa parede, alguém de fora poderia saber se tem gente em casa. Nos EUA, os dados de um produto assim já podem ir para a polícia com ordem judicial.
 
-Se o visitante sair sabendo essas três coisas, a apresentação funcionou.
+Se o visitante sair sabendo essas quatro coisas, a apresentação funcionou.
 
 ## Montagem
 
@@ -76,39 +77,41 @@ A página tem uma apresentação animada, "Como funciona", que serve de apoio pa
 
 **As cenas** (★ = também na versão curta, tecla `V`). A fala, as ações e as perguntas de cada cena estão na [colinha](colinha.md) e na janela do apresentador.
 
-A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha com "Agora você sabe ler estas linhas". A ideia "o movimento muda a soma" aparece **uma vez só**, na cena 5; as outras cenas constroem até ela ou partem dela.
+A história é um arco: abre com uma pergunta ("Você sabia que o Wi-Fi te percebe?") em cima das linhas da sala e fecha com "Agora você sabe ler estas linhas". As cenas 2 e 3 dizem por que isso é novidade: quase ninguém sabe que o Wi-Fi percebe gente, e isso virou padrão oficial do Wi-Fi só em 2025. A ideia "o movimento muda a soma" aparece **uma vez só**, na cena 6; as outras cenas constroem até ela ou partem dela.
 
 | # | Cena | O que aparece | Para quê |
 |---|---|---|---|
-| 1 ★ | Estas linhas são o Wi-Fi desta sala. | O sinal de verdade, como na tela principal (na simulação, o título diz isso) | Gancho: o visitante mexe o braço e vê as linhas tremerem |
-| 2 ★ | E se o Wi-Fi percebesse a gente? | As linhas viram o chão; um roteador enche a sala de anéis que passam por alguém no celular; a câmera aparece riscada | A pergunta da pesquisa |
-| 3 ★ | Duas placas: uma fala, a outra escuta. | O roteador vai até o lugar da placa A e vira ela; a onda de 12 cm corre entre as placas, e as mensagens vão de A para B | O que é o Wi-Fi e o que as placas fazem |
-| 4 ★ | O sinal chega por vários caminhos. | Os pulsos saem juntos de A; os dos caminhos longos chegam depois | Vários caminhos |
-| 5 ★ | Quem se mexe muda a soma. | A sala pequena em cima, com alguém andando; embaixo, o caminho direto, o que passa pela pessoa e a soma subindo e descendo | O segredo do projeto: interferência e movimento |
-| 6 ★ | O Wi-Fi usa 64 ondas juntas. | A força da soma vira uma barra; as outras 63 nascem da B | 64 subportadoras = CSI |
-| 7 ★ | A inventora Hedy Lamarr. | O rosto dela feito com as linhas do sinal ("atriz e inventora"); um rolo de pianola acende uma frequência por vez. No canto, "Ciência Delas" | Tema da JACITEC: uma mulher na origem da comunicação sem fio, reconhecida 55 anos depois |
-| 8 ★ | Cada instante vira uma linha. | O topo das barras vira uma linha; as linhas se empilham e tremem | Ler as linhas do começo |
-| 9 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
-| 10 ★ | Testamos de verdade, e funcionou. | Dados reais: sala vazia e alguém cruzando, as 7 travessias acendendo uma por uma e, embaixo, **7 de 7**, **5,9×** e **3,75 m através de parede** | Resultado |
-| 11 ★ | Pessoa parada não aparece. Ainda. | A sala pequena, pessoa parada e tracejada; linhas calmas | O limite, e a respiração como próximo passo (Estátua) |
-| 12 ★ | Alguém vivo debaixo dos escombros? | A pessoa cai, o entulho deixa um vão; do peito sobem ondinhas no ritmo da respiração, e as linhas sobem e descem devagar | Para que serve: resgate (o futuro) |
-| 13 ★ | Quem mora sozinho. | Ontem, os movimentos desde as 6h40; hoje, nada até as 10h, e sai o aviso para a família | Para que serve: já dá com o que medimos |
-| 14 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço; 802.11bf e Comcast) |
-| 15 ★ | E a privacidade? | Casa com as ondas atravessando a parede, alguém do lado de fora | Ética (o caso da Comcast) |
-| 16 ★ | Agora você sabe ler estas linhas. | O sinal de verdade de novo | Fecha o arco; o visitante testa e vai para a Travessia |
+| 1 ★ | Você sabia que o Wi-Fi *te percebe*? | O sinal de verdade, como na tela principal. A frase embaixo diz de onde vem (placas, simulação ou gravação) | Gancho: o visitante mexe o braço e vê as linhas tremerem |
+| 2 ★ | A câmera precisa *te ver*. O Wi-Fi, não. | As linhas viram o chão de uma sala dividida por uma parede. A câmera mira e o cone bate na parede; os anéis do roteador atravessam e a pessoa do outro lado aparece "percebida". A luz apaga: a câmera não vê nada, o Wi-Fi continua | A novidade, comparada com o que todo mundo conhece |
+| 3 ★ | Isso é *ciência de agora*. | Linha do tempo: 2013 (MIT), 2025 (padrão oficial 802.11bf), hoje (roteadores nos EUA) e 2026, o Wave Sense, que brilha | Mostra que é pesquisa de ponta, e que a dupla fez a sua |
+| 4 ★ | Duas placas: uma fala, a outra escuta. | O ponto do Wave Sense voa até o lugar da placa A e vira ela; a onda de 12 cm corre entre as placas, e as mensagens vão de A para B | O que é o Wi-Fi e o que as placas fazem |
+| 5 ★ | O sinal chega por vários caminhos. | Os pulsos saem juntos de A; os dos caminhos longos chegam depois | Vários caminhos |
+| 6 ★ | Quem se mexe muda a soma. | A sala pequena em cima, com alguém andando; embaixo, o caminho direto, o que passa pela pessoa e a soma subindo e descendo | O segredo do projeto: interferência e movimento |
+| 7 ★ | O Wi-Fi usa 64 ondas juntas. | A força da soma vira uma barra; as outras 63 nascem da B | 64 subportadoras = CSI |
+| 8 ★ | A inventora Hedy Lamarr. | O rosto dela feito com as linhas do sinal ("atriz e inventora"); um rolo de pianola acende uma frequência por vez. No canto, "Ciência Delas" | Tema da JACITEC: uma mulher na origem da comunicação sem fio, reconhecida 55 anos depois |
+| 9 ★ | Cada instante vira uma linha. | O topo das barras vira uma linha; as linhas se empilham e tremem | Ler as linhas do começo |
+| 10 | Um número diz o quanto tremeu. | Número, gráfico e a linha do limite | O detector |
+| 11 ★ | Testamos de verdade, e funcionou. | Dados reais: sala vazia e alguém cruzando, as 7 travessias acendendo uma por uma e, embaixo, **7 de 7**, **5,9×** e **3,75 m através de parede** | Resultado |
+| 12 ★ | Pessoa parada não aparece. Ainda. | A sala pequena, pessoa parada e tracejada; linhas calmas | O limite, e a respiração como próximo passo (Estátua) |
+| 13 ★ | Alguém vivo debaixo dos escombros? | A pessoa cai, o entulho (em blocos com volume) deixa um vão; do peito sobem ondinhas no ritmo da respiração, e as linhas sobem e descem devagar | Para que serve: resgate (o futuro) |
+| 14 ★ | Quem mora sozinho. | Ontem, os movimentos desde as 6h40; hoje, nada até as 10h, e sai o aviso para a família | Para que serve: já dá com o que medimos |
+| 15 | Dá para montar com pouco. | As linhas viram a tela de um notebook ligado à placa B | Viabilidade (falem o preço; programas abertos, dá para repetir) |
+| 16 ★ | E a privacidade? | Casa com as ondas atravessando a parede, alguém do lado de fora | Ética (o caso da Comcast) |
+| 17 ★ | Agora você sabe ler estas linhas. | O sinal de verdade de novo | Fecha o arco ("Você sabia?" → "agora você sabe"); o visitante testa e vai para a Travessia |
 
-- O que é ilustração aparece com a etiqueta "Ilustração" no canto (as cenas 5 a 9 são física desenhada; as 11 a 13 são ideias de uso desenhadas). O sinal de verdade está nas cenas 1 e 16. A cena 10 mostra dados reais dos testes.
-- A versão curta (★, 14 cenas, cerca de 3 min 50 s) agora tem a pergunta e os resultados: quem chega do nada entende o que é a pesquisa e vê que funcionou.
+- O que é ilustração aparece com a etiqueta "Ilustração" no canto (as cenas 6 a 10 são física desenhada; as 12 a 14 são ideias de uso desenhadas). O sinal de verdade está nas cenas 1 e 17. A cena 11 mostra dados reais dos testes.
+- A versão curta (★, 15 cenas, cerca de 4 min) tem a novidade (cenas 2 e 3) e os resultados: quem chega do nada entende que o Wi-Fi percebe gente, que isso é novo e que funcionou.
+- Na cena 2, parada, a luz da sala apaga a cada 8 s (3 s acesa, 3 s apagada). Esperem a luz apagar para falar "e no escuro?".
 - A colinha impressa é gerada do roteiro: `python ferramentas/colinha.py` escreve `docs/colinha.md`. Editou o roteiro, gere de novo.
 - Os textos estão em `demo/roteiro.js`. Mudem o que quiserem lá, com o mesmo cuidado: nada de número inventado.
 - No mesmo arquivo:
   - `transicao` é quantos segundos dura cada passagem de cena (hoje 2,6 s; mais = mais devagar);
-  - `CUSTO` é o preço que pagaram nas duas placas (por exemplo `'R$ 90'`). Com ele preenchido, a cena 14 fala o valor.
+  - `CUSTO` é o preço que pagaram nas duas placas (por exemplo `'R$ 90'`). Com ele preenchido, a cena 15 fala o valor.
 
 ## Roteiros
 
 ### 30 segundos (para quem está passando)
-1. "Quer ver o Wi-Fi te perceber sem câmera? Fica aqui na partida."
+1. "Você sabia que o Wi-Fi consegue te perceber? Sem câmera. Fica aqui na partida."
 2. "Mexe os braços." A tela inverte, o número sobe.
 3. "Não tem câmera nenhuma. É só o sinal entre essas duas plaquinhas."
 4. "Quer tentar passar sem ser visto? É a Travessia."
@@ -129,8 +132,8 @@ A história é um arco: abre com as linhas da sala, sem explicar nada, e fecha c
 
 Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visual (10), domínio do conteúdo (15), viabilidade técnica (10) e impacto (15)**.
 
-1. **Pergunta da pesquisa** (30 s): o Wi-Fi já está em todo lugar e passa pela gente. Dá para usar esse sinal para perceber pessoas, sem câmera e sem nada no corpo? O que dá, até onde, e com que riscos?
-2. **Como funciona** (1 min30), nas cenas 3 a 9:
+1. **Pergunta da pesquisa e por que é novo** (45 s), cenas 1 a 3: o Wi-Fi já está em todo lugar e passa pela gente. Dá para usar esse sinal para perceber pessoas, sem câmera e sem nada no corpo? O que dá, até onde, e com que riscos? É ciência recente: o MIT mostrou em 2013, o padrão oficial (IEEE 802.11bf) saiu em 2025, e quase ninguém sabe que isso existe.
+2. **Como funciona** (1 min30), nas cenas 4 a 10:
    - o Wi-Fi é uma onda de ~12 cm e chega à placa B por vários caminhos;
    - os caminhos se somam (interferência), e meia onda (~6 cm) de diferença troca reforço por cancelamento;
    - movimento muda o tamanho dos caminhos e, portanto, a soma;
@@ -149,14 +152,14 @@ Siga a ordem de um trabalho científico. A nota da apresentação vem de: **visu
    - longe (3,75 m) e com parede: percebeu a pessoa andando, e nenhum alarme com a sala vazia;
    - se perguntarem porcentagem: ainda não calculamos; é o próximo passo, com mais gravações. Nunca inventem um número.
 5. **Limites** (45 s): pessoa parada, distância, parede, várias pessoas, interferência, calibrar em cada lugar.
-6. **Viabilidade** (30 s): duas placas baratas, firmware aberto, programas em Python. Anotem o preço que pagaram e falem o número. Em setembro de 2025 o IEEE publicou um padrão só para sensoriamento por Wi-Fi, o 802.11bf, o que mostra que a ideia está indo para produtos; nos EUA, a operadora Comcast já oferece a detecção de movimento no roteador dos clientes. É a cena 14 da apresentação.
-7. **Impacto e ética** (45 s), cenas 11 a 13 e 15:
+6. **Viabilidade** (30 s): duas placas baratas, firmware aberto, programas em Python. Anotem o preço que pagaram e falem o número. Os produtos que já existem (nos EUA, a operadora Comcast oferece a detecção de movimento no roteador dos clientes) são fechados; o nosso dá para qualquer escola repetir. É a cena 15 da apresentação.
+7. **Impacto e ética** (45 s), cenas 12 a 14 e 16:
    - quem mora sozinho: 5,7 milhões de idosos no Brasil (IBGE, Censo 2022); o aviso para a família usa só o detector que já funciona;
    - escombros: o FINDER, radar da NASA, achou 4 pessoas vivas no Nepal (2015) pela respiração; a nossa ideia é tentar com placas baratas (é o próximo passo);
    - privacidade: os dados do produto da Comcast podem ir para a polícia com ordem judicial; no nosso projeto, tudo fica no notebook.
 8. **Uso de IA** (15 s): "Usamos um assistente de IA como apoio no código e nos textos. Revisamos tudo, e os dados foram medidos por nós." Está declarado na inscrição; é regra do edital.
 
-**Tema da JACITEC ("Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação"), 30 s, cena 7:** Hedy Lamarr, atriz famosa de Hollywood e inventora, patenteou em 1942, com George Antheil, o salto de frequência (patente nº 2.292.387): o rádio pula de uma frequência para outra numa ordem que só quem manda e quem recebe conhecem, guardada num rolo de pianola com 88 frequências, uma por tecla. A Marinha engavetou a ideia, e por décadas ela foi lembrada só pelos filmes; o reconhecimento como inventora veio em 1997 (prêmio Pioneer da EFF) e o Hall da Fama dos Inventores, em 2014. O Bluetooth pula de frequência até hoje, e a primeira versão do Wi-Fi (1997) tinha um modo com salto. E a área que a gente pesquisa tem uma mulher de destaque hoje: Dina Katabi, do MIT, cujo grupo mostrou em 2013 o Wi-Fi percebendo gente atrás da parede (Wi-Vi). **Não digam que Hedy inventou o Wi-Fi:** ela inventou o salto de frequência, uma das ideias que abriram caminho.
+**Tema da JACITEC ("Ciência Delas: Mulheres em Ciência, Tecnologia e Inovação"), 30 s, cena 8:** Hedy Lamarr, atriz famosa de Hollywood e inventora, patenteou em 1942, com George Antheil, o salto de frequência (patente nº 2.292.387): o rádio pula de uma frequência para outra numa ordem que só quem manda e quem recebe conhecem, guardada num rolo de pianola com 88 frequências, uma por tecla. A Marinha engavetou a ideia, e por décadas ela foi lembrada só pelos filmes; o reconhecimento como inventora veio em 1997 (prêmio Pioneer da EFF) e o Hall da Fama dos Inventores, em 2014. O Bluetooth pula de frequência até hoje, e a primeira versão do Wi-Fi (1997) tinha um modo com salto. E a área que a gente pesquisa tem uma mulher de destaque hoje: Dina Katabi, do MIT, cujo grupo mostrou em 2013 o Wi-Fi percebendo gente atrás da parede (Wi-Vi). **Não digam que Hedy inventou o Wi-Fi:** ela inventou o salto de frequência, uma das ideias que abriram caminho.
 
 ## Quem faz o quê
 

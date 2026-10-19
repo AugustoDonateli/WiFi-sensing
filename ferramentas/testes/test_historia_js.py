@@ -74,6 +74,13 @@ for (const v of ['completa', 'curta']) {
 out.revela = [H.revelacao(0, 0, 5, 0.5, 0.9), H.revelacao(1, 4, 5, 0.5, 0.9), H.revelacao(0.7, 0, 5, 0.5, 0.9) > H.revelacao(0.7, 4, 5, 0.5, 0.9)];
 out.ids = R.cenas.map((c) => c.id);
 out.semPose = R.cenas.filter((c) => !H.POSES[c.id]).map((c) => c.id);
+// toda camada tem desenho, e toda pose só usa camadas que existem (um nome errado some sem erro nenhum)
+out.camadas = {
+  semDesenho: Object.keys(H.CAMADAS).filter((k) => typeof H.DESENHOS[k] !== 'function'),
+  desconhecidas: Object.entries(H.POSES).flatMap(([id, pose]) => Object.keys(pose).filter((k) => !H.CAMADAS[k]).map((k) => `${id}:${k}`)),
+  paramSemPadrao: Object.entries(H.POSES).flatMap(([id, pose]) => Object.entries(pose).filter(([k]) => H.CAMADAS[k]).flatMap(([k, q]) =>
+    Object.keys(q).filter((c) => !['p', 'entrada', 'saida', 'mover'].includes(c) && !(c in H.CAMADAS[k].padrao)).map((c) => `${id}:${k}.${c}`))),
+};
 // a colinha: toda cena tem fala; todas menos a última têm a ponte para a próxima; ações e perguntas bem formadas
 out.colinha = {
   semFala: R.cenas.filter((c) => !(typeof c.fala === 'string' && c.fala.length > 20)).map((c) => c.id),
@@ -134,7 +141,7 @@ class TestHistoria(unittest.TestCase):
 
     def test_versoes(self):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
-        self.assertEqual(len(self.r["curta"]), 14)
+        self.assertEqual(len(self.r["curta"]), 15)
         self.assertEqual(self.r["curta"][0], "abertura")
         self.assertEqual(self.r["remap"], ["frequencias", "placas", "resultados", "privacidade"])
 
@@ -163,6 +170,12 @@ class TestHistoria(unittest.TestCase):
         self.assertGreaterEqual(c["visitante"], 5)       # perguntas de quem passa pelo estande, não só de avaliador
         self.assertEqual(c["falaCurtaLonga"], [])
         self.assertEqual(c["falaLonga"], [])        # fala curta: no máximo 6 frases por cena
+
+    def test_camadas_desenhos_e_poses(self):
+        c = self.r["camadas"]
+        self.assertEqual(c["semDesenho"], [])
+        self.assertEqual(c["desconhecidas"], [])
+        self.assertEqual(c["paramSemPadrao"], [])     # parâmetro fora do padrão fica indefinido no meio da transição
 
     def test_ids_unicos(self):
         self.assertEqual(len(set(self.r["ids"])), len(self.r["ids"]))

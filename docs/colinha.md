@@ -4,57 +4,74 @@ Gerada por `ferramentas/colinha.py` a partir do `demo/roteiro.js`. Não edite aq
 
 ## Antes de tudo (leia isto e já dá para apresentar)
 
-**O projeto em 30 segundos.** "Quase todo lugar tem Wi-Fi, e o sinal passa pela gente o tempo todo. A nossa pesquisa é descobrir o que dá para perceber de uma pessoa só com esse sinal, sem câmera. Com duas plaquinhas baratas, a gente percebeu cada vez que alguém cruzou entre elas, até através de uma parede. Quer testar? Mexe o braço aqui."
+**O projeto em 30 segundos.** "Você sabia que o Wi-Fi consegue perceber a gente? Quase ninguém sabe. O sinal passa pela gente o tempo todo, e isso virou padrão oficial do Wi-Fi só em 2025. A nossa pesquisa é descobrir o que dá para perceber de uma pessoa só com esse sinal, sem câmera. Com duas plaquinhas baratas, a gente percebeu cada vez que alguém cruzou entre elas, até através de uma parede. Quer testar? Mexe o braço aqui."
 
 **As 3 ideias que a pessoa tem que levar para casa:**
 
-1. O Wi-Fi chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.
-2. Funcionou: 7 travessias, 7 detecções; e através de uma parede.
-3. Serve para coisas boas (resgate, quem mora sozinho), mas pede cuidado com a privacidade.
+1. O Wi-Fi consegue perceber gente, sem câmera, e isso é novo: virou padrão oficial do Wi-Fi em 2025.
+2. Como: o sinal chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.
+3. Funcionou (7 travessias, 7 detecções; e através de uma parede). Serve para coisas boas, mas pede cuidado com a privacidade.
 
 **Como falar.** É conversa, não prova oral. Não precisa decorar: leia a fala uma vez e conte do seu jeito. Comece pelo que a pessoa vê na tela, use "você" e faça perguntas. Se não souber algo, diga "boa pergunta, isso a gente ainda vai testar": é pesquisa, e pesquisa tem próximo passo.
 
-- **Completa:** 16 cenas, cerca de 6:08 (para avaliador ou quem quer ver tudo).
-- **Curta:** 14 cenas, cerca de 3:50 (para visitante). As cenas da curta estão marcadas com ●.
+- **Completa:** 17 cenas, cerca de 6:30 (para avaliador ou quem quer ver tudo).
+- **Curta:** 15 cenas, cerca de 4:00 (para visitante). As cenas da curta estão marcadas com ●.
 - Na janela do apresentador (tecla P na TV), a mesma colinha aparece cena a cena. A tecla Q mostra as perguntas.
 
 Como ler cada cena: a **fala** é o que dizer. As **ações** dizem o que fazer: APONTE, PERGUNTE (e espere a resposta), FAÇA, DEIXE A ANIMAÇÃO (fique quieto um segundo). A **ponte** leva para a próxima cena. Embaixo, as perguntas que podem aparecer.
 
-### 1. Estas linhas são o Wi-Fi desta sala. ●
+### 1. Você sabia que o Wi-Fi te percebe? ●
 *20 s (curta: 15 s)*
 
-Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
+**Fala.** Você sabia que o Wi-Fi consegue te perceber? Pouca gente sabe. Essas linhas são o Wi-Fi desta sala, medido agora: mexe o braço aqui, entre as plaquinhas. Viu? Você não encostou em nada e o sinal mudou.
 
-**Fala.** Sabe essas linhas? É o Wi-Fi desta sala, medido agora. Mexe o braço aqui, entre as plaquinhas. Viu? Você não encostou em nada e o sinal mudou. A nossa pesquisa é sobre isso: o que o Wi-Fi consegue perceber da gente.
-
-- FAÇA: chame a pessoa para mexer o braço entre as placas.
-- ESPERE: as linhas tremerem. É o momento do "uau"; deixe a pessoa curtir.
+- PERGUNTE: "Você sabia que o Wi-Fi consegue te perceber?" Espere a resposta.
+- FAÇA: chame a pessoa para mexer o braço entre as placas e espere as linhas tremerem. É o momento do "uau".
 - SIMULAÇÃO: sem placa, diga que é simulação e use a tecla 3 para alguém "andar".
 
-→ *Mas como isso é possível?*
+→ *Mas como, se não tem câmera nenhuma?*
 
-## I · A pergunta
+## I · A novidade
 
-### 2. E se o Wi-Fi percebesse a gente? ●
-*18 s (curta: 12 s)*
+### 2. A câmera precisa te ver. O Wi-Fi, não. ●
+*20 s (curta: 15 s)*
 
-**Fala.** O Wi-Fi está em todo lugar e passa pela gente o tempo todo, até agora, enquanto você usa o celular. A pergunta da nossa pesquisa: dá para usar esse mesmo sinal para perceber pessoas? Sem câmera filmando e sem pulseira no braço.
+**Fala.** Uma câmera só funciona se te enxergar: precisa de luz e de caminho livre. Se tiver uma parede, ou se a luz apagar, acabou. O Wi-Fi atravessa a parede e funciona no escuro, e mesmo assim não forma imagem do seu rosto. É o mesmo sinal que leva a internet, virando sensor.
 
-- APONTE: os anéis saindo do roteador e passando pela pessoa.
-- PERGUNTE: "Você colocaria uma câmera no seu quarto?" Espere a resposta.
+- APONTE: o cone da câmera batendo na parede, e os anéis do Wi-Fi passando por ela.
+- ESPERE: a luz apagar. A câmera fica cega; o Wi-Fi continua percebendo a pessoa.
+- PERGUNTE: "Você colocaria uma câmera no seu quarto?"
 
-→ *Para testar, a gente trocou o roteador por duas plaquinhas.*
+→ *E isso não é ficção: é ciência de agora.*
 
 > **Por que não usar câmera?** Câmera grava rosto e intimidade, precisa de luz e não enxerga através da parede. O Wi-Fi não forma imagem: ele só percebe que algo mudou no sinal.
 >
-> **Isso é coisa nova?** A ideia é estudada há mais de dez anos (em inglês, Wi-Fi sensing) e em 2025 ganhou um padrão oficial do Wi-Fi, o IEEE 802.11bf. A gente montou, mediu e testou com material barato.
+> **Atravessa qualquer parede?** Paredes comuns, sim, com o sinal mais fraco; metal e concreto grosso atrapalham bastante. No nosso teste, a 3,75 m, percebemos a pessoa andando do outro lado de uma parede da casa.
+>
+> **No escuro funciona mesmo?** Sim: o Wi-Fi é onda de rádio, não precisa de luz. A demonstração funciona igual com a luz apagada.
+
+### 3. Isso é ciência de agora. ●
+*20 s (curta: 15 s)*
+
+**Fala.** Isso não é ficção científica, é ciência de agora. Em 2013, o grupo da professora Dina Katabi, no MIT, mostrou o Wi-Fi percebendo gente se mexendo atrás de uma parede. Em 2025, isso virou um padrão oficial do Wi-Fi, o 802.11bf, e nos Estados Unidos já tem roteador fazendo isso na casa das pessoas. E em 2026, aqui no Espírito Santo, a gente montou o nosso, com duas placas baratas.
+
+- APONTE: cada ponto da linha do tempo acendendo.
+- APONTE: o último ponto, o Wave Sense: "Esse aqui somos nós."
+
+→ *E o nosso começa com duas plaquinhas.*
+
+> **Se já existe, qual é a novidade de vocês?** A tecnologia é nova e pouca gente conhece. Os produtos são fechados; a gente montou do zero com duas placas baratas e programas abertos, mediu, testou com gravações reais e explica ao público como funciona, com os riscos.
+>
+> **O que é o 802.11bf?** É a parte do padrão Wi-Fi, publicada pelo IEEE em 2025, que define como os aparelhos de Wi-Fi podem medir o ambiente: perceber presença e movimento, além de levar internet.
+>
+> **Quem é Dina Katabi?** Professora do MIT, uma das pesquisadoras mais conhecidas da área. Em 2013, com Fadel Adib, apresentou o Wi-Vi, que percebia pessoas se mexendo atrás de uma parede usando Wi-Fi.
 
 ## II · Como funciona
 
-### 3. Duas placas: uma fala, a outra escuta. ●
-*20 s (curta: 14 s)*
+### 4. Duas placas: uma fala, a outra escuta. ●
+*20 s (curta: 12 s)*
 
-**Fala.** Repara: o roteador virou a placa A. Ela manda 50 mensagens por segundo numa onda de rádio invisível, com uns 12 centímetros de crista a crista. A placa B não liga para o que a mensagem diz: ela mede como a mensagem chegou.
+**Fala.** Repara: o ponto do Wave Sense virou a placa A. Ela manda 50 mensagens por segundo numa onda de rádio invisível, com uns 12 centímetros de crista a crista. A placa B não liga para o que a mensagem diz: ela mede como a mensagem chegou.
 
 - APONTE: as placas A e B de verdade, no estande.
 - APONTE: a régua de 12 cm em cima da onda.
@@ -67,8 +84,8 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **O que vai dentro da mensagem?** Nada importante: é um pacote de teste. O que interessa é como ele chegou, não o que ele diz.
 
-### 4. O sinal chega por vários caminhos. ●
-*18 s (curta: 14 s)*
+### 5. O sinal chega por vários caminhos. ●
+*18 s (curta: 12 s)*
 
 **Fala.** A mensagem sai da placa A para todo lado, tipo eco. Um pedaço vai reto até a B; outros batem no teto, no chão, em você, e chegam um tiquinho depois. A placa B recebe tudo misturado.
 
@@ -79,7 +96,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 > **Quanto "depois" chega o caminho rebatido?** Bilionésimos de segundo: a onda anda 30 cm por nanossegundo. Numa sala, os caminhos diferem de 1 a 25 m, ou seja, de 3 a 80 ns.
 
-### 5. Quem se mexe muda a soma. ●
+### 6. Quem se mexe muda a soma. ●
 *30 s (curta: 22 s)*
 
 **Fala.** Aqui está o segredo do projeto. Na placa B, os caminhos se somam. Se chegam crista com crista, o sinal fica forte; crista com vale, um apaga o outro. Quando você anda, o caminho que passa por você muda de tamanho. Uns 6 centímetros, meia onda, já trocam forte por fraco. Por isso a soma sobe e desce a cada passo.
@@ -93,8 +110,8 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **6 cm não é muito pouco?** Para uma onda de 12 cm, 6 cm é meia volta. Um movimento de braço já passa disso; por isso o sinal é tão sensível a movimento.
 
-### 6. O Wi-Fi usa 64 ondas juntas. ●
-*20 s (curta: 14 s)*
+### 7. O Wi-Fi usa 64 ondas juntas. ●
+*20 s (curta: 12 s)*
 
 **Fala.** O canal do Wi-Fi é dividido em 64 ondas, cada uma de um tamanho um pouquinho diferente. Então cada uma soma de um jeito: umas chegam fortes, outras fracas. A placa B mede as 64 ao mesmo tempo. Essa medida tem nome: CSI, a informação do estado do canal.
 
@@ -108,10 +125,10 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 ## Ciência Delas
 
-### 7. A inventora Hedy Lamarr. ●
+### 8. A inventora Hedy Lamarr. ●
 *35 s (curta: 22 s)*
 
-**Fala.** O tema desta JACITEC é Ciência Delas, e o Wi-Fi tem uma inventora na sua história: Hedy Lamarr, uma das atrizes mais famosas de Hollywood, que nas horas vagas inventava. Na Segunda Guerra, ela e o compositor George Antheil criaram o salto de frequência: o rádio pula de uma frequência para outra numa ordem secreta, guardada num rolo de pianola. Patentearam em 1942, mas a Marinha engavetou a ideia, e por décadas ela foi lembrada só pelos filmes. O reconhecimento como inventora veio em 1997, mais de 50 anos depois. Hoje, espalhar o sinal por várias frequências é base da comunicação sem fio, e o Bluetooth pula de frequência até hoje. E a história continua com mulheres: uma das pesquisadoras mais conhecidas em Wi-Fi que percebe pessoas é Dina Katabi, professora do MIT.
+**Fala.** O tema desta JACITEC é Ciência Delas, e o Wi-Fi tem uma inventora na sua história: Hedy Lamarr, uma das atrizes mais famosas de Hollywood, que nas horas vagas inventava. Na Segunda Guerra, ela e o compositor George Antheil criaram o salto de frequência: o rádio pula de uma frequência para outra numa ordem secreta, guardada num rolo de pianola. Patentearam em 1942, mas a Marinha engavetou a ideia, e por décadas ela foi lembrada só pelos filmes. O reconhecimento como inventora veio em 1997, mais de 50 anos depois. Hoje, espalhar o sinal por várias frequências é base da comunicação sem fio, e o Bluetooth pula de frequência até hoje. E a história continua com mulheres: lembra da Dina Katabi, do MIT, na linha do tempo?
 
 **Na curta.** Tema da JACITEC: Ciência Delas. Hedy Lamarr era uma atriz famosa de Hollywood, e também inventora. Em 1942, ela e George Antheil patentearam o salto de frequência: o rádio pula de frequência numa ordem secreta, guardada num rolo de pianola. A Marinha engavetou a ideia, e o reconhecimento só veio em 1997. Hoje, espalhar o sinal por várias frequências é base da comunicação sem fio.
 
@@ -136,8 +153,8 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 ## II · Como funciona (continua)
 
-### 8. Cada instante vira uma linha. ●
-*16 s (curta: 12 s)*
+### 9. Cada instante vira uma linha. ●
+*16 s (curta: 10 s)*
 
 **Fala.** Liga o topo das 64 barras e vira uma linha. Chega uma nova a cada décimo de segundo e empurra as outras para cima. São as linhas do começo! Agora você sabe: quando elas tremem, alguém se mexeu.
 
@@ -147,7 +164,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 > **Cada linha é uma mensagem?** É a média das mensagens de 0,1 s (cerca de 5). O desenho realça o tremor 3 vezes para ficar visível; a detecção usa os valores sem realce.
 
-### 9. Um número diz o quanto tremeu.
+### 10. Um número diz o quanto tremeu.
 *20 s*
 
 **Fala.** O computador compara o tremor de agora com o da sala vazia, que vale 1,0. Passou da linha tracejada, ele marca movimento. E um tremidinho solto não engana: precisa de três medidas seguidas.
@@ -165,7 +182,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 ## III · O experimento
 
-### 10. Testamos de verdade, e funcionou. ●
+### 11. Testamos de verdade, e funcionou. ●
 *30 s (curta: 20 s)*
 
 **Fala.** Hora da verdade. Gravamos 30 segundos com a sala vazia e 30 com alguém cruzando entre as placas. Cada risco é o sinal medido de verdade. A pessoa cruzou 7 vezes, e o sistema marcou as 7, uma por uma. Em cada travessia, o sinal chegou a quase 6 vezes o da sala vazia. E num outro teste, a 3,75 metros e com uma parede no meio, ele percebeu a pessoa andando do outro lado.
@@ -186,7 +203,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **De onde vem o "quase 6 vezes"?** Dos mesmos dados do gráfico: o maior tremor com a pessoa cruzando dividido pelo tremor típico (mediana) da sala vazia dá 5,9.
 
-### 11. Pessoa parada não aparece. Ainda. ●
+### 12. Pessoa parada não aparece. Ainda. ●
 *22 s (curta: 16 s)*
 
 **Fala.** Quer brincar de estátua? Fica paradinho entre as placas... sumiu! Para o Wi-Fi, quem está parado não muda a soma. Mas parado você ainda respira, e em 2024 pesquisadores mediram a respiração de 8 pessoas com essa mesma plaquinha. É o próximo passo da nossa pesquisa.
@@ -203,7 +220,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 
 ## IV · Para que serve
 
-### 12. Alguém vivo debaixo dos escombros? ●
+### 13. Alguém vivo debaixo dos escombros? ●
 *28 s (curta: 20 s)*
 
 **Fala.** Imagina um desabamento. A pergunta mais urgente é: onde ainda tem alguém vivo? Em 2015, no terremoto do Nepal, um radar da NASA, o FINDER, achou quatro homens soterrados pelos sinais da respiração e do coração. Só que esse radar é caro. A nossa ideia é tentar o mesmo com placas de Wi-Fi baratas: a gente já percebeu uma pessoa através de uma parede. Falta a respiração.
@@ -219,7 +236,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **Isso acontece no Brasil?** Nos deslizamentos de Petrópolis, em fevereiro de 2022, morreram mais de 200 pessoas, e 24 foram tiradas vivas nos primeiros dias. Achar rápido onde ainda tem alguém vivo faz diferença.
 
-### 13. Quem mora sozinho. ●
+### 14. Quem mora sozinho. ●
 *25 s (curta: 18 s)*
 
 **Fala.** No Brasil, 5,7 milhões de idosos moram sozinhos; aqui no Espírito Santo, um em cada cinco lares tem um morador só. Com as placas, a casa aprende a rotina: se até as 10 da manhã ninguém se mexeu, ela manda uma mensagem para a família. Sem câmera, sem pulseira, e usando só o que o nosso detector já faz.
@@ -235,10 +252,10 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **Isso já existe?** Empresas já vendem sensoriamento por Wi-Fi para cuidado de idosos, como a Origin Wireless, nos EUA. Os números de acerto que elas divulgam são delas mesmas.
 
-### 14. Dá para montar com pouco.
+### 15. Dá para montar com pouco.
 *22 s*
 
-**Fala.** Não! São duas placas baratas, o programa aberto da fabricante e um notebook; a tela e a análise a gente programou, em JavaScript e Python. E isso já está saindo do laboratório: desde 2025 existe um padrão do Wi-Fi só para perceber o ambiente, o 802.11bf, e nos Estados Unidos a operadora Comcast já liga a detecção de movimento no roteador de quem quiser.
+**Fala.** Não! São duas placas baratas, o programa aberto da fabricante e um notebook; a tela e a análise a gente programou, em JavaScript e Python. Os produtos que já existem, como o da Comcast, são fechados. O nosso é aberto: dá para qualquer escola repetir e entender por dentro.
 
 - FALE: o preço que pagaram nas placas (e preencham CUSTO no roteiro.js para ele aparecer na tela).
 
@@ -248,7 +265,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **Como isso cresce?** Hoje são duas placas por cômodo. O caminho natural é o próprio roteador fazer a medida, como no 802.11bf e no produto da Comcast: aí não precisa comprar nada a mais. O programa da placa é aberto, e cada cômodo só precisa ser calibrado uma vez.
 
-### 15. E a privacidade? ●
+### 16. E a privacidade? ●
 *22 s (curta: 15 s)*
 
 **Fala.** Se o sinal atravessa parede, alguém de fora poderia saber se tem gente na sua casa. E isso já não é só hipótese: a Comcast avisa que os dados do detector dela podem ir para a polícia com ordem judicial. Por isso a gente defende duas regras: só com consentimento, e o dado fica dentro de casa, como no nosso projeto.
@@ -263,7 +280,7 @@ Na simulação, a TV mostra: "Estas linhas imitam o Wi-Fi de uma sala."
 >
 > **E no projeto de vocês, onde ficam os dados?** No notebook. A tela não manda nada para a internet; o apelido e a marca de cada visitante ficam no navegador e são apagados no fim do dia.
 
-### 16. Agora você sabe ler estas linhas. ●
+### 17. Agora você sabe ler estas linhas. ●
 *22 s (curta: 16 s)*
 
 **Fala.** Lembra das linhas do começo? Agora você sabe: são ondas se somando na placa B, e cada tremida é alguém se mexendo. Sua vez: mexe o braço e olha as linhas. Quer um desafio? Tenta atravessar a faixa sem fazer elas tremerem.

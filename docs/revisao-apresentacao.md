@@ -74,3 +74,20 @@ Agora:
 
 - **Porcentagem de acerto:** continua sem, até existirem sessões separadas de ajuste e de teste.
 - **Quedas:** aparecem só como dado de contexto numa pergunta da cena "quem mora sozinho".
+
+## Adendo (19/10, depois da revisão): a abertura mostra que é novidade
+
+O grupo apontou o que faltava: a abertura explicava o Wi-Fi, mas não dizia que **perceber gente pelo Wi-Fi é novo**. "Detector de movimento" todo mundo tem; a graça é que quase ninguém sabe que o Wi-Fi faz isso.
+
+| Antes | Agora | Critério que ganha |
+|---|---|---|
+| Título da abertura: "Estas linhas são o Wi-Fi desta sala." | "Você sabia que o Wi-Fi *te percebe*?" (a fonte do sinal foi para a frase de baixo) | Quem chegou do nada: a primeira coisa na tela é uma pergunta que puxa conversa |
+| Cena 2: "E se o Wi-Fi percebesse a gente?", com a câmera riscada | "A câmera precisa *te ver*. O Wi-Fi, não.": o cone da câmera bate na parede e some no escuro; os anéis atravessam e a pessoa aparece "percebida" | Animação mostra a ideia: dá para entender sem som |
+| — | Cena 3, nova: "Isso é *ciência de agora*.", linha do tempo 2013 → 2025 → hoje → 2026 (Wave Sense) | Foco de pesquisa e confiança: o projeto aparece ao lado do MIT e do padrão oficial |
+| O roteador virava a placa A | O ponto do Wave Sense na linha do tempo vira a placa A | Animação: a passagem diz "e o nosso começa aqui" |
+| Viabilidade falava do 802.11bf como novidade | Fala que os produtos são fechados e o nosso dá para repetir | Uma ideia por cena: o 802.11bf aparece uma vez só |
+| Pedras do entulho pareciam cortadas | Blocos com volume, de trás para a frente | Animação |
+
+**Tempo:** curta com 15 cenas, cerca de 4 min; completa com 17 cenas, cerca de 6,5 min. As duas cenas novas entram na curta, e as cenas da explicação ficaram um pouco mais curtas para compensar.
+
+**Cuidados mantidos:** na linha do tempo, o produto dos EUA aparece como "hoje", sem ano, porque não confirmamos o ano exato. Dina Katabi aparece em 2013 e volta na fala da Hedy ("lembra da Dina Katabi?"), ligando o tema Ciência Delas à abertura.

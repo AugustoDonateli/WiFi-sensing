@@ -272,3 +272,16 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Ordem do fim:** escombros → quem mora sozinho → dá para montar com pouco → privacidade.
 - **Colinha:** kit rápido no começo, tom de conversa, fala curta na cena da Hedy e perguntas de visitante.
 
+## 19/10/2026: abertura que mostra a novidade, motion design e entulho (pedido do grupo)
+
+- **Por quê:** "detector de movimento" todo mundo tem. A graça é que quase ninguém sabe que o Wi-Fi consegue perceber gente, e que isso é ciência de agora.
+- **Abertura:** o título virou pergunta, "Você sabia que o Wi-Fi *te percebe*?". A fonte do sinal (placas, simulação ou gravação) passou para a frase de baixo.
+- **Cena nova "A câmera precisa *te ver*. O Wi-Fi, não."** (substitui "E se o Wi-Fi percebesse a gente?"): sala com parede no meio; o cone da câmera bate na parede; os anéis atravessam e a pessoa do outro lado aparece "percebida". Parada, a luz apaga a cada 8 s e a câmera não vê nada; o Wi-Fi continua.
+- **Cena nova "Isso é *ciência de agora*."**: linha do tempo 2013 (MIT, grupo de Dina Katabi) → 2025 (IEEE 802.11bf) → hoje (roteadores nos EUA) → 2026 (Wave Sense). O ponto do Wave Sense vira a placa A (match cut).
+- **Curta:** 15 cenas, cerca de 4 min; completa: 17 cenas, cerca de 6,5 min. A viabilidade não repete mais o 802.11bf; fala de "produtos fechados, o nosso dá para repetir".
+- **Motion design** (referências: identidade da Darktrace, traço fino com brilho; School of Motion, match cut e zoom; ProVideo Coalition, morph cut; MDN, `globalCompositeOperation`):
+  - brilho (bloom) e vinheta em todo o palco, com limite de custo (3 ms) e desligado na miniatura;
+  - pessoa em pictograma vazado; placa com espessura; LEDs do roteador com halo.
+- **Bug do entulho:** as pedras se sobrepunham e o preenchimento de uma escondia metade da outra. Agora cada peça é um bloco com volume (frente, fundo deslocado e arestas), desenhado de trás para a frente, com uma borda na cor do fundo; ao cair, a peça já chega opaca.
+- **Teste novo:** toda camada tem desenho, e toda pose só usa camadas e parâmetros que existem.
+
