@@ -236,4 +236,5 @@ Repita com outra pessoa depois de ajustar. Duas rodadas costumam bastar.
 
 1. Testar a Estátua, a Travessia e o número do medidor com as placas de verdade, e ajustar as falas ao que acontecer.
 2. Cada um faz a versão completa (do avaliador) pelo menos uma vez, e os outros fazem as perguntas da colinha (tecla Q na janela do apresentador).
-3. Uma vez com a vitrine (a história tocando sozinha, sem ninguém falando): ela se explica? Onde ficou parada demais?
+3. **Estudar, não decorar:** antes da feira, cada um lê a aba **Estudar** da janela do apresentador (tecla E; ou abra `demo/apresentador.html` direto, sem a TV). Para cada cena: a ideia numa frase, o que precisa saber, uma comparação do dia a dia e o que não dizer. Teste: escolha uma cena ao acaso e explique para alguém sem olhar a tela.
+4. Uma vez com a vitrine (a história tocando sozinha, sem ninguém falando): ela se explica? Onde ficou parada demais?

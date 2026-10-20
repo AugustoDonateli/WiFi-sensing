@@ -115,8 +115,10 @@ Antes do miolo, a novidade: o título da abertura é uma pergunta ("Você sabia 
 
 - **Navegar:** setas, `Espaço`, `PageUp`/`PageDown` (o passador de slides manda essas teclas), rolagem do mouse ou do trackpad, ou arrastar no celular. A rolagem acompanha o dedo, como arrastar a agulha de um vídeo, e encaixa na cena mais próxima na direção do movimento.
 - **Duas versões** (tecla `V`): **completa**, com 17 cenas, para o avaliador (cerca de 6,5 min), e **curta**, com 15 cenas, para visitantes (cerca de 4 min). A janela do apresentador mostra a fala e a ponte da versão curta quando ela existe (`falaCurta`, `ponteCurta` no roteiro).
-- **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html` com a colinha de cada cena, a próxima cena, o tempo e uma miniatura. A TV fica só com a história.
-  - A colinha: a fala em letra grande, as ações (APONTE, PERGUNTE, PAUSA, FAÇA) e a ponte para a próxima cena. A tecla `Q` (ou o botão) mostra as perguntas que um avaliador pode fazer, com a resposta.
+- **Janela do apresentador** (tecla `P` ou o botão no painel do Operador): abre o `apresentador.html`, com duas abas (troca com a tecla `E`). A TV fica só com a história.
+  - **Falar:** a fala em letra grande, as ações (APONTE, PERGUNTE, PAUSA, FAÇA) e a ponte para a próxima cena; à direita, uma miniatura do que a TV mostra, a próxima cena e o tempo. A tecla `Q` (ou o botão) troca a coluna da direita pelas perguntas (da cena, de visitante e gerais), sem mexer na fala.
+  - **Estudar:** o que precisa saber para explicar cada cena, em linguagem simples (campo `estudo` no `roteiro.js`): a ideia numa frase, 3 a 5 coisas para saber, uma comparação do dia a dia, o que não dizer e as perguntas da cena. Também tem "Antes de tudo" (o projeto em 30 segundos) e as perguntas de visitante e gerais. Com a TV ligada, acompanha a cena da TV; clicar em outra cena não muda a TV.
+  - **Para estudar em casa:** abra o `apresentador.html` direto no navegador, sem a TV. Na aba Estudar, as setas andam pela lista.
   - Ordem de montagem: **P** (abre a janela), arrastar a página principal para a TV, **F** (tela cheia). O Chrome sai da tela cheia quando abre uma janela nova, por isso o F vem por último.
   - Se o navegador bloquear a janela, a fala aparece numa faixa na própria tela.
 - `B` ou `.` deixa a tela preta (o botão de "tela preta" do passador). `Esc` fecha. `Home`/`End` vão para a primeira e a última cena.

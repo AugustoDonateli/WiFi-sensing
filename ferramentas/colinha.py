@@ -42,6 +42,7 @@ def gerar(R):
     tot = sum(c.get("seg", {}).get("completa", 0) for c in cenas)
     tot_curta = sum(c["seg"]["curta"] for c in cenas if c.get("seg", {}).get("curta"))
     n_curta = sum(1 for c in cenas if c.get("seg", {}).get("curta"))
+    kit = R["kit"]
     L = [
         "# Colinha da apresentação \"Como funciona\"",
         "",
@@ -49,21 +50,13 @@ def gerar(R):
         "",
         "## Antes de tudo (leia isto e já dá para apresentar)",
         "",
-        "**O projeto em 30 segundos.** \"Você sabia que o Wi-Fi consegue perceber a gente? Quase ninguém sabe. O sinal "
-        "passa pela gente o tempo todo, e isso virou padrão oficial do Wi-Fi só em 2025. A nossa pesquisa é descobrir "
-        "o que dá para perceber de uma pessoa só com esse sinal, sem câmera. Com duas plaquinhas baratas, a gente "
-        "percebeu cada vez que alguém cruzou entre elas, até através de uma parede. Quer testar? Mexe o braço aqui.\"",
+        f"**O projeto em 30 segundos.** \"{kit['trintaSegundos']}\"",
         "",
         "**As 3 ideias que a pessoa tem que levar para casa:**",
         "",
-        "1. O Wi-Fi consegue perceber gente, sem câmera, e isso é novo: virou padrão oficial do Wi-Fi em 2025.",
-        "2. Como: o sinal chega por vários caminhos que se somam; quem se mexe muda essa soma, e as linhas tremem.",
-        "3. Funcionou (7 travessias, 7 detecções; e através de uma parede). Serve para coisas boas, mas pede cuidado "
-        "com a privacidade.",
+        *[f"{i}. {x}" for i, x in enumerate(kit["ideias"], 1)],
         "",
-        "**Como falar.** É conversa, não prova oral. Não precisa decorar: leia a fala uma vez e conte do seu jeito. "
-        "Comece pelo que a pessoa vê na tela, use \"você\" e faça perguntas. Se não souber algo, diga \"boa pergunta, "
-        "isso a gente ainda vai testar\": é pesquisa, e pesquisa tem próximo passo.",
+        f"**Como falar.** {kit['falar']}",
         "",
         f"- **Completa:** {len(cenas)} cenas, cerca de {minutos(tot)} (para avaliador ou quem quer ver tudo).",
         f"- **Curta:** {n_curta} cenas, cerca de {minutos(tot_curta)} (para visitante). As cenas da curta estão marcadas com ●.",

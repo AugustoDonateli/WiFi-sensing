@@ -286,3 +286,11 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Teste novo:** toda camada tem desenho, e toda pose só usa camadas e parâmetros que existem.
 - **Cena da câmera mais simples** (20/10, pedido do grupo: "muita informação, muito brilho"): saíram o halo da lâmpada, o brilho em volta da pessoa, o segundo anel dela, o traço forte onde o campo de visão bate na parede, as bordas tracejadas do campo e os rótulos da câmera ("a parede bloqueia", "no escuro, nada"). Ficaram: a parede, o campo de visão (preenchimento fraco e duas bordas finas), 4 anéis mais fracos (eram 6), um anel fino na pessoa e o rótulo "o Wi-Fi percebe", em cinza. A luz continua apagando a cada 8 s.
 
+## 20/10/2026: janela do apresentador mais limpa, com a aba Estudar (pedido do grupo)
+
+- **Por quê:** a colinha da tecla P mostrava tudo de uma vez, e o grupo queria entender o que fala, não só decorar.
+- **Falar:** as perguntas (Q) abrem no lugar da coluna da direita, sem empurrar a fala; o tempo virou uma linha só ("0:42 de 20 s · total 3:10 de 4:00"); o "cena 5/15" foi para o cabeçalho; zerar e fechar viraram links pequenos; a versão virou um botão de duas partes.
+- **Estudar** (tecla E): para cada cena, a ideia numa frase, 3 a 5 coisas para saber, uma comparação do dia a dia, o que não dizer e as perguntas. Também "Antes de tudo" e as perguntas de visitante e gerais. Funciona sem a TV, para estudar em casa.
+- **Conteúdo:** só fatos que já estavam nos documentos, em linguagem simples e sem contas. Um teste confere que toda cena tem o estudo e que nenhum texto dele tem porcentagem.
+- **Fonte única:** o texto "o projeto em 30 segundos" e as 3 ideias saíram do `ferramentas/colinha.py` e foram para o `roteiro.js` (`kit`); a colinha impressa continua igual.
+

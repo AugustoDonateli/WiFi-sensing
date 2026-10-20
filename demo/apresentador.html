@@ -7,11 +7,11 @@
 <link rel="stylesheet" href="fontes.css">
 <style>
 /* Janela do apresentador: fica no notebook enquanto a história passa na TV.
-   Mostra a fala da cena, a próxima, o tempo e uma miniatura do que a TV mostra.
-   Não liga simulação nem placa: só conversa com a página da TV. */
+   Duas abas: Falar (a fala da cena, a próxima, o tempo e uma miniatura do que a TV mostra) e Estudar (o que
+   precisa saber para explicar cada cena; funciona sem a TV). Não liga simulação nem placa: só conversa com a TV. */
 :root {
   color-scheme: dark;
-  --fundo: #0B0B0A; --tinta: #EDEDE8; --apagado: #8A8A84; --aviso: #F5B83D; --linha: #2A2A28;
+  --fundo: #0B0B0A; --tinta: #EDEDE8; --apagado: #8A8A84; --suave: #C9C9C3; --aviso: #F5B83D; --linha: #252523;
   --serif: "Instrument Serif", "Times New Roman", Georgia, serif;
   --sans: "Geist", "Segoe UI", system-ui, sans-serif;
   --mono: "Geist Mono", Consolas, ui-monospace, monospace;
@@ -20,73 +20,136 @@
 [hidden] { display: none !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--fundo); color: var(--tinta); font-family: var(--sans); }
-.ap { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 20px 36px; min-height: 100%; padding: 22px 30px; }
+.ap { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; padding: 18px 32px 20px; gap: 18px; }
 .mono { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado); }
-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+button { font: inherit; color: var(--tinta); background: transparent; border: 1px solid #3A3A37; border-radius: 999px; padding: 10px 18px; cursor: pointer; }
+:is(button):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
+
+/* cabeçalho: marca, as abas e o estado da TV */
+header { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.abas { display: flex; gap: 22px; }
+.abas button { border: 0; border-radius: 0; padding: 6px 0; font-size: 17px; color: var(--apagado); border-bottom: 1px solid transparent; }
+.abas button[aria-selected="true"] { color: var(--tinta); border-bottom-color: var(--tinta); }
+.estado { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+#status::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 8px; vertical-align: 1px; background: currentColor; }
 #status.ok { color: var(--tinta); }
 #status.off { color: var(--aviso); }
-.atual { min-width: 0; overflow: auto; }
-.titulo { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 2.8vw, 46px); line-height: 1.05; margin: 10px 0 20px; text-wrap: balance; }
-.notas { font-size: clamp(19px, 1.55vw, 26px); line-height: 1.5; max-width: 54ch; margin: 0; text-wrap: pretty; }
-/* a colinha: o que fazer (ações), a ponte para a próxima cena e, com Q, as perguntas (da cena, de visitante e gerais) */
-.acoes { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; max-width: 62ch; }
-.acoes li { font-size: clamp(15px, 1.15vw, 19px); line-height: 1.45; color: var(--tinta); display: grid; grid-template-columns: 9.5em minmax(0, 1fr); gap: 12px; }
-.acoes li .mono { padding-top: 4px; }
-.ponte { font-family: var(--serif); font-style: italic; font-size: clamp(20px, 1.6vw, 26px); color: var(--apagado); margin: 24px 0 0; max-width: 54ch; }
-.perguntas { margin-top: 26px; border-top: 1px solid var(--linha); padding-top: 18px; display: flex; flex-direction: column; gap: 14px; max-width: 70ch; }
-.perguntas b { display: block; font-weight: 500; font-size: 17px; }
-.perguntas span { font-size: 16px; line-height: 1.5; color: #C9C9C3; }
-.lado { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+/* aba Falar */
+.falar { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 40px; min-height: 0; }
+.atual { min-width: 0; overflow: auto; padding-right: 6px; }
+.titulo { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 2.8vw, 44px); line-height: 1.05; margin: 10px 0 18px; text-wrap: balance; }
+.notas { font-size: clamp(19px, 1.55vw, 25px); line-height: 1.5; max-width: 54ch; margin: 0; text-wrap: pretty; }
+.acoes { list-style: none; margin: 22px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-width: 60ch; }
+.acoes li { font-size: clamp(15px, 1.1vw, 18px); line-height: 1.45; color: var(--suave); }
+.acoes .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--apagado); margin-right: 8px; }
+.ponte { font-family: var(--serif); font-style: italic; font-size: clamp(20px, 1.6vw, 25px); color: var(--apagado); margin: 22px 0 0; max-width: 54ch; }
+.semtv { font-size: 17px; color: var(--apagado); margin-top: 18px; }
+.semtv button { margin-left: 8px; padding: 6px 14px; }
+.lado { display: flex; flex-direction: column; gap: 16px; min-width: 0; min-height: 0; }
 .mini { border: 1px solid var(--linha); }
-.proxima-t { font-family: var(--serif); font-size: 24px; line-height: 1.15; margin-top: 6px; }
-.tempos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-variant-numeric: tabular-nums; }
-.tempos b { display: block; font-family: var(--mono); font-size: 28px; font-weight: 400; }
-.tempos b.passou { color: var(--aviso); }
-footer { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-button { font: inherit; color: var(--tinta); background: transparent; border: 1px solid #3A3A37; border-radius: 999px; padding: 10px 18px; cursor: pointer; }
-button.grande { font-size: 19px; padding: 14px 30px; }
+.proxima-t { font-family: var(--serif); font-size: 23px; line-height: 1.15; margin-top: 4px; }
+.tempo { font-family: var(--mono); font-size: 15px; color: var(--suave); font-variant-numeric: tabular-nums; }
+.tempo .passou { color: var(--aviso); }
+/* perguntas (Q): no lugar da coluna da direita, com rolagem própria */
+.perguntas { overflow: auto; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding-right: 6px; }
+.perguntas h3, .estudo h3 { font-family: var(--mono); font-weight: 400; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--apagado); margin: 10px 0 0; }
+.qa b { display: block; font-weight: 500; font-size: 16px; margin-bottom: 2px; }
+.qa span { font-size: 15px; line-height: 1.5; color: var(--suave); }
+
+/* aba Estudar: a lista à esquerda e o que saber da cena escolhida à direita */
+.estudar { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 40px; min-height: 0; }
+.lista { list-style: none; margin: 0; padding: 0 6px 0 0; overflow: auto; display: flex; flex-direction: column; gap: 1px; }
+.lista button { width: 100%; text-align: left; border: 0; border-radius: 6px; padding: 7px 10px; font-size: 14.5px; line-height: 1.3; color: var(--suave); display: flex; gap: 8px; align-items: baseline; }
+.lista button:hover { background: #161615; }
+.lista button[aria-current="true"] { background: #1C1C1A; color: var(--tinta); }
+.lista .n { font-family: var(--mono); font-size: 11px; color: var(--apagado); min-width: 1.6em; }
+.lista .meta { margin-left: auto; display: flex; gap: 8px; align-items: baseline; white-space: nowrap; padding-left: 6px; }
+.lista .curta { color: var(--apagado); font-size: 10px; }
+.lista .natv { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: var(--aviso); }
+.lista .sep { height: 12px; }
+.estudo { overflow: auto; min-width: 0; padding-right: 6px; max-width: 76ch; }
+.estudo .titulo { margin-bottom: 6px; }
+.estudo .natela { color: var(--apagado); font-size: 15px; line-height: 1.5; margin: 0 0 22px; }
+.estudo .ideia { font-size: clamp(19px, 1.45vw, 23px); line-height: 1.45; margin: 6px 0 0; text-wrap: pretty; }
+.estudo ul, .estudo ol { margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.estudo li { font-size: 16.5px; line-height: 1.5; color: var(--suave); }
+.estudo .explique { font-family: var(--serif); font-style: italic; font-size: 21px; line-height: 1.35; margin: 6px 0 0; }
+.estudo .cuidado h3 { color: var(--aviso); }
+.estudo .cuidado p { font-size: 16.5px; line-height: 1.5; margin: 6px 0 0; }
+.estudo section { margin-top: 20px; }
+.estudo .qa { margin-top: 10px; }
+.voltar { margin-bottom: 14px; padding: 6px 14px; font-size: 14px; }
+.teclas { margin-top: 30px; padding-top: 14px; border-top: 1px solid var(--linha); }
+
+/* rodapé: navegação grande, versão, perguntas e, pequenos, zerar e fechar */
+footer { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+button.grande { font-size: 19px; padding: 13px 28px; }
+.versao { display: inline-flex; border: 1px solid #3A3A37; border-radius: 999px; padding: 3px; }
+.versao button { border: 0; padding: 7px 16px; }
 button[aria-pressed="true"] { background: var(--tinta); color: var(--fundo); border-color: var(--tinta); }
-:is(button):focus-visible { outline: 2px solid var(--aviso); outline-offset: 3px; }
-.dica { margin-left: auto; }
-@media (max-width: 900px) { .ap { grid-template-columns: minmax(0, 1fr); } .dica { margin-left: 0; } }
+.discreto { margin-left: auto; display: flex; gap: 4px; }
+.discreto button { border: 0; color: var(--apagado); font-size: 14px; padding: 8px 10px; }
+.discreto button:hover { color: var(--tinta); }
+@media (max-width: 900px) {
+  .ap { padding: 14px 18px; height: auto; min-height: 100%; }
+  .falar, .estudar { grid-template-columns: minmax(0, 1fr); }
+  .lista { max-height: 30vh; }
+  .discreto { margin-left: 0; }
+}
 </style>
 </head>
 <body>
 <div class="ap">
   <header>
-    <span class="mono">Wave Sense · janela do apresentador</span>
-    <span class="mono off" id="status">Procurando a página da TV…</span>
-    <span class="mono" id="relogio"></span>
+    <span class="mono">Wave Sense · apresentador</span>
+    <nav class="abas" role="tablist" aria-label="Abas">
+      <button role="tab" id="aba-falar" aria-controls="painel-falar" aria-selected="true">Falar</button>
+      <button role="tab" id="aba-estudar" aria-controls="painel-estudar" aria-selected="false">Estudar</button>
+    </nav>
+    <div class="estado">
+      <span class="mono" id="posicao"></span>
+      <span class="mono off" id="status">Procurando a TV…</span>
+      <span class="mono" id="relogio"></span>
+    </div>
   </header>
 
-  <section class="atual" aria-live="polite">
-    <div class="mono" id="cap">História fechada na TV</div>
-    <h1 class="titulo" id="titulo">Na página da TV, aperte H para abrir a história.</h1>
-    <p class="notas" id="notas">Quando a história abrir, a fala de cada cena aparece aqui. Setas, espaço e o passador de slides funcionam nesta janela também.</p>
-    <ul class="acoes" id="acoes"></ul>
-    <p class="ponte" id="ponte"></p>
-    <div class="perguntas" id="perguntas" hidden></div>
-  </section>
+  <main class="falar" id="painel-falar" role="tabpanel" aria-labelledby="aba-falar">
+    <section class="atual" aria-live="polite">
+      <div class="mono" id="cap">História fechada na TV</div>
+      <h1 class="titulo" id="titulo">Na página da TV, aperte H para abrir a história.</h1>
+      <p class="notas" id="notas">Quando a história abrir, a fala de cada cena aparece aqui. Setas, espaço e o passador de slides funcionam nesta janela também.</p>
+      <ul class="acoes" id="acoes"></ul>
+      <p class="ponte" id="ponte"></p>
+      <p class="semtv" id="semtv" hidden>Sem TV? Dá para treinar na aba Estudar.<button id="ir-estudar">Estudar (E)</button></p>
+    </section>
+    <aside class="lado">
+      <div class="mini" id="mini" aria-hidden="true"></div>
+      <div id="prox-bloco"><div class="mono">Próxima</div><div class="proxima-t" id="proxima">–</div></div>
+      <div class="tempo" id="tempo">
+        <span id="t-cena">0:00</span> de <span id="t-sug">–</span> · total <span id="t-total">0:00</span> de <span id="t-meta">–</span>
+      </div>
+      <div class="perguntas" id="perguntas" hidden></div>
+    </aside>
+  </main>
 
-  <aside class="lado">
-    <div class="mini" id="mini" aria-hidden="true"></div>
-    <div><div class="mono">Próxima</div><div class="proxima-t" id="proxima">–</div></div>
-    <div class="tempos">
-      <div><b id="t-cena">0:00</b><span class="mono" id="t-sug">nesta cena</span></div>
-      <div><b id="t-total">0:00</b><span class="mono" id="t-meta">no total</span></div>
-      <div><b id="posicao">–</b><span class="mono">cena</span></div>
-    </div>
-  </aside>
+  <main class="estudar" id="painel-estudar" role="tabpanel" aria-labelledby="aba-estudar" hidden>
+    <ul class="lista" id="lista" aria-label="Cenas"></ul>
+    <article class="estudo" id="estudo"></article>
+  </main>
 
   <footer>
     <button class="grande" id="ant">← Anterior</button>
     <button class="grande" id="prox">Próxima →</button>
-    <button id="v-completa" aria-pressed="true">Completa</button>
-    <button id="v-curta" aria-pressed="false">Curta</button>
-    <button id="zerar">Zerar tempo</button>
+    <span class="versao" role="group" aria-label="Versão">
+      <button id="v-completa" aria-pressed="true">Completa</button>
+      <button id="v-curta" aria-pressed="false">Curta</button>
+    </span>
     <button id="ver-perguntas" aria-pressed="false">Perguntas (Q)</button>
-    <button id="fechar">Fechar a história</button>
-    <span class="mono dica">B ou . deixa a TV preta</span>
+    <span class="discreto">
+      <button id="zerar">Zerar tempo</button>
+      <button id="fechar">Fechar a história</button>
+    </span>
   </footer>
 </div>
 
@@ -109,69 +172,179 @@ const canal = WaveHistoria.criarCanal('apresentador', (msg) => {
   mini.irParaId(msg.cenaId);
   if (msg.aberta && inicio === null) inicio = Date.now();
   if (cenaAtual !== msg.cenaId) { cenaAtual = msg.cenaId; cenaDesde = Date.now(); }
-  if (mudou) mostrar();
+  if (mudou) { mostrar(); if (seguindo) escolher(msg.cenaId, true); else montarLista(); }
 });
 const cmd = (acao, extra = {}) => canal.enviar({ tipo: 'cmd', acao, ...extra });
+const conectada = () => Date.now() - visto < 3000;
 
 const cenaPorId = (id) => R.cenas.find((c) => c.id === id);
 const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const segundos = (c, v) => (c.seg && (c.seg[v] || c.seg.completa)) || 0;
 const semMarcas = (t) => String(t || '').replace(/\*/g, '');   // tira os * da palavra-chave
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; };
 
+/* ---------- Aba Falar ---------- */
 function mostrar() {
   const c = cenaPorId(palco.cenaId), i = palco.indice, n = palco.ordem.length;
-  $('cap').textContent = palco.aberta ? `${c.cap ? R.capitulos[c.cap] + ' · ' : ''}cena ${i + 1} de ${n}` : 'História fechada na TV (abre ao avançar)';
+  ajustarPerguntas();
+  $('cap').textContent = palco.aberta ? (c.cap ? R.capitulos[c.cap] : 'Wave Sense') : 'História fechada na TV (abre ao avançar)';
   // na cena ao vivo, o mesmo título que a TV mostra (depende de onde vem o sinal)
   $('titulo').textContent = semMarcas(({ sim: c.tituloSimulacao, replay: c.tituloGravacao }[palco.fonte]) || (!palco.fonte && c.tituloSemFonte) || c.titulo);
-  colinha(c);
+  falar(c);
   const prox = palco.ordem[i + 1];
   $('proxima').textContent = prox ? semMarcas(cenaPorId(prox).titulo) : 'Fim. Convide para a Travessia.';
-  $('posicao').textContent = `${i + 1}/${n}`;
+  $('posicao').textContent = `cena ${i + 1}/${n}`;
   $('v-completa').setAttribute('aria-pressed', String(palco.versao === 'completa'));
   $('v-curta').setAttribute('aria-pressed', String(palco.versao === 'curta'));
   const meta = palco.ordem.reduce((s, id) => s + segundos(cenaPorId(id), palco.versao), 0);
-  $('t-meta').textContent = `no total · meta ${fmt(meta)}`;
+  $('t-meta').textContent = fmt(meta);
 }
 
-// A colinha da cena: a fala, as ações (APONTE, PERGUNTE, PAUSA...), a ponte para a próxima e as perguntas.
+// A colinha da cena: a fala, as ações (APONTE, PERGUNTE, PAUSA...), a ponte para a próxima e, com Q, as perguntas.
 let verPerguntas = false;
-function colinha(c) {
+function falar(c) {
   const curta = palco && palco.versao === 'curta';   // na versão curta, a fala e a ponte curtas, quando existem
   $('notas').textContent = (curta && c.falaCurta) || c.fala || c.notas || '';
   $('acoes').replaceChildren(...(c.acao || []).map((a) => {
-    const li = document.createElement('li'), m = /^([A-ZÁÉÍÓÚÇÃÕÊ ()]+):\s*(.*)$/.exec(a);
-    const tag = document.createElement('span'); tag.className = 'mono'; tag.textContent = m ? m[1] : '·';
-    const txt = document.createElement('span'); txt.textContent = m ? m[2] : a;
-    li.append(tag, txt); return li;
+    const li = el('li'), m = /^([A-ZÁÉÍÓÚÇÃÕÊ ()]+):\s*(.*)$/.exec(a);
+    if (m) li.append(el('span', 'tag', m[1]), m[2]); else li.textContent = a;
+    return li;
   }));
   const ponte = (curta && c.ponteCurta) || c.ponte;
   $('ponte').textContent = ponte ? `→ ${ponte}` : '';
   // da cena, de visitante (qualquer pessoa) e as gerais (mais de avaliador)
-  const qs = [...(c.perguntas || []), ...(R.perguntasVisitante || []), ...(R.perguntasGerais || [])];
-  $('perguntas').replaceChildren(...qs.map((x) => { const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = x.p; const s = document.createElement('span'); s.textContent = x.r; d.append(b, s); return d; }));
+  $('perguntas').replaceChildren(
+    ...grupoPerguntas('Desta cena', c.perguntas), ...grupoPerguntas('De visitante', R.perguntasVisitante), ...grupoPerguntas('Gerais', R.perguntasGerais));
+  ajustarPerguntas();
+}
+function grupoPerguntas(nome, qs) {
+  if (!qs || !qs.length) return [];
+  return [el('h3', '', nome), ...qs.map((x) => { const d = el('div', 'qa'); d.append(el('b', '', x.p), el('span', '', x.r)); return d; })];
+}
+// Q troca a coluna da direita (miniatura, próxima e tempo) pelas perguntas; a fala não se mexe.
+function ajustarPerguntas() {
   $('perguntas').hidden = !verPerguntas;
+  $('mini').hidden = verPerguntas;
+  for (const id of ['prox-bloco', 'tempo']) $(id).hidden = verPerguntas || !palco;   // sem TV ainda, não há próxima nem tempo
   $('ver-perguntas').setAttribute('aria-pressed', String(verPerguntas));
 }
-function alternarPerguntas() { verPerguntas = !verPerguntas; if (palco) colinha(cenaPorId(palco.cenaId)); }
+function alternarPerguntas() {
+  if (aba === 'estudar') { trocarAba('falar'); verPerguntas = true; } else verPerguntas = !verPerguntas;
+  ajustarPerguntas();
+}
+
+/* ---------- Aba Estudar ---------- */
+// A lista: "Antes de tudo", as cenas (● = também na versão curta) e as perguntas de visitante e gerais.
+const ITENS = [
+  { id: 'kit', nome: 'Antes de tudo' },
+  ...R.cenas.map((c, i) => ({ id: c.id, n: i + 1, nome: semMarcas(c.titulo), curta: Boolean(c.seg && c.seg.curta) })),
+  { id: 'visitante', nome: 'Perguntas de visitante', sep: true },
+  { id: 'gerais', nome: 'Perguntas gerais' },
+];
+let escolhido = 'kit', seguindo = true;   // seguindo: a aba acompanha a cena da TV
+function montarLista() {
+  const naTV = palco && conectada() ? palco.cenaId : null;
+  $('lista').replaceChildren(...ITENS.flatMap((it) => {
+    const li = el('li'), b = el('button');
+    b.dataset.id = it.id;
+    b.setAttribute('aria-current', String(it.id === escolhido));
+    if (it.n) b.append(el('span', 'n', String(it.n)));
+    b.append(el('span', '', it.nome));
+    const meta = el('span', 'meta');
+    if (it.id === naTV) meta.append(el('span', 'natv', 'na TV'));
+    if (it.curta) meta.append(Object.assign(el('span', 'curta', '●'), { title: 'também na versão curta' }));
+    b.append(meta);
+    b.addEventListener('click', () => escolher(it.id, naTV !== null && it.id === naTV));
+    li.append(b);
+    if (!it.sep) return [li];
+    const sep = el('li', 'sep'); sep.setAttribute('aria-hidden', 'true');
+    return [sep, li];
+  }));
+}
+function escolher(id, seguir) {
+  const mudou = escolhido !== id;
+  escolhido = id; seguindo = Boolean(seguir);
+  montarLista(); estudar();
+  if (mudou) $('estudo').scrollTop = 0;
+  const atual = $('lista').querySelector('[aria-current="true"]');
+  if (atual && aba === 'estudar') atual.scrollIntoView({ block: 'nearest' });
+}
+function secao(titulo, ...filhos) { const s = el('section'); s.append(el('h3', '', titulo), ...filhos); return s; }
+function lista(itens, ordenada) { const l = el(ordenada ? 'ol' : 'ul'); l.append(...itens.map((t) => el('li', '', t))); return l; }
+function perguntasDe(qs) { return qs.map((x) => { const d = el('div', 'qa'); d.append(el('b', '', x.p), el('span', '', x.r)); return d; }); }
+function estudar() {
+  const a = $('estudo'), partes = [];
+  const naTV = palco && conectada() ? palco.cenaId : null;
+  if (naTV && escolhido !== naTV) {
+    const v = el('button', 'voltar', '← Voltar para a cena da TV');
+    v.addEventListener('click', () => escolher(naTV, true));
+    partes.push(v);
+  }
+  if (escolhido === 'kit') {
+    const k = R.kit;
+    partes.push(el('div', 'mono', 'Leia isto primeiro'), el('h1', 'titulo', 'Antes de tudo'),
+      secao('O projeto em 30 segundos', el('p', 'ideia', `“${k.trintaSegundos}”`)),
+      secao('As 3 ideias para a pessoa levar para casa', lista(k.ideias, true)),
+      secao('Como falar', el('p', 'ideia', k.falar)));
+  } else if (escolhido === 'visitante' || escolhido === 'gerais') {
+    const vis = escolhido === 'visitante';
+    partes.push(el('div', 'mono', vis ? 'Qualquer pessoa pode perguntar' : 'Mais comuns de avaliador'),
+      el('h1', 'titulo', vis ? 'Perguntas de visitante' : 'Perguntas gerais'),
+      ...perguntasDe(vis ? R.perguntasVisitante : R.perguntasGerais));
+  } else {
+    const c = cenaPorId(escolhido), i = R.cenas.indexOf(c), e = c.estudo || {};
+    const cap = [c.cap ? R.capitulos[c.cap] : null, `cena ${i + 1}`, c.seg && c.seg.curta ? 'na curta também' : 'só na completa'].filter(Boolean).join(' · ');
+    partes.push(el('div', 'mono', cap), el('h1', 'titulo', semMarcas(c.titulo)), el('p', 'natela', `Na tela: ${semMarcas(c.frase)}`));
+    if (e.ideia) partes.push(secao('A ideia', el('p', 'ideia', e.ideia)));
+    if (e.saber) partes.push(secao('O que você precisa saber', lista(e.saber)));
+    if (e.explique) partes.push(secao('Explique assim', el('p', 'explique', e.explique)));
+    if (e.cuidado) { const s = secao('Cuidado', el('p', '', e.cuidado)); s.className = 'cuidado'; partes.push(s); }
+    if (c.perguntas && c.perguntas.length) partes.push(secao('Perguntas que podem aparecer', ...perguntasDe(c.perguntas)));
+  }
+  partes.push(el('p', 'mono teclas', 'Teclas: ← → cenas · E falar/estudar · Q perguntas · V curta/completa · B tela preta na TV'));
+  a.replaceChildren(...partes);
+}
+// Sem TV, as setas andam pela lista (para estudar em casa).
+function andarNaLista(d) {
+  const i = ITENS.findIndex((it) => it.id === escolhido);
+  escolher(ITENS[Math.max(0, Math.min(ITENS.length - 1, i + d))].id, false);
+}
+
+/* ---------- Abas ---------- */
+let aba = 'falar';
+function trocarAba(nova) {
+  aba = nova;
+  for (const [a, p] of [['falar', 'painel-falar'], ['estudar', 'painel-estudar']]) {
+    $(`aba-${a}`).setAttribute('aria-selected', String(a === aba));
+    $(p).hidden = a !== aba;
+  }
+  if (aba === 'estudar') { montarLista(); estudar(); }
+  try { localStorage.setItem('wavesense-apresentador-aba', aba); } catch (e) { /* ignora */ }
+}
+$('aba-falar').addEventListener('click', () => trocarAba('falar'));
+$('aba-estudar').addEventListener('click', () => trocarAba('estudar'));
+$('ir-estudar').addEventListener('click', () => trocarAba('estudar'));
 
 setInterval(() => {
-  const ok = Date.now() - visto < 3000;
-  $('status').textContent = ok ? 'TV conectada' : 'TV desconectada: abra a página da TV neste computador';
+  const ok = conectada();
+  $('status').textContent = ok ? 'TV conectada' : 'TV desconectada';
+  $('status').title = ok ? '' : 'Abra a página da TV neste computador';
   $('status').className = `mono ${ok ? 'ok' : 'off'}`;
+  $('semtv').hidden = ok || Boolean(palco);
   $('relogio').textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   if (palco) {
     const sug = segundos(cenaPorId(palco.cenaId), palco.versao), t = cenaDesde ? (Date.now() - cenaDesde) / 1000 : 0;
     $('t-cena').textContent = fmt(t);
     $('t-cena').classList.toggle('passou', t > sug * 1.3);
-    $('t-sug').textContent = `nesta cena · sugerido ${sug} s`;
+    $('t-sug').textContent = `${sug} s`;
   }
   $('t-total').textContent = inicio ? fmt((Date.now() - inicio) / 1000) : '0:00';
 }, 250);
 canal.enviar({ tipo: 'ola' });
 setInterval(() => canal.enviar({ tipo: 'ola' }), 2000);
 
-$('ant').addEventListener('click', () => cmd('anterior'));
-$('prox').addEventListener('click', () => cmd('proxima'));
+$('ant').addEventListener('click', () => (conectada() || aba === 'falar' ? cmd('anterior') : andarNaLista(-1)));
+$('prox').addEventListener('click', () => (conectada() || aba === 'falar' ? cmd('proxima') : andarNaLista(1)));
 $('v-completa').addEventListener('click', () => cmd('versao', { versao: 'completa' }));
 $('v-curta').addEventListener('click', () => cmd('versao', { versao: 'curta' }));
 $('fechar').addEventListener('click', () => cmd('fechar'));
@@ -179,19 +352,30 @@ $('zerar').addEventListener('click', () => { inicio = Date.now(); cenaDesde = Da
 $('ver-perguntas').addEventListener('click', alternarPerguntas);
 
 // O passador de slides pode estar mandando teclas para esta janela: repassa para a TV.
+// Sem TV, na aba Estudar, as setas andam pela lista.
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
   const k = e.key;
   const nav = { ArrowRight: 'proxima', ArrowDown: 'proxima', PageDown: 'proxima', ' ': 'proxima', ArrowLeft: 'anterior', ArrowUp: 'anterior', PageUp: 'anterior' };
   if (k === 'F5') { e.preventDefault(); return; }
   if (e.target.tagName === 'BUTTON' && (k === ' ' || k === 'Enter')) return;
-  if (k in nav) { e.preventDefault(); if (!e.repeat) cmd(nav[k]); }
+  if (k in nav) {
+    e.preventDefault();
+    if (e.repeat) return;
+    if (aba === 'estudar' && !conectada()) andarNaLista(nav[k] === 'proxima' ? 1 : -1);
+    else cmd(nav[k]);
+  }
+  else if (k === 'e' || k === 'E') trocarAba(aba === 'falar' ? 'estudar' : 'falar');
   else if (k === 'b' || k === 'B' || k === '.') cmd('preto');
   else if (k === 'q' || k === 'Q') alternarPerguntas();
   else if ((k === 'v' || k === 'V') && palco) cmd('versao', { versao: palco.versao === 'completa' ? 'curta' : 'completa' });
   else if (k === 'Home' && palco) cmd('ir', { cenaId: palco.ordem[0] });
   else if (k === 'End' && palco) cmd('ir', { cenaId: palco.ordem[palco.ordem.length - 1] });
 });
+
+// volta na última aba usada (só uma conveniência deste computador)
+try { if (localStorage.getItem('wavesense-apresentador-aba') === 'estudar') trocarAba('estudar'); } catch (e) { /* ignora */ }
+ajustarPerguntas(); montarLista(); estudar();
 </script>
 </body>
 </html>

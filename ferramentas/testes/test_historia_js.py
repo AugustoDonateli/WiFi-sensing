@@ -92,6 +92,14 @@ out.colinha = {
   falaCurtaLonga: R.cenas.filter((c) => c.falaCurta && c.falaCurta.split(/[.!?]\s/).length > 6).map((c) => c.id),
   falaLonga: R.cenas.filter((c) => c.fala && c.fala.split(/[.!?]\s/).length > 6).map((c) => c.id),
 };
+// a aba Estudar: toda cena tem a ideia e de 3 a 5 coisas para saber; sem porcentagem nenhuma (não há taxa de acerto)
+const textoEstudo = (e) => [e.ideia, ...(e.saber || []), e.explique || '', e.cuidado || ''].join(' ');
+out.estudo = {
+  sem: R.cenas.filter((c) => !(c.estudo && typeof c.estudo.ideia === 'string' && c.estudo.ideia.length > 10)).map((c) => c.id),
+  saberRuim: R.cenas.filter((c) => c.estudo && !(Array.isArray(c.estudo.saber) && c.estudo.saber.length >= 3 && c.estudo.saber.length <= 5 && c.estudo.saber.every((x) => typeof x === 'string' && x.length > 10))).map((c) => c.id),
+  porcentagem: R.cenas.filter((c) => c.estudo && textoEstudo(c.estudo).includes('%')).map((c) => c.id),
+  kit: Boolean(R.kit && R.kit.trintaSegundos && R.kit.falar) && (R.kit.ideias || []).length,
+};
 console.log(JSON.stringify(out));
 """
 
@@ -176,6 +184,13 @@ class TestHistoria(unittest.TestCase):
         self.assertEqual(c["semDesenho"], [])
         self.assertEqual(c["desconhecidas"], [])
         self.assertEqual(c["paramSemPadrao"], [])     # parâmetro fora do padrão fica indefinido no meio da transição
+
+    def test_estudo_de_cada_cena(self):
+        e = self.r["estudo"]
+        self.assertEqual(e["sem"], [])
+        self.assertEqual(e["saberRuim"], [])
+        self.assertEqual(e["porcentagem"], [])          # nada de porcentagem: a taxa de acerto ainda não existe
+        self.assertEqual(e["kit"], 3)
 
     def test_ids_unicos(self):
         self.assertEqual(len(set(self.r["ids"])), len(self.r["ids"]))
