@@ -284,4 +284,5 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - pessoa em pictograma vazado; placa com espessura; LEDs do roteador com halo.
 - **Bug do entulho:** as pedras se sobrepunham e o preenchimento de uma escondia metade da outra. Agora cada peça é um bloco com volume (frente, fundo deslocado e arestas), desenhado de trás para a frente, com uma borda na cor do fundo; ao cair, a peça já chega opaca.
 - **Teste novo:** toda camada tem desenho, e toda pose só usa camadas e parâmetros que existem.
+- **Cena da câmera mais simples** (20/10, pedido do grupo: "muita informação, muito brilho"): saíram o halo da lâmpada, o brilho em volta da pessoa, o segundo anel dela, o traço forte onde o campo de visão bate na parede, as bordas tracejadas do campo e os rótulos da câmera ("a parede bloqueia", "no escuro, nada"). Ficaram: a parede, o campo de visão (preenchimento fraco e duas bordas finas), 4 anéis mais fracos (eram 6), um anel fino na pessoa e o rótulo "o Wi-Fi percebe", em cinza. A luz continua apagando a cada 8 s.
 

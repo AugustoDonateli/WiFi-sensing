@@ -830,7 +830,7 @@
   const CAMADAS = {
     sala: { padrao: { apaga: 0 } },
     parede: { padrao: { x: 0.48 } },
-    ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0 } },
+    ondas: { padrao: { ox: 0.2, oy: 0.42, cx0: SALA.x0, cx1: SALA.x1, ctopo: SALA.teto, cap: 0, vaza: 0, n: 6, forte: 0.55 } },
     onda12: { padrao: { x0: 0.27, x1: 0.95, y: 0.42 } },
     casa: { padrao: { cx: 0.8, larg: 0.2, alt: 0.17, tel: 0.09, sino: 0, fachada: 0 } },
     pilha: { padrao: { agito: 0, roteiro: 0, respira: 0, px: PILHA.x, pw: PILHA.w, py: PILHA.y, ph: PILHA.h, relevo: 1, juntar: 0, teto: -1 }, sintetica: true },
@@ -866,16 +866,11 @@
       if (q.apaga > 0.5) {
         // a luz acesa: um véu claro bem fraco e uma lâmpada no teto, que apagam juntos (cena da câmera)
         const luz = luzDaSala(q, ex), a = curvas.suave(janela(construcao(q), 0.55, 1)), lx = G.X(0.3), ly = yt + G.bh * 0.07, r = G.bh * 0.022;
-        c.globalAlpha = 0.07 * luz * a; c.fillStyle = cor.tinta; c.fillRect(x0, yt, x1 - x0, yc - yt);
+        c.globalAlpha = 0.04 * luz * a; c.fillStyle = cor.tinta; c.fillRect(x0, yt, x1 - x0, yc - yt);
         c.strokeStyle = cor.tinta; c.lineWidth = PESO.detalhe * G.dpr; c.globalAlpha = 0.7 * a;
         linha(c, lx, yt, lx, ly - r);
         c.beginPath(); c.arc(lx, ly, r, Math.PI, 0); c.lineTo(lx + r, ly); c.lineTo(lx - r, ly); c.closePath(); c.stroke();
-        if (luz > 0.01) {
-          c.globalAlpha = a * luz; c.beginPath(); c.arc(lx, ly + r * 0.2, r * 0.45, 0, 2 * Math.PI); c.fill();
-          const g = c.createRadialGradient(lx, ly, 0, lx, ly, G.bh * 0.3);
-          g.addColorStop(0, 'rgba(237, 237, 232, 0.16)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
-          c.globalAlpha = a * luz; c.fillStyle = g; c.fillRect(lx - G.bh * 0.3, yt, G.bh * 0.6, ly + G.bh * 0.3 - yt);   // só dentro da sala
-        }
+        if (luz > 0.01) { c.globalAlpha = a * luz; c.beginPath(); c.arc(lx, ly + r * 0.2, r * 0.45, 0, 2 * Math.PI); c.fill(); }
       }
       const parede = yc - yt, meio = (x1 - x0) / 2, d = curvas.suave(construcao(q)) * (parede + meio);
       c.globalAlpha = 0.55 * limitar(q.p * 2); c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
@@ -905,15 +900,16 @@
       const forma = () => { c.moveTo(x0, yc); c.lineTo(x0, yt); c.lineTo(xm, ya); c.lineTo(x1, yt); c.lineTo(x1, yc); c.closePath(); };
       const R = Math.max(...[[x0, ya], [x0, yc], [x1, ya], [x1, yc]].map(([x, y]) => Math.hypot(x - ox, y - oy)));
       const forca = q.dir === 0 ? 1 : q.p;
+      const n = Math.round(q.n || 6);
       const aneis = (Rmax, alfa) => {
-        for (let i = 0; i < 6; i++) {
-          const f = (amb * 0.15 + i / 6) % 1;
+        for (let i = 0; i < n; i++) {
+          const f = (amb * 0.15 + i / n) % 1;
           c.globalAlpha = alfa * Math.pow(1 - f, 1.2);
           c.beginPath(); c.arc(ox, oy, 6 * G.dpr + f * Rmax, 0, 2 * Math.PI); c.stroke();
         }
       };
       c.strokeStyle = cor.tinta; c.lineWidth = 1.2 * G.dpr;
-      c.save(); c.beginPath(); forma(); c.clip(); aneis(R, 0.55 * forca); c.restore();
+      c.save(); c.beginPath(); forma(); c.clip(); aneis(R, (q.forte ?? 0.55) * forca); c.restore();
       if (q.vaza > 0.01) {
         c.save();
         c.beginPath(); c.rect(G.X(0), G.Y(0), G.bw, G.bh); forma(); c.clip('evenodd');
@@ -1249,22 +1245,12 @@
           c.save(); c.beginPath();
           if (esq) c.rect(G.X(SALA.x0), ytopo, xc - G.X(SALA.x0), ychao - ytopo); else c.rect(xc, ytopo, G.X(SALA.x1) - xc, ychao - ytopo);
           c.clip();
-          c.globalAlpha = alfa0 * 0.08 * kc; c.fillStyle = cor.tinta;
+          c.globalAlpha = alfa0 * 0.06 * kc; c.fillStyle = cor.tinta;
           c.beginPath(); c.moveTo(xl, yl); c.lineTo(r1[0], r1[1]); c.lineTo(r2[0], r2[1]); c.closePath(); c.fill();
-          c.globalAlpha = alfa0 * 0.45 * kc; c.lineWidth = G.dpr; tracejado(c, G, true);
-          linha(c, xl, yl, r1[0], r1[1]); linha(c, xl, yl, r2[0], r2[1]); tracejado(c, G, false);
+          c.globalAlpha = alfa0 * 0.3 * kc; c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
+          linha(c, xl, yl, r1[0], r1[1]); linha(c, xl, yl, r2[0], r2[1]);
           c.restore();
-          // onde o campo de visão bate na parede: um traço forte ("bloqueado")
-          const naParede = (a) => yl + Math.tan(a) * (xc - xl);
-          const ya = limitar((naParede(ang - ab) - ytopo) / (ychao - ytopo)), yb2 = limitar((naParede(ang + ab) - ytopo) / (ychao - ytopo));
-          c.globalAlpha = alfa0 * 0.9 * kc; c.strokeStyle = cor.tinta; c.lineWidth = 2.4 * G.dpr;
-          linha(c, xc, ytopo + ya * (ychao - ytopo), xc, ytopo + yb2 * (ychao - ytopo));
         }
-        // o que a câmera consegue: bloqueada pela parede, e nada no escuro
-        const kr = q.dir === 1 ? curvas.suave(janela(t, 0.7, 1)) : alfa0;
-        const lxr = esq ? G.X(SALA.x0) + G.bw * 0.02 : xc + G.bw * 0.02, lyr = ychao - G.bh * 0.04;
-        c.globalAlpha = kr * luz; rotulo(c, G, cor, 'câmera: a parede bloqueia', lxr, lyr, { alinhar: 'left', base: 'bottom', tam: 0.028 });
-        c.globalAlpha = kr * (1 - luz); rotulo(c, G, cor, 'câmera: no escuro, nada', lxr, lyr, { alinhar: 'left', base: 'bottom', tam: 0.028 });
       } else {
         c.globalAlpha = alfa * 0.4 * (1 - risco); c.lineWidth = G.dpr; tracejado(c, G, true);
         linha(c, xl, yl, G.X(0.2), G.Y(CHAO)); linha(c, xl, yl, G.X(0.68), G.Y(CHAO));
@@ -1309,20 +1295,13 @@
         dirx = Math.cos(f) >= 0 ? 1 : -1;
       }
       if (q.percebe > 0.01) {
-        // percebida pelo Wi-Fi: um brilho em volta do corpo e anéis curtos saindo dele, no ritmo dos anéis
+        // percebida pelo Wi-Fi: um anel fino que sai do corpo, de tempos em tempos
         const H = G.bh * ALTURA_PESSOA * (q.esc || 1), cx = G.X(x), cy = G.Y(CHAO) - H * 0.5;
         const k = q.percebe * alfa * (q.dir === 1 ? curvas.suave(janela(t, 0.55, 1)) : 1);
-        const g = c.createRadialGradient(cx, cy, H * 0.05, cx, cy, H * 0.75);
-        g.addColorStop(0, 'rgba(237, 237, 232, 0.2)'); g.addColorStop(1, 'rgba(237, 237, 232, 0)');
-        c.save(); c.globalCompositeOperation = 'lighter'; c.globalAlpha = k; c.fillStyle = g;
-        c.fillRect(cx - H * 0.75, cy - H * 0.75, H * 1.5, H * 1.5); c.restore();
-        c.strokeStyle = cor.tinta; c.lineWidth = G.dpr;
-        for (let i = 0; i < 2; i++) {
-          const f = (amb * 0.9 + i * 0.5) % 1;
-          c.globalAlpha = k * (1 - f) * 0.7;
-          c.beginPath(); c.ellipse(cx, cy, H * (0.26 + f * 0.24), H * (0.52 + f * 0.18), 0, 0, 2 * Math.PI); c.stroke();
-        }
-        c.globalAlpha = k; rotulo(c, G, cor, 'o Wi-Fi percebe', cx, G.Y(CHAO) - H * 1.18, { base: 'bottom', tam: 0.03, cor: cor.tinta });
+        const f = (amb * 0.6) % 1;
+        c.strokeStyle = cor.tinta; c.lineWidth = G.dpr; c.globalAlpha = k * (1 - f) * 0.6;
+        c.beginPath(); c.ellipse(cx, cy, H * (0.28 + f * 0.2), H * (0.54 + f * 0.14), 0, 0, 2 * Math.PI); c.stroke();
+        c.globalAlpha = k; rotulo(c, G, cor, 'o Wi-Fi percebe', cx, G.Y(CHAO) - H * 1.12, { base: 'bottom', tam: 0.03 });
       }
       desenharPessoa(c, G, cor, { x, esc: q.esc, deitada: dei, preso: q.preso, t: amb, fantasma: fan, alfa, amp, fase: amb * 7, halo: true, dirx,
         ergue: (q.ergue || 0) * (1 - dei), aparelho: (q.ergue || 0) > 0.5 });
@@ -1890,7 +1869,7 @@
       sala: { apaga: 1, entrada: [0.46, 0.86] },
       parede: { x: 0.48, entrada: [0.5, 0.9] },
       roteador: { x: 0.12, y: 0.6, prat: SALA.x0, entrada: [0.45, 0.75] },
-      ondas: { ox: 0.12, oy: 0.6, entrada: [0.55, 0.92] },
+      ondas: { ox: 0.12, oy: 0.6, n: 4, forte: 0.45, entrada: [0.55, 0.92] },
       camera: { cx: 0.2, cy: 0.2, mx: 0.48, my: 0.6, corta: 0.48, apaga: 1, entrada: [0.42, 0.9] },
       pessoa: { x: 0.74, andar: 0.6, percebe: 1, entrada: [0.5, 0.9] },
     },
@@ -1898,7 +1877,7 @@
     novo: {
       chao: {},
       sala: { p: 0, apaga: 1, saida: [0.04, 0.4] }, parede: { p: 0, x: 0.48, saida: [0.04, 0.36] },
-      roteador: { p: 0, x: 0.12, y: 0.6, prat: SALA.x0, saida: [0.04, 0.34] }, ondas: { p: 0, ox: 0.12, oy: 0.6, saida: [0.02, 0.3] },
+      roteador: { p: 0, x: 0.12, y: 0.6, prat: SALA.x0, saida: [0.04, 0.34] }, ondas: { p: 0, ox: 0.12, oy: 0.6, n: 4, forte: 0.45, saida: [0.02, 0.3] },
       camera: { p: 0, cx: 0.2, cy: 0.2, mx: 0.48, my: 0.6, corta: 0.48, apaga: 1, saida: [0.04, 0.34] },
       pessoa: { p: 0, x: 0.74, percebe: 1, saida: [0.04, 0.34] },
       cronologia: { entrada: [0.3, 0.96] },
