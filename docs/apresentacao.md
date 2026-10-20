@@ -28,8 +28,8 @@ Se o visitante sair sabendo essas quatro coisas, a apresentação funcionou.
   │                    CHEGADA                       │
   │                       ┃                          │
   │   A ● ─ ─ ─ ─ ─ ─ ─ ─ ╂ ─ ─ ─ ─ ─ ─ ─ ─ ● B      │
-  │   (banquinho,         ┃          (mesa, cabo USB │
-  │    ~1 m de altura)    ┃           no notebook)   │
+  │   (suporte na parede, ┃     (suporte na parede,  │
+  │    ~1 m de altura)    ┃      cabo USB no note)   │
   │                    PARTIDA                       │
   │                                                  │
   └──────────────────────────────────────────────────┘
@@ -37,6 +37,7 @@ Se o visitante sair sabendo essas quatro coisas, a apresentação funcionou.
 ```
 
 - **Distância:** 2 a 3 m entre A e B, a mesma das coletas.
+- **Suportes:** as placas ficam em prateleirinhas impressas em 3D, coladas na parede com fita dupla face (`hardware/suporte_placa/`). As duas na **mesma altura** (~1 m), com a ponta da antena virada para a outra placa. O cabo passa pela trava embaixo da prateleira.
 - **A faixa cruza a linha A–B.** O visitante sai da PARTIDA (perto do público), atravessa a "linha invisível" e chega na CHEGADA, andando de frente para a TV. Assim ele se vê na tela enquanto anda.
 - **Corredor fora da linha:** quem passa no corredor não pode cruzar a linha entre A e B, senão a tela dispara sozinha.
 - **Placas à vista e com plaquinha:**
@@ -192,7 +193,7 @@ Revezem a cada 30 minutos. **Todos** precisam saber o roteiro de 3 minutos e a v
 
 - [ ] Notebook e carregador, extensão ou filtro de linha
 - [ ] Placas A e B, cabo USB de dados, carregador ou power bank para a A
-- [ ] Banquinho ou suporte para a Placa A (~1 m de altura)
+- [ ] Os dois suportes impressos (A e B) e fita dupla face de espuma (`hardware/suporte_placa/`)
 - [ ] Fita para a faixa, folhas PARTIDA e CHEGADA, plaquinhas "A fala" e "B escuta"
 - [ ] TV ou monitor e cabo HDMI (a feira não fornece notebook nem datashow)
 - [ ] Pôster impresso
