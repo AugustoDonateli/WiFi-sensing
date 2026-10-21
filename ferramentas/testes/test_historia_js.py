@@ -43,7 +43,7 @@ out.transicao = {
 out.direcional = [H.alvoDirecional(2.2, 1), H.alvoDirecional(2.1, 1), H.alvoDirecional(2.9, -1), H.alvoDirecional(2.8, -1), H.alvoDirecional(3, 1)];
 out.curta = H.ordemDa(R.cenas, 'curta');
 out.completa = H.ordemDa(R.cenas, 'completa');
-out.remap = [H.remapear('frequencias', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('resultados', R.cenas, 'curta'), H.remapear('viabilidade', R.cenas, 'curta')];
+out.remap = [H.remapear('numero', R.cenas, 'curta'), H.remapear('placas', R.cenas, 'curta'), H.remapear('resultados', R.cenas, 'curta'), H.remapear('camera', R.cenas, 'curta')];
 const a = H.sinteticas(7, 30), b = H.sinteticas(7, 30), c = H.sinteticas(8, 30);
 out.semente = { iguais: a.parado[20].a[10] === b.parado[20].a[10] && a.mexendo[25].a[40] === b.mexendo[25].a[40], diferentes: a.parado[20].a[10] !== c.parado[20].a[10] };
 // perto de cada cena inteira nada se mexe (±0,12)
@@ -149,9 +149,9 @@ class TestHistoria(unittest.TestCase):
 
     def test_versoes(self):
         self.assertEqual(len(self.r["completa"]), len(self.r["ids"]))
-        self.assertEqual(len(self.r["curta"]), 15)
-        self.assertEqual(self.r["curta"][0], "abertura")
-        self.assertEqual(self.r["remap"], ["frequencias", "placas", "resultados", "privacidade"])
+        self.assertEqual(len(self.r["curta"]), 14)
+        self.assertEqual(self.r["curta"][0], "intro")
+        self.assertEqual(self.r["remap"], ["resultados", "placas", "resultados", "camera"])
 
     def test_dados_de_ilustracao_deterministicos(self):
         self.assertTrue(self.r["semente"]["iguais"])

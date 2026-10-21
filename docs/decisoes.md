@@ -294,3 +294,12 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Conteúdo:** só fatos que já estavam nos documentos, em linguagem simples e sem contas. Um teste confere que toda cena tem o estudo e que nenhum texto dele tem porcentagem.
 - **Fonte única:** o texto "o projeto em 30 segundos" e as 3 ideias saíram do `ferramentas/colinha.py` e foram para o `roteiro.js` (`kit`); a colinha impressa continua igual.
 
+
+## 21/10/2026: apresentação reorganizada depois do ensaio (pedido do grupo)
+
+- **Por quê:** no ensaio, a história abria direto nas linhas, e quem chega não sabe o que elas são; a câmera vinha cedo demais; "cada instante vira uma linha" repetia o começo; faltava apresentar o projeto, abrir a parte dos usos e convidar para as brincadeiras; a privacidade falava de gente mal-intencionada em vez da vantagem sobre a câmera.
+- **Nova ordem (15 cenas; curta com 14, sem o número):** quem somos e o que é → o Wi-Fi é uma onda → vários caminhos → muda a soma → cada instante vira uma linha → número → testamos → pessoa parada → ciência de agora (com o "montar com pouco": o MIT usou equipamento de rádio especial, a gente duas ESP32 baratas) → Hedy Lamarr → para que serve → escombros → quem mora sozinho → privacidade (o Wi-Fi não te filma) → agora é a sua vez (Travessia e Escutar).
+- **Saíram:** a abertura nas linhas, "64 ondas juntas" (o essencial foi para "cada instante vira uma linha"), "Dá para montar com pouco" (foi para a linha do tempo) e a casa com alguém de fora (o caso Comcast virou pergunta na cena da privacidade).
+- **Introdução** no texto do Augusto: "a gente é o Augusto e o Daniel… detectar movimento usando só o Wi-Fi… onde pode ser usado, limites e perigos… pesquisa bem recente… as placas mandam para o nosso site, que diz se alguém se mexeu".
+- **Desenho:** nenhum desenho novo; só poses. A introdução usa as placas com o notebook, e a cena "para que serve" usa a sala pequena com alguém andando.
+- **Suportes:** a impressora 3D quebrou (filamento velho e quebradiço entupiu o hub); as placas vão em cano PVC, firmes e na mesma altura.

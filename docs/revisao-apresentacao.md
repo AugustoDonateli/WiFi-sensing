@@ -91,3 +91,20 @@ O grupo apontou o que faltava: a abertura explicava o Wi-Fi, mas não dizia que 
 **Tempo:** curta com 15 cenas, cerca de 4 min; completa com 17 cenas, cerca de 6,5 min. As duas cenas novas entram na curta, e as cenas da explicação ficaram um pouco mais curtas para compensar.
 
 **Cuidados mantidos:** na linha do tempo, o produto dos EUA aparece como "hoje", sem ano, porque não confirmamos o ano exato. Dina Katabi aparece em 2013 e volta na fala da Hedy ("lembra da Dina Katabi?"), ligando o tema Ciência Delas à abertura.
+
+## Adendo (21/10, depois do ensaio): a ordem nova
+
+Ao apresentar em voz alta, o Augusto viu o que a leitura não mostrava:
+
+| Problema no ensaio | O que mudou |
+|---|---|
+| Abre direto nas linhas: "que diabo é isso?" | A primeira cena é a apresentação do projeto (quem somos, o que é, objetivos, pesquisa recente, placas + site). As linhas só aparecem na cena 5, já explicadas. |
+| "A câmera precisa te ver" cedo demais | A câmera virou a cena da privacidade, no fim: a vantagem do Wi-Fi é não filmar. |
+| "Cada instante vira uma linha" repetia o começo | Agora é a única vez que as linhas são explicadas. |
+| "64 ondas juntas" técnico demais | Saiu; o essencial (pedacinhos de frequência, CSI) virou uma frase da cena das linhas e duas perguntas. |
+| Faltava abrir a parte dos usos | Cena nova "E para que serve isso?", antes dos escombros. |
+| Privacidade sobre gente mal-intencionada | Agora é sobre a vantagem sobre a câmera; o risco (Comcast/polícia) ficou nas perguntas. |
+| Faltava convidar para a Travessia e o Escutar | A última cena é "Agora é a sua vez", com as duas brincadeiras. |
+| "Montar com pouco" solto no fim | Foi para a linha do tempo, logo depois do MIT: "eles usaram equipamento especial; a gente, duas placas baratas". |
+
+A Hedy agora vem logo depois da linha do tempo, junto da Dina Katabi: uma parte só de história, sem interromper a explicação técnica.

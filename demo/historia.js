@@ -1855,17 +1855,27 @@
   };
   const PILHA_VIRA_CHAO = { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, mover: [0.04, 0.42], saida: [0.36, 0.5] };
   const POSES = {
-    // o sinal de verdade (ou a simulação), como a tela principal: é o gancho
+    // quem somos e o que é: as duas placas mandando o sinal para o notebook, onde roda o nosso site. Abrindo a
+    // história, as linhas da tela principal entram voando na tela do notebook.
+    intro: {
+      chao: { x1: 0.6 },
+      placaA: { x: 0.14 },
+      placaB: { x: 0.52 },
+      pacotes: {},
+      pilha: { agito: 0, respira: 0, relevo: 0.55, ...PILHA_NOTE, teto: -1 },
+      notebook: {},
+    },
+    // (antiga abertura, fora da ordem desde o ensaio de 21/10)
     abertura: {
       vivo: { py: PILHA.y, ph: PILHA.h, med: 0 },
     },
-    // as linhas da abertura viram o chão da sala
-    // a câmera precisa ver; o Wi-Fi, não: uma parede divide a sala. À esquerda, a câmera (o campo de visão para
+    // privacidade (a cena da câmera, que vem depois de quem mora sozinho): a câmera precisa ver; o Wi-Fi, não. Uma
+    // parede divide a sala. À esquerda, a câmera (o campo de visão para
     // na parede) e o roteador; à direita, alguém andando, que os anéis alcançam através da parede. Parada, a luz
     // apaga e acende: no escuro a câmera não vê nada, e o Wi-Fi continua percebendo.
     camera: {
-      vivo: { p: 0, relevo: 0, juntar: 1, py: CHAO - PILHA.h, med: 0, mover: [0.04, 0.42], saida: [0.36, 0.5] },
-      chao: { cresce: 0, entrada: [0.38, 0.5] },
+      rotina: { p: 0, saida: [0.02, 0.34] },
+      chao: { entrada: [0.3, 0.6] },
       sala: { apaga: 1, entrada: [0.46, 0.86] },
       parede: { x: 0.48, entrada: [0.5, 0.9] },
       roteador: { x: 0.12, y: 0.6, prat: SALA.x0, entrada: [0.45, 0.75] },
@@ -1874,21 +1884,20 @@
       pessoa: { x: 0.74, andar: 0.6, percebe: 1, entrada: [0.5, 0.9] },
     },
     // isso é ciência de agora: a linha do tempo, de 2013 ao Wave Sense
+    // (vem da pessoa parada: a sala em miniatura sai, o chão volta ao tamanho normal)
     novo: {
-      chao: {},
-      sala: { p: 0, apaga: 1, saida: [0.04, 0.4] }, parede: { p: 0, x: 0.48, saida: [0.04, 0.36] },
-      roteador: { p: 0, x: 0.12, y: 0.6, prat: SALA.x0, saida: [0.04, 0.34] }, ondas: { p: 0, ox: 0.12, oy: 0.6, n: 4, forte: 0.45, saida: [0.02, 0.3] },
-      camera: { p: 0, cx: 0.2, cy: 0.2, mx: 0.48, my: 0.6, corta: 0.48, apaga: 1, saida: [0.04, 0.34] },
-      pessoa: { p: 0, x: 0.74, percebe: 1, saida: [0.04, 0.34] },
+      chao: { mover: [0.1, 0.5] },
+      placaA: { p: 0, saida: [0.02, 0.3] }, placaB: { p: 0, saida: [0.02, 0.3] }, pacotes: { p: 0, saida: [0.02, 0.24] },
+      pessoa: { p: 0, saida: [0.02, 0.28] }, pilha: { p: 0, saida: [0.02, 0.3] },
       cronologia: { entrada: [0.3, 0.96] },
     },
     // as duas placas; entre elas, a onda do Wi-Fi (com a régua de 12 cm) e as mensagens indo de A para B
     placas: {
-      chao: {},
-      // o ponto do Wave Sense vai até o lugar da placa A e vira uma caixa igual à dela; a placa nasce ali
-      cronologia: { p: 0, foco: 1, mover: [0.04, 0.6], saida: [0.6, 0.72] },
-      placaA: { x: 0.14, nasce: 1, entrada: [0.5, 0.9] },
-      placaB: { x: 0.86, entrada: [0.44, 0.84] },
+      // vindo da introdução: o notebook e as linhas saem, o chão volta inteiro e a placa B volta para o lugar dela
+      notebook: { p: 0, saida: [0.02, 0.34] }, pilha: { p: 0, saida: [0.02, 0.3] },
+      chao: { mover: [0.3, 0.8] },
+      placaA: { x: 0.14 },
+      placaB: { x: 0.86, mover: [0.3, 0.8] },
       onda12: { x0: 0.2, x1: 0.8, y: Y_ANTENA, entrada: [0.55, 0.92] },
       pacotes: { entrada: [0.62, 0.9] },
     },
@@ -1928,6 +1937,7 @@
     // 1942: as 64 apagam e um rolo de pianola desce sobre elas; cada furo acende uma frequência, uma de cada vez.
     // Na cena seguinte, elas acendem de novo, todas juntas, e viram a linha.
     salto: {
+      cronologia: { p: 0, saida: [0.02, 0.3] },
       chao: { ...ZOOM_NORMAL },
       placaB: { x: 0.07, esc: 1.1, ...ZOOM_NORMAL },
       barras: { destaque: -1, luz: 0.16, mover: [0.04, 0.4] },
@@ -1935,6 +1945,7 @@
       salto: { entrada: [0.2, 0.88] },
     },
     linhas: {
+      soma: { p: 0, saida: [0.02, 0.3] },
       chao: { p: 0 },
       sala: { p: 0, saida: [0.04, 0.34] },
       raios: { p: 0, saida: [0.02, 0.24] },
@@ -1943,7 +1954,7 @@
       placaB: { p: 0, x: 0.07, esc: 1.1, saida: [0.1, 0.4] },
       barras: { p: 0, saida: [0.12, 0.45] },
       curva: { p: 0, forma: 1, saida: [0.7, 0.92] },
-      pilha: { agito: 0, entrada: [0.5, 0.9] },
+      pilha: { agito: 0, entrada: [0.3, 0.82] },     // vem da soma: as linhas chegam logo que a sala pequena sai
       salto: { p: 0, saida: [0.02, 0.3] },
     },
     numero: {
@@ -1957,6 +1968,17 @@
       pilha: { p: 0, saida: [0.02, 0.32] },
       medidor: { p: 0, saida: [0.02, 0.3] },
       teste: { marcas: 1, entrada: [0.24, 0.96] },
+    },
+    // para que serve: a sala em miniatura com alguém andando e as linhas tremendo. Vem da Hedy: as barras e o
+    // rolo saem, e a placa B anda do canto até o lugar dela, já pequena.
+    usos: {
+      barras: { p: 0, saida: [0.02, 0.3] }, curva: { p: 0, saida: [0.02, 0.3] }, salto: { p: 0, saida: [0.02, 0.3] },
+      chao: { ...ZOOM_MINI, mover: [0.2, 0.62] },
+      placaB: { x: 0.86, esc: 1, ...ZOOM_MINI, mover: [0.2, 0.62] },
+      placaA: { x: 0.14, ...ZOOM_MINI, entrada: [0.45, 0.8] },
+      pacotes: { ...ZOOM_MINI, entrada: [0.6, 0.9] },
+      pessoa: { x: 0.5, andar: 1, ...ZOOM_MINI, entrada: [0.5, 0.9] },
+      pilha: { agito: 1, ...PILHA_MINI, entrada: [0.45, 0.9] },
     },
     // a sala em miniatura com a pessoa parada (some para o sistema) e as linhas calmas embaixo
     parado: {
@@ -2013,6 +2035,7 @@
     fim: {
       casa: { p: 0, saida: [0.02, 0.36] }, ondas: { p: 0, saida: [0.02, 0.3] }, roteador: { p: 0, saida: [0.02, 0.3] },
       pessoa: { p: 0, saida: [0.02, 0.3] }, vulto: { p: 0, saida: [0.02, 0.3] }, chao: { p: 0, saida: [0.06, 0.38] },
+      sala: { p: 0, saida: [0.02, 0.36] }, parede: { p: 0, saida: [0.02, 0.34] }, camera: { p: 0, saida: [0.02, 0.32] },
       vivo: { py: PILHA.y, ph: PILHA.h, med: 0, entrada: [0.4, 0.88] },
     },
   };
