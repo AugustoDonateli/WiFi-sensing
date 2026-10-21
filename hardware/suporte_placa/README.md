@@ -17,8 +17,28 @@ Uma prateleirinha impressa em 3D que vai colada na parede com fita dupla face. A
 
 - **Material:** PLA (ou PETG).
 - **Posição:** a que o arquivo já tem: a prateleira deitada na mesa e as costas em pé. **Não precisa de suporte.**
-- **Configuração:** camada de 0,2 mm, 3 perímetros (paredes), 20% de preenchimento e bico de 0,4 mm.
+- **Configuração:** camada de 0,2 mm, 4 perímetros (paredes), 20% de preenchimento e bico de 0,4 mm.
 - **Tempo e filamento:** o fatiador (Cura, PrusaSlicer, Bambu Studio, Creality Print…) mostra. Cada suporte tem uns 36 cm³ se fosse maciço; com 20% de preenchimento, gasta bem menos que 45 g.
+
+### No Bambu Studio (Bambu Lab)
+
+1. **Posição:** abra os arquivos **sem girar** e não use a orientação automática. A posição em que eles abrem já é a de imprimir.
+2. **Mesa e filamento:** Textured PEI (ou Cool Plate com cola bastão), Bambu PLA Basic ou outro PLA.
+3. **Processo:** `0.20mm Standard @BBL`.
+4. **Força (Strength):**
+   - **Wall loops: 4.** As abinhas e as paredes da bandeja têm 1,6 mm; com 4 voltas, saem maciças e mais firmes.
+   - **Sparse infill density: 20%**, com padrão grade ou giroide.
+5. **Suporte:** **"Enable support" desmarcado.**
+   - As letras em relevo e as abinhas têm partes viradas para baixo, mas são balanços curtos (1,2 mm e 1,5 mm), que a impressora faz no ar.
+   - Suporte dentro da bandeja ou nas fendas das abinhas seria difícil de tirar e poderia quebrar uma abinha.
+6. **Outros:**
+   - **Brim:** não precisa, porque a base é larga.
+   - **"Detect thin wall":** ligado, para os traços finos da letra saírem.
+7. **Ordem:**
+   - Imprima primeiro o `teste_encaixe.stl` sozinho.
+   - Se a placa encaixar, coloque o A e o B juntos numa mesa só. Cabem até na A1 mini (180 × 180 mm).
+
+Se uma letra sair com algum fiapo embaixo, uma lixa ou um estilete resolve.
 
 ## Como montar
 
