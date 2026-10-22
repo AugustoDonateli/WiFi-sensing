@@ -112,6 +112,29 @@ Se as placas ficarem com canais diferentes, a B não recebe nada.
 | Visualizador no navegador não conecta | Web Serial só funciona no **Chrome** ou no **Edge** **[oficial]**. |
 | Internet da feira não funciona e o site do Vercel não abre | Levar a pasta `demo/` no notebook e abrir o `index.html` direto no Chrome. Funciona sem internet; só as fontes trocam por outras parecidas. |
 
+### Na feira: poucos pacotes por segundo (22/10)
+
+No dia, chegavam só 10 a 20 pacotes por segundo (a placa A manda 50). Com a janela de 1 s e o mínimo de 10 pacotes, a medida sumia e a tela não marcava nada.
+
+**O que mudou no código:**
+- **Janela e mínimo:** a janela do detector passou para 2 s e o mínimo para 6 pacotes (`demo/nucleo.js` e `ferramentas/detector.py`, iguais). Com dados de teste, detecta o movimento sem alarme falso até com 10 pacotes por segundo.
+- **Buffer da USB:** subiu de 16 KB para 1 MB (`bufferSize` no `demo/index.html`). Se a página demora para ler (TV grande, animação), as linhas esperam em vez de se perder.
+- **Contador:** o "pacotes/s" continua por segundo.
+
+**Depois de atualizar, calibre de novo (tecla C) com a faixa vazia.**
+
+**Para recuperar pacotes:**
+1. **Onde se perdem:**
+   - Com a história fechada, olhe o "pacotes/s" no painel Operador (tecla O).
+   - Se der, feche o navegador e rode `python ferramentas/capturar.py --porta COMx --sessao FEIRA --rotulo vazio --duracao 15`.
+   - Se o Python vê bem mais pacotes que a página, o problema é o notebook.
+2. **Rádio:**
+   - Desligue o roteador do celular de quem é do grupo e o Wi-Fi e o Bluetooth da TV e do notebook (o modo avião não desliga a USB).
+   - Placas a 1–1,5 m, com as antenas (a ponta com o zigue-zague dourado) viradas uma para a outra, a 15 cm ou mais de metal e longe da TV.
+   - Teste com as **duas** placas dentro do estande de alumínio: o metal em volta pode barrar o Wi-Fi da escola.
+   - Ligue a placa A num carregador de tomada.
+3. **Canal:** se ainda estiver ruim, troque o canal (veja "Trocar o canal do Wi-Fi", acima), escolhendo o menos usado num app de análise de Wi-Fi no celular.
+
 ## 10. Site no Vercel
 
 | Sintoma | Causa | O que fazer |

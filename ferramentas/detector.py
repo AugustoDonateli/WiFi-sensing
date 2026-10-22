@@ -23,13 +23,13 @@ import argparse
 
 import numpy as np
 
-JANELA_S = 1.0
+JANELA_S = 2.0  # 2 s e mínimo de 6 pacotes: funciona com 10 a 20 pacotes/s (feira, 22/10); igual ao demo/nucleo.js
 PASSO_S = 0.2
 CONFIRMA_LIGA = 3
 CONFIRMA_DESLIGA = 5
 K_DESVIOS = 3.0
 FATOR_MIN = 1.3
-MIN_PACOTES = 10
+MIN_PACOTES = 6
 IGNORAR = (0, 1)
 
 

@@ -391,7 +391,7 @@ function receber(p) {
   app.ultimoId = p.id;
   app.ultimoPacote = t;
   app.janela.push(p);
-  while (app.janela.length && app.janela[0].t < t - 2) app.janela.shift();
+  while (app.janela.length && app.janela[0].t < t - JANELA_S - 0.5) app.janela.shift();
 }
 
 /* ---------- Detecção ---------- */
@@ -400,7 +400,7 @@ function avaliar() {
   const jan = app.janela.filter((p) => p.t >= agora - JANELA_S);
   const v = oscilacao(jan);
   app.oscAtual = v;
-  $('st-taxa').textContent = app.fonte ? String(jan.length) : '–';
+  $('st-taxa').textContent = app.fonte ? String(Math.round(jan.length / JANELA_S)) : '–';
   $('st-rssi').textContent = jan.length ? `${Math.round(jan.reduce((s, p) => s + p.rssi, 0) / jan.length)}` : '–';
   $('st-perdidos').textContent = app.fonte ? String(app.perdidos) : '–';
 
@@ -869,7 +869,8 @@ async function conectarPlaca() {
     return;
   }
   await pararFonte();
-  try { await porta.open({ baudRate: 921600, bufferSize: 16384 }); } catch (e) {
+  // buffer grande: se a página demora para ler (TV grande, animação), as linhas esperam aqui em vez de se perder
+  try { await porta.open({ baudRate: 921600, bufferSize: 1048576 }); } catch (e) {
     definirFonte(null);
     mostrarMsg(`Não consegui abrir a porta: ${e.message}. Feche o idf.py monitor e tente de novo.`);
     return;

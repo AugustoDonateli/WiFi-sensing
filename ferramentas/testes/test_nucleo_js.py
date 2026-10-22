@@ -91,12 +91,13 @@ class TestMesmaRegra(unittest.TestCase):
         import detector
         from analise import carregar
 
-        # Parado até 4 s, movimento de 4 a 7 s, parado depois. Buraco de pacotes em 9-9,95 s.
-        mov = lambda t: 0.35 if 4 <= t < 7 else 0.0  # noqa: E731
+        # Parado até 5 s, movimento de 5 a 8 s, parado depois. Buraco de pacotes em 11-13,3 s, maior que a
+        # janela (2 s), para sobrar medida sem pacotes suficientes.
+        mov = lambda t: 0.35 if 5 <= t < 8 else 0.0  # noqa: E731
         n_calib = 10
         with tempfile.TemporaryDirectory() as pasta:
-            arq = sintetico.gravar_coleta(pasta, "cruzado", "teste", "S1", 12, mov, semente=semente, len_=len_,
-                                          buraco=(9.0, 9.95), first_word_a_cada=7)
+            arq = sintetico.gravar_coleta(pasta, "cruzado", "teste", "S1", 16, mov, semente=semente, len_=len_,
+                                          buraco=(11.0, 13.3), first_word_a_cada=7)
             js = rodar_node(SCRIPT_SERIE, arq, n_calib)
             dados = carregar(arq, remover_nulas=False)
 
@@ -114,9 +115,9 @@ class TestMesmaRegra(unittest.TestCase):
 
         # O cenário precisa exercitar as partes difíceis, senão o teste não prova nada.
         self.assertTrue(np.isnan(valores).any(), "o buraco deveria gerar medidas sem pacotes suficientes")
-        self.assertTrue(estados[(tempos > 5.5) & (tempos < 7)].all(), "o movimento deveria ser detectado")
-        self.assertFalse(estados[tempos < 4].any())
-        self.assertFalse(estados[tempos > 9.0].any())  # desliga 5 medidas (1 s) depois que a janela esvazia
+        self.assertTrue(estados[(tempos > 6.5) & (tempos < 8)].all(), "o movimento deveria ser detectado")
+        self.assertFalse(estados[tempos < 5].any())
+        self.assertFalse(estados[tempos > 11.0].any())  # desliga 5 medidas (1 s) depois que a janela esvazia
 
     def test_ganho_automatico_nao_e_movimento(self):
         # A placa B sobe e desce o volume do pacote inteiro (ganho automático). Mesmo formato com

@@ -7,13 +7,15 @@
 (function (raiz) {
   'use strict';
 
-  const JANELA_S = 1.0;          // janela da oscilação
+  // Janela de 2 s e mínimo de 6 pacotes (feira, 22/10): com o canal cheio, chegavam só 10 a 20 pacotes por segundo,
+  // e com 1 s e mínimo de 10 a medida sumia. Com 50 por segundo, funciona igual (só meio segundo mais lento).
+  const JANELA_S = 2.0;          // janela da oscilação
   const PASSO_S = 0.2;           // uma medida nova a cada 0,2 s
   const CONFIRMA_LIGA = 3;       // medições seguidas acima do limiar para marcar movimento
   const CONFIRMA_DESLIGA = 5;    // medições seguidas abaixo para voltar a "parado"
   const K_DESVIOS = 3;
   const FATOR_MIN = 1.3;
-  const MIN_PACOTES = 10;
+  const MIN_PACOTES = 6;
   const IGNORAR = [0, 1];        // a Espressif avisa que os 4 primeiros bytes podem vir inválidos
 
   // Converte uma linha do firmware csi_recv (ESP32) em { id, rssi, amps }.

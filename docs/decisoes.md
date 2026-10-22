@@ -303,3 +303,10 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Introdução** no texto do Augusto: "a gente é o Augusto e o Daniel… detectar movimento usando só o Wi-Fi… onde pode ser usado, limites e perigos… pesquisa bem recente… as placas mandam para o nosso site, que diz se alguém se mexeu".
 - **Desenho:** nenhum desenho novo; só poses. A introdução usa as placas com o notebook, e a cena "para que serve" usa a sala pequena com alguém andando.
 - **Suportes:** a impressora 3D quebrou (filamento velho e quebradiço entupiu o hub); as placas vão em cano PVC, firmes e na mesma altura.
+
+## 22/10/2026: feira, poucos pacotes por segundo
+
+- **O problema:** no local, a placa B recebia só 10 a 20 pacotes por segundo (a A manda 50). Causa provável: o canal 11 cheio (Wi-Fi da escola e roteadores de celular). Também pode ser o notebook sobrecarregado perdendo linhas da USB.
+- **Detector:** janela de 1 s para 2 s e mínimo de 10 para 6 pacotes, na tela e no Python. Com dados sintéticos, detecta o movimento e não dá alarme falso de 50 até 10 pacotes por segundo; a resposta fica uns 0,5 s mais lenta.
+- **USB:** buffer de 16 KB para 1 MB, para a página não perder linhas quando demora para ler.
+- **Diagnóstico e passos na feira:** em `docs/erros-provaveis.md` ("Na feira: poucos pacotes por segundo").

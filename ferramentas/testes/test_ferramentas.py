@@ -120,10 +120,11 @@ class TestCaptura(unittest.TestCase):
         self.assertEqual(dados["amp"].shape[1], 64 - 3)  # 3 subportadoras sempre nulas removidas
         self.assertEqual(dados["amp_completa"].shape, (300, 64))
         tempos, valores = oscilacao(dados)
-        # Uma medida a cada 0,2 s, a primeira quando já existe 1 s inteiro de pacotes.
+        # Uma medida a cada 0,2 s, a primeira quando já existe uma janela inteira de pacotes.
+        import detector
         duracao = dados["t"][-1] - dados["t"][0]
-        self.assertEqual(len(tempos), int((duracao - 1.0) / 0.2 + 1e-9) + 1)
-        self.assertAlmostEqual(tempos[0] - dados["t"][0], 1.0)
+        self.assertEqual(len(tempos), int((duracao - detector.JANELA_S) / 0.2 + 1e-9) + 1)
+        self.assertAlmostEqual(tempos[0] - dados["t"][0], detector.JANELA_S)
         self.assertFalse(any(v != v for v in valores))  # nenhum NaN: todas as janelas têm pacotes
 
 
