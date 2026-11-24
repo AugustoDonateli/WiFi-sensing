@@ -35,6 +35,7 @@ Só marcar um item depois de testado de verdade.
 - [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê
 - [Interferência na feira](docs/interferencia.md): o que aconteceu na feira de 22/10, o refletor de alumínio, o que comprar se precisar e o roteiro do dia
 - [Firmware v2](firmware/README.md): o firmware próprio das placas A e B, como gravar pelo Chrome e o que mudou
+- [Tutorial: gravar as placas](docs/tutorial-gravar.md): passo a passo pelo Chrome, sem instalar nada
 - [Erros prováveis](docs/erros-provaveis.md): o que pode dar errado em cada etapa e como resolver
 - [Protocolo de coleta](experimentos/protocolo.md) e [registro de coletas](experimentos/registro_coletas.csv)
 - [Ferramentas](ferramentas/README.md): capturar, plotar, medir o detector, classificador e pôster

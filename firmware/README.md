@@ -30,6 +30,8 @@ Também:
 
 ### Jeito 1: pelo Chrome, sem instalar nada (recomendado)
 
+**Passo a passo detalhado, com o que fazer se der problema: [docs/tutorial-gravar.md](../docs/tutorial-gravar.md).**
+
 Os arquivos prontos estão em `firmware/binarios/`:
 - `wavesense-placa-A-esp32.bin`: para a placa **A** (a que fala);
 - `wavesense-placa-B-esp32.bin`: para a placa **B** (a que escuta, ligada no notebook).
