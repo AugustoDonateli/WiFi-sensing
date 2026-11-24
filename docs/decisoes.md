@@ -156,7 +156,8 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Decisão:** firmware próprio para as duas placas, em `firmware/`, mantendo o formato `CSI_DATA` (tela e ferramentas sem mudança): sem promíscuo, impressão por fila, só o LLTF, unicast com repetição, 20 MHz, 100 por segundo, potência máxima, país BR, varredura e troca de canal pela tela, linha `WS_STAT` com o diagnóstico, LED de estado. Detalhes e motivos no [README do firmware](../firmware/README.md).
 - **Verificado:** compila com o ESP-IDF v5.5.5 (ESP32 e ESP32-S3); a tela foi testada com uma placa B simulada no navegador (diagnóstico, varredura, troca de canal) e com o firmware oficial (seção escondida). 96 testes passando.
 - **Falta:** testar nas placas, em casa, antes da feira (roteiro em `docs/interferencia.md`). O firmware oficial continua servindo: a tela funciona com os dois.
-- **Refletor:** a concha de alumínio virou o refletor em V de `docs/interferencia.md`, com a explicação física (¼ de onda, ~3 cm) e a proposta de medir com e sem refletor no estande.
+- **Refletor (o grupo achou que a concha ia ficar feia):** versão recomendada **escondida**. O Wi-Fi atravessa tecido e papel, então o alumínio vai na parede, debaixo do tecido preto, atrás do suporte. O suporte já deixa a antena a ~9,4 cm da parede, quase ¾ de onda (9,1 a 9,3 cm): distância em que o reflexo soma. Na mesa, uma placa preta com a letra A/B e alumínio no verso, a ~9 cm da antena. O V ficou como alternativa.
+- **Correção:** a primeira versão do documento dizia "6 cm" sem separar os casos. Para alumínio **plano**, 6 cm (½ onda) cancela; os 6 cm valem só para o V de 90°. Corrigido, com a tabela de distâncias.
 - **Compras:** só se o firmware e o refletor não bastarem. Primeira opção: placas com módulo ESP32-WROOM-32U e antena externa (mesmo firmware). Segunda: ESP32-C5 (5 GHz), que precisa de adaptação no firmware e de importação.
 
 ### Site no Vercel (aprovado)

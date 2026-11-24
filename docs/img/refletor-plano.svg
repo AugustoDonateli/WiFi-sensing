@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 470" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#111">
+  <title>Refletor plano escondido atrás da placa, visto de lado</title>
+  <rect width="920" height="470" fill="#fff"/>
+  <text x="24" y="34" font-size="20">Refletor plano escondido, visto de lado</text>
+  <text x="24" y="58" fill="#555">O Wi-Fi atravessa papel, tecido e plástico. Só o metal reflete. O alumínio pode ficar por baixo do acabamento preto.</text>
+
+  <!-- Parede A: parede, alumínio e tecido preto por cima -->
+  <rect x="30" y="100" width="30" height="250" fill="#e6e6e6"/>
+  <rect x="60" y="100" width="4" height="250" fill="#8a8a8a"/>
+  <rect x="64" y="100" width="6" height="250" fill="#111"/>
+  <text x="4" y="94" fill="#555" font-size="13">parede</text>
+  <path d="M62,352 L62,378" stroke="#555"/><text x="30" y="394" fill="#555" font-size="13">alumínio liso (≥ 30 × 30 cm)</text>
+  <path d="M67,100 L92,84" stroke="#555"/><text x="96" y="86" fill="#555" font-size="13">tecido ou cartolina preta por cima</text>
+
+  <!-- Suporte e placa A -->
+  <path d="M70,215 L100,215 L100,245 L182,245 L182,232 L100,232" fill="none" stroke="#111" stroke-width="3"/>
+  <rect x="104" y="224" width="78" height="6" fill="#fff" stroke="#111" stroke-width="2"/>
+  <rect x="168" y="222" width="14" height="10" fill="#111"/>
+  <text x="120" y="218" font-size="13">A</text>
+
+  <!-- Medida: alumínio até a antena -->
+  <path d="M62,180 L175,180" stroke="#555" stroke-width="1.5" marker-start="url(#t)" marker-end="url(#t)"/>
+  <text x="80" y="170" fill="#111">≈ 9 cm (¾ de onda)</text>
+  <path d="M175,176 L175,220" stroke="#555" stroke-dasharray="3 3"/>
+
+  <!-- Onda direta e refletida -->
+  <path d="M182,227 L700,227" stroke="#111" stroke-width="1.5" stroke-dasharray="7 6"/>
+  <text x="330" y="215" fill="#555">até a placa B, 1 a 2 m</text>
+  <path d="M175,250 C140,300 90,300 70,270" fill="none" stroke="#777" stroke-width="1.5"/>
+  <path d="M70,270 C120,330 260,320 330,262" fill="none" stroke="#777" stroke-width="1.5" marker-end="url(#f)"/>
+  <text x="200" y="335" fill="#555">a parte que ia para trás volta somando com a direta</text>
+
+  <!-- Parede B espelhada -->
+  <rect x="860" y="100" width="30" height="250" fill="#e6e6e6"/>
+  <rect x="856" y="100" width="4" height="250" fill="#8a8a8a"/>
+  <rect x="850" y="100" width="6" height="250" fill="#111"/>
+  <path d="M850,215 L820,215 L820,245 L738,245 L738,232 L820,232" fill="none" stroke="#111" stroke-width="3"/>
+  <rect x="738" y="224" width="78" height="6" fill="#fff" stroke="#111" stroke-width="2"/>
+  <rect x="738" y="222" width="14" height="10" fill="#111"/>
+  <text x="790" y="218" font-size="13">B</text>
+
+  <!-- Tabela de distâncias -->
+  <text x="430" y="400">Alumínio plano, distância até a antena:</text>
+  <text x="430" y="424" fill="#111">3 cm ou 8–11 cm: soma (bom)</text>
+  <text x="430" y="448" fill="#111">6 cm ou 12 cm: cancela (ruim)</text>
+
+  <defs>
+    <marker id="t" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M5,0 L5,10" stroke="#555" stroke-width="2"/></marker>
+    <marker id="f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#777"/></marker>
+  </defs>
+</svg>

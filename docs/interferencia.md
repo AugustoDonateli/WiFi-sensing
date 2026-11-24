@@ -13,7 +13,7 @@ O plano tem três camadas, da mais barata para a mais cara:
 | Camada | O que é | Custo | Estado |
 |---|---|---|---|
 | 1. Firmware v2 | A placa B para de escutar a sala inteira e de travar na USB; a A repete pacote perdido; a tela acha o canal mais livre e mostra onde os pacotes se perdem | R$ 0 | Pronto e compilado. **Falta testar nas placas** ([firmware/README.md](../firmware/README.md)) |
-| 2. Refletor de alumínio | A "concha" que vocês improvisaram, feita na medida certa | papelão e alumínio | Montar e medir |
+| 2. Refletor de alumínio | A "concha" que vocês improvisaram, feita na medida certa e escondida debaixo do preto | fita de alumínio e cartolina | Montar e medir |
 | 3. Comprar | Placas com antena externa (mesmo firmware) ou placas de 5 GHz | de ~R$ 150 a ~R$ 400 (conferir) | Só se 1 e 2 não bastarem |
 
 ## O que aconteceu, explicado
@@ -60,23 +60,47 @@ Um exemplo que dá para mostrar no estande: a porta do micro-ondas tem uma tela 
 1. **Mais sinal na outra placa.** A parte da onda que ia para trás bate no alumínio e volta para a frente.
 2. **Escudo.** O que vem de trás (o corredor, os celulares do público) bate no alumínio e não chega na antena.
 
-**A distância importa.** A onda que bate no metal volta invertida, como se tivesse andado meia onda a mais. Com o metal a ¼ de onda (~3 cm) atrás da antena, a ida e a volta somam mais meia onda; com a inversão, dá uma onda inteira: a refletida sai junto com a direta e as duas se somam. Com o metal colado na antena (menos de 1 cm), elas se cancelam e a antena desafina.
+**A distância importa.** A onda que bate no metal volta invertida, como se tivesse andado meia onda a mais. Se o metal fica a ¼ de onda (~3 cm) atrás da antena, a ida e a volta somam mais meia onda; com a inversão, dá uma onda inteira: a refletida sai junto com a direta e as duas se somam. A ¾ de onda (~9 cm) acontece o mesmo, com uma volta a mais. Já a ½ onda (~6 cm), elas saem desencontradas e **se cancelam**.
 
-**Como fazer (refletor em V):**
+| Alumínio plano atrás da antena | Resultado (conta com 2 caminhos, canal 6) |
+|---|---|
+| ~3 cm | soma (quase o dobro), mas não cabe: a própria placa, de ~5 cm, está no caminho |
+| ~6 cm | **cancela** |
+| 8 a 11 cm | soma (de 1,6 a 2 vezes) |
+| ~12 cm | **cancela** |
+
+### Versão recomendada: escondida, sem nada à mostra
+
+**O Wi-Fi atravessa papel, tecido, papelão e plástico quase sem perda.** Só o metal (e a água) importam. Então o alumínio pode ficar **por baixo** do acabamento preto do estande, sem ninguém ver.
+
+E tem uma coincidência boa: o suporte de parede (`hardware/suporte_placa`) deixa a antena a **~9,4 cm da parede**, quase exatamente ¾ de onda (9,1 a 9,3 cm, conforme o canal). A própria parede já está na distância certa para refletir.
+
+![Refletor plano escondido, visto de lado](img/refletor-plano.svg)
+
+**Com as placas na parede (suportes impressos):**
+1. Cole um quadrado de alumínio liso de **pelo menos 30 × 30 cm** na parede, centrado onde vai o suporte. O melhor é **fita de alumínio adesiva** (fita aluminizada, de loja de material de construção), em tiras lado a lado: fica lisa e firme. Papel-alumínio colado num papelão também serve.
+2. Cubra com o tecido preto do estande ou com uma cartolina preta.
+3. Cole o suporte por cima, no lugar de sempre. A antena fica a ~9,4 cm do alumínio, sem precisar medir.
+
+**Com as placas numa mesa:** uma placa preta em pé atrás de cada uma (papelão, cartolina ou isopor de ~30 × 30 cm, com o alumínio no verso), a **~9 cm da ponta da antena**, ou seja, uns 4 cm atrás do conector USB. Essa placa pode levar a letra **A** ou **B** em branco, na fonte da tela: vira sinalização do estande, e por trás é um espelho para o Wi-Fi. Também dá para contar isso ao visitante.
+
+**Cuidado:** o alumínio não pode encostar nos pinos da placa (curto-circuito). Na parede, o tecido ou a cartolina já isolam.
+
+### Alternativa: o V (ou a concha)
+
+Um V de 90° em volta da placa concentra mais, mas aparece mais. A regra do V é outra: a antena fica a ~6 cm **da dobra** (a conta do V tem três reflexos, não um, e por isso dá diferente da placa plana).
 
 ![Refletor em V visto de cima](img/refletor.svg)
 
 1. Dois pedaços de papelão de ~25 cm × 20 cm, colados com fita formando um V de 90° (como um livro meio aberto).
-2. Papel-alumínio liso por dentro do V. Pequenas rugas não atrapalham (são bem menores que 12,5 cm).
-3. A placa fica no meio do V, com a antena virada para a abertura, a uns 6 cm da dobra.
-4. O V de cada placa fica com a abertura virada para a outra placa.
-5. **Cuidado:** o alumínio não pode encostar nos pinos da placa (curto-circuito). Deixe pelo menos 2 cm de folga da antena, ou cubra a parte de baixo da placa com fita isolante.
+2. Alumínio liso por dentro do V e cartolina ou tecido preto por fora e por dentro, para esconder.
+3. A placa no meio do V, com a antena virada para a abertura, a ~6 cm da dobra; a abertura virada para a outra placa.
 
-Os 6 cm são um ponto de partida. A antena da placa é uma trilha no circuito, não uma antena de livro, então vale ajustar: mudem a distância de 2 em 2 cm e fiquem com a que der mais **chegaram/s** e o maior **RSSI** na tela.
+**Em qualquer versão, meçam.** A antena da placa é uma trilha no circuito, não uma antena de livro, e as contas acima usam só dois caminhos. Mudem a distância de 1 em 1 cm e fiquem com a que der mais **chegaram/s** e o maior **RSSI** na tela.
 
-**Bônus:** o V estreita a zona sensível para a linha entre as placas. Quem passa no corredor dispara menos a tela.
+**Bônus:** o refletor também barra o que vem de trás (o estande vizinho, o corredor). O V, além disso, estreita a zona sensível para a linha entre as placas.
 
-**Vira um experimento para o estande:** medir RSSI e pacotes por segundo sem refletor, com o V e com a concha, na mesma montagem. "Medimos: com o refletor, o sinal subiu X dB" é ciência de verdade e cabe numa frase.
+**Vira um experimento para o estande:** medir RSSI e pacotes por segundo sem refletor e com o alumínio a 6, 9 e 12 cm da antena (a 6 cm ele fica logo atrás do conector USB), na mesma montagem. Se o de 9 cm melhorar e os de 6 e 12 cm piorarem, vocês mostraram a interferência das ondas com o próprio projeto. "Medimos: com o refletor, o sinal subiu X dB" é ciência de verdade e cabe numa frase.
 
 ## Teste em casa antes da feira
 
@@ -91,7 +115,7 @@ Uns 40 minutos. Mandem um print do painel ao final.
    - anote **chegaram/s** e a frase do painel;
    - clique em **Procurar canal livre**, espere uns 5 s e anote o canal escolhido e os números novos.
 5. **Detecção:** volte as placas para 1,5–2 m, calibre (**C**) com a faixa vazia e faça umas travessias.
-6. **Refletor:** com a mesma montagem, compare sem e com o V (anote RSSI e chegaram/s).
+6. **Refletor:** com a mesma montagem, compare sem e com o alumínio atrás (anote RSSI e chegaram/s). Se der, teste também a 6 e a 12 cm, para ver o cancelamento de verdade.
 
 Se algo não funcionar, copiem o que aparece na seção Rádio (ou as linhas `WS_` do `idf.py monitor` da placa B) e mandem.
 
@@ -118,7 +142,7 @@ Só vale comprar se, depois das camadas 1 e 2, o painel ainda disser que os paco
 
 ## No dia da feira
 
-1. **Montar** as placas nos suportes, com os refletores, na mesma altura e na posição marcada com fita.
+1. **Montar** o alumínio na parede (debaixo do tecido) e as placas nos suportes por cima, na mesma altura e na posição marcada com fita.
 2. **Silenciar o que é de vocês:** Wi-Fi e Bluetooth do notebook desligados (a USB continua funcionando), roteador do celular desligado, celulares do grupo longe das placas.
 3. **Ligar** a A no carregador de tomada e a B no notebook. Conferir o LED.
 4. **Tela:** tecla O, **Placa USB**, esperar a seção Rádio.
