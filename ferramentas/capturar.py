@@ -25,6 +25,24 @@ CAMPOS_REGISTRO = [
 ]
 
 
+def resumo_radio(texto):
+    """Resumo curto de uma linha WS_STAT do firmware v2 (ver demo/placa.js), ou None."""
+    c = texto.split(",")
+    if len(c) < 13:
+        return None
+    tentou, nao_saiu, canal, fila = c[6], c[8], c[2], c[5]
+    partes = [f"canal {canal}"]
+    if tentou != "-":
+        partes.append(f"A mandou {tentou}")
+    if nao_saiu not in ("-", "0"):
+        partes.append(f"não saíram da A {nao_saiu}")
+    if fila != "0":
+        partes.append(f"não couberam na USB {fila}")
+    if c[11] != "ok":
+        partes.append(c[11])
+    return " | " + ", ".join(partes)
+
+
 def capturar(porta, saida, duracao, relogio=time.monotonic, mostrar=print):
     """Lê linhas da porta e grava as válidas em `saida` até `duracao` segundos.
 
@@ -39,6 +57,7 @@ def capturar(porta, saida, duracao, relogio=time.monotonic, mostrar=print):
     ultimo_aviso = inicio
     na_janela, rssi_janela = 0, []
     avisou_sem_dados = False
+    radio = ""
 
     try:
         while True:
@@ -50,6 +69,13 @@ def capturar(porta, saida, duracao, relogio=time.monotonic, mostrar=print):
             bruto = porta.readline()
             if bruto:
                 texto = bruto.decode("utf-8", errors="replace").strip()
+                if texto.startswith("WS_"):
+                    # Firmware v2 da Placa B: estado do rádio (não vai para o arquivo).
+                    if texto.startswith("WS_STAT,"):
+                        radio = resumo_radio(texto) or radio
+                    else:
+                        mostrar(f"  placa B: {texto[3:]}")
+                    continue
                 try:
                     registro = ler_linha(texto)
                 except LinhaInvalida:
@@ -69,8 +95,9 @@ def capturar(porta, saida, duracao, relogio=time.monotonic, mostrar=print):
                 rssi = f"{sum(rssi_janela) / len(rssi_janela):.0f} dBm" if rssi_janela else "-"
                 mostrar(
                     f"  t={decorrido:4.0f}s | {na_janela:3d} pacotes/s | RSSI {rssi} | "
-                    f"inválidas {stats['linhas_invalidas']} | perdidos {stats['pacotes_perdidos']}"
+                    f"inválidas {stats['linhas_invalidas']} | perdidos {stats['pacotes_perdidos']}{radio}"
                 )
+                radio = ""
                 if stats["pacotes_validos"] == 0 and decorrido >= 5 and not avisou_sem_dados:
                     mostrar(
                         "  ! Nenhuma linha CSI_DATA ainda. A Placa A está ligada? "

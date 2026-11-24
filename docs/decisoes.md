@@ -144,6 +144,21 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
   - **Como:** a foto foi recortada no rosto, com o contraste ajustado e o fundo apagado por uma elipse. Virou uma grade de 72 × 120 pontos de luz (8.640 caracteres no `historia.js`); a foto não vai no site. Cada linha sobe (até 1,15 espaço) e fica mais clara e mais grossa onde a foto é clara.
   - **Animação:** as linhas chegam retas e apagadas, como o sinal; o rosto sobe de baixo para cima, linha por linha; parado, uma faixa de luz desce a cada 6 s, como uma leitura; saindo, o relevo baixa.
 
+## 24/11/2026
+
+### 1º lugar e a próxima feira (Vitória)
+- O projeto ficou em 1º lugar na feira de ciências e foi classificado para a próxima feira, em Vitória.
+- **Problema na apresentação:** perda de pacotes forte, às vezes sem pacotes suficientes para a tela atualizar. O grupo viu LED por perto, muita gente usando o Wi-Fi e objetos de metal. Duas folhas de alumínio em meia-lua atrás das placas ajudaram.
+
+### Firmware próprio v2 (proposta, falta testar nas placas)
+- O grupo deixou a IA livre para mudar o que precisasse, inclusive o código das placas.
+- **Achado:** o `csi_recv` oficial liga o modo promíscuo e escreve cada linha na USB dentro da função do Wi-Fi (~14 ms por linha, ~70% do tempo a 50 por segundo). A Espressif pede para não fazer isso. Numa feira cheia, isso soma com a disputa pelo ar.
+- **Decisão:** firmware próprio para as duas placas, em `firmware/`, mantendo o formato `CSI_DATA` (tela e ferramentas sem mudança): sem promíscuo, impressão por fila, só o LLTF, unicast com repetição, 20 MHz, 100 por segundo, potência máxima, país BR, varredura e troca de canal pela tela, linha `WS_STAT` com o diagnóstico, LED de estado. Detalhes e motivos no [README do firmware](../firmware/README.md).
+- **Verificado:** compila com o ESP-IDF v5.5.5 (ESP32 e ESP32-S3); a tela foi testada com uma placa B simulada no navegador (diagnóstico, varredura, troca de canal) e com o firmware oficial (seção escondida). 96 testes passando.
+- **Falta:** testar nas placas, em casa, antes da feira (roteiro em `docs/interferencia.md`). O firmware oficial continua servindo: a tela funciona com os dois.
+- **Refletor:** a concha de alumínio virou o refletor em V de `docs/interferencia.md`, com a explicação física (¼ de onda, ~3 cm) e a proposta de medir com e sem refletor no estande.
+- **Compras:** só se o firmware e o refletor não bastarem. Primeira opção: placas com módulo ESP32-WROOM-32U e antena externa (mesmo firmware). Segunda: ESP32-C5 (5 GHz), que precisa de adaptação no firmware e de importação.
+
 ### Site no Vercel (aprovado)
 - A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.
 - O site não guarda nada em servidor; recordes e marcas ficam no navegador de cada aparelho.

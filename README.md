@@ -18,6 +18,9 @@ Protótipo experimental para investigar se alterações no CSI (*Channel State I
 - [ ] Detecção de movimento simples funcionando e medida
 - [ ] Site da demonstração publicado no Vercel (configurado; falta o primeiro deploy, ver `docs/publicar-vercel.md`)
 - [ ] (Opcional) Classificador, testes de distância/parede, queda simulada
+- [x] Apresentado na feira de ciências: **1º lugar**, classificado para a feira de Vitória
+- [x] Firmware próprio v2 (`firmware/`): compila e a tela foi testada com placa simulada
+  - [ ] Testado nas placas de verdade (roteiro em `docs/interferencia.md`)
 
 Só marcar um item depois de testado de verdade.
 
@@ -30,6 +33,8 @@ Só marcar um item depois de testado de verdade.
 - [Inscrição na JACITEC](docs/inscricao-jacitec.md): regras do edital e os textos do formulário
 - [Decisões do grupo](docs/decisoes.md): o que já foi decidido e o que falta
 - [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê
+- [Interferência na feira](docs/interferencia.md): o que aconteceu na feira de 22/10, o refletor de alumínio, o que comprar se precisar e o roteiro do dia
+- [Firmware v2](firmware/README.md): o firmware próprio das placas A e B, como gravar pelo Chrome e o que mudou
 - [Erros prováveis](docs/erros-provaveis.md): o que pode dar errado em cada etapa e como resolver
 - [Protocolo de coleta](experimentos/protocolo.md) e [registro de coletas](experimentos/registro_coletas.csv)
 - [Ferramentas](ferramentas/README.md): capturar, plotar, medir o detector, classificador e pôster
@@ -55,6 +60,7 @@ Só marcar um item depois de testado de verdade.
 - ESP-CSI oficial: https://github.com/espressif/esp-csi (exemplos em `examples/get-started`)
 - A configuração dos exemplos foi gerada com ESP-IDF 5.5.0. Alvo de compilação: `esp32`.
 - O receptor envia linhas `CSI_DATA,...` pela UART a 921600 baud.
+- Desde 24/11 há um firmware próprio para as duas placas em `firmware/` (mesmo formato `CSI_DATA`, mais diagnóstico e troca de canal pela tela). Os exemplos oficiais continuam funcionando com a tela.
 
 ## Referências
 

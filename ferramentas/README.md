@@ -82,4 +82,7 @@ python -m unittest discover -s ferramentas/testes -v
 
 - Rodam sem placa, com dados **inventados** (`testes/sintetico.py`). Servem para checar o código, não o projeto.
 - `test_nucleo_js.py` roda a regra do detector no Python e no `demo/nucleo.js` (precisa do Node.js) e confere que as duas dão o mesmo resultado. Se alguém mudar uma e esquecer a outra, o teste falha.
+- `test_placa_js.py` confere a leitura das linhas do firmware v2 e o diagnóstico (precisa do Node.js).
+- `test_placa_navegador.py` abre a tela no Chromium com uma placa B de mentira na USB, falando como o firmware v2, e confere o painel Rádio, a varredura e a troca de canal (precisa do Node.js com Playwright; sem ele, é pulado).
+- O `capturar.py` mostra as linhas do firmware v2 no terminal (canal, quantas a A mandou, quantas não saíram) e não grava essas linhas no arquivo.
 - Testes que precisam de algo que não está instalado (numpy, matplotlib, scikit-learn, Node.js) são pulados, não falham.

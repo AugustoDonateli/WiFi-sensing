@@ -135,6 +135,18 @@ No dia, chegavam só 10 a 20 pacotes por segundo (a placa A manda 50). Com a jan
    - Ligue a placa A num carregador de tomada.
 3. **Canal:** se ainda estiver ruim, troque o canal (veja "Trocar o canal do Wi-Fi", acima), escolhendo o menos usado num app de análise de Wi-Fi no celular.
 
+### Firmware v2 (24/11): diagnóstico e canal pela tela
+
+Depois da feira de 22/10 foi feito um firmware próprio para as duas placas ([firmware/README.md](../firmware/README.md)), com o plano completo em [docs/interferencia.md](interferencia.md). Com ele, o painel do Operador mostra onde os pacotes se perdem e tem o botão **Procurar canal livre**: não precisa mais trocar o canal no código.
+
+| Sintoma (firmware v2) | Causa | O que fazer |
+|---|---|---|
+| A seção "Rádio (firmware v2)" não aparece | A placa B está com o firmware oficial | Gravar `wavesense-placa-B-esp32.bin` (ver o README do firmware). |
+| LED da A piscando rápido, painel: "não está ouvindo a Placa A" | A placa A está com o firmware oficial, desligada ou longe | As **duas** placas precisam do v2. A B procura a A sozinha em todos os canais. |
+| "A Placa A não confirmou a troca de canal" | A A não ouviu o pedido | Conferir o LED da A, aproximar e tentar de novo. As placas continuam no canal antigo. |
+| "nem saem da Placa A" em todos os canais | A faixa de 2,4 GHz está lotada no local | Ver "Camada 3" em `docs/interferencia.md` (antena direcional ou 5 GHz). |
+| Esptool-js não conecta | A placa não entrou no modo de gravação, ou a porta está aberta na tela | Fechar a tela; segurar BOOT, clicar em Connect e soltar quando aparecer "Connecting...". |
+
 ## 10. Site no Vercel
 
 | Sintoma | Causa | O que fazer |

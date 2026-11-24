@@ -11,6 +11,7 @@ Versão no claude.ai (só simulação e gravação, sem USB): https://claude.ai/
 **Arquivos** (todos na mesma pasta):
 - `index.html`: a tela.
 - `nucleo.js`: leitura das linhas `CSI_DATA` e a regra do detector, a mesma do `ferramentas/detector.py`.
+- `placa.js`: leitura das linhas de estado do firmware v2 da placa B (`WS_STAT`, `WS_CANAL`, `WS_VARREDURA`) e o diagnóstico de onde os pacotes se perdem, mostrado na seção "Rádio" do painel do Operador. Com o firmware oficial essa seção não aparece.
 - `roteiro.js`: os textos da apresentação "Como funciona" e a colinha de cada cena (fala, ações, ponte e perguntas). **Só texto: o grupo pode editar.** A colinha impressa (`docs/colinha.md`) sai dele com `python ferramentas/colinha.py`.
 - `historia.js`: o desenho e o movimento da apresentação.
 - `passagem.js`: as passagens entre as telas (escuta, Travessia, mural, "Como funciona"). Sem ele, as telas trocam na hora.
@@ -230,7 +231,7 @@ Com a apresentação aberta: setas, `Espaço` e `PageUp`/`PageDown` navegam · `
 - Testado no Chromium: simulação, calibração, detecção, inversão de cor, Travessia (passando e sendo pego), gravação e celular.
 - Testado também servido por HTTP, como no Vercel: carrega o `nucleo.js`, calibra, detecta e libera o Web Serial (página segura), sem erros no console.
 - A leitura pela USB segue o jeito do visualizador oficial da Espressif (`csi_viewer.html`), mas **ainda não foi testada com a placa**.
-- O limiar e as constantes (janela de 1 s, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com dados reais, no `nucleo.js` **e** no `ferramentas/detector.py`.
+- O limiar e as constantes (janela de 2 s desde 22/10, 3 e 5 confirmações) são pontos de partida. Vão ser ajustados com dados reais, no `nucleo.js` **e** no `ferramentas/detector.py`.
 
 ## Referências
 

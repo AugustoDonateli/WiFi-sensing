@@ -104,6 +104,24 @@ class TestCaptura(unittest.TestCase):
         self.assertTrue(conteudo[0].startswith("pc_tempo_s,type,id,mac"))
         self.assertEqual(len(conteudo), 6)
 
+    def test_linhas_do_firmware_v2_aparecem_e_nao_vao_para_o_arquivo(self):
+        relogio = RelogioFalso()
+        linhas = (
+            ["WS_INFO,v2,placa=B,canal=11", "WS_CANAL,6,ok"]
+            + [linha_sintetica(i) for i in range(3)]
+            + ["WS_STAT,1000,6,95,0,0,100,0,3,-60,-95,ok,100"]
+            + [linha_sintetica(i) for i in range(3, 300)]
+        )
+        saida = io.StringIO()
+        mensagens = []
+        stats = capturar(PortaFalsa(linhas, relogio), saida, duracao=10, relogio=relogio, mostrar=mensagens.append)
+        self.assertEqual(stats["pacotes_validos"], 300)
+        self.assertEqual(stats["linhas_invalidas"], 0)
+        self.assertNotIn("WS_", saida.getvalue())
+        self.assertIn("  placa B: CANAL,6,ok", mensagens)
+        por_segundo = [m for m in mensagens if "pacotes/s" in m]
+        self.assertIn("canal 6, A mandou 100, não saíram da A 3", por_segundo[0])
+
     def test_analise_le_o_arquivo_gravado(self):
         try:
             from analise import carregar, oscilacao

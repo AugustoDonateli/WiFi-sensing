@@ -131,6 +131,14 @@ input.apelido::placeholder { color: var(--apagado); font-style: italic; }
 .numeros b { display: block; font-size: 18px; font-weight: 400; color: #EDEDE8; }
 .numeros span { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8A8A84; }
 input[type="range"] { width: 100%; accent-color: #EDEDE8; }
+/* Rádio (firmware v2): ocupação de cada canal, uma linha por canal */
+.canais { display: grid; gap: 3px; font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.canais button { display: grid; grid-template-columns: 2.2em 1fr 3.4em; align-items: center; gap: 8px; background: transparent; border: 0; padding: 2px 0; color: #A8A8A2; cursor: pointer; text-align: left; font: inherit; }
+.canais button:hover, .canais button:focus-visible { color: #EDEDE8; }
+.canais .barra { height: 6px; background: #2A2A28; position: relative; }
+.canais .barra i { position: absolute; inset: 0 auto 0 0; background: #8A8A84; }
+.canais button[aria-current="true"] { color: #EDEDE8; }
+.canais button[aria-current="true"] .barra i { background: #EDEDE8; }
 .erro { border-left: 2px solid #EDEDE8; padding-left: 10px; color: #EDEDE8 !important; }
 /* Com o painel aberto, a tela encolhe em vez de ficar por baixo dele. */
 body.com-operador .tela { margin-right: min(380px, 100vw); }
@@ -301,6 +309,14 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
     <input type="file" id="arquivo" accept=".csv,text/csv" hidden>
     <div class="numeros"><div><b id="st-taxa">–</b><span>pacotes/s</span></div><div><b id="st-rssi">–</b><span>RSSI</span></div><div><b id="st-perdidos">–</b><span>perdidos</span></div></div>
   </section>
+  <section id="radio-grupo" hidden>
+    <span class="mono">Rádio (firmware v2)</span>
+    <div class="numeros"><div><b id="rd-canal">–</b><span>canal</span></div><div><b id="rd-tentou">–</b><span>A mandou/s</span></div><div><b id="rd-chegam">–</b><span>chegaram/s</span></div></div>
+    <p id="rd-diag">Esperando as primeiras leituras da Placa B.</p>
+    <div class="opcoes"><button id="btn-varrer">Procurar canal livre</button></div>
+    <div class="canais" id="rd-canais" aria-label="Ocupação de cada canal"></div>
+    <p id="rd-ajuda">Mede por 4 s quanto cada canal está ocupado e passa as duas placas para o mais livre. Depois, calibre de novo (C). Clicar num canal da lista também troca.</p>
+  </section>
   <section>
     <span class="mono">Limiar</span>
     <div class="opcoes"><button id="btn-cal" disabled>Calibrar com a zona vazia</button></div>
@@ -348,6 +364,7 @@ body.com-operador #passagem { width: calc(100% - min(380px, 100vw)); }
 </aside>
 
 <script src="nucleo.js"></script>
+<script src="placa.js"></script>
 <script src="roteiro.js"></script>
 <script src="historia.js"></script>
 <script src="passagem.js"></script>
@@ -887,11 +904,109 @@ async function conectarPlaca() {
       if (done) break;
       resto += dec.decode(value, { stream: true });
       let i;
-      while ((i = resto.indexOf('\n')) >= 0) { const r = lerLinhaCSI(resto.slice(0, i)); resto = resto.slice(i + 1); if (r) receber(r); }
+      while ((i = resto.indexOf('\n')) >= 0) {
+        const linha = resto.slice(0, i); resto = resto.slice(i + 1);
+        const r = lerLinhaCSI(linha);
+        if (r) receber(r);
+        else { const e = WavePlaca.lerLinhaPlaca(linha); if (e) receberRadio(e); }
+      }
       if (resto.length > 200000) resto = '';
     }
   } catch (e) {
     if (app.fonte === 'live') mostrarMsg(`A leitura parou: ${e.message}. O cabo soltou?`);
+  }
+}
+
+/* ---------- Rádio: firmware v2 da Placa B (diagnóstico e canal) ---------- */
+const radio = { stats: [], varredura: [], canal: null, ocupado: false, timer: 0 };
+// Enquanto um comando roda, o botão fica travado; se a placa não responder em 9 s, destrava.
+function ocuparRadio(sim) {
+  radio.ocupado = sim; $('btn-varrer').disabled = sim;
+  clearTimeout(radio.timer);
+  if (sim) radio.timer = setTimeout(() => { ocuparRadio(false); $('rd-diag').textContent = 'A Placa B não respondeu ao comando. O cabo está ligado?'; }, 9000);
+}
+async function enviarPlaca(comando) {
+  if (app.fonte !== 'live' || !app.porta || !app.porta.writable) { mostrarMsg('Ligue a Placa USB primeiro.'); return false; }
+  const w = app.porta.writable.getWriter();
+  try { await w.write(new TextEncoder().encode(comando + '\n')); return true; }
+  catch (e) { mostrarMsg(`Não consegui mandar o comando para a placa: ${e.message}`); return false; }
+  finally { w.releaseLock(); }
+}
+function mostrarCanais() {
+  const caixa = $('rd-canais');
+  caixa.replaceChildren(...radio.varredura.map((v) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-current', String(v.canal === radio.canal));
+    b.setAttribute('aria-label', `Canal ${v.canal}: ${v.ocupacao}% ocupado, nota ${v.nota}. Clique para trocar.`);
+    const barra = document.createElement('span'); barra.className = 'barra';
+    const i = document.createElement('i'); i.style.width = `${Math.min(100, v.nota)}%`; barra.append(i);
+    const a = document.createElement('span'); a.textContent = String(v.canal).padStart(2, ' ');
+    const c = document.createElement('span'); c.textContent = `${v.ocupacao}%`;
+    b.append(a, barra, c);
+    b.addEventListener('click', () => trocarCanal(v.canal));
+    return b;
+  }));
+}
+async function trocarCanal(canal) {
+  if (radio.ocupado) return;
+  if (canal === radio.canal) { $('rd-diag').textContent = `As placas já estão no canal ${canal}.`; return; }
+  ocuparRadio(true);
+  $('rd-diag').textContent = `Passando as duas placas para o canal ${canal}…`;
+  if (!(await enviarPlaca(`canal ${canal}`))) ocuparRadio(false);
+}
+async function procurarCanal() {
+  if (radio.ocupado) return;
+  ocuparRadio(true); radio.varredura = []; $('rd-canais').replaceChildren();
+  $('rd-diag').textContent = 'Medindo os canais (uns 4 s; a tela fica sem sinal nesse tempo)…';
+  radio.autoTrocar = true;
+  if (!(await enviarPlaca('varrer'))) ocuparRadio(false);
+}
+function receberRadio(e) {
+  $('radio-grupo').hidden = false;
+  if (e.tipo === 'stat') {
+    radio.stats.push(e); if (radio.stats.length > 5) radio.stats.shift();
+    radio.canal = e.canal; $('rd-canal').textContent = String(e.canal);
+    if (radio.ocupado || e.estado !== 'ok') return;
+    // O primeiro segundo depois de ligar ou trocar de canal vem pela metade: espera dois.
+    if (radio.stats.filter((x) => x.estado === 'ok').length < 2) { $('rd-diag').textContent = 'Medindo…'; return; }
+    const d = WavePlaca.diagnostico(radio.stats);
+    $('rd-tentou').textContent = d.tentouPorS === null || d.tentouPorS === undefined ? '–' : String(Math.round(d.tentouPorS));
+    $('rd-chegam').textContent = d.chegamPorS === undefined ? '–' : String(Math.round(d.chegamPorS));
+    $('rd-diag').textContent = d.frase;
+  } else if (e.tipo === 'varredura') {
+    radio.varredura.push(e);
+  } else if (e.tipo === 'varredura-fim') {
+    mostrarCanais();
+    ocuparRadio(false);
+    const melhor = radio.varredura.find((v) => v.canal === e.melhor);
+    if (radio.autoTrocar && e.melhor !== null && e.melhor !== radio.canal) {
+      radio.autoTrocar = false;
+      trocarCanal(e.melhor);
+    } else {
+      radio.autoTrocar = false;
+      $('rd-diag').textContent = melhor ? `O canal atual (${radio.canal}) já é o mais livre: ${melhor.ocupacao}% ocupado.` : 'Varredura terminada.';
+    }
+  } else if (e.tipo === 'canal') {
+    ocuparRadio(false);
+    radio.stats = [];
+    if (e.resultado === 'ok' || e.resultado === 'achou') {
+      const mudou = radio.canal !== null && e.canal !== radio.canal;
+      radio.canal = e.canal; $('rd-canal').textContent = String(e.canal);
+      mostrarCanais();
+      $('rd-diag').textContent = e.resultado === 'achou'
+        ? `A Placa B achou a Placa A no canal ${e.canal}.`
+        : `As duas placas estão no canal ${e.canal}.`;
+      if (mudou || e.resultado === 'achou') mostrarMsg(`Canal ${e.canal}. O sinal muda com o canal: calibre de novo com a zona vazia (C).`);
+    } else if (e.resultado === 'erro_a_nao_respondeu') {
+      mostrarMsg('A Placa A não confirmou a troca de canal. Ela está ligada e com o firmware v2? As placas continuam no canal ' + e.canal + '.');
+    } else {
+      mostrarMsg(`A troca de canal falhou (${e.resultado}).`);
+    }
+  } else if (e.tipo === 'info' && /sumiu|nao respondeu/.test(e.texto)) {
+    $('rd-diag').textContent = /sumiu/.test(e.texto)
+      ? 'A Placa A sumiu: a Placa B está procurando em todos os canais.'
+      : 'A Placa A não respondeu em nenhum canal. Ela está ligada (LED)? Tem o firmware v2?';
   }
 }
 
@@ -902,6 +1017,7 @@ async function pararFonte() {
   app.timers.forEach(clearInterval); app.timers = [];
   app.janela = []; app.historico = []; app.historicoDet = []; app.base = null; app.leituras = []; app.formaLenta = null;
   app.ultimoId = null; app.perdidos = 0; app.ultimoPacote = 0;
+  radio.stats = []; radio.varredura = []; radio.canal = null; ocuparRadio(false); $('radio-grupo').hidden = true; $('rd-canais').replaceChildren();
   app.limiar = null; app.det = null; app.detectado = false; app.calibracao = null; app.maxRecente = 0;
   // Trocar a fonte fecha o desafio e a escuta, mas não a história (a cena ao vivo continua aberta).
   passagem.concluir();
@@ -1378,6 +1494,7 @@ $('arquivo').addEventListener('change', async (e) => {
   e.target.value = '';
 });
 $('src-live').addEventListener('click', () => { esconderMsg(); conectarPlaca(); });
+$('btn-varrer').addEventListener('click', procurarCanal);
 $('btn-cal').addEventListener('click', () => iniciarCalibracao(app.fonte === 'sim' ? 6 : 10));
 $('limiar').addEventListener('input', (e) => {
   app.limiar = Number(e.target.value); app.det = new Detector(app.limiar);
