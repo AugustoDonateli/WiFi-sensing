@@ -137,6 +137,7 @@ Só vale comprar se, depois das camadas 1 e 2, o painel ainda disser que os paco
 - **Controle de ganho:** o ESP32-C5 compensa o ganho automático do rádio, o problema que hoje o detector corrige à mão (`normalizar_volume`).
 - **Confirmado na documentação:** a própria Espressif tem um exemplo com duas ESP32-C5 trocando pacotes ESP-NOW em 5 GHz (canal 40) para medir CSI (`esp-csi/examples/esp-crab`).
 - **Contra:** placa mais nova, mais difícil de achar no Brasil, e o firmware v2 precisaria de adaptação (outro formato de CSI). Com prazo curto, a opção A é mais segura.
+- **Para a Fecinc (2 a 4/12) não dá tempo:** em 25/11, a entrega mais rápida achada na Amazon (Waveshare ESP32-C5, enviada pela Amazon) era 2/12 num endereço de São Paulo. Fica para depois da feira.
 
 **Por que não dá para prometer 100%.** Se a faixa de 2,4 GHz estiver lotada em todos os canais, nenhum ajuste em 2,4 GHz resolve: o painel vai mostrar "nem saem da Placa A" em todos eles. Aí é a vez do 5 GHz. A vantagem do firmware v2 é que agora dá para **saber** qual é o caso, em vez de adivinhar.
 

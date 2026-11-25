@@ -1,0 +1,88 @@
+/* Banner Wave Sense, Fecinc 2026: 90 x 120 cm. Tudo em milímetros.
+   Mesma linguagem do estande e da tela: preto, papel, linhas brancas, Instrument Serif e Geist.
+   Uma cor só de destaque (laranja), usada no que o detector marcou. */
+@page { size: 900mm 1200mm; margin: 0; }
+:root {
+  --noite: #0F0F0E; --luz: #EDEDE8; --apagado: #8A8A84;
+  --papel: #F5F3EE; --tinta: #141413; --cinza: #6E6E68; --fio: #D9D5CB;
+  --laranja: #FF5A1F; --laranja-claro: #FFD9C9;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --sans: 'Geist', 'Inter', Arial, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+  --m: 40mm;             /* margem lateral */
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--papel); }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.pagina { width: 900mm; height: 1200mm; overflow: hidden; position: relative; background: var(--papel); color: var(--tinta);
+  font-family: var(--sans); font-size: 8.8mm; line-height: 1.34; font-feature-settings: "tnum" 0; }
+
+/* ---------- Topo escuro ---------- */
+.heroi { position: relative; height: 440mm; background: var(--noite); color: var(--luz); overflow: hidden; }
+.heroi-arte { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.topo { position: absolute; top: 30mm; left: var(--m); right: var(--m); display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 7.4mm; letter-spacing: 0.12em; text-transform: uppercase; color: var(--apagado); }
+.manchete { position: absolute; top: 48mm; left: calc(var(--m) - 3mm); margin: 0; font-family: var(--serif); font-weight: 400;
+  font-size: 98mm; line-height: 0.9; letter-spacing: -0.012em; color: var(--luz); }
+.manchete em { font-style: italic; }
+.manchete .hifen { margin: 0 -0.035em; }
+.fonte-ia { margin: 5mm var(--m) 0; text-align: right; font-size: 6mm; color: var(--cinza); line-height: 1.3; }
+
+/* ---------- Título oficial ---------- */
+.identidade { padding: 6mm var(--m) 0; }
+.titulo { margin: 0; font-family: var(--sans); font-weight: 500; font-size: 17.5mm; line-height: 1.14; letter-spacing: -0.012em; max-width: 800mm; }
+.autores { margin: 7mm 0 0; font-size: 11mm; font-weight: 500; }
+.autores span { color: var(--laranja); padding: 0 2mm; }
+.escola { margin: 2mm 0 0; font-size: 9mm; color: var(--cinza); }
+
+/* ---------- Números ---------- */
+.numeros { margin: 8mm var(--m) 0; display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 0.9mm solid var(--tinta); }
+.numeros div { padding: 7mm 8mm 0 0; }
+.numeros div + div { padding-left: 9mm; border-left: 0.35mm solid var(--fio); }
+.numeros b { display: block; font-family: var(--serif); font-weight: 400; font-size: 52mm; line-height: 0.95; letter-spacing: -0.02em; }
+.numeros span { display: block; margin-top: 3mm; font-size: 8.6mm; line-height: 1.3; color: #33332F; max-width: 230mm; }
+
+/* ---------- Corpo: três faixas ---------- */
+.corpo { margin: 12mm var(--m) 0; }
+.duas { display: grid; grid-template-columns: 1fr 1fr; column-gap: 34mm; align-items: start; }
+.corpo > * + * { margin-top: 9mm; }
+section + section { margin-top: 5.5mm; }
+h3 { margin: 0 0 3.5mm; font-family: var(--serif); font-weight: 400; font-size: 19mm; line-height: 1; letter-spacing: -0.01em; display: flex; align-items: baseline; gap: 5mm; }
+h3 i { font-family: var(--mono); font-style: normal; font-size: 6.6mm; letter-spacing: 0.08em; color: var(--laranja); transform: translateY(-2.2mm); }
+p { margin: 0 0 3.5mm; }
+b { font-weight: 600; }
+.testes { margin-top: 5mm; padding-top: 3.5mm; border-top: 0.35mm solid var(--fio); }
+.montagem { display: block; width: 100%; height: auto; margin: 0 0 3mm; }
+.passos { list-style: none; padding: 0; margin: 0 0 4mm; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm; counter-reset: p; }
+.passos li { counter-increment: p; font-size: 8mm; line-height: 1.28; border-top: 0.35mm solid var(--tinta); padding-top: 2.5mm; }
+.passos li::before { content: counter(p); display: block; font-family: var(--serif); font-size: 13mm; line-height: 1; margin-bottom: 1mm; color: var(--laranja); }
+
+figure { margin: 0; }
+figcaption { font-size: 7.2mm; line-height: 1.3; color: var(--cinza); margin-top: 2.5mm; }
+figcaption b { color: var(--tinta); }
+.csi { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+.csi > div { position: relative; background: var(--noite); border-radius: 2mm; overflow: hidden; aspect-ratio: 30 / 17; }
+.csi .linhas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.csi .rotulo { position: absolute; z-index: 1; top: 4mm; left: 5mm; font-family: var(--mono); font-size: 6.2mm; letter-spacing: 0.1em; text-transform: uppercase; color: var(--apagado); }
+.csi figcaption { grid-column: 1 / -1; margin-top: 0; }
+.graficos .grafico { display: block; width: 100%; height: auto; margin-top: -4mm; }
+.texto-duas { margin-top: 5mm; display: grid; grid-template-columns: 1fr 1fr; column-gap: 34mm; }
+.limite { color: var(--cinza); }
+
+.feira { margin-top: 6mm; background: var(--noite); color: var(--luz); border-radius: 2mm; padding: 7mm 9mm 3.5mm; }
+.feira h3 { font-size: 16mm; }
+.feira p { font-size: 8.2mm; }
+.feira h3 i { color: var(--laranja); }
+.feira p { color: #CFCFC8; }
+
+/* ---------- Rodapé ---------- */
+.rodape { position: absolute; left: var(--m); right: var(--m); bottom: 18mm; display: grid; grid-template-columns: 2.3fr 1fr auto; column-gap: 14mm;
+  border-top: 0.35mm solid var(--fio); padding-top: 6mm; }
+h4 { margin: 0 0 2.5mm; font-family: var(--mono); font-weight: 500; font-size: 6.2mm; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cinza); }
+.refs { columns: 2; column-gap: 10mm; }
+.refs h4 { column-span: all; }
+.refs p { break-inside: avoid; }
+.refs p, .ia p { font-size: 5.8mm; line-height: 1.28; margin: 0 0 1.4mm; color: #3A3A36; }
+.codigo { display: flex; gap: 5mm; align-items: flex-end; }
+.qr { width: 40mm; height: 40mm; display: block; }
+.codigo p { margin: 0; font-size: 5.8mm; line-height: 1.35; color: #3A3A36; max-width: 70mm; }

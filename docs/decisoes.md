@@ -160,6 +160,18 @@ Registro do que o grupo já decidiu, com a data. Quando uma decisão mudar, a an
 - **Correção:** a primeira versão do documento dizia "6 cm" sem separar os casos. Para alumínio **plano**, 6 cm (½ onda) cancela; os 6 cm valem só para o V de 90°. Corrigido, com a tabela de distâncias.
 - **Compras:** só se o firmware e o refletor não bastarem. Primeira opção: placas com módulo ESP32-WROOM-32U e antena externa (mesmo firmware). Segunda: ESP32-C5 (5 GHz), que precisa de adaptação no firmware e de importação.
 
+## 25/11/2026
+
+### Banner da Fecinc 2026 (2 a 4/12, Ifes Campus Vila Velha)
+- A Fecinc não tem modelo de banner: o regulamento só pede um pôster impresso (item 19), e o edital de 2025 sugeria a ordem Introdução, Objetivo, Metodologia, Resultados e Discussões, Considerações Finais e Referências. O banner novo segue essa ordem, em 90 × 120 cm.
+- **Visual:** a linguagem do estande (preto, papel, linhas brancas, Instrument Serif e Geist), com a manchete "O Wi-Fi percebe quando você passa." e uma pessoa desenhada pelas próprias linhas do sinal.
+- **IA, dentro das regras:** só a silhueta da pessoa foi gerada com IA (Higgsfield, GPT Image 2.6); as linhas, as placas, os gráficos e o texto foram feitos em código ou escritos para o projeto. A primeira imagem gerada inteira tinha borrões entre as linhas (ficaria ruim impressa a 90 cm), por isso as linhas foram redesenhadas em vetor. A legenda traz a frase exigida pelo item 11 do regulamento, e o rodapé declara o uso de IA.
+- **Números revistos:** com a regra de hoje (janela de 2 s), a mesma gravação dá 7 de 7 travessias dentro de trechos marcados, **nenhum** alarme falso na sala vazia e pico de 4,7× (a JACITEC usou a janela de 1 s: 5,9× e 2 alarmes curtos). Detalhes em `docs/banner-fecinc/README.md`.
+- **Falta:** o grupo revisar o texto com as próprias palavras (item 10 do regulamento) e conferir nomes antes de mandar para a gráfica.
+
+### ESP32-C5 (5 GHz) fica para depois
+- A Fecinc começa em 2/12 e a entrega mais rápida que achamos para a placa de 5 GHz era 2/12 (num endereço de São Paulo). Não chega a tempo de testar. Para esta feira: as placas atuais, com o firmware v2 e o refletor escondido.
+
 ### Site no Vercel (aprovado)
 - A pasta `demo/` vai para o Vercel, para mandar um link em vez de arquivos. Passo a passo em `docs/publicar-vercel.md`.
 - O site não guarda nada em servidor; recordes e marcas ficam no navegador de cada aparelho.

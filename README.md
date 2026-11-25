@@ -33,6 +33,7 @@ Só marcar um item depois de testado de verdade.
 - [Inscrição na JACITEC](docs/inscricao-jacitec.md): regras do edital e os textos do formulário
 - [Decisões do grupo](docs/decisoes.md): o que já foi decidido e o que falta
 - [Plano do código](docs/plano-de-codigo.md): o que existe, o que falta e por quê
+- [Banner da Fecinc 2026](docs/banner-fecinc/README.md): o PDF para a gráfica (90 × 120 cm), de onde vem cada parte e como mudar
 - [Interferência na feira](docs/interferencia.md): o que aconteceu na feira de 22/10, o refletor de alumínio, o que comprar se precisar e o roteiro do dia
 - [Firmware v2](firmware/README.md): o firmware próprio das placas A e B, como gravar pelo Chrome e o que mudou
 - [Tutorial: gravar as placas](docs/tutorial-gravar.md): passo a passo pelo Chrome, sem instalar nada
